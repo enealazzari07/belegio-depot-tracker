@@ -592,9 +592,8 @@ input::placeholder{color:var(--tx3)}
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tScan }}"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"></path></svg>
           <span style="font-size:14px;font-weight:700;letter-spacing:-.01em;color:{{ tScan }}">Scannen</span>
         </button>
-        <button onClick="{{ goNews }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;position:relative;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tNews }}" width="19" height="19"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
-          <span style="position:absolute;top:1px;right:0;min-width:17px;height:17px;border-radius:9px;background:var(--acc2);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)">3</span>
+        <button onClick="{{ goMarkets }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tMarkets }}" width="19" height="19"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg>
         </button>
         <button onClick="{{ goSettings }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tSet }}" width="19" height="19"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>
@@ -602,29 +601,53 @@ input::placeholder{color:var(--tx3)}
       </div>
     </sc-if>
 
-    <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
-          <span style="color:var(--tx3);font-size:11.5px">zu deinen Titeln</span>
+    <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
+        <div style="padding:0 20px;margin-bottom:18px">
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <sc-if value="{{ noNews }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:0;color:var(--tx3);font-size:12.5px">Keine News — sobald du Positionen im Depot hast, erscheinen hier Nachrichten dazu.</p>
-          </sc-if>
-          <sc-for list="{{ news }}" as="n" hint-placeholder-count="4">
-            <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px" style-hover="border-color:var(--line2)">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
-                <span style="padding:3px 8px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ n.tick }}</span>
-                <span style="font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ n.color }}">{{ n.move }}</span>
-                <span style="flex:1"></span>
-                <span style="color:var(--tx3);font-size:11px">{{ n.time }}</span>
+
+        <sc-if value="{{ marketsLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:center;height:120px">
+            <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ marketsError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">Marktdaten aktuell nicht verfügbar.</p>
+        </sc-if>
+
+        <sc-if value="{{ marketIndices.length }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 6px;margin-bottom:22px">
+            <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
+              <div style="flex:none;width:140px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:14px">
+                <span style="display:block;color:var(--tx2);font-size:11.5px;font-weight:600;margin-bottom:6px">{{ idx.label }}</span>
+                <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin-bottom:2px">{{ idx.price }}</span>
+                <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:8px">{{ idx.change }}</span>
+                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:30px;display:block">
+                  <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
               </div>
-              <span style="display:block;color:var(--tx);font-size:14.5px;font-weight:600;line-height:1.4;text-wrap:pretty;margin-bottom:6px">{{ n.head }}</span>
-              <span style="display:block;color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ n.body }}</span>
-            </div>
-          </sc-for>
-        </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ marketMovers.length }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 10px">
+            <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">MEISTBEWEGT</span>
+          </div>
+          <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+                <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ m.logo }}</div>
+                <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                  <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ m.price }}</span>
+                  <span style="color:{{ m.color }};font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ m.change }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
       </div>
       <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
@@ -772,6 +795,24 @@ const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
 
+// ---------- Märkte ----------
+const MARKET_INDICES = [
+  { sym: "^SSMI", label: "SMI" },
+  { sym: "^GSPC", label: "S&P 500" },
+  { sym: "^DJI", label: "Dow Jones" },
+  { sym: "^IXIC", label: "Nasdaq" },
+  { sym: "^GDAXI", label: "DAX" }
+];
+const MARKET_MOVERS = ["BTC-USD", "SPY", "QQQ", "AAPL", "MSFT", "NVDA", "TSLA", "AMZN"];
+const buildSparkline = rows => {
+  if (!rows || rows.length < 2) return "";
+  const closes = rows.slice(-30).map(r => r.close);
+  const min = Math.min(...closes), max = Math.max(...closes);
+  const range = (max - min) || 1;
+  const n = closes.length;
+  return closes.map((c, i) => (i === 0 ? "M" : "L") + (i / (n - 1) * 100).toFixed(1) + " " + (30 - ((c - min) / range) * 28).toFixed(1)).join(" ");
+};
+
 // ETF-Zusammensetzung: proportionale "Kästchen"-Mosaik aus den Top-Holdings,
 // alles jenseits der Top 8 wird zu "Sonstige" zusammengefasst.
 const BLOCK_COLORS = ["#2F7D6B", "#4A9B87", "#6FB8A3", "#8FCBB9", "#A8D9CB", "#C3E5DA", "#DCEFE8", "#EDF6F2"];
@@ -799,7 +840,8 @@ class Component extends DCLogic {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
     toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0, menuOpen: false,
-    quotes: {}, liveNews: null, conn: "idle", syncing: false,
+    quotes: {}, conn: "idle", syncing: false,
+    marketQuotes: null, marketHistory: null, moverQuotes: null, marketsLoading: false, marketsError: false,
     splash: true, dashLoading: true,
 
     user: null,
@@ -818,6 +860,23 @@ class Component extends DCLogic {
 
   set = (k, v) => this.setState({ [k]: v });
   go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
+
+  goMarkets = () => { this.go("markets")(); this.loadMarkets(); };
+
+  loadMarkets = async () => {
+    if (this.state.marketQuotes || this.state.marketsLoading) return;
+    this.setState({ marketsLoading: true, marketsError: false });
+    try {
+      const api = await this.api();
+      const idxSyms = MARKET_INDICES.map(i => i.sym);
+      const [idxQ, idxH, movQ] = await Promise.all([
+        api.quotes(idxSyms), api.history(idxSyms), api.quotes(MARKET_MOVERS)
+      ]);
+      this.setState({ marketQuotes: idxQ, marketHistory: idxH, moverQuotes: movQ, marketsLoading: false });
+    } catch (e) {
+      this.setState({ marketsLoading: false, marketsError: true });
+    }
+  };
 
   openMenu = () => this.setState({ menuOpen: true });
   closeMenu = () => this.setState({ menuOpen: false });
@@ -905,7 +964,7 @@ class Component extends DCLogic {
     const db = await this.db();
     await db.signOut();
     this.setState({
-      user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
+      user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {},
       conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false
     });
   };
@@ -1004,14 +1063,8 @@ class Component extends DCLogic {
     try {
       const api = await this.api();
       const q = await api.quotes(syms);
-      const newsSymbols = [...new Set(syms.flatMap(sym => {
-        const comp = this.state.etfHoldings[sym];
-        return comp && comp.holdings && comp.holdings.length ? comp.holdings.slice(0, 3).map(h => h.symbol) : [sym];
-      }))].slice(0, 8);
-      let news = null;
-      try { news = await api.news(newsSymbols, 10); } catch (e) {}
       this.setState({
-        quotes: q, liveNews: news && news.length ? news : null,
+        quotes: q,
         conn: Object.keys(q).length ? "live" : "empty", syncing: false
       });
     } catch (e) {
@@ -1269,13 +1322,13 @@ class Component extends DCLogic {
       toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
 
       logout: this.logoutUser,
-      isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
-      goNews: this.go("news"), goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
+      isMarkets: screen === "markets", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
+      goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
       shortcuts: [
         { label: "Depot", go: this.go("depot"), d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19" },
-        { label: "News", go: this.go("news"), d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" },
-        { label: this.state.userPlan === "pro" ? "Pro" : "Abo", go: this.openAbo, d: "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z" }
+        { label: "Märkte", go: this.goMarkets, d: "M3 17l6-6 4 4 8-8 M15 7h6v6" },
+        { label: "News", go: this.goMarkets, d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" }
       ].map(s => ({
         label: s.label, go: s.go,
         icon: React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: s.d }))
@@ -1284,7 +1337,7 @@ class Component extends DCLogic {
       fHome: screen === "dash" ? "var(--tx)" : "none",
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
       tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
-      tNews: screen === "news" ? "var(--tx)" : "var(--tx3)",
+      tMarkets: screen === "markets" ? "var(--tx)" : "var(--tx3)",
       tSet: this.state.menuOpen || screen === "settings" || screen === "account" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
       connLabel: {
         live: "Live-Kurse", demo: "Demo-Daten", badkey: "Key ungültig",
@@ -1308,20 +1361,32 @@ class Component extends DCLogic {
       userEmail: (user && user.email) || "",
       userInitials: user && user.email ? user.email.slice(0, 2).toUpperCase() : "–",
 
-      news: this.state.liveNews ? this.state.liveNews.map(n => {
-        const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
-        const dp = h && typeof h.dp === "number" ? h.dp : 0;
-        const mins = Math.round((Date.now() - n.datetime) / 60000);
+      marketsLoading: this.state.marketsLoading, marketsError: this.state.marketsError,
+      marketIndices: this.state.marketQuotes ? MARKET_INDICES.map(idx => {
+        const q = this.state.marketQuotes[idx.sym];
+        const dp = q && typeof q.dp === "number" ? q.dp : 0;
         return {
-          tick: h ? h.abbr : n.symbol,
-          move: (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
+          label: idx.label,
+          price: q ? q.c.toLocaleString("de-CH", { maximumFractionDigits: 2 }) : "–",
+          change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
           color: dp >= 0 ? "var(--pos)" : "var(--neg)",
-          time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
-          head: n.headline,
-          body: (n.summary || n.source || "").slice(0, 180)
+          sparkline: buildSparkline((this.state.marketHistory || {})[idx.sym])
         };
       }) : [],
-      noNews: !this.state.liveNews || !this.state.liveNews.length,
+      marketMovers: this.state.moverQuotes ? MARKET_MOVERS.map(sym => {
+        const q = this.state.moverQuotes[sym];
+        const dp = q && typeof q.dp === "number" ? q.dp : 0;
+        const abs = q ? q.c * dp / 100 : 0;
+        return {
+          sym, logo: logoFor(sym), name: sym,
+          price: q ? q.c.toLocaleString("de-CH", { maximumFractionDigits: 2 }) : "–",
+          change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
+          changeAbs: (abs >= 0 ? "+" : "") + abs.toLocaleString("de-CH", { maximumFractionDigits: 2 }),
+          color: dp >= 0 ? "var(--pos)" : "var(--neg)",
+          dp
+        };
+      }).sort((a, b) => Math.abs(b.dp) - Math.abs(a.dp)) : [],
+      noMarkets: !this.state.marketsLoading && !this.state.marketsError && !this.state.marketQuotes,
       prefs: [
         ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
         ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", "pro"]
