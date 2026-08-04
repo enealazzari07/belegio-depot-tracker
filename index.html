@@ -6,7 +6,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="./manifest.json">
 <title>Belegio</title>
 <script src="./support.js"></script>
@@ -38,8 +39,8 @@
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:var(--bg)}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#FFFFFF!important}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc2);text-decoration:none}
 a:hover{color:var(--tx)}
 input{font-family:inherit}
