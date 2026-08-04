@@ -1,0 +1,8 @@
+{
+  "name": "Belegio",
+  "short_name": "Belegio",
+  "display": "standalone",
+  "start_url": "./",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF"
+}
