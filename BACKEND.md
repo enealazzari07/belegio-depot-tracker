@@ -58,30 +58,35 @@ eigenen Ordner (`{user_id}/...`).
 
 ## Marktdaten-Anbieter (`market`-Function)
 
-Reihenfolge je Symbol — bei Schweizer Titeln (`.SW`) zuerst Yahoo Finance,
-sonst zuletzt als Fallback, wenn kein Kurs gefunden wurde:
+**Yahoo Finance ist jetzt immer erste Wahl** für Kurse, Historie und Suche —
+für Aktien/ETFs weltweit, nicht nur Schweizer Titel. Kein Key, kein
+Rate-Limit-Problem, deckt SIX nativ unter demselben `.SW`-Suffix ab, den die
+App schon verwendet, inkl. bis zu 10 Jahren täglicher Historie in einem Call.
+Inoffiziell/undokumentiert (`query1.finance.yahoo.com/v8/finance/chart/...`)
+— kann sich ändern, deshalb nie als einzige Quelle, sondern immer mit
+Fallback-Kette:
 
-1. **Yahoo Finance** (kein Key, inoffizielle Chart-/Search-API) — kennt
-   SIX-Titel nativ unter demselben `.SW`-Suffix, den die App schon verwendet
-   (`NESN.SW`, `VWRL.SW`, …), inkl. bis zu 10 Jahren täglicher Historie in
-   einem Call, kein Rate-Limit-Problem. Inoffiziell/undokumentiert — kann sich
-   ändern, deshalb nie als einzige Quelle, sondern immer mit Fallback-Kette.
+- **Nicht-Schweizer Symbole:** Yahoo → Alpha Vantage → Finnhub → Twelve Data
+- **Schweizer Symbole (`.SW`):** Yahoo → EODHD → Twelve Data → Alpha Vantage → Finnhub
+
+1. **Yahoo Finance** — siehe oben. `yfQuote` nutzt bewusst `range=1d`, nicht
+   `5d`/`1y`: Yahoos `chartPreviousClose` ist der Schlusskurs vom **Start des
+   angefragten Zeitraums**, nicht "gestern" — bei größerem Range kommt sonst
+   eine falsche Tagesveränderung raus (z. B. `range=5d` lieferte für AAPL
+   fälschlich −10 % statt der echten Tagesbewegung).
 2. **EODHD** (`EODHD_API_KEY`, `/real-time`, `/eod`) — legitimer, lizenzierter
    Anbieter mit nativer SIX-Abdeckung (Exchange-Code `SW`, gleiche `.SW`-
-   Konvention). Nur als Backup NACH Yahoo, weil der Free-Plan auf **20
-   Requests/Tag** limitiert ist (`/api/user` zeigt Kontingent/Verbrauch) — bei
-   mehreren Positionen wäre das Tageslimit sonst im Nu aufgebraucht.
+   Konvention). Nur als Backup NACH Yahoo bei Schweizer Titeln, weil der
+   Free-Plan auf **20 Requests/Tag** limitiert ist (`/api/user` zeigt
+   Kontingent/Verbrauch) — bei mehreren Positionen wäre das sonst im Nu
+   aufgebraucht. Wird für Nicht-Schweizer Symbole gar nicht erst angefragt
+   (uneinheitliche Exchange-Suffixe, zu knappes Kontingent).
 3. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
    `SYMBOL_SEARCH`, `TIME_SERIES_DAILY`. Free-Tier: 25 Calls/Tag, 5/Min.
 4. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
-5. **Twelve Data** (`TWELVEDATA_API_KEY`) — nur als letzter Fallback. Der
-   hinterlegte Key ist der kostenlose Plan, der **keine SIX-Kurse abdeckt**
-   (`NESN:SIX` etc. → „available starting with the Grow/Venture plan"), hilft
-   also nur bei US-/sonstigen Titeln.
-
-Für Nicht-Schweizer Symbole: Alpha Vantage → Finnhub → Yahoo → Twelve Data
-(EODHD wird dort bewusst nicht angefragt — Symbol-Suffixe für andere Börsen
-sind uneinheitlich, und das Tageskontingent ist zu knapp, um es zu verbrauchen).
+5. **Twelve Data** (`TWELVEDATA_API_KEY`) — Free-Plan deckt **keine SIX-Kurse**
+   ab (`NESN:SIX` etc. → „available starting with the Grow/Venture plan"),
+   hilft also nur bei US-/sonstigen Titeln, falls Yahoo mal ausfällt.
 
 Ergebnis wird 30 Minuten in `quote_cache` gehalten (`fetched_at`, inkl.
 `provider`-Spalte zur Diagnose), bevor erneut ein Anbieter angefragt wird —
