@@ -295,6 +295,41 @@ input::placeholder{color:var(--tx3)}
                   </div>
                 </sc-for>
               </div>
+              <button onClick="{{ d.toggleComposition }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:6px;border-top:1px solid var(--line);color:var(--acc2);font-size:12px;font-weight:600" style-hover="color:var(--tx)">
+                {{ d.compositionLabel }}
+              </button>
+              <sc-if value="{{ d.showComposition }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:4px 0 14px">
+                  <sc-if value="{{ d.compositionLoading }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;justify-content:center;height:60px">
+                      <span style="width:22px;height:22px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ d.compositionError }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:10px 0">{{ d.compositionError }}</p>
+                  </sc-if>
+                  <sc-if value="{{ d.hasComposition }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:block;color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em;margin-bottom:8px">GRÖSSTE POSITIONEN</span>
+                    <div style="display:flex;height:64px;border-radius:12px;overflow:hidden;gap:2px;margin-bottom:10px">
+                      <sc-for list="{{ d.compositionBlocks }}" as="b" hint-placeholder-count="6">
+                        <div title="{{ b.name }}" style="flex:{{ b.flexWeight }} 1 0%;min-width:26px;background:{{ b.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:2px">
+                          <span style="color:{{ b.tx }};font-size:9.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ b.label }}</span>
+                          <span style="color:{{ b.tx }};font-size:9px;opacity:.85">{{ b.pctLabel }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <sc-for list="{{ d.compositionBlocks }}" as="b" hint-placeholder-count="6">
+                        <div style="display:flex;align-items:center;gap:8px">
+                          <span style="width:9px;height:9px;border-radius:3px;background:{{ b.bg }};flex:none"></span>
+                          <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ b.name }}</span>
+                          <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace;flex:none">{{ b.pctLabel }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
@@ -631,6 +666,28 @@ const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
 
+// ETF-Zusammensetzung: proportionale "Kästchen"-Mosaik aus den Top-Holdings,
+// alles jenseits der Top 8 wird zu "Sonstige" zusammengefasst.
+const BLOCK_COLORS = ["#2F7D6B", "#4A9B87", "#6FB8A3", "#8FCBB9", "#A8D9CB", "#C3E5DA", "#DCEFE8", "#EDF6F2"];
+const buildCompositionBlocks = data => {
+  if (!data || !data.holdings || !data.holdings.length) return [];
+  const top = data.holdings.slice(0, 8);
+  const used = top.reduce((a, h) => a + (h.weight || 0), 0);
+  const other = Math.max(0, 1 - used);
+  const blocks = top.map((h, i) => ({
+    label: (h.symbol || h.name || "?").split(".")[0],
+    name: h.name || h.symbol,
+    pctLabel: (h.weight * 100).toFixed(1) + " %",
+    flexWeight: Math.max(h.weight, 0.002),
+    bg: BLOCK_COLORS[i % BLOCK_COLORS.length],
+    tx: i < 4 ? "#FFFFFF" : "#14171F"
+  }));
+  if (other > 0.005) {
+    blocks.push({ label: "Sonstige", name: "Sonstige (übrige Positionen)", pctLabel: (other * 100).toFixed(1) + " %", flexWeight: other, bg: "#DCDFE6", tx: "#5C6270" });
+  }
+  return blocks;
+};
+
 class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
@@ -642,7 +699,9 @@ class Component extends DCLogic {
     user: null,
     authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
 
-    extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false
+    extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false,
+
+    etfOpenSymbol: null, etfHoldings: {}, etfLoading: false, etfError: ""
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
@@ -833,6 +892,24 @@ class Component extends DCLogic {
       isinUnresolved: r.unresolved,
       extracted: { ...s.extracted, isin: r.isin || isin, symbol: r.symbol || s.extracted.symbol, name: r.name || s.extracted.name }
     }));
+  };
+
+  // ---------- ETF-Zusammensetzung ----------
+  toggleComposition = sym => async () => {
+    if (this.state.etfOpenSymbol === sym) {
+      this.setState({ etfOpenSymbol: null });
+      return;
+    }
+    this.setState({ etfOpenSymbol: sym, etfError: "" });
+    if (this.state.etfHoldings[sym]) return;
+    this.setState({ etfLoading: true });
+    try {
+      const api = await this.api();
+      const data = await api.etfHoldings(sym);
+      this.setState(s => ({ etfLoading: false, etfHoldings: { ...s.etfHoldings, [sym]: data } }));
+    } catch (e) {
+      this.setState({ etfLoading: false, etfError: "Zusammensetzung nicht verfügbar (kein ETF oder keine Daten gefunden)." });
+    }
   };
 
   manualEntry = () => {
@@ -1067,10 +1144,12 @@ class Component extends DCLogic {
       })() : [],
       goDepot: this.go("depot"),
       depot: holdings.map(h => {
+        const sym = h.sym || h.abbr;
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
         const w = val ? v / val * 100 : 0;
+        const isOpen = this.state.etfOpenSymbol === sym;
         return {
-          abbr: h.abbr, logo: logoFor(h.sym || h.abbr), name: displayName(h),
+          abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
           gain: (d >= 0 ? "+" : "") + f2(d),
           color: d >= 0 ? "var(--pos)" : "var(--neg)",
@@ -1082,7 +1161,14 @@ class Component extends DCLogic {
             { k: "Ø Kaufkurs", v: f2(h.buy) },
             { k: "Investiert", v: f2(inv) },
             { k: "Kurs jetzt", v: f2(h.cur) }
-          ]
+          ],
+          toggleComposition: this.toggleComposition(sym),
+          compositionLabel: isOpen ? "Zusammensetzung ausblenden" : "Zusammensetzung anzeigen",
+          showComposition: isOpen,
+          compositionLoading: isOpen && this.state.etfLoading,
+          compositionError: isOpen ? this.state.etfError : "",
+          compositionBlocks: isOpen ? buildCompositionBlocks(this.state.etfHoldings[sym]) : [],
+          hasComposition: isOpen && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0
         };
       }),
 

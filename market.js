@@ -17,3 +17,7 @@ export async function search(term) {
 export async function history(symbols) {
   return callMarket("history", { symbols });
 }
+
+export async function etfHoldings(symbol) {
+  return callMarket("etf", { symbol });
+}
