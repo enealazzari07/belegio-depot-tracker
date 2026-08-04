@@ -108,7 +108,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
         <div style="margin-bottom:24px">
-          <div style="background:#FFFFFF;border-radius:0 0 30px 30px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 22px 22px">
+          <div style="background:#FFFFFF;border-radius:0 0 30px 30px;padding:calc(env(safe-area-inset-top, 0px) + 6px) 22px 22px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
               <div style="display:flex;align-items:center;gap:7px">
                 <span style="color:#7A8296;font-size:10.5px;font-weight:700;letter-spacing:.14em">GESAMTWERT · CHF</span>
@@ -133,11 +133,9 @@ input::placeholder{color:var(--tx3)}
                 <span style="color:#8B93A5;font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ gainAbs }}</span>
               </div>
             </div>
-            <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
-              <div style="margin:-14px 0 12px;text-align:right">
-                <span style="color:#9AA1B1;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ scrubDateLabel }}</span>
-              </div>
-            </sc-if>
+            <div style="height:15px;margin-bottom:12px;text-align:right;visibility:{{ scrubVisibility }}">
+              <span style="color:#9AA1B1;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ scrubDateLabel }}</span>
+            </div>
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative">
               <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:112px;display:block;overflow:visible">
@@ -581,7 +579,7 @@ input::placeholder{color:var(--tx3)}
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
-      <div style="position:absolute;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
+      <div style="position:absolute;bottom:calc(4px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
         </button>
@@ -648,6 +646,35 @@ input::placeholder{color:var(--tx3)}
             </sc-for>
           </div>
         </sc-if>
+      </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
+    </sc-if>
+
+    <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">News · zu deinen Titeln</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-if value="{{ noNews }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;color:var(--tx3);font-size:12.5px">Keine News — sobald du Positionen im Depot hast, erscheinen hier Nachrichten dazu.</p>
+          </sc-if>
+          <sc-for list="{{ news }}" as="n" hint-placeholder-count="4">
+            <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px" style-hover="border-color:var(--line2)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+                <span style="padding:3px 8px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ n.tick }}</span>
+                <span style="font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ n.color }}">{{ n.move }}</span>
+                <span style="flex:1"></span>
+                <span style="color:var(--tx3);font-size:11px">{{ n.time }}</span>
+              </div>
+              <span style="display:block;color:var(--tx);font-size:14.5px;font-weight:600;line-height:1.4;text-wrap:pretty;margin-bottom:6px">{{ n.head }}</span>
+              <span style="display:block;color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ n.body }}</span>
+            </div>
+          </sc-for>
+        </div>
       </div>
       <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
@@ -840,7 +867,7 @@ class Component extends DCLogic {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
     toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0, menuOpen: false,
-    quotes: {}, conn: "idle", syncing: false,
+    quotes: {}, liveNews: null, conn: "idle", syncing: false,
     marketQuotes: null, marketHistory: null, moverQuotes: null, marketsLoading: false, marketsError: false,
     splash: true, dashLoading: true,
 
@@ -964,7 +991,7 @@ class Component extends DCLogic {
     const db = await this.db();
     await db.signOut();
     this.setState({
-      user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {},
+      user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
       conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false
     });
   };
@@ -1063,8 +1090,14 @@ class Component extends DCLogic {
     try {
       const api = await this.api();
       const q = await api.quotes(syms);
+      const newsSymbols = [...new Set(syms.flatMap(sym => {
+        const comp = this.state.etfHoldings[sym];
+        return comp && comp.holdings && comp.holdings.length ? comp.holdings.slice(0, 3).map(h => h.symbol) : [sym];
+      }))].slice(0, 8);
+      let news = null;
+      try { news = await api.news(newsSymbols, 10); } catch (e) {}
       this.setState({
-        quotes: q,
+        quotes: q, liveNews: news && news.length ? news : null,
         conn: Object.keys(q).length ? "live" : "empty", syncing: false
       });
     } catch (e) {
@@ -1322,13 +1355,13 @@ class Component extends DCLogic {
       toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
 
       logout: this.logoutUser,
-      isMarkets: screen === "markets", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
+      isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
       shortcuts: [
         { label: "Depot", go: this.go("depot"), d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19" },
         { label: "Märkte", go: this.goMarkets, d: "M3 17l6-6 4 4 8-8 M15 7h6v6" },
-        { label: "News", go: this.goMarkets, d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" }
+        { label: "News", go: this.go("news"), d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" }
       ].map(s => ({
         label: s.label, go: s.go,
         icon: React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: s.d }))
@@ -1362,6 +1395,20 @@ class Component extends DCLogic {
       userInitials: user && user.email ? user.email.slice(0, 2).toUpperCase() : "–",
 
       marketsLoading: this.state.marketsLoading, marketsError: this.state.marketsError,
+      news: this.state.liveNews ? this.state.liveNews.map(n => {
+        const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
+        const dp = h && typeof h.dp === "number" ? h.dp : 0;
+        const mins = Math.round((Date.now() - n.datetime) / 60000);
+        return {
+          tick: h ? h.abbr : n.symbol,
+          move: (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
+          color: dp >= 0 ? "var(--pos)" : "var(--neg)",
+          time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
+          head: n.headline,
+          body: (n.summary || n.source || "").slice(0, 180)
+        };
+      }) : [],
+      noNews: !this.state.liveNews || !this.state.liveNews.length,
       marketIndices: this.state.marketQuotes ? MARKET_INDICES.map(idx => {
         const q = this.state.marketQuotes[idx.sym];
         const dp = q && typeof q.dp === "number" ? q.dp : 0;
@@ -1430,6 +1477,7 @@ class Component extends DCLogic {
         : cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
       gainColor: scrubPt ? (scrubPt.dayPct >= 0 ? "var(--pos)" : "var(--neg)") : (g >= 0 ? "var(--pos)" : "var(--neg)"),
       scrubActive: !!scrubPt,
+      scrubVisibility: scrubPt ? "visible" : "hidden",
       scrubDateLabel: scrubPt ? new Date(scrubPt.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }) : "",
       chartScrubX: scrubPt ? scrubPt.x.toFixed(1) : "0", chartScrubY: scrubPt ? scrubPt.y.toFixed(1) : "0",
       scrubStart: this.scrubStart, scrubMove: this.scrubMove, scrubEnd: this.scrubEnd,
