@@ -2,7 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Belegio</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -32,8 +36,8 @@
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:#E9EBEF}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:var(--bg)}
 a{color:var(--acc2);text-decoration:none}
 a:hover{color:var(--tx)}
 input{font-family:inherit}
@@ -52,51 +56,9 @@ input::placeholder{color:var(--tx3)}
 </style>
 </helmet>
 
-<div data-theme="{{ theme }}" style="min-height:100vh;background:radial-gradient(120% 90% at 20% 0%, var(--stage2) 0%, var(--stage) 60%);display:flex;align-items:flex-start;justify-content:center;gap:56px;padding:56px 48px 72px;font-family:'Plus Jakarta Sans',sans-serif">
+<div data-theme="{{ theme }}" style="width:100%;font-family:'Plus Jakarta Sans',sans-serif">
 
-  <div style="width:264px;display:flex;flex-direction:column;gap:28px;padding-top:24px">
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:26px;height:26px;border-radius:8px;background:var(--acc);display:flex;align-items:center;justify-content:center">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accTx)" stroke-width="2.4" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
-        </div>
-        <span style="color:var(--tx);font-size:15px;font-weight:700;letter-spacing:-.01em">Belegio</span>
-      </div>
-      <p style="margin:0;color:var(--tx2);font-size:13px;line-height:1.55;text-wrap:pretty">Quittung hochladen, Portfolio entsteht automatisch. Prototyp — 5 Screens, klickbar.</p>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:4px">
-      <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.14em;padding-bottom:8px">SCREENS</span>
-      <sc-for list="{{ nav }}" as="s" hint-placeholder-count="5">
-        <button onClick="{{ s.go }}" style="all:unset;display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer;min-height:44px;background:{{ s.navBg }}" style-hover="background:var(--surf2)">
-          <span style="width:20px;color:var(--tx3);font-size:11px;font-family:'IBM Plex Mono',monospace">{{ s.num }}</span>
-          <span style="font-size:13.5px;font-weight:500;color:{{ s.navTx }}">{{ s.label }}</span>
-        </button>
-      </sc-for>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surf)">
-      <span style="color:var(--tx2);font-size:13px;font-weight:500">{{ themeLabel }}</span>
-      <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:44px;height:26px;border-radius:13px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
-        <span style="position:absolute;top:3px;left:{{ knobX }};width:18px;height:18px;border-radius:50%;background:var(--acc);transition:left .22s ease;display:block"></span>
-      </button>
-    </div>
-
-    <button onClick="{{ replaySplash }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--tx2);font-size:13px;font-weight:500" style-hover="background:var(--surf)">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
-      Intro nochmal abspielen
-    </button>
-  </div>
-
-  <div style="width:390px;height:844px;border-radius:44px;background:var(--bg);border:1px solid var(--line2);box-shadow:var(--shadow);overflow:hidden;position:relative;flex:none">
-
-    <div style="position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 6px;z-index:5;pointer-events:none">
-      <span style="font-size:12.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{ statusTx }}">9:41</span>
-      <div style="display:flex;align-items:center;gap:6px">
-        <svg width="17" height="11" viewBox="0 0 17 11" fill="none" color="{{ statusTx }}"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"></rect><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"></rect><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor" opacity=".4"></rect></svg>
-        <div style="width:22px;height:11px;border-radius:3px;padding:1.5px;border:1px solid {{ statusDim }}"><div style="width:70%;height:100%;border-radius:1.5px;background:{{ statusTx }}"></div></div>
-      </div>
-    </div>
+  <div style="width:100%;height:100dvh;background:var(--bg);overflow:hidden;position:relative">
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
@@ -580,7 +542,7 @@ input::placeholder{color:var(--tx3)}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
           <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
         </button>
-        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0 · Prototyp</p>
+        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
       </div>
     </sc-if>
 
@@ -591,7 +553,6 @@ input::placeholder{color:var(--tx3)}
       </div>
     </sc-if>
 
-    <div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--tx3);opacity:.45;z-index:8"></div>
   </div>
 </div>
 
@@ -615,14 +576,6 @@ class Component extends DCLogic {
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
-
-  replaySplash = () => {
-    clearTimeout(this.t3);
-    this.setState({ splash: false, screen: this.state.user ? "dash" : "login" }, () => {
-      this.setState({ splash: true });
-      this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
-    });
-  };
 
   set = (k, v) => this.setState({ [k]: v });
   go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "" });
@@ -807,11 +760,6 @@ class Component extends DCLogic {
     const g = val - cost;
     const used = this.state.txCount || 0;
 
-    const navItems = [
-      ["01", "Login", "login"], ["02", "Dashboard", "dash"],
-      ["03", "Depot", "depot"], ["04", "Beleg scannen", "upload"], ["05", "Beleg-Prüfung", "review"], ["06", "News", "news"], ["07", "Einstellungen", "settings"], ["08", "Pro", "pro"]
-    ];
-
     const f = this.state.extracted || emptyFields();
     const shares = parseFloat(f.shares) || 0;
     const price = parseFloat(f.price) || 0;
@@ -822,12 +770,6 @@ class Component extends DCLogic {
       themeLabel: theme === "dark" ? "Dark Mode" : "Light Mode",
       knobX: theme === "dark" ? "23px" : "3px",
       toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
-
-      nav: navItems.map(([num, label, key]) => ({
-        num, label, go: this.go(key),
-        navBg: screen === key ? "var(--surf)" : "transparent",
-        navTx: screen === key ? "var(--tx)" : "var(--tx2)"
-      })),
 
       logout: this.logoutUser,
       isNews: screen === "news", isSettings: screen === "settings",
@@ -884,9 +826,7 @@ class Component extends DCLogic {
         go: to ? this.go(to) : () => {}
       })),
 
-      statusTx: screen === "dash" ? "#0F172A" : "var(--tx)",
-      statusDim: screen === "dash" ? "rgba(15,23,42,.3)" : "var(--line2)",
-      splash: this.state.splash, skipSplash: this.skipSplash, replaySplash: this.replaySplash,
+      splash: this.state.splash, skipSplash: this.skipSplash,
       isLogin: screen === "login", isDash: screen === "dash",
       isUpload: screen === "upload", isReview: screen === "review", isPro: screen === "pro",
       showTabs: screen !== "login" && screen !== "pro",
