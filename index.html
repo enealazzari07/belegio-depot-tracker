@@ -27,6 +27,7 @@
   --acc2:#2F7D6B; --acc-soft:rgba(47,125,107,.10);
   --pos:#1E7F63; --neg:#B4463C;
   --shadow:0 30px 70px -26px rgba(20,23,31,.26);
+  --statusbar-rgb:255 255 255;
 }
 [data-theme="dark"]{
   --stage:#08090C; --stage2:#0F1116;
@@ -37,7 +38,10 @@
   --acc2:#4FBF9F; --acc-soft:rgba(79,191,159,.14);
   --pos:#4FBF9F; --neg:#DD7268;
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
+  --statusbar-rgb:20 22 28;
 }
+.statusbar{position:fixed;left:0;right:0;top:-80px;height:80px;overflow:hidden;z-index:100;pointer-events:none}
+.statusbar::before{content:'';position:absolute;left:0;right:0;top:0;height:150%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);background-color:rgb(var(--statusbar-rgb) / 0.6)}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#FFFFFF!important}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -63,7 +67,7 @@ input::placeholder{color:var(--tx3)}
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
-    <div style="position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);z-index:999;pointer-events:none"></div>
+    <div class="statusbar"></div>
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
