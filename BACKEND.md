@@ -1,103 +1,110 @@
 # Belegio — Backend
 
-Der Prototyp (`index.html`, ursprünglich `Depot Tracker.dc.html`) ruft Finnhub/Alpha Vantage direkt im Browser auf und
-speichert Depot + API-Key in `localStorage`. Für den Produktivbetrieb wandert
-beides hinter eine API — Key darf nie im Client liegen.
+Läuft auf Supabase (Projekt `rzbmtzxukqfdkcmfmugv`, eu-central-1). Kein eigener
+Server — Client (`index.html` + `db.js`/`market.js`/`ocr.js`) redet direkt mit
+Supabase Auth/Postgres/Storage und mit drei Edge Functions. Alle API-Keys
+liegen nur in den Edge Functions, nie im Client-Bundle oder im Repo.
 
-## Datenmodell (Supabase / PostgreSQL)
+## Datenmodell (Postgres, RLS `user_id = auth.uid()`)
 
 ```sql
-create table users (
-  id uuid primary key default gen_random_uuid(),
-  email text unique not null,
-  plan text not null default 'free',          -- free | pro | lifetime
-  created_at timestamptz default now()
-);
-
 create table transactions (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references users(id) on delete cascade,
-  date date not null,
-  symbol text not null,                        -- Finnhub-Symbol, z.B. AAPL / NESN.SW
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date not null default current_date,
+  symbol text not null,                        -- Ticker, z.B. AAPL / NESN.SW — NICHT die ISIN
   isin text,
-  shares numeric(18,6) not null,
-  purchase_price numeric(18,4) not null,       -- pro Stück
+  name text,
+  shares numeric(18,6) not null check (shares > 0),
+  purchase_price numeric(18,4) not null check (purchase_price >= 0),
   currency text not null default 'CHF',
-  fees numeric(18,4) default 0,
+  fees numeric(18,4) not null default 0,
   total_amount numeric(18,4) not null,
-  receipt_url text,                            -- Supabase Storage
-  source text default 'ocr',                   -- ocr | manual | broker
-  created_at timestamptz default now()
+  receipt_path text,
+  source text not null default 'ocr',          -- ocr | manual
+  created_at timestamptz not null default now()
 );
 
 create table receipts (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references users(id) on delete cascade,
-  file_url text not null,
-  status text not null default 'pending',       -- pending | parsed | confirmed | failed
-  parsed jsonb,                                 -- Rohausgabe des Vision-Calls
-  created_at timestamptz default now()
+  user_id uuid not null references auth.users(id) on delete cascade,
+  transaction_id uuid references transactions(id) on delete set null,
+  file_path text not null,                      -- Pfad in Storage-Bucket "receipts", pro-User-Ordner
+  file_name text not null,
+  ocr_text text,
+  status text not null default 'confirmed',
+  created_at timestamptz not null default now()
 );
 
 create table quote_cache (
   symbol text primary key,
   price numeric(18,4) not null,
   change_pct numeric(8,4),
+  provider text,                                -- welcher Anbieter den Kurs geliefert hat
   fetched_at timestamptz not null default now()
 );
 ```
 
-RLS: auf `transactions`, `receipts` je Policy `user_id = auth.uid()`.
+Storage-Bucket `receipts` (privat): Policies erlauben nur Zugriff auf den
+eigenen Ordner (`{user_id}/...`).
 
-## Endpoints
+## Edge Functions
 
-| Route | Zweck |
-| --- | --- |
-| `POST /api/receipts` | Datei in Storage, Zeile in `receipts`, Parse-Job auslösen |
-| `GET /api/receipts/:id` | Parse-Status + extrahierte Felder für den Prüf-Screen |
-| `POST /api/transactions` | bestätigte Felder buchen (`receipt_id` verknüpfen) |
-| `GET /api/portfolio` | Positionen aggregiert + Live-Kurse + Performance |
-| `GET /api/news` | Finnhub `company-news` für die eigenen Symbole |
-| `GET /api/symbols?q=` | Finnhub `search` für manuelle Eingabe |
+| Function | Zweck | Auth |
+| --- | --- | --- |
+| `register` | Legt Nutzer per Service-Role direkt bestätigt an (`email_confirm: true`) — keine E-Mail-Verifizierung nötig | offen (kein Login vorhanden) |
+| `market` | Proxy für Kurse/News/Suche/Historie | JWT erforderlich |
+| `ocr` | Proxy für API-Ninjas Image-to-Text | JWT erforderlich |
 
-## Marktdaten-Anbieter
+## Marktdaten-Anbieter (`market`-Function)
 
-Austauschbar hinter einem Interface (`quote`, `news`, `search`). Keys als Env,
-nie im Client: `ALPHAVANTAGE_API_KEY`, `FINNHUB_API_KEY`, …
+Reihenfolge je Symbol — bei Schweizer Titeln (`.SW`) zuerst Twelve Data, sonst
+zuletzt als Fallback, wenn kein Kurs gefunden wurde:
 
-**Alpha Vantage** (aktuell aktiv)
-- `GLOBAL_QUOTE&symbol=` → Kurs, Tagesveränderung
-- `NEWS_SENTIMENT&tickers=` → News-Feed
-- `SYMBOL_SEARCH&keywords=` → Symbol-Auflösung
-- Schweizer Titel als `NESN.SWI` (nicht `.SW`)
-- Free-Tier: 25 Calls/Tag, 5/Min → Kurse mit 15 Min TTL cachen, Nutzer-Symbole gebündelt
+1. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
+   `SYMBOL_SEARCH`, `TIME_SERIES_DAILY`. Schweizer Titel als `NESN.SWI`. Free-Tier:
+   25 Calls/Tag, 5/Min.
+2. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
+3. **Twelve Data** (`TWELVEDATA_API_KEY`) — `/quote`, `/time_series`,
+   `/symbol_search`. **Wichtig:** Der aktuell hinterlegte Key ist der
+   kostenlose Plan — der deckt **keine SIX-Kurse ab** (`NESN:SIX`, `VWRL:SIX`
+   etc. kommen mit „available starting with the Grow/Venture plan"). Er hilft
+   also nur als zusätzlicher Fallback für US-/sonstige Titel, nicht für
+   Schweizer ETFs. Für echte SIX-Kurse braucht es einen bezahlten Twelve-Data-
+   Plan oder einen anderen SIX-fähigen Anbieter.
 
-**Finnhub**
-- `/quote`, `/company-news`, `/search`; 60 Calls/Min
+Ergebnis wird 30 Minuten in `quote_cache` gehalten (`fetched_at`), bevor erneut
+ein Anbieter angefragt wird — reduziert Rate-Limit-Treffer bei Alpha Vantage
+deutlich.
 
-Kurse in `quote_cache` puffern und pro Request nur die Symbole des Nutzers abfragen.
+Symbole, die wie eine ISIN aussehen (`isinLike`, Regex `[A-Z]{2}[A-Z0-9]{9}\d`),
+werden clientseitig gar nicht erst angefragt — keiner der Anbieter kann damit
+etwas anfangen. Die UI zeigt für solche Positionen „kein Live-Kurs" statt
+einer irreführenden 0.0 %.
 
-Berechnung im `/api/portfolio`:
+Berechnung im Client (`renderVals`):
 
 ```
-invested = Σ (shares × purchase_price + fees)
-value    = Σ (shares × quote.price)
-gain     = value − invested
+investiert = Σ (shares × purchase_price)
+wert       = Σ (shares × aktueller_kurs)   // Fallback: purchase_price, wenn keine Live-Quote
+gewinn     = wert − investiert
 ```
 
-## OCR
+## Beleg-Erkennung (OCR)
 
-`POST /api/receipts` legt einen Job an, der die Datei an ein Vision-Modell
-schickt und strukturiert `{date, symbol, isin, shares, purchase_price, total_amount, currency}`
-zurückgibt. Ergebnis in `receipts.parsed`, Nutzer bestätigt im Prüf-Screen,
-erst dann entsteht die `transactions`-Zeile.
+Kein Vision-LLM — reine Texterkennung (API Ninjas Image-to-Text) plus
+Regex-Parsing (`ocr.js`). Ablauf: Bild client-seitig auf <200 KB komprimieren
+→ `ocr`-Function → Text zurück → Regex extrahiert Datum/ISIN/Ticker/Stückzahl/
+Kurs/Betrag/Währung. Wird nur eine ISIN gefunden (kein Ticker), versucht
+`onFile` einmal `market.search(isin)` — funktioniert nur, wenn der Anbieter
+ISIN-Suche unterstützt (bei Alpha Vantage in der Praxis selten). Alle Felder
+sind im Prüf-Screen editierbar, bevor die `transactions`-Zeile entsteht.
 
-## Prototyp-Verhalten
+## Portfolio-Chart
 
-`market.js` ist die Fassade über `providers/alphavantage.js` und
-`providers/finnhub.js`: aktiver Anbieter + Keys in `localStorage`
-(Einstellungen → Datenquelle), 15-Minuten-Quote-Cache, pro Symbol Fallback auf
-die Demo-Kurse. Neue Quelle = Datei in `providers/` mit
-`id/label/defaultKey/quote/news/search`, Eintrag in `PROVIDERS` — die UI listet
-sie automatisch. Depot und Belege liegen im Prototyp unter
-`belegio.portfolio`.
+`Investiert` ist exakt (kumulierte Summe aus echten Transaktionsdaten).
+`Aktueller Wert` nutzt echte historische Tagesschlusskurse (`market`-Function,
+Action `history`, Alpha-Vantage `TIME_SERIES_DAILY` mit Twelve-Data-Fallback)
+je Symbol; fehlt Historie für ein Symbol, wird mit dem Einstandspreis
+approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird immer auf das
+erste Kaufdatum geclamped — kein Verlauf vor dem ersten Kauf.
