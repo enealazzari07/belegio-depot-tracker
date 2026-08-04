@@ -846,15 +846,20 @@ class Component extends DCLogic {
     const shares = parseFloat(f.shares) || 0;
     const price = parseFloat(f.price) || 0;
     const symbol = (f.symbol || f.isin || "").trim().toUpperCase();
-    if (!symbol || shares <= 0 || price <= 0) {
-      this.setState({ confirmError: "Ticker/ISIN, Stückzahl und Kurs werden benötigt." });
+    const missing = [];
+    if (!f.date) missing.push("Handelsdatum");
+    if (!symbol) missing.push("Ticker/ISIN");
+    if (shares <= 0) missing.push("Stückzahl");
+    if (price <= 0) missing.push("Kurs pro Stück");
+    if (missing.length) {
+      this.setState({ confirmError: missing.join(", ") + (missing.length > 1 ? " werden" : " wird") + " benötigt." });
       return;
     }
     this.setState({ confirmError: "" });
     try {
       const db = await this.db();
       const tx = await db.insertTransaction({
-        date: f.date || new Date().toISOString().slice(0, 10),
+        date: f.date,
         symbol, isin: f.isin || null, name: f.name || symbol,
         shares, purchase_price: price, currency: f.currency || "CHF",
         total_amount: parseFloat(f.total) || shares * price,

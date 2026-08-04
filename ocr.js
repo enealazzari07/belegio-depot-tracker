@@ -101,16 +101,34 @@ function parseFields(text) {
   const symbol = symbolMatch ? symbolMatch[1].toUpperCase() : "";
 
   const U = "(?:ü|ue|u)";
-  const sharesRaw = findAfterKeyword(text, [`St${U}ck(?:zahl)?`, "Stk\\.?", "Anzahl", "Quantity", "Shares", "Menge"]);
-  const priceRaw = findAfterKeyword(text, [`Kurs(?:\\s*pro\\s*St${U}ck)?`, "Ausf(?:ü|ue)hrungskurs", "Preis", "Price", "Rate", "Einzelkurs"]);
-  const totalRaw = findAfterKeyword(text, ["Gesamtbetrag", "Kurswert", "Nettobetrag", "Bruttobetrag", "Total(?:betrag)?", "Betrag", "Endbetrag", "Zu\\s*belasten", "Net\\s*Amount", "Amount"]);
+  const sharesRaw = findAfterKeyword(text, [
+    `St${U}ck(?:zahl)?`, "Stk\\.?", "Anzahl", "Quantity", "Qty\\.?", "Units?", "Shares", "Menge", "Nominal", "St(?:ü|ue)ckzahl"
+  ]);
+  const priceRaw = findAfterKeyword(text, [
+    `Kurs(?:\\s*pro\\s*St${U}ck)?`, "Ausf(?:ü|ue)hrungskurs", "Ausf(?:ü|ue)hrungspreis", "Trade\\s*Price", "Execution\\s*Price",
+    "Unit\\s*Price", "Preis", "Price", "Rate", "Einzelkurs", "Limit"
+  ]);
+  const totalRaw = findAfterKeyword(text, [
+    "Gesamtbetrag", "Kurswert", "Nettobetrag", "Bruttobetrag", "Kaufbetrag", "Kaufpreis", "Total(?:betrag)?", "Betrag",
+    "Endbetrag", "Zu\\s*belasten", "Net\\s*Amount", "Settlement\\s*Amount", "Consideration", "Amount"
+  ]);
 
   const currencyMatch = text.match(/\b(CHF|EUR|USD|GBP)\b/);
   const currency = currencyMatch ? currencyMatch[1] : "CHF";
 
-  const shares = parseNumber(sharesRaw);
-  const price = parseNumber(priceRaw);
+  let shares = parseNumber(sharesRaw);
+  let price = parseNumber(priceRaw);
   const total = parseNumber(totalRaw);
+
+  // Fallback: viele Abrechnungen drucken schlicht "8 × 118.40" (Stückzahl × Kurs)
+  // ohne erkennbares Schlüsselwort davor — greift nur, wenn Keyword-Suche nichts fand.
+  if (shares == null || price == null) {
+    const xMatch = text.match(/(\d[\d'.,]*)\s*[×xX]\s*(\d[\d'.,]*)/);
+    if (xMatch) {
+      if (shares == null) shares = parseNumber(xMatch[1]);
+      if (price == null) price = parseNumber(xMatch[2]);
+    }
+  }
 
   return {
     date,
