@@ -129,10 +129,15 @@ input::placeholder{color:var(--tx3)}
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:20px">
               <span style="color:#0F172A;font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1;font-family:'IBM Plex Mono',monospace">{{ totalValue }}</span>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:3px">
-                <span style="color:#1E7F63;font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ gainPct }}</span>
+                <span style="color:{{ gainColor }};font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ gainPct }}</span>
                 <span style="color:#8B93A5;font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ gainAbs }}</span>
               </div>
             </div>
+            <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
+              <div style="margin:-14px 0 12px;text-align:right">
+                <span style="color:#9AA1B1;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ scrubDateLabel }}</span>
+              </div>
+            </sc-if>
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative">
               <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:112px;display:block;overflow:visible">
@@ -141,7 +146,12 @@ input::placeholder{color:var(--tx3)}
                 <path d="{{ chartValueFillPath }}" fill="url(#vfill)"></path>
                 <path d="{{ chartValuePath }}" fill="none" stroke="#2F7D6B" stroke-width="2.4" stroke-linecap="round"></path>
                 <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4" fill="#2F7D6B"></circle>
+                <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
+                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="#C6CBD4" stroke-width="1.5" stroke-dasharray="3 3"></line>
+                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5" fill="#2F7D6B" stroke="#fff" stroke-width="2"></circle>
+                </sc-if>
               </svg>
+              <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:0;touch-action:none;cursor:pointer"></div>
               <div style="display:flex;justify-content:space-between;padding:10px 0 0">
                 <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
                   <span style="color:#9AA1B1;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ m.l }}</span>
@@ -173,6 +183,15 @@ input::placeholder{color:var(--tx3)}
               </sc-for>
             </div>
           </div>
+        </div>
+
+        <div style="padding:0 24px 20px;display:flex;gap:10px">
+          <sc-for list="{{ shortcuts }}" as="s" hint-placeholder-count="3">
+            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;height:72px;border-radius:18px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+              <div style="width:32px;height:32px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2)">{{ s.icon }}</div>
+              <span style="color:var(--tx);font-size:11.5px;font-weight:600">{{ s.label }}</span>
+            </button>
+          </sc-for>
         </div>
 
         <div style="padding:0 24px 12px;display:flex;align-items:center;justify-content:space-between">
@@ -210,7 +229,7 @@ input::placeholder{color:var(--tx3)}
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between">
               <span style="color:var(--tx3);font-size:11.5px">Steuer-Report ab Pro</span>
-              <a href="#1a" onClick="{{ goPro }}" style="color:var(--acc);font-size:12px;font-weight:600">Pro ansehen</a>
+              <a href="#1a" onClick="{{ openAbo }}" style="color:var(--acc);font-size:12px;font-weight:600">{{ quotaCta }}</a>
             </div>
           </div>
         </div>
@@ -328,10 +347,62 @@ input::placeholder{color:var(--tx3)}
                   </sc-if>
                 </div>
               </sc-if>
+              <button onClick="{{ d.toggleTransactions }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:6px;border-top:1px solid var(--line);color:var(--acc2);font-size:12px;font-weight:600" style-hover="color:var(--tx)">
+                {{ d.transactionsLabel }}
+              </button>
+              <sc-if value="{{ d.showTransactions }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:4px 0 14px">
+                  <sc-if value="{{ d.noTransactions }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:10px 0">Keine Transaktionen gefunden.</p>
+                  </sc-if>
+                  <sc-for list="{{ d.transactions }}" as="t" hint-placeholder-count="3">
+                    <div style="padding:10px 0;border-top:1px solid var(--line)">
+                      <sc-if value="{{ t.isEditing }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                          <div style="display:flex;flex-direction:column;gap:4px">
+                            <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.08em">DATUM</span>
+                            <input type="date" value="{{ t.editDate }}" onChange="{{ t.onDate }}" style="width:100%;height:38px;border-radius:9px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:12.5px;padding:0 10px;outline:none;box-sizing:border-box">
+                          </div>
+                          <div style="display:flex;gap:8px">
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                              <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.08em">STÜCKZAHL</span>
+                              <input type="number" value="{{ t.editShares }}" onChange="{{ t.onShares }}" style="width:100%;height:38px;border-radius:9px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:12.5px;padding:0 10px;outline:none;box-sizing:border-box">
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                              <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.08em">KURS</span>
+                              <input type="number" value="{{ t.editPrice }}" onChange="{{ t.onPrice }}" style="width:100%;height:38px;border-radius:9px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:12.5px;padding:0 10px;outline:none;box-sizing:border-box">
+                            </div>
+                          </div>
+                          <div style="display:flex;gap:8px;margin-top:2px">
+                            <button onClick="{{ t.cancel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);color:var(--tx2);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">Abbrechen</button>
+                            <button onClick="{{ t.save }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:10px;background:var(--acc);color:var(--accTx);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">Speichern</button>
+                          </div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ t.isNotEditing }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex;align-items:center;gap:10px">
+                          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                            <span style="color:var(--tx);font-size:12.5px;font-weight:600">{{ t.dateLabel }}</span>
+                            <span style="color:var(--tx3);font-size:11px;font-family:'IBM Plex Mono',monospace">{{ t.detail }}</span>
+                          </div>
+                          <span style="color:var(--tx2);font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ t.total }}</span>
+                          <button onClick="{{ t.edit }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none" style-hover="color:var(--tx)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+                          </button>
+                          <button onClick="{{ t.remove }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--neg);flex:none" style-hover="opacity:.7">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path></svg>
+                          </button>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
       </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top, 0px) + 46px);background:linear-gradient(to bottom, var(--bg) 0%, var(--bg) 55%, rgba(0,0,0,0) 100%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
@@ -404,6 +475,7 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
       </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top, 0px) + 46px);background:linear-gradient(to bottom, var(--bg) 0%, var(--bg) 55%, rgba(0,0,0,0) 100%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
@@ -461,6 +533,7 @@ input::placeholder{color:var(--tx3)}
           <button onClick="{{ confirm }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:52px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ confirmCta }}</button>
         </div>
       </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top, 0px) + 46px);background:linear-gradient(to bottom, var(--bg) 0%, var(--bg) 55%, rgba(0,0,0,0) 100%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
@@ -503,6 +576,7 @@ input::placeholder{color:var(--tx3)}
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:54px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ proCta }}</button>
         <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11.5px">15 Uploads pro Monat bleiben gratis.</p>
       </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top, 0px) + 46px);background:linear-gradient(to bottom, var(--bg) 0%, var(--bg) 55%, rgba(0,0,0,0) 100%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
@@ -552,53 +626,64 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
       </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top, 0px) + 46px);background:linear-gradient(to bottom, var(--bg) 0%, var(--bg) 55%, rgba(0,0,0,0) 100%);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
-        <span style="display:block;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;margin-bottom:20px">Einstellungen</span>
-
-        <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
-          <div style="width:44px;height:44px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:14px;font-weight:700">{{ userInitials }}</div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-            <span style="color:var(--tx);font-size:15px;font-weight:600">Mein Konto</span>
-            <span style="color:var(--tx3);font-size:12px">{{ userEmail }}</span>
+      <div onClick="{{ closeSettings }}" style="position:absolute;inset:0;background:rgba(10,12,18,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:8;display:flex;align-items:flex-end;justify-content:center;animation:fade .22s ease">
+        <div onClick="{{ stopPropagation }}" style="width:100%;max-width:480px;max-height:86dvh;overflow-y:auto;background:var(--bg);border-radius:26px 26px 0 0;padding:14px 20px calc(22px + env(safe-area-inset-bottom, 0px));box-shadow:0 -20px 60px -20px rgba(0,0,0,.5);animation:rise .3s cubic-bezier(.2,.8,.2,1) both">
+          <div style="display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+            <span style="width:36px;height:4px;border-radius:2px;background:var(--line2);display:block"></span>
           </div>
-        </div>
-
-        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
-            <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:600">Marktdaten</span>
-            <span style="width:7px;height:7px;border-radius:50%;background:{{ connTone }}"></span>
-            <span style="font-size:11.5px;font-weight:600;color:{{ connTone }}">{{ connLabel }}</span>
-          </div>
-          <p style="margin:0 0 12px;color:var(--tx3);font-size:11.5px;line-height:1.5">Alpha Vantage / Finnhub laufen serverseitig über eine Supabase Edge Function — keine Keys im Client.</p>
-          <button onClick="{{ sync }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">{{ syncLabel }}</button>
-        </div>
-
-        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
-          <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
-            <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
-            <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
-              <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.02em">Einstellungen</span>
+            <button onClick="{{ closeSettings }}" style="all:unset;cursor:pointer;width:34px;height:34px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
-          <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
-            <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
-              <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
-              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ p.label }}</span>
-              <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ p.hint }}</span>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
-            </button>
-          </sc-for>
-        </div>
 
-        <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--neg)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
-          <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
-        </button>
-        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
+          <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
+            <div style="width:44px;height:44px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:14px;font-weight:700">{{ userInitials }}</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+              <span style="color:var(--tx);font-size:15px;font-weight:600">Mein Konto</span>
+              <span style="color:var(--tx3);font-size:12px">{{ userEmail }}</span>
+            </div>
+          </div>
+
+          <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
+              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:600">Marktdaten</span>
+              <span style="width:7px;height:7px;border-radius:50%;background:{{ connTone }}"></span>
+              <span style="font-size:11.5px;font-weight:600;color:{{ connTone }}">{{ connLabel }}</span>
+            </div>
+            <p style="margin:0 0 12px;color:var(--tx3);font-size:11.5px;line-height:1.5">Alpha Vantage / Finnhub laufen serverseitig über eine Supabase Edge Function — keine Keys im Client.</p>
+            <button onClick="{{ sync }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">{{ syncLabel }}</button>
+          </div>
+
+          <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
+            <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
+              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
+              <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
+                <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
+              </button>
+            </div>
+            <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
+              <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
+                <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
+                <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ p.label }}</span>
+                <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ p.hint }}</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+              </button>
+            </sc-for>
+          </div>
+
+          <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--neg)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+            <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
+          </button>
+          <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
+        </div>
       </div>
     </sc-if>
 
@@ -690,7 +775,7 @@ class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
-    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0,
+    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0, settingsOpen: false,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     splash: true, dashLoading: true,
 
@@ -699,13 +784,32 @@ class Component extends DCLogic {
 
     extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false,
 
-    etfOpenSymbol: null, etfHoldings: {}, etfLoading: false, etfError: ""
+    etfOpenSymbol: null, etfHoldings: {}, etfLoading: false, etfError: "",
+
+    txOpenSymbol: null, editingTxId: null, editingTxFields: null,
+
+    scrubIndex: null
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
 
   set = (k, v) => this.setState({ [k]: v });
   go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
+
+  openSettings = () => this.setState({ settingsOpen: true });
+  closeSettings = () => this.setState({ settingsOpen: false });
+  stopPropagation = e => e.stopPropagation();
+
+  // Pro-Nutzer sollen die Kauf-Seite nicht mehr sehen — stattdessen kurzer Hinweis.
+  openAbo = () => {
+    if (this.state.userPlan === "pro") {
+      clearTimeout(this.t2);
+      this.setState({ toast: true, toastMsg: "Du hast bereits Pro" });
+      this.t2 = setTimeout(() => this.setState({ toast: false }), 2200);
+      return;
+    }
+    this.go("pro")();
+  };
 
   async db() {
     if (!this._db) this._db = await import("./db.js");
@@ -777,7 +881,7 @@ class Component extends DCLogic {
     await db.signOut();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}
+      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, settingsOpen: false
     });
   };
 
@@ -814,7 +918,22 @@ class Component extends DCLogic {
     } catch (e) { /* Rate-Limit/Fehler — Chart faellt auf Naeherung ueber den Einstandspreis zurueck */ }
   };
 
-  setChartRange = key => () => this.setState({ chartRange: key });
+  setChartRange = key => () => this.setState({ chartRange: key, scrubIndex: null });
+
+  // ---------- Chart-Scrubbing (manuell durch die Timeline ziehen) ----------
+  scrubAt = e => {
+    const pts = this._chartPoints;
+    if (!pts || pts.length < 2) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : null);
+    if (clientX == null || !rect.width) return;
+    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const idx = Math.round(frac * (pts.length - 1));
+    if (idx !== this.state.scrubIndex) this.setState({ scrubIndex: idx });
+  };
+  scrubStart = e => { this._scrubbing = true; this.scrubAt(e); };
+  scrubMove = e => { if (this._scrubbing) this.scrubAt(e); };
+  scrubEnd = () => { this._scrubbing = false; if (this.state.scrubIndex !== null) this.setState({ scrubIndex: null }); };
 
   loadReceipts = async () => {
     const db = await this.db();
@@ -947,6 +1066,42 @@ class Component extends DCLogic {
     }
   };
 
+  // ---------- Transaktionen je Position ----------
+  toggleTransactions = sym => () => {
+    this.setState(s => ({ txOpenSymbol: s.txOpenSymbol === sym ? null : sym, editingTxId: null, editingTxFields: null }));
+  };
+
+  startEditTx = t => () => {
+    this.setState({ editingTxId: t.id, editingTxFields: { date: t.date, shares: String(t.shares), purchase_price: String(t.purchase_price) } });
+  };
+
+  cancelEditTx = () => this.setState({ editingTxId: null, editingTxFields: null });
+
+  setTxField = k => e => this.setState(s => ({ editingTxFields: { ...s.editingTxFields, [k]: e.target.value } }));
+
+  saveEditTx = id => async () => {
+    const f = this.state.editingTxFields || {};
+    const shares = parseFloat(f.shares) || 0;
+    const price = parseFloat(f.purchase_price) || 0;
+    if (!f.date || shares <= 0 || price <= 0) return;
+    const db = await this.db();
+    await db.updateTransaction(id, {
+      date: f.date, shares, purchase_price: price,
+      total_amount: shares * price
+    });
+    this.setState({ editingTxId: null, editingTxFields: null });
+    const holdings = await this.loadPortfolio();
+    await this.loadHistory(holdings);
+  };
+
+  deleteTx = t => async () => {
+    if (!confirm("Transaktion löschen?")) return;
+    const db = await this.db();
+    await db.deleteTransaction(t.id);
+    const holdings = await this.loadPortfolio();
+    await this.loadHistory(holdings);
+  };
+
   manualEntry = () => {
     this.setState({ screen: "review", extracted: emptyFields(), pendingFile: null, ocrError: false });
   };
@@ -1061,17 +1216,26 @@ class Component extends DCLogic {
           const idx = axisCount > 1 ? Math.round((i / (axisCount - 1)) * (n - 1)) : 0;
           return { l: dateFmt(points[idx].date) };
         });
+        const pxPoints = points.map((p, i) => {
+          const prevValue = i > 0 ? points[i - 1].value : p.value;
+          const dayPct = prevValue ? (p.value - prevValue) / prevValue * 100 : 0;
+          return { date: p.date, invested: p.invested, value: p.value, x: X(i), y: Y(p.value), dayPct };
+        });
+        this._chartPoints = pxPoints;
         chartData = {
           hasChart: true,
           chartInvestedPath: toPath("invested"),
           chartValuePath: valuePath,
           chartValueFillPath: valuePath + ` L ${lastX.toFixed(1)} 112 L 0 112 Z`,
           chartDotX: lastX.toFixed(1), chartDotY: lastY.toFixed(1),
-          months: axisLabels
+          months: axisLabels,
+          points: pxPoints
         };
       }
     }
+    if (!chartData) this._chartPoints = null;
     const chartRangeKeys = ["D", "W", "M", "Y", "MAX"];
+    const scrubPt = this.state.scrubIndex != null && this._chartPoints ? this._chartPoints[this.state.scrubIndex] : null;
 
     return {
       theme,
@@ -1080,14 +1244,22 @@ class Component extends DCLogic {
       toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
 
       logout: this.logoutUser,
-      isNews: screen === "news", isSettings: screen === "settings",
-      goNews: this.go("news"), goSettings: this.go("settings"),
+      isNews: screen === "news", isSettings: this.state.settingsOpen,
+      goNews: this.go("news"), goSettings: this.openSettings, closeSettings: this.closeSettings, stopPropagation: this.stopPropagation,
+      shortcuts: [
+        { label: "Depot", go: this.go("depot"), d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19" },
+        { label: "News", go: this.go("news"), d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" },
+        { label: this.state.userPlan === "pro" ? "Pro" : "Abo", go: this.openAbo, d: "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z" }
+      ].map(s => ({
+        label: s.label, go: s.go,
+        icon: React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: s.d }))
+      })),
       tHome: screen === "dash" ? "var(--tx)" : "var(--tx3)",
       fHome: screen === "dash" ? "var(--tx)" : "none",
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
       tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
       tNews: screen === "news" ? "var(--tx)" : "var(--tx3)",
-      tSet: screen === "settings" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
+      tSet: this.state.settingsOpen || screen === "pro" ? "var(--tx)" : "var(--tx3)",
       connLabel: {
         live: "Live-Kurse", demo: "Demo-Daten", badkey: "Key ungültig",
         limit: "Limit erreicht", error: "Keine Verbindung", empty: "Keine Kursdaten", idle: "—"
@@ -1131,7 +1303,7 @@ class Component extends DCLogic {
       ].map(([label, hint, d, to]) => ({
         label, hint,
         icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })),
-        go: to ? this.go(to) : () => {}
+        go: label === "Abo" ? (() => { this.closeSettings(); this.openAbo(); }) : to ? (() => { this.closeSettings(); this.go(to)(); }) : () => {}
       })),
 
       splash: this.state.splash, skipSplash: this.skipSplash,
@@ -1142,7 +1314,8 @@ class Component extends DCLogic {
       toast: this.state.toast, toastMsg: this.state.toastMsg,
       ocrError: this.state.ocrError, confirmError: this.state.confirmError,
 
-      goDash: this.go("dash"), goUpload: this.go("upload"), goPro: this.go("pro"),
+      goDash: this.go("dash"), goUpload: this.go("upload"), goPro: this.go("pro"), openAbo: this.openAbo,
+      quotaCta: this.state.userPlan === "pro" ? "Pro aktiv" : "Pro ansehen",
       manualEntry: this.manualEntry, onFile: this.onFile,
       startParse: this.manualEntry, confirm: this.confirm,
       confirmCta: "Ins Depot buchen",
@@ -1160,9 +1333,16 @@ class Component extends DCLogic {
       chartValueFillPath: chartData ? chartData.chartValueFillPath : "",
       chartDotX: chartData ? chartData.chartDotX : "0", chartDotY: chartData ? chartData.chartDotY : "0",
 
-      totalValue: f2(val),
-      gainAbs: (g >= 0 ? "+" : "") + f2(g),
-      gainPct: cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
+      totalValue: scrubPt ? f2(scrubPt.value) : f2(val),
+      gainAbs: scrubPt ? "Investiert " + f2(scrubPt.invested) : (g >= 0 ? "+" : "") + f2(g),
+      gainPct: scrubPt
+        ? (scrubPt.dayPct >= 0 ? "+" : "") + scrubPt.dayPct.toFixed(2) + " % heute"
+        : cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
+      gainColor: scrubPt ? (scrubPt.dayPct >= 0 ? "var(--pos)" : "var(--neg)") : (g >= 0 ? "var(--pos)" : "var(--neg)"),
+      scrubActive: !!scrubPt,
+      scrubDateLabel: scrubPt ? new Date(scrubPt.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }) : "",
+      chartScrubX: scrubPt ? scrubPt.x.toFixed(1) : "0", chartScrubY: scrubPt ? scrubPt.y.toFixed(1) : "0",
+      scrubStart: this.scrubStart, scrubMove: this.scrubMove, scrubEnd: this.scrubEnd,
       posCount: holdings.length + " Titel",
       quota: this.state.userPlan === "pro" ? "Unbegrenzt" : (this.state.weeklyUploads || 0) + " / 15 pro Woche",
       quotaPct: this.state.userPlan === "pro" ? "100%" : Math.min(100, (this.state.weeklyUploads || 0) / 15 * 100).toFixed(0) + "%",
@@ -1213,6 +1393,8 @@ class Component extends DCLogic {
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
         const w = val ? v / val * 100 : 0;
         const isOpen = this.state.etfOpenSymbol === sym;
+        const txOpen = this.state.txOpenSymbol === sym;
+        const symTxs = txOpen ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
@@ -1233,7 +1415,29 @@ class Component extends DCLogic {
           compositionLoading: isOpen && this.state.etfLoading,
           compositionError: isOpen ? this.state.etfError : "",
           compositionBlocks: isOpen ? buildCompositionBlocks(this.state.etfHoldings[sym]) : [],
-          hasComposition: isOpen && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0
+          hasComposition: isOpen && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0,
+
+          toggleTransactions: this.toggleTransactions(sym),
+          transactionsLabel: txOpen ? "Transaktionen ausblenden" : "Transaktionen anzeigen",
+          showTransactions: txOpen,
+          noTransactions: txOpen && !symTxs.length,
+          transactions: symTxs.map(t => {
+            const editing = this.state.editingTxId === t.id;
+            const f = editing ? this.state.editingTxFields : null;
+            return {
+              id: t.id,
+              isEditing: editing, isNotEditing: !editing,
+              dateLabel: new Date(t.date).toLocaleDateString("de-CH"),
+              detail: t.shares + " × " + f2(Number(t.purchase_price)),
+              total: f2(Number(t.shares) * Number(t.purchase_price)),
+              editDate: editing ? f.date : t.date,
+              editShares: editing ? f.shares : String(t.shares),
+              editPrice: editing ? f.purchase_price : String(t.purchase_price),
+              onDate: this.setTxField("date"), onShares: this.setTxField("shares"), onPrice: this.setTxField("purchase_price"),
+              edit: this.startEditTx(t), cancel: this.cancelEditTx,
+              save: this.saveEditTx(t.id), remove: this.deleteTx(t)
+            };
+          })
         };
       }),
 

@@ -59,6 +59,22 @@ export async function insertTransaction(tx) {
   return data;
 }
 
+export async function updateTransaction(id, patch) {
+  const { data, error } = await supabase
+    .from("transactions")
+    .update(patch)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteTransaction(id) {
+  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function uploadReceipt(file, transactionId) {
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr) throw userErr;
