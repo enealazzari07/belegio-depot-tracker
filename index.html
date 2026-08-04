@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F3F4F7">
+<meta name="theme-color" content="#FFFFFF">
 <title>Belegio</title>
 <script src="./support.js"></script>
 </head>
@@ -60,6 +60,8 @@ input::placeholder{color:var(--tx3)}
 <div data-theme="{{ theme }}" style="width:100%;min-height:100dvh;background:var(--stage);display:flex;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
+
+    <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:#FFFFFF;z-index:50;pointer-events:none"></div>
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
@@ -407,7 +409,7 @@ input::placeholder{color:var(--tx3)}
         </div>
 
         <sc-if value="{{ tickerHint }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0 0 14px;color:var(--tx3);font-size:11.5px;line-height:1.5">Ohne echten Ticker (z. B. VWRL, AAPL) gibt es keine Live-Kurse für diese Position — die ISIN allein reicht dafür nicht.</p>
+          <p style="margin:0 0 14px;color:var(--tx3);font-size:11.5px;line-height:1.5">{{ tickerHintMsg }}</p>
         </sc-if>
 
         <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}">
@@ -579,12 +581,49 @@ const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol
 
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}\d$/;
 const isinLike = s => ISIN_RE.test(String(s || "").toUpperCase());
+// ISO 6166 Prüfziffer (Luhn über Buchstaben-zu-Zahl-Konvertierung, A=10..Z=35).
+// Rechtesstes Zeichen NICHT verdoppeln, dann alternierend.
+const isinChecksumValid = isin => {
+  const conv = isin.split("").map(c => /[A-Z]/.test(c) ? (c.charCodeAt(0) - 55).toString() : c).join("");
+  let sum = 0, dbl = false;
+  for (let i = conv.length - 1; i >= 0; i--) {
+    let d = parseInt(conv[i], 10);
+    if (dbl) { d *= 2; if (d > 9) d -= 9; }
+    sum += d;
+    dbl = !dbl;
+  }
+  return sum % 10 === 0;
+};
+// OCR verwechselt O/0 häufig — alle Kombinationen an mehrdeutigen Stellen durchprobieren,
+// aber nur jene mit gültiger Prüfziffer zurückgeben, damit nicht unnötig viele
+// API-Calls für offensichtlich falsche Kandidaten verschwendet werden.
+const isinVariants = raw => {
+  const s = String(raw || "").toUpperCase();
+  const positions = [];
+  for (let i = 0; i < s.length; i++) if (s[i] === "O" || s[i] === "0") positions.push(i);
+  const cap = Math.min(1 << positions.length, 64);
+  const out = new Set([s]);
+  for (let mask = 0; mask < cap; mask++) {
+    const chars = s.split("");
+    positions.forEach((pos, idx) => { if (mask & (1 << idx)) chars[pos] = chars[pos] === "O" ? "0" : "O"; });
+    out.add(chars.join(""));
+  }
+  return [...out].filter(v => ISIN_RE.test(v) && isinChecksumValid(v));
+};
 const fundIcon = () => React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
   React.createElement("path", { d: "M4 20h16M6 20V10l6-5 6 5v10M10 20v-6h4v6" }));
 const logoFor = sym => isinLike(sym) ? fundIcon() : String(sym || "?").slice(0, 5);
+// ISIN darf nirgends als Anzeigename auftauchen (nur in Transaktions-/Beleg-Historie) —
+// fällt auf den Ticker zurück, sonst auf einen generischen Platzhalter.
+const displayName = h => {
+  if (h.name && !isinLike(h.name)) return h.name;
+  const sym = h.sym || h.abbr;
+  if (sym && !isinLike(sym)) return sym;
+  return "Unbekannte Position";
+};
 
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
-const RANGE_LABELS = { D: "Tag", W: "Woche", M: "Monat", Y: "Jahr", MAX: "Max" };
+const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
 
 class Component extends DCLogic {
@@ -598,13 +637,13 @@ class Component extends DCLogic {
     user: null,
     authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
 
-    extracted: null, pendingFile: null, ocrError: false, confirmError: ""
+    extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
 
   set = (k, v) => this.setState({ [k]: v });
-  go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "" });
+  go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
 
   async db() {
     if (!this._db) this._db = await import("./db.js");
@@ -747,17 +786,31 @@ class Component extends DCLogic {
     try {
       const ocr = await this.ocr();
       const { fields } = await ocr.scanReceipt(file);
+      let isinUnresolved = false;
       if (!fields.symbol && fields.isin) {
-        try {
-          const api = await this.api();
-          const matches = await api.search(fields.isin);
-          if (matches && matches.length) {
-            fields.symbol = matches[0].symbol;
-            fields.name = matches[0].name;
-          }
-        } catch (e) { /* Ticker-Aufloesung best-effort — Feld bleibt leer, Nutzer traegt Ticker manuell ein */ }
+        // Nur Prüfziffer-gültige O/0-Varianten anfragen — vermeidet unnötige API-Calls
+        // für Kandidaten, die ohnehin keine echte ISIN sein können.
+        const candidates = isinVariants(fields.isin);
+        if (candidates.length) {
+          try {
+            const api = await this.api();
+            for (const candidate of candidates) {
+              let matches = null;
+              try { matches = await api.search(candidate); } catch (e) { continue; }
+              if (matches && matches.length) {
+                fields.symbol = matches[0].symbol;
+                fields.name = matches[0].name;
+                fields.isin = candidate;
+                break;
+              }
+            }
+            if (!fields.symbol) isinUnresolved = true;
+          } catch (e) { isinUnresolved = true; }
+        } else {
+          isinUnresolved = true;
+        }
       }
-      this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file });
+      this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file, isinUnresolved });
     } catch (err) {
       console.error(err);
       this.setState({ parsing: false, screen: "review", extracted: emptyFields(), pendingFile: file, ocrError: true });
@@ -984,8 +1037,8 @@ class Component extends DCLogic {
         const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
         const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
         return [
-          { tone: "var(--acc2)", t: "Klumpenrisiko bei " + top.h.name, d: Math.round(top.v / val * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." },
-          { tone: "var(--neg)", t: worst.h.name + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." },
+          { tone: "var(--acc2)", t: "Klumpenrisiko bei " + displayName(top.h), d: Math.round(top.v / val * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." },
+          { tone: "var(--neg)", t: displayName(worst.h) + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." },
           { tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert." }
         ];
       })() : [],
@@ -994,7 +1047,7 @@ class Component extends DCLogic {
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
         const w = val ? v / val * 100 : 0;
         return {
-          abbr: h.abbr, logo: logoFor(h.sym || h.abbr), name: h.name,
+          abbr: h.abbr, logo: logoFor(h.sym || h.abbr), name: displayName(h),
           value: f2(v),
           gain: (d >= 0 ? "+" : "") + f2(d),
           color: d >= 0 ? "var(--pos)" : "var(--neg)",
@@ -1021,7 +1074,7 @@ class Component extends DCLogic {
         const noLive = isinLike(sym) && !h.live;
         const d = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
         return {
-          abbr: h.abbr, logo: logoFor(sym), name: h.name,
+          abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           sub: h.shares + " × " + f2(h.buy),
           value: f2(h.shares * h.cur),
           change: noLive ? "kein Live-Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
@@ -1040,6 +1093,9 @@ class Component extends DCLogic {
       reviewIsin: f.isin ? "ISIN " + f.isin : (f.symbol ? "manuell erfasst" : ""),
       reviewTotal: (f.currency || "CHF") + " " + f2(total),
       tickerHint: !f.symbol || isinLike(f.symbol),
+      tickerHintMsg: this.state.isinUnresolved
+        ? "Die erkannte ISIN scheint fehlerhaft gescannt worden zu sein (Prüfziffer ungültig) — bitte auf dem Beleg nachschauen und den Ticker manuell eintragen."
+        : "Ohne echten Ticker (z. B. VWRL, AAPL) gibt es keine Live-Kurse für diese Position — die ISIN allein reicht dafür nicht.",
       fields: [
         { k: "Handelsdatum", v: f.date, onChange: this.setField("date") },
         { k: "Ticker-Symbol", v: f.symbol, onChange: this.setField("symbol") },

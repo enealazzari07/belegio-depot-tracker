@@ -61,25 +61,38 @@ function parseNumber(raw) {
 
 function findAfterKeyword(text, keywords) {
   for (const kw of keywords) {
-    const re = new RegExp(kw + "[:\\s]{1,6}([\\d'.,]+)", "i");
+    // Zwischen Label und Zahl darf ein Währungscode stehen ("Total: CHF 1'608.60").
+    const re = new RegExp(kw + "[:\\s]{0,6}(?:CHF|EUR|USD|GBP)?[:\\s]{0,4}([\\d'.,]+)", "i");
     const m = text.match(re);
     if (m) return m[1];
   }
   return null;
 }
 
-function parseFields(text) {
-  const dateMatch = text.match(/\b(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})\b/) || text.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
-  let date = "";
-  if (dateMatch) {
-    if (dateMatch[0].includes("-")) {
-      date = dateMatch[0];
-    } else {
-      let [, d, m, y] = dateMatch;
-      if (y.length === 2) y = "20" + y;
-      date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-    }
+const MONTHS_DE = { januar: "01", februar: "02", märz: "03", maerz: "03", april: "04", mai: "05", juni: "06", juli: "07", august: "08", september: "09", oktober: "10", november: "11", dezember: "12" };
+
+function findDate(text) {
+  // Gelabeltes Datum hat Vorrang vor irgendeiner anderen Zahl im Text (Referenznummern etc.)
+  const labeled = text.match(/(?:Handelsdatum|Datum|Valuta|Trade\s*Date|Ausf(?:ü|ue)hrungsdatum)[:\s]{1,6}(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/i);
+  const dm = labeled || text.match(/\b(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})\b/);
+  if (dm) {
+    let [, d, m, y] = dm;
+    if (y.length === 2) y = "20" + y;
+    return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
   }
+  const iso = text.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
+  if (iso) return iso[0];
+  const worded = text.match(/\b(\d{1,2})\.?\s*(Januar|Februar|März|Maerz|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)\s*(\d{4})\b/i);
+  if (worded) {
+    const [, d, monthName, y] = worded;
+    const mm = MONTHS_DE[monthName.toLowerCase()];
+    if (mm) return `${y}-${mm}-${d.padStart(2, "0")}`;
+  }
+  return "";
+}
+
+function parseFields(text) {
+  const date = findDate(text);
 
   const isinMatch = text.match(/\b([A-Z]{2}[A-Z0-9]{9}\d)\b/);
   const isin = isinMatch ? isinMatch[1] : "";
@@ -89,8 +102,8 @@ function parseFields(text) {
 
   const U = "(?:ü|ue|u)";
   const sharesRaw = findAfterKeyword(text, [`St${U}ck(?:zahl)?`, "Stk\\.?", "Anzahl", "Quantity", "Shares", "Menge"]);
-  const priceRaw = findAfterKeyword(text, [`Kurs(?:\\s*pro\\s*St${U}ck)?`, "Preis", "Price", "Rate", "Einzelkurs"]);
-  const totalRaw = findAfterKeyword(text, ["Gesamtbetrag", "Total(?:betrag)?", "Betrag", "Endbetrag", "Amount"]);
+  const priceRaw = findAfterKeyword(text, [`Kurs(?:\\s*pro\\s*St${U}ck)?`, "Ausf(?:ü|ue)hrungskurs", "Preis", "Price", "Rate", "Einzelkurs"]);
+  const totalRaw = findAfterKeyword(text, ["Gesamtbetrag", "Kurswert", "Nettobetrag", "Bruttobetrag", "Total(?:betrag)?", "Betrag", "Endbetrag", "Zu\\s*belasten", "Net\\s*Amount", "Amount"]);
 
   const currencyMatch = text.match(/\b(CHF|EUR|USD|GBP)\b/);
   const currency = currencyMatch ? currencyMatch[1] : "CHF";
