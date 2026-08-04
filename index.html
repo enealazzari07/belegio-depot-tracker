@@ -61,7 +61,7 @@ input::placeholder{color:var(--tx3)}
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
-    <div style="position:fixed;top:0;left:0;right:0;height:max(env(safe-area-inset-top, 0px), 59px);background:var(--surf);z-index:999;pointer-events:none"></div>
+    <div style="position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);z-index:999;pointer-events:none"></div>
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
