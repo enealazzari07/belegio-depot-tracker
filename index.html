@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stage:#E9EBEF; --stage2:#DFE2E8;
+  --bg:#F3F4F7; --surf:#FFFFFF; --surf2:#F0F2F5; --line:#EBEDF1; --line2:#DCDFE6;
+  --tx:#14171F; --tx2:#5C6270; --tx3:#9096A2;
+  --acc:#14171F; --accTx:#FFFFFF;
+  --acc2:#2F7D6B; --acc-soft:rgba(47,125,107,.10);
+  --pos:#1E7F63; --neg:#B4463C;
+  --shadow:0 30px 70px -26px rgba(20,23,31,.26);
+}
+[data-theme="dark"]{
+  --stage:#08090C; --stage2:#0F1116;
+  --bg:#0B0C10; --surf:#14161C; --surf2:#1C1F26; --line:rgba(255,255,255,.07);
+  --line2:rgba(255,255,255,.14);
+  --tx:#EBECF0; --tx2:#9AA0AC; --tx3:#616673;
+  --acc:#EDEFF3; --accTx:#0B0C10;
+  --acc2:#4FBF9F; --acc-soft:rgba(79,191,159,.14);
+  --pos:#4FBF9F; --neg:#DD7268;
+  --shadow:0 30px 80px -20px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:#E9EBEF}
+a{color:var(--acc2);text-decoration:none}
+a:hover{color:var(--tx)}
+input{font-family:inherit}
+input::placeholder{color:var(--tx3)}
+::-webkit-scrollbar{width:0;height:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes markIn{0%{opacity:0;transform:scale(.7) rotate(-8deg)}60%{opacity:1;transform:scale(1.06) rotate(0)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes drawMark{from{stroke-dashoffset:26}to{stroke-dashoffset:0}}
+@keyframes zoomIn{from{transform:scale(1)}to{transform:scale(80)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes loginIn{0%{opacity:0;transform:scale(.94)}55%{opacity:1}100%{opacity:1;transform:scale(1)}}
+@keyframes wordUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="min-height:100vh;background:radial-gradient(120% 90% at 20% 0%, var(--stage2) 0%, var(--stage) 60%);display:flex;align-items:flex-start;justify-content:center;gap:56px;padding:56px 48px 72px;font-family:'Plus Jakarta Sans',sans-serif">
+
+  <div style="width:264px;display:flex;flex-direction:column;gap:28px;padding-top:24px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:26px;height:26px;border-radius:8px;background:var(--acc);display:flex;align-items:center;justify-content:center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accTx)" stroke-width="2.4" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
+        </div>
+        <span style="color:var(--tx);font-size:15px;font-weight:700;letter-spacing:-.01em">Belegio</span>
+      </div>
+      <p style="margin:0;color:var(--tx2);font-size:13px;line-height:1.55;text-wrap:pretty">Quittung hochladen, Portfolio entsteht automatisch. Prototyp — 5 Screens, klickbar.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.14em;padding-bottom:8px">SCREENS</span>
+      <sc-for list="{{ nav }}" as="s" hint-placeholder-count="5">
+        <button onClick="{{ s.go }}" style="all:unset;display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer;min-height:44px;background:{{ s.navBg }}" style-hover="background:var(--surf2)">
+          <span style="width:20px;color:var(--tx3);font-size:11px;font-family:'IBM Plex Mono',monospace">{{ s.num }}</span>
+          <span style="font-size:13.5px;font-weight:500;color:{{ s.navTx }}">{{ s.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surf)">
+      <span style="color:var(--tx2);font-size:13px;font-weight:500">{{ themeLabel }}</span>
+      <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:44px;height:26px;border-radius:13px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
+        <span style="position:absolute;top:3px;left:{{ knobX }};width:18px;height:18px;border-radius:50%;background:var(--acc);transition:left .22s ease;display:block"></span>
+      </button>
+    </div>
+
+    <button onClick="{{ replaySplash }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--tx2);font-size:13px;font-weight:500" style-hover="background:var(--surf)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
+      Intro nochmal abspielen
+    </button>
+  </div>
+
+  <div style="width:390px;height:844px;border-radius:44px;background:var(--bg);border:1px solid var(--line2);box-shadow:var(--shadow);overflow:hidden;position:relative;flex:none">
+
+    <div style="position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 6px;z-index:5;pointer-events:none">
+      <span style="font-size:12.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{ statusTx }}">9:41</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="none" color="{{ statusTx }}"><rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor"></rect><rect x="4.5" y="5" width="3" height="6" rx="1" fill="currentColor"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="currentColor"></rect><rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor" opacity=".4"></rect></svg>
+        <div style="width:22px;height:11px;border-radius:3px;padding:1.5px;border:1px solid {{ statusDim }}"><div style="width:70%;height:100%;border-radius:1.5px;background:{{ statusTx }}"></div></div>
+      </div>
+    </div>
+
+    <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
+      <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
+        <div style="width:150px;height:150px;transform-origin:50% 53.3%;animation:zoomIn 1.2s cubic-bezier(.72,0,.9,.06) 1.15s both">
+          <svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%;display:block">
+            <path d="M4 18 L9 11 L14 14 L20 6" stroke="var(--bg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" style="animation:drawMark .95s cubic-bezier(.5,0,.3,1) .2s both"></path>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:9px;animation:fadeOut .3s ease 1.15s both">
+          <span style="color:var(--bg);font-size:27px;font-weight:700;letter-spacing:-.04em;animation:wordUp .55s cubic-bezier(.2,.8,.3,1) .75s both">Belegio</span>
+          <span style="color:var(--tx3);font-size:12px;letter-spacing:.16em;font-weight:600;animation:wordUp .55s cubic-bezier(.2,.8,.3,1) .95s both">DEPOT OHNE TABELLEN</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;padding:132px 32px 44px;display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
+        <div style="width:52px;height:52px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;margin-bottom:36px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accTx)" stroke-width="2.2" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
+        </div>
+        <h1 style="margin:0 0 10px;color:var(--tx);font-size:31px;font-weight:700;letter-spacing:-.03em;line-height:1.15">Willkommen<br>zurück</h1>
+        <p style="margin:0 0 36px;color:var(--tx2);font-size:14.5px;line-height:1.5">Dein Depot, ohne Tabellen.</p>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">E-MAIL</label>
+            <input value="lena@icloud.com" style="width:100%;height:52px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="border-color:var(--acc)">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
+            <input type="password" value="passwort123" style="width:100%;height:52px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="border-color:var(--acc)">
+          </div>
+        </div>
+
+        <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;width:100%;height:54px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">Anmelden</button>
+
+        <div style="display:flex;align-items:center;gap:14px;margin:26px 0">
+          <div style="flex:1;height:1px;background:var(--line)"></div>
+          <span style="color:var(--tx3);font-size:11.5px">oder</span>
+          <div style="flex:1;height:1px;background:var(--line)"></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:14.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.9c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.7-1.8-3.3-1.8-1.4-.1-2.6.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.9-3.6 2.2-1.5 2.7-.4 6.6 1.1 8.8.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7 1.3 0 1.6.7 2.7.7 1.1 0 1.9-1.1 2.6-2.1.8-1.2 1.1-2.4 1.2-2.5-.1 0-2.3-.9-2.3-3.3zM14.3 5.9c.6-.7 1-1.7.9-2.7-.9 0-2 .6-2.6 1.3-.6.6-1 1.6-.9 2.6 1 .1 2-.5 2.6-1.2z"></path></svg>
+            Weiter mit Apple
+          </button>
+          <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:14.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="border-color:var(--line2)">
+            <span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--tx2);border-right-color:transparent;display:block"></span>
+            Weiter mit Google
+          </button>
+        </div>
+
+        <div style="flex:1"></div>
+        <p style="margin:0;text-align:center;color:var(--tx3);font-size:12px">Noch kein Konto? <a href="#1a" onClick="{{ goDash }}" style="color:var(--acc);font-weight:600">Registrieren</a></p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
+        <div style="margin-bottom:24px">
+          <div style="background:#FFFFFF;border-radius:0 0 30px 30px;padding:58px 22px 22px;box-shadow:0 22px 48px -24px rgba(0,0,0,.6)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="color:#7A8296;font-size:10.5px;font-weight:700;letter-spacing:.14em">GESAMTWERT · CHF</span>
+                <span style="width:6px;height:6px;border-radius:50%;background:{{ connTone }}"></span>
+              </div>
+              <div style="display:flex;gap:4px;padding:3px;border-radius:9px;background:#F1F4F9">
+                <span style="padding:4px 9px;border-radius:7px;background:#FFFFFF;color:#0F172A;font-size:10.5px;font-weight:600">6M</span>
+                <span style="padding:4px 9px;border-radius:7px;color:#8B93A5;font-size:10.5px;font-weight:600">1J</span>
+                <span style="padding:4px 9px;border-radius:7px;color:#8B93A5;font-size:10.5px;font-weight:600">Max</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:20px">
+              <span style="color:#0F172A;font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1;font-family:'IBM Plex Mono',monospace">{{ totalValue }}</span>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:3px">
+                <span style="color:#1E7F63;font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ gainPct }}</span>
+                <span style="color:#8B93A5;font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ gainAbs }}</span>
+              </div>
+            </div>
+            <div style="position:relative">
+              <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:112px;display:block;overflow:visible">
+                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F7D6B" stop-opacity=".18"></stop><stop offset="1" stop-color="#2F7D6B" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="M0 88 C40 86 60 82 96 80 C132 78 150 74 184 70 C218 66 240 62 272 58 C296 55 308 53 320 52 L320 112 L0 112 Z" fill="none"></path>
+                <path d="M0 92 C36 91 58 88 96 84 C134 80 152 78 184 74 C216 70 242 66 272 62 C296 59 310 57 320 56" fill="none" stroke="#C6CBD4" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round"></path>
+                <path d="M0 84 C34 80 54 70 92 72 C126 74 142 54 176 48 C206 43 226 50 254 38 C282 26 302 18 320 10 L320 112 L0 112 Z" fill="url(#vfill)"></path>
+                <path d="M0 84 C34 80 54 70 92 72 C126 74 142 54 176 48 C206 43 226 50 254 38 C282 26 302 18 320 10" fill="none" stroke="#2F7D6B" stroke-width="2.4" stroke-linecap="round"></path>
+                <circle cx="320" cy="10" r="4" fill="#2F7D6B"></circle>
+              </svg>
+              <div style="display:flex;justify-content:space-between;padding:10px 0 0">
+                <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
+                  <span style="color:#9AA1B1;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ m.l }}</span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;gap:18px;margin-top:14px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="width:14px;height:2.5px;border-radius:2px;background:#2F7D6B;display:block"></span>
+                <span style="color:#5C6270;font-size:11.5px;font-weight:500">Aktueller Wert</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="width:14px;height:0;border-top:2.5px dashed #C6CBD4;display:block"></span>
+                <span style="color:#5C6270;font-size:11.5px;font-weight:500">Investiert</span>
+              </div>
+            </div>
+            <div style="height:1px;background:#EDF1F6;margin:18px 0 14px"></div>
+            <div style="display:flex;justify-content:space-between">
+              <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <span style="color:#8B93A5;font-size:10px;font-weight:600;letter-spacing:.1em">{{ s.k }}</span>
+                  <span style="color:#0F172A;font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ s.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0 24px 12px;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">POSITIONEN</span>
+          <a href="#depot" onClick="{{ goDepot }}" style="color:var(--acc2);font-size:12px;font-weight:600">Depot öffnen</a>
+        </div>
+
+        <div style="padding:0 24px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+              <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ h.abbr }}</div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="color:var(--tx);font-size:14px;font-weight:600">{{ h.name }}</span>
+                <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ h.sub }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ h.value }}</span>
+                <span style="color:{{ h.color }};font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ h.change }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="padding:22px 24px 0">
+          <div style="border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--surf2);display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="color:var(--tx);font-size:13px;font-weight:600">Gratis-Kontingent</span>
+              <span style="color:var(--tx2);font-size:12px;font-family:'IBM Plex Mono',monospace">{{ quota }}</span>
+            </div>
+            <div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden">
+              <div style="height:100%;width:{{ quotaPct }};background:var(--acc);border-radius:3px"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="color:var(--tx3);font-size:11.5px">Steuer-Report ab Pro</span>
+              <a href="#1a" onClick="{{ goPro }}" style="color:var(--acc);font-size:12px;font-weight:600">Pro ansehen</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDepot }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:64px 20px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Depot · {{ posCount }}</span>
+        </div>
+
+        <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.12em">INVESTIERT</span>
+              <span style="color:var(--tx);font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ investedTotal }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+              <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.12em">AKTUELLER WERT</span>
+              <span style="color:var(--tx);font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ totalValue }}</span>
+            </div>
+          </div>
+          <div style="display:flex;height:8px;border-radius:5px;overflow:hidden;gap:2px;margin-bottom:10px">
+            <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
+              <div style="height:100%;border-radius:3px;width:{{ d.weight }};background:{{ d.tone }}"></div>
+            </sc-for>
+          </div>
+          <span style="color:var(--tx3);font-size:11.5px">Gewichtung nach aktuellem Wert</span>
+        </div>
+
+        <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
+            </div>
+            <span style="flex:1;color:var(--tx);font-size:13.5px;font-weight:600">KI-Analyse</span>
+            <span style="color:var(--tx3);font-size:10.5px;font-family:'IBM Plex Mono',monospace">heute 08:12</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
+              <div style="display:flex;gap:11px">
+                <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ i.tone }}"></span>
+                <div style="display:flex;flex-direction:column;gap:3px">
+                  <span style="color:var(--tx);font-size:13px;font-weight:600">{{ i.t }}</span>
+                  <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ i.d }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <button style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
+            Analyse neu erstellen
+          </button>
+          <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Automatisch generiert, keine Anlageberatung.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
+            <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px 16px 6px">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+                <div style="width:40px;height:40px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ d.abbr }}</div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="color:var(--tx);font-size:14.5px;font-weight:600">{{ d.name }}</span>
+                  <span style="color:var(--tx3);font-size:11.5px">{{ d.share }} des Depots</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                  <span style="color:var(--tx);font-size:14.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ d.value }}</span>
+                  <span style="font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{ d.color }}">{{ d.gain }}</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap">
+                <sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="4">
+                  <div style="width:50%;display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)">
+                    <span style="color:var(--tx3);font-size:11.5px">{{ r.k }}</span>
+                    <span style="color:var(--tx2);font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;padding-right:14px">{{ r.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:64px 24px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Beleg hinzufügen</span>
+        </div>
+
+        <button onClick="{{ startParse }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;height:268px;border-radius:22px;border:1.5px dashed var(--line2);background:var(--surf);text-align:center;padding:0 32px" style-hover="border-color:var(--acc);background:var(--surf2)">
+          <sc-if value="{{ parsing }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+              <span style="width:34px;height:34px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc);animation:spin .8s linear infinite;display:block"></span>
+              <span style="color:var(--tx);font-size:14.5px;font-weight:600">Beleg wird gelesen…</span>
+              <span style="color:var(--tx3);font-size:12.5px">Datum · Ticker · Stückzahl · Kurs</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ notParsing }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+              <div style="width:52px;height:52px;border-radius:16px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v13M7 8l5-5 5 5"></path></svg>
+              </div>
+              <span style="color:var(--tx);font-size:15px;font-weight:600">PDF oder Foto hier ablegen</span>
+              <span style="color:var(--tx3);font-size:12.5px;line-height:1.5">Abrechnungen von Swissquote, IBKR,<br>eToro oder Neon — auch als Screenshot</span>
+            </div>
+          </sc-if>
+        </button>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:22px 0">
+          <div style="flex:1;height:1px;background:var(--line)"></div>
+          <span style="color:var(--tx3);font-size:11px">oder</span>
+          <div style="flex:1;height:1px;background:var(--line)"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-bottom:34px">
+          <button onClick="{{ startParse }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:50px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Foto
+          </button>
+          <button style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:50px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Manuell
+          </button>
+        </div>
+
+        <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">ZULETZT VERARBEITET</span>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+          <sc-for list="{{ receipts }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:13px;padding:13px 14px;border-radius:14px;background:var(--surf);border:1px solid var(--line)">
+              <div style="width:34px;height:34px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="color:var(--tx);font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.file }}</span>
+                <span style="color:var(--tx3);font-size:11px;font-family:'IBM Plex Mono',monospace">{{ r.meta }}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:64px 24px 128px;animation:rise .32s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ goUpload }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Erkannte Daten</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:12px;background:var(--acc-soft);margin-bottom:20px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          <span style="color:var(--tx);font-size:12.5px;font-weight:500">4 Felder aus 1 Seite gelesen · 98 % sicher</span>
+        </div>
+
+        <div style="border:1px solid var(--line);border-radius:20px;background:var(--surf);overflow:hidden;margin-bottom:16px">
+          <div style="padding:18px 18px 16px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line)">
+            <div style="width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace">MSFT</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+              <span style="color:var(--tx);font-size:15px;font-weight:600">Microsoft Corp.</span>
+              <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace">US5949181045 · NASDAQ</span>
+            </div>
+            <span style="padding:4px 9px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:11px;font-weight:600">Kauf</span>
+          </div>
+          <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line)">
+              <span style="color:var(--tx3);font-size:12.5px">{{ f.k }}</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ f.v }}</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:17px 18px;background:var(--surf2)">
+            <span style="color:var(--tx2);font-size:13px;font-weight:600">Gesamtbetrag</span>
+            <span style="color:var(--tx);font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace">CHF 1’608.60</span>
+          </div>
+        </div>
+
+        <p style="margin:0 0 20px;color:var(--tx3);font-size:12px;line-height:1.55">Original als PDF im Beleg-Archiv gespeichert. Antippen zum Korrigieren.</p>
+
+        <div style="display:flex;gap:10px">
+          <button onClick="{{ goUpload }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:110px;height:52px;border-radius:14px;background:var(--surf);border:1px solid var(--line);color:var(--tx2);font-size:14.5px;font-weight:500;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">Verwerfen</button>
+          <button onClick="{{ confirm }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:52px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">Ins Depot buchen</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:64px 24px 128px;animation:rise .32s ease">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:34px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <h2 style="margin:0 0 10px;color:var(--tx);font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1.2">Unbegrenzt<br>hochladen</h2>
+        <p style="margin:0 0 30px;color:var(--tx2);font-size:14px;line-height:1.55">Steuer-Report für die Schweizer Erklärung, Depot-Analyse und beliebig viele Belege.</p>
+
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
+          <sc-for list="{{ perks }}" as="p" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:11px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 6L9 17l-5-5"></path></svg>
+              <span style="color:var(--tx);font-size:13.5px">{{ p.t }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">
+          <button onClick="{{ pickMonthly }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:16px;background:var(--surf);border:1.5px solid {{ monthlyBorder }}">
+            <div style="display:flex;flex-direction:column;gap:3px;text-align:left">
+              <span style="color:var(--tx);font-size:14.5px;font-weight:600">Pro monatlich</span>
+              <span style="color:var(--tx3);font-size:12px">jederzeit kündbar</span>
+            </div>
+            <span style="color:var(--tx);font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace">2.50 €</span>
+          </button>
+          <button onClick="{{ pickLifetime }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:16px;background:var(--surf);border:1.5px solid {{ lifetimeBorder }}">
+            <div style="display:flex;flex-direction:column;gap:3px;text-align:left">
+              <span style="color:var(--tx);font-size:14.5px;font-weight:600">Lifetime-Pass</span>
+              <span style="color:var(--tx3);font-size:12px">einmalig, kein Abo</span>
+            </div>
+            <span style="color:var(--tx);font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace">12 €</span>
+          </button>
+        </div>
+
+        <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:54px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ proCta }}</button>
+        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11.5px">15 Uploads pro Monat bleiben gratis.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
+      <div style="position:absolute;bottom:26px;left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
+        <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
+        </button>
+        <button onClick="{{ goDepot }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tDepot }}" width="19" height="19"><path d="M4 19V10M10 19V5M16 19v-6M21.5 19h-19"></path></svg>
+        </button>
+        <button onClick="{{ goUpload }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:48px;padding:0 14px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tScan }}"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"></path></svg>
+          <span style="font-size:14px;font-weight:700;letter-spacing:-.01em;color:{{ tScan }}">Scannen</span>
+        </button>
+        <button onClick="{{ goNews }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;position:relative;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tNews }}" width="19" height="19"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
+          <span style="position:absolute;top:1px;right:0;min-width:17px;height:17px;border-radius:9px;background:var(--acc2);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)">3</span>
+        </button>
+        <button onClick="{{ goSettings }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tSet }}" width="19" height="19"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>
+        </button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:64px 20px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px">
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
+          <span style="color:var(--tx3);font-size:11.5px">zu deinen Titeln</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ news }}" as="n" hint-placeholder-count="4">
+            <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px" style-hover="border-color:var(--line2)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+                <span style="padding:3px 8px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ n.tick }}</span>
+                <span style="font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ n.color }}">{{ n.move }}</span>
+                <span style="flex:1"></span>
+                <span style="color:var(--tx3);font-size:11px">{{ n.time }}</span>
+              </div>
+              <span style="display:block;color:var(--tx);font-size:14.5px;font-weight:600;line-height:1.4;text-wrap:pretty;margin-bottom:6px">{{ n.head }}</span>
+              <span style="display:block;color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ n.body }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:64px 20px 128px;animation:fade .3s ease">
+        <span style="display:block;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;margin-bottom:20px">Einstellungen</span>
+
+        <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
+          <div style="width:44px;height:44px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:14px;font-weight:700">LK</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+            <span style="color:var(--tx);font-size:15px;font-weight:600">Lena Keller</span>
+            <span style="color:var(--tx3);font-size:12px">lena@icloud.com</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+        </div>
+
+        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
+            <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:600">Datenquelle</span>
+            <span style="width:7px;height:7px;border-radius:50%;background:{{ connTone }}"></span>
+            <span style="font-size:11.5px;font-weight:600;color:{{ connTone }}">{{ connLabel }}</span>
+          </div>
+          <p style="margin:0 0 12px;color:var(--tx3);font-size:11.5px;line-height:1.5">Anbieter für Live-Kurse und News. Keys werden nur auf diesem Gerät gespeichert.</p>
+          <div style="display:flex;gap:7px;margin-bottom:12px">
+            <sc-for list="{{ providers }}" as="p" hint-placeholder-count="2">
+              <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:8px 14px;border-radius:10px;font-size:12.5px;font-weight:600;min-height:36px;display:flex;align-items:center;background:{{ p.bg }};color:{{ p.tx }}">{{ p.label }}</button>
+            </sc-for>
+          </div>
+          <span style="display:block;color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em;margin-bottom:7px">{{ keyHint }}</span>
+          <input type="password" placeholder="API Key einfügen" value="{{ keyDraft }}" onChange="{{ onKey }}" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-family:'IBM Plex Mono',monospace;padding:0 14px;outline:none;margin-bottom:10px" style-focus="border-color:var(--acc2)">
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ saveKey }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">Verbinden</button>
+            <button onClick="{{ sync }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">{{ syncLabel }}</button>
+          </div>
+        </div>
+
+        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
+            <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
+            <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
+              <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
+            </button>
+          </div>
+          <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
+            <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
+              <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
+              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ p.label }}</span>
+              <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ p.hint }}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+          </sc-for>
+        </div>
+
+        <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--neg)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+          <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
+        </button>
+        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0 · Prototyp</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:92px;left:20px;right:20px;padding:14px 16px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);display:flex;align-items:center;gap:11px;animation:rise .3s ease;z-index:7">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 6L9 17l-5-5"></path></svg>
+        <span style="color:var(--tx);font-size:13px;font-weight:500">Microsoft ins Depot gebucht</span>
+      </div>
+    </sc-if>
+
+    <div style="position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--tx3);opacity:.45;z-index:8"></div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:800,&quot;height&quot;:1000}}">
+const H = [
+  { abbr: "VWRL", sym: "VWRL.SW", name: "FTSE All-World", shares: 8, buy: 118.4, cur: 127.9 },
+  { abbr: "NESN", sym: "NESN.SW", name: "Nestlé", shares: 12, buy: 94.2, cur: 101.35 },
+  { abbr: "AAPL", sym: "AAPL", name: "Apple", shares: 5, buy: 182.1, cur: 224.5 },
+  { abbr: "ROG", sym: "ROG.SW", name: "Roche", shares: 3, buy: 258.0, cur: 241.2 }
+];
+const MSFT = { abbr: "MSFT", sym: "MSFT", name: "Microsoft", shares: 4, buy: 402.15, cur: 411.8 };
+const STORE = "belegio.portfolio";
+
+const loadPortfolio = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE) || "null");
+    return Array.isArray(raw) && raw.length ? raw : H;
+  } catch (e) { return H; }
+};
+const savePortfolio = h => { try { localStorage.setItem(STORE, JSON.stringify(h)); } catch (e) {} };
+
+const f2 = n => n.toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/\u2019|'/g, "\u2019");
+
+class Component extends DCLogic {
+  state = {
+    theme: "light", screen: "login", parsing: false, holdings: loadPortfolio(),
+    toast: false, plan: "monthly",
+    keyDraft: "", conn: "demo", quotes: {}, liveNews: null, syncing: false,
+    providerId: "alphavantage", providers: [], splash: true
+  };
+
+  skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
+
+  replaySplash = () => {
+    clearTimeout(this.t3);
+    this.setState({ splash: false, screen: "login" }, () => {
+      this.setState({ splash: true });
+      this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
+    });
+  };
+
+  set = (k, v) => this.setState({ [k]: v });
+  go = s => () => this.setState({ screen: s, parsing: false });
+
+  async api() {
+    if (!this._api) this._api = await import("./market.js");
+    return this._api;
+  }
+
+  async componentDidMount() {
+    this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
+    const api = await this.api();
+    const pid = api.activeId();
+    this.setState({ providers: api.PROVIDER_LIST, providerId: pid, keyDraft: api.getKey(pid) });
+    if (api.getKey(pid)) this.sync();
+  }
+
+  pickProvider = pid => async () => {
+    const api = await this.api();
+    api.setActive(pid);
+    this.setState({ providerId: pid, keyDraft: api.getKey(pid), conn: "demo", quotes: {}, liveNews: null });
+    if (api.getKey(pid)) this.sync();
+  };
+
+  saveKey = async () => {
+    const api = await this.api();
+    api.setKey(this.state.providerId, this.state.keyDraft);
+    this.setState({ conn: "demo" });
+    if (this.state.keyDraft.trim()) this.sync();
+  };
+
+  sync = async () => {
+    const api = await this.api();
+    if (!api.getKey()) return this.setState({ conn: "demo" });
+    this.setState({ syncing: true });
+    try {
+      const syms = this.state.holdings.map(h => h.sym || h.abbr);
+      const q = await api.quotes(syms);
+      let news = null;
+      try { news = await api.news(syms, 10); } catch (e) {}
+      this.setState({
+        quotes: q, liveNews: news && news.length ? news : null,
+        conn: Object.keys(q).length ? "live" : "empty", syncing: false
+      });
+    } catch (e) {
+      const map = { "bad-key": "badkey", "rate-limit": "limit", "no-key": "demo" };
+      this.setState({ conn: map[e.message] || "error", syncing: false });
+    }
+  };
+
+  startParse = () => {
+    if (this.state.parsing) return;
+    this.setState({ parsing: true });
+    this.t = setTimeout(() => this.setState({ parsing: false, screen: "review" }), 1400);
+  };
+
+  confirm = () => {
+    this.setState(s => {
+      const holdings = s.holdings.some(h => h.abbr === "MSFT") ? s.holdings : [MSFT, ...s.holdings];
+      savePortfolio(holdings);
+      return { screen: "dash", holdings, toast: true };
+    }, this.state.apiKey ? this.sync : undefined);
+    clearTimeout(this.t2);
+    this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
+  };
+
+  componentWillUnmount() { clearTimeout(this.t); clearTimeout(this.t2); clearTimeout(this.t3); }
+
+  renderVals() {
+    const { theme, screen, plan, quotes: qs, conn } = this.state;
+    const holdings = this.state.holdings.map(h => {
+      const q = qs[h.sym || h.abbr];
+      return q ? { ...h, cur: q.c, dp: q.dp, live: true } : h;
+    });
+    const provName = (this.state.providers.find(p => p.id === this.state.providerId) || {}).label || "Alpha Vantage";
+    const val = holdings.reduce((a, h) => a + h.shares * h.cur, 0);
+    const cost = holdings.reduce((a, h) => a + h.shares * h.buy, 0);
+    const g = val - cost;
+    const used = holdings.length + 6;
+
+    const navItems = [
+      ["01", "Login", "login"], ["02", "Dashboard", "dash"],
+      ["03", "Depot", "depot"], ["04", "Beleg scannen", "upload"], ["05", "Beleg-Prüfung", "review"], ["06", "News", "news"], ["07", "Einstellungen", "settings"], ["08", "Pro", "pro"]
+    ];
+
+    return {
+      theme,
+      themeLabel: theme === "dark" ? "Dark Mode" : "Light Mode",
+      knobX: theme === "dark" ? "23px" : "3px",
+      toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
+
+      nav: navItems.map(([num, label, key]) => ({
+        num, label, go: this.go(key),
+        navBg: screen === key ? "var(--surf)" : "transparent",
+        navTx: screen === key ? "var(--tx)" : "var(--tx2)"
+      })),
+
+      logout: this.go("login"),
+      isNews: screen === "news", isSettings: screen === "settings",
+      goNews: this.go("news"), goSettings: this.go("settings"),
+      tHome: screen === "dash" ? "var(--tx)" : "var(--tx3)",
+      fHome: screen === "dash" ? "var(--tx)" : "none",
+      tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
+      tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
+      tNews: screen === "news" ? "var(--tx)" : "var(--tx3)",
+      tSet: screen === "settings" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
+      connLabel: {
+        live: "Live · " + provName, demo: "Demo-Daten", badkey: "Key ungültig",
+        limit: "Limit erreicht", error: "Keine Verbindung", empty: "Keine Kursdaten"
+      }[conn],
+      connTone: conn === "live" ? "var(--acc2)" : conn === "demo" ? "var(--tx3)" : "var(--neg)",
+      isLive: conn === "live",
+      providers: this.state.providers.map(p => ({
+        label: p.label,
+        go: this.pickProvider(p.id),
+        bg: p.id === this.state.providerId ? "var(--acc)" : "var(--surf2)",
+        tx: p.id === this.state.providerId ? "var(--accTx)" : "var(--tx2)"
+      })),
+      keyHint: "API-Key · " + provName,
+      keyDraft: this.state.keyDraft,
+      onKey: e => this.set("keyDraft", e.target.value),
+      saveKey: this.saveKey,
+      sync: this.sync,
+      syncLabel: this.state.syncing ? "Synchronisiert…" : "Kurse aktualisieren",
+
+      news: this.state.liveNews ? this.state.liveNews.map(n => {
+        const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
+        const dp = h && typeof h.dp === "number" ? h.dp : 0;
+        const mins = Math.round((Date.now() - n.datetime) / 60000);
+        return {
+          tick: h ? h.abbr : n.symbol,
+          move: (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
+          color: dp >= 0 ? "var(--pos)" : "var(--neg)",
+          time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
+          head: n.headline,
+          body: (n.summary || n.source || "").slice(0, 180)
+        };
+      }) : [
+        { tick: "MSFT", move: "+1.4 %", up: true, time: "vor 2 Std", head: "Microsoft hebt Cloud-Prognose an", body: "Azure wächst im Quartal um 29 %. Analysten heben Kursziele leicht an." },
+        { tick: "NESN", move: "-0.6 %", up: false, time: "vor 5 Std", head: "Nestlé mit verhaltenem Ausblick in Europa", body: "Volumen stabil, Preiseffekte lassen nach. Dividende bleibt unverändert." },
+        { tick: "VWRL", move: "+0.3 %", up: true, time: "heute", head: "Weltindex nahe Allzeithoch", body: "Breiter Markt getrieben von Technologie. Deine grösste Position profitiert am stärksten." },
+        { tick: "ROG", move: "-2.1 %", up: false, time: "gestern", head: "Roche: Studienergebnis unter Erwartungen", body: "Phase-III-Daten enttäuschen, Titel gibt nach — deine Position bleibt im Minus." }
+      ].map(n => ({ ...n, color: n.up ? "var(--pos)" : "var(--neg)" })),
+      prefs: [
+        ["Konto", "", "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8", null],
+        ["Abo", "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
+        ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", "pro"],
+        ["Broker verbinden", "3 aktiv", "M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1", null]
+      ].map(([label, hint, d, to]) => ({
+        label, hint,
+        icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })),
+        go: to ? this.go(to) : () => {}
+      })),
+
+      statusTx: screen === "dash" ? "#0F172A" : "var(--tx)",
+      statusDim: screen === "dash" ? "rgba(15,23,42,.3)" : "var(--line2)",
+      splash: this.state.splash, skipSplash: this.skipSplash, replaySplash: this.replaySplash,
+      isLogin: screen === "login", isDash: screen === "dash",
+      isUpload: screen === "upload", isReview: screen === "review", isPro: screen === "pro",
+      showTabs: screen !== "login" && screen !== "pro",
+      parsing: this.state.parsing, notParsing: !this.state.parsing,
+      toast: this.state.toast,
+
+      goDash: this.go("dash"), goUpload: this.go("upload"), goPro: this.go("pro"),
+      startParse: this.startParse, confirm: this.confirm,
+
+      totalValue: f2(val),
+      gainAbs: (g >= 0 ? "+" : "") + f2(g),
+      gainPct: (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %",
+      posCount: holdings.length + " Titel",
+      quota: used + " / 15 Uploads",
+      quotaPct: Math.min(100, used / 15 * 100).toFixed(0) + "%",
+      months: ["Mrz", "Apr", "Mai", "Jun", "Jul", "Aug"].map(l => ({ l })),
+      investedTotal: f2(cost),
+      isDepot: screen === "depot",
+      insights: (() => {
+        const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
+        const worst = holdings.map(h => ({ h, d: (h.cur - h.buy) / h.buy })).sort((a, b) => a.d - b.d)[0];
+        const chf = holdings.filter(h => ["NESN", "ROG"].includes(h.abbr)).reduce((a, h) => a + h.shares * h.cur, 0);
+        return [
+          { tone: "var(--acc2)", t: "Klumpenrisiko bei " + top.h.name, d: Math.round(top.v / val * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." },
+          { tone: "var(--neg)", t: worst.h.name + " im Minus", d: "Aktuell " + (worst.d * 100).toFixed(1) + " % unter deinem Ø Kaufkurs von " + f2(worst.h.buy) + " CHF." },
+          { tone: "var(--tx3)", t: "Währungsmix", d: Math.round(chf / val * 100) + " % CHF, Rest in USD — Fremdwährung macht deine Rendite schwankungsanfälliger." },
+          { tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert. Für die Erklärung 2026 fehlen noch Dividendenabrechnungen." }
+        ];
+      })(),
+      goDepot: this.go("depot"),
+      depot: holdings.map(h => {
+        const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
+        const w = v / val * 100;
+        return {
+          abbr: h.abbr, name: h.name,
+          value: f2(v),
+          gain: (d >= 0 ? "+" : "") + f2(d),
+          color: d >= 0 ? "var(--pos)" : "var(--neg)",
+          weight: w.toFixed(1) + "%",
+          share: w.toFixed(1) + " %",
+          tone: d >= 0 ? "var(--acc2)" : "var(--neg)",
+          rows: [
+            { k: "Anteile", v: String(h.shares) },
+            { k: "Ø Kaufkurs", v: f2(h.buy) },
+            { k: "Investiert", v: f2(inv) },
+            { k: "Kurs jetzt", v: f2(h.cur) }
+          ]
+        };
+      }),
+
+      stats: [
+        { k: "EINZAHLUNG", v: f2(cost) },
+        { k: "TITEL", v: String(holdings.length) },
+        { k: "BELEGE", v: String(used) }
+      ],
+
+      holdings: holdings.map(h => {
+        const d = (h.cur - h.buy) / h.buy * 100;
+        return {
+          abbr: h.abbr, name: h.name,
+          sub: h.shares + " × " + f2(h.buy),
+          value: f2(h.shares * h.cur),
+          change: (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
+          color: d >= 0 ? "var(--pos)" : "var(--neg)"
+        };
+      }),
+
+      receipts: [
+        { file: "swissquote_abrechnung_0723.pdf", meta: "AAPL · 5 Stk · 23.07.2026" },
+        { file: "IMG_4821.HEIC", meta: "NESN · 12 Stk · 11.06.2026" },
+        { file: "ibkr_statement_may.pdf", meta: "VWRL · 8 Stk · 04.05.2026" }
+      ],
+
+      fields: [
+        { k: "Handelsdatum", v: "12.07.2026" },
+        { k: "Ticker / ISIN", v: "MSFT" },
+        { k: "Stückzahl", v: "4" },
+        { k: "Kurs pro Stück", v: "402.15" }
+      ],
+
+      perks: [
+        { t: "Unbegrenzte Belege & Transaktionen" },
+        { t: "Steuer-Report als PDF (CH-konform)" },
+        { t: "Klumpenrisiko- und Währungsanalyse" },
+        { t: "Live-Kurse im Minutentakt" }
+      ],
+
+      monthlyBorder: plan === "monthly" ? "var(--acc)" : "var(--line)",
+      lifetimeBorder: plan === "lifetime" ? "var(--acc)" : "var(--line)",
+      pickMonthly: () => this.set("plan", "monthly"),
+      pickLifetime: () => this.set("plan", "lifetime"),
+      proCta: plan === "monthly" ? "Für 2.50 € / Monat starten" : "Lifetime für 12 € kaufen"
+    };
+  }
+}
+
+</script>
+</body>
+</html>
