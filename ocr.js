@@ -85,7 +85,7 @@ function parseFields(text) {
   const isin = isinMatch ? isinMatch[1] : "";
 
   const symbolMatch = text.match(/\b(?:Symbol|Ticker|Valor)[:\s]{1,4}([A-Z][A-Z0-9.]{1,9})\b/i);
-  const symbol = symbolMatch ? symbolMatch[1].toUpperCase() : isin;
+  const symbol = symbolMatch ? symbolMatch[1].toUpperCase() : "";
 
   const U = "(?:ü|ue|u)";
   const sharesRaw = findAfterKeyword(text, [`St${U}ck(?:zahl)?`, "Stk\\.?", "Anzahl", "Quantity", "Shares", "Menge"]);

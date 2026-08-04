@@ -13,3 +13,7 @@ export async function news(symbols, limit = 12) {
 export async function search(term) {
   return callMarket("search", { term });
 }
+
+export async function history(symbols) {
+  return callMarket("history", { symbols });
+}

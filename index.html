@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F3F4F7">
 <title>Belegio</title>
 <script src="./support.js"></script>
 </head>
@@ -114,11 +115,17 @@ input::placeholder{color:var(--tx3)}
                 <span style="width:6px;height:6px;border-radius:50%;background:{{ connTone }}"></span>
               </div>
               <div style="display:flex;gap:4px;padding:3px;border-radius:9px;background:#F1F4F9">
-                <span style="padding:4px 9px;border-radius:7px;background:#FFFFFF;color:#0F172A;font-size:10.5px;font-weight:600">6M</span>
-                <span style="padding:4px 9px;border-radius:7px;color:#8B93A5;font-size:10.5px;font-weight:600">1J</span>
-                <span style="padding:4px 9px;border-radius:7px;color:#8B93A5;font-size:10.5px;font-weight:600">Max</span>
+                <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
+                  <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:7px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
+                </sc-for>
               </div>
             </div>
+            <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;justify-content:center;height:80px">
+                <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid #E3E6EC;border-top-color:#2F7D6B;animation:spin .8s linear infinite;display:block"></span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:20px">
               <span style="color:#0F172A;font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1;font-family:'IBM Plex Mono',monospace">{{ totalValue }}</span>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:3px">
@@ -126,14 +133,14 @@ input::placeholder{color:var(--tx3)}
                 <span style="color:#8B93A5;font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ gainAbs }}</span>
               </div>
             </div>
+            <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative">
               <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:112px;display:block;overflow:visible">
                 <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F7D6B" stop-opacity=".18"></stop><stop offset="1" stop-color="#2F7D6B" stop-opacity="0"></stop></linearGradient></defs>
-                <path d="M0 88 C40 86 60 82 96 80 C132 78 150 74 184 70 C218 66 240 62 272 58 C296 55 308 53 320 52 L320 112 L0 112 Z" fill="none"></path>
-                <path d="M0 92 C36 91 58 88 96 84 C134 80 152 78 184 74 C216 70 242 66 272 62 C296 59 310 57 320 56" fill="none" stroke="#C6CBD4" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round"></path>
-                <path d="M0 84 C34 80 54 70 92 72 C126 74 142 54 176 48 C206 43 226 50 254 38 C282 26 302 18 320 10 L320 112 L0 112 Z" fill="url(#vfill)"></path>
-                <path d="M0 84 C34 80 54 70 92 72 C126 74 142 54 176 48 C206 43 226 50 254 38 C282 26 302 18 320 10" fill="none" stroke="#2F7D6B" stroke-width="2.4" stroke-linecap="round"></path>
-                <circle cx="320" cy="10" r="4" fill="#2F7D6B"></circle>
+                <path d="{{ chartInvestedPath }}" fill="none" stroke="#C6CBD4" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round"></path>
+                <path d="{{ chartValueFillPath }}" fill="url(#vfill)"></path>
+                <path d="{{ chartValuePath }}" fill="none" stroke="#2F7D6B" stroke-width="2.4" stroke-linecap="round"></path>
+                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4" fill="#2F7D6B"></circle>
               </svg>
               <div style="display:flex;justify-content:space-between;padding:10px 0 0">
                 <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
@@ -141,6 +148,11 @@ input::placeholder{color:var(--tx3)}
                 </sc-for>
               </div>
             </div>
+            </sc-if>
+            <sc-if value="{{ noChart }}" hint-placeholder-val="{{ false }}">
+              <div style="height:80px;display:flex;align-items:center;justify-content:center;text-align:center;color:#8B93A5;font-size:12px;padding:0 20px">{{ chartEmptyMsg }}</div>
+            </sc-if>
+            </sc-if>
             <div style="display:flex;gap:18px;margin-top:14px">
               <div style="display:flex;align-items:center;gap:7px">
                 <span style="width:14px;height:2.5px;border-radius:2px;background:#2F7D6B;display:block"></span>
@@ -174,7 +186,7 @@ input::placeholder{color:var(--tx3)}
           </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
-              <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ h.abbr }}</div>
+              <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ h.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                 <span style="color:var(--tx);font-size:14px;font-weight:600">{{ h.name }}</span>
                 <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ h.sub }}</span>
@@ -263,7 +275,7 @@ input::placeholder{color:var(--tx3)}
           <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
             <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px 16px 6px">
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-                <div style="width:40px;height:40px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ d.abbr }}</div>
+                <div style="width:40px;height:40px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ d.logo }}</div>
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                   <span style="color:var(--tx);font-size:14.5px;font-weight:600">{{ d.name }}</span>
                   <span style="color:var(--tx3);font-size:11.5px">{{ d.share }} des Depots</span>
@@ -375,7 +387,7 @@ input::placeholder{color:var(--tx3)}
 
         <div style="border:1px solid var(--line);border-radius:20px;background:var(--surf);overflow:hidden;margin-bottom:16px">
           <div style="padding:18px 18px 16px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line)">
-            <div style="width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ reviewAbbr }}</div>
+            <div style="width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ reviewLogo }}</div>
             <div style="flex:1;display:flex;flex-direction:column;gap:2px">
               <span style="color:var(--tx);font-size:15px;font-weight:600">Position</span>
               <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ reviewIsin }}</span>
@@ -393,6 +405,10 @@ input::placeholder{color:var(--tx3)}
             <span style="color:var(--tx);font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ reviewTotal }}</span>
           </div>
         </div>
+
+        <sc-if value="{{ tickerHint }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0 0 14px;color:var(--tx3);font-size:11.5px;line-height:1.5">Ohne echten Ticker (z. B. VWRL, AAPL) gibt es keine Live-Kurse für diese Position — die ISIN allein reicht dafür nicht.</p>
+        </sc-if>
 
         <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}">
           <p style="margin:0 0 14px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ confirmError }}</p>
@@ -451,7 +467,7 @@ input::placeholder{color:var(--tx3)}
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
-      <div style="position:absolute;bottom:26px;left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
+      <div style="position:absolute;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
         </button>
@@ -561,13 +577,23 @@ input::placeholder{color:var(--tx3)}
 const f2 = n => (n || 0).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/’|'/g, "’");
 const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", total: "", currency: "CHF" });
 
+const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}\d$/;
+const isinLike = s => ISIN_RE.test(String(s || "").toUpperCase());
+const fundIcon = () => React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+  React.createElement("path", { d: "M4 20h16M6 20V10l6-5 6 5v10M10 20v-6h4v6" }));
+const logoFor = sym => isinLike(sym) ? fundIcon() : String(sym || "?").slice(0, 5);
+
+const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
+const RANGE_LABELS = { D: "Tag", W: "Woche", M: "Monat", Y: "Jahr", MAX: "Max" };
+const dstr = d => d.toISOString().slice(0, 10);
+
 class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
-    holdings: [], receipts: [],
+    holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
     toast: false, toastMsg: "", plan: "monthly",
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
-    splash: true,
+    splash: true, dashLoading: true,
 
     user: null,
     authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
@@ -599,9 +625,11 @@ class Component extends DCLogic {
     const session = await db.getSession();
     if (session) {
       this.setState({ user: session.user, screen: "dash" });
-      await this.loadPortfolio();
+      const holdings = await this.loadPortfolio();
+      await this.loadHistory(holdings);
       await this.loadReceipts();
     }
+    this.setState({ dashLoading: false });
   }
 
   componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); }
@@ -627,9 +655,11 @@ class Component extends DCLogic {
         this.setState({ authLoading: false, authMode: "login", authPassword: "", authError: "Konto erstellt — bitte bestätige deine E-Mail-Adresse und melde dich dann an." });
         return;
       }
-      this.setState({ authLoading: false, user: session.user, screen: "dash", authPassword: "" });
-      await this.loadPortfolio();
+      this.setState({ authLoading: false, user: session.user, screen: "dash", authPassword: "", dashLoading: true });
+      const holdings = await this.loadPortfolio();
+      await this.loadHistory(holdings);
       await this.loadReceipts();
+      this.setState({ dashLoading: false });
     } catch (e) {
       this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
     }
@@ -639,7 +669,7 @@ class Component extends DCLogic {
     const db = await this.db();
     await db.signOut();
     this.setState({
-      user: null, screen: "login", holdings: [], receipts: [], quotes: {}, liveNews: null,
+      user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
       conn: "idle", authEmail: "", authPassword: ""
     });
   };
@@ -662,10 +692,23 @@ class Component extends DCLogic {
       buy: h.shares ? h.invested / h.shares : 0,
       cur: h.shares ? h.invested / h.shares : 0
     }));
-    this.setState({ holdings, txCount: txs.length });
+    this.setState({ holdings, txs, txCount: txs.length });
     if (holdings.length) this.sync();
     return holdings;
   };
+
+  loadHistory = async holdings => {
+    const have = this.state.history || {};
+    const syms = [...new Set((holdings || this.state.holdings).map(h => h.sym || h.abbr))].filter(s => !have[s] && !isinLike(s));
+    if (!syms.length) return;
+    try {
+      const api = await this.api();
+      const data = await api.history(syms);
+      this.setState(s => ({ history: { ...s.history, ...data } }));
+    } catch (e) { /* Rate-Limit/Fehler — Chart faellt auf Naeherung ueber den Einstandspreis zurueck */ }
+  };
+
+  setChartRange = key => () => this.setState({ chartRange: key });
 
   loadReceipts = async () => {
     const db = await this.db();
@@ -677,10 +720,11 @@ class Component extends DCLogic {
 
   sync = async () => {
     if (!this.state.holdings.length) return this.setState({ conn: "empty" });
+    const syms = this.state.holdings.map(h => h.sym || h.abbr).filter(s => !isinLike(s));
+    if (!syms.length) return this.setState({ conn: "empty" });
     this.setState({ syncing: true });
     try {
       const api = await this.api();
-      const syms = this.state.holdings.map(h => h.sym || h.abbr);
       const q = await api.quotes(syms);
       let news = null;
       try { news = await api.news(syms, 10); } catch (e) {}
@@ -703,6 +747,16 @@ class Component extends DCLogic {
     try {
       const ocr = await this.ocr();
       const { fields } = await ocr.scanReceipt(file);
+      if (!fields.symbol && fields.isin) {
+        try {
+          const api = await this.api();
+          const matches = await api.search(fields.isin);
+          if (matches && matches.length) {
+            fields.symbol = matches[0].symbol;
+            fields.name = matches[0].name;
+          }
+        } catch (e) { /* Ticker-Aufloesung best-effort — Feld bleibt leer, Nutzer traegt Ticker manuell ein */ }
+      }
       this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file });
     } catch (err) {
       console.error(err);
@@ -730,7 +784,7 @@ class Component extends DCLogic {
       const db = await this.db();
       const tx = await db.insertTransaction({
         date: f.date || new Date().toISOString().slice(0, 10),
-        symbol, isin: f.isin || null, name: symbol,
+        symbol, isin: f.isin || null, name: f.name || symbol,
         shares, purchase_price: price, currency: f.currency || "CHF",
         total_amount: parseFloat(f.total) || shares * price,
         source: this.state.pendingFile ? "ocr" : "manual"
@@ -738,7 +792,8 @@ class Component extends DCLogic {
       if (this.state.pendingFile) {
         try { await db.uploadReceipt(this.state.pendingFile, tx.id); } catch (e) { console.error(e); }
       }
-      await this.loadPortfolio();
+      const holdings = await this.loadPortfolio();
+      await this.loadHistory(holdings);
       await this.loadReceipts();
       this.setState({ screen: "dash", toast: true, toastMsg: symbol + " ins Depot gebucht", pendingFile: null, extracted: null });
       clearTimeout(this.t2);
@@ -764,6 +819,69 @@ class Component extends DCLogic {
     const shares = parseFloat(f.shares) || 0;
     const price = parseFloat(f.price) || 0;
     const total = shares && price ? shares * price : parseFloat(f.total) || 0;
+
+    // ---------- Chart: real invested-over-time + best-effort value-over-time, clamped to first purchase ----------
+    const txs = this.state.txs || [];
+    const hist = this.state.history || {};
+    let chartData = null;
+    if (txs.length) {
+      const todayStr = dstr(new Date());
+      const firstDate = txs.reduce((m, t) => (t.date < m ? t.date : m), txs[0].date);
+      const days = RANGE_DAYS[this.state.chartRange] ?? 30;
+      const cutoff = days === Infinity ? firstDate : dstr(new Date(Date.now() - days * 864e5));
+      const startDate = cutoff > firstDate ? cutoff : firstDate;
+      const symbols = [...new Set(txs.map(t => t.symbol))];
+      const dateSet = new Set([startDate, todayStr]);
+      for (const s of symbols) for (const p of (hist[s] || [])) { if (p.date >= startDate && p.date <= todayStr) dateSet.add(p.date); }
+      const dates = [...dateSet].sort();
+      const investedAt = d => txs.filter(t => t.date <= d).reduce((a, t) => a + Number(t.shares) * Number(t.purchase_price), 0);
+      const priceAt = (sym, d) => {
+        const arr = hist[sym]; if (!arr || !arr.length) return null;
+        let best = null;
+        for (const p of arr) if (p.date <= d && (!best || p.date > best.date)) best = p;
+        return best ? best.close : null;
+      };
+      const valueAt = d => {
+        if (d === todayStr) return val;
+        let total = 0;
+        for (const s of symbols) {
+          const sh = txs.filter(t => t.symbol === s && t.date <= d).reduce((a, t) => a + Number(t.shares), 0);
+          if (!sh) continue;
+          const p = priceAt(s, d);
+          total += p != null ? sh * p : txs.filter(t => t.symbol === s && t.date <= d).reduce((a, t) => a + Number(t.shares) * Number(t.purchase_price), 0);
+        }
+        return total;
+      };
+      const points = dates.map(d => ({ date: d, invested: investedAt(d), value: valueAt(d) }));
+      if (points.length >= 2) {
+        const vals = points.flatMap(p => [p.invested, p.value]);
+        const vMin = Math.min(...vals), vMax = Math.max(...vals);
+        const range = (vMax - vMin) || 1;
+        const n = points.length;
+        const X = i => n > 1 ? (i / (n - 1)) * 320 : 0;
+        const Y = v => 92 - ((v - vMin) / range) * 80;
+        const toPath = key => points.map((p, i) => (i === 0 ? "M" : "L") + X(i).toFixed(1) + " " + Y(p[key]).toFixed(1)).join(" ");
+        const valuePath = toPath("value");
+        const lastX = X(n - 1), lastY = Y(points[n - 1].value);
+        const dateFmt = this.state.chartRange === "Y" || this.state.chartRange === "MAX"
+          ? d => new Date(d).toLocaleDateString("de-CH", { month: "short", year: "2-digit" })
+          : d => new Date(d).toLocaleDateString("de-CH", { day: "2-digit", month: "short" });
+        const axisCount = Math.min(6, n);
+        const axisLabels = Array.from({ length: axisCount }, (_, i) => {
+          const idx = axisCount > 1 ? Math.round((i / (axisCount - 1)) * (n - 1)) : 0;
+          return { l: dateFmt(points[idx].date) };
+        });
+        chartData = {
+          hasChart: true,
+          chartInvestedPath: toPath("invested"),
+          chartValuePath: valuePath,
+          chartValueFillPath: valuePath + ` L ${lastX.toFixed(1)} 112 L 0 112 Z`,
+          chartDotX: lastX.toFixed(1), chartDotY: lastY.toFixed(1),
+          months: axisLabels
+        };
+      }
+    }
+    const chartRangeKeys = ["D", "W", "M", "Y", "MAX"];
 
     return {
       theme,
@@ -839,13 +957,26 @@ class Component extends DCLogic {
       startParse: this.manualEntry, confirm: this.confirm,
       confirmCta: "Ins Depot buchen",
 
+      dashLoading: this.state.dashLoading, dashReady: !this.state.dashLoading,
+      chartRanges: chartRangeKeys.map(key => ({
+        label: RANGE_LABELS[key], go: this.setChartRange(key),
+        bg: this.state.chartRange === key ? "#FFFFFF" : "transparent",
+        tx: this.state.chartRange === key ? "#0F172A" : "#8B93A5"
+      })),
+      hasChart: !!chartData, noChart: !chartData,
+      chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
+      chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
+      chartValuePath: chartData ? chartData.chartValuePath : "",
+      chartValueFillPath: chartData ? chartData.chartValueFillPath : "",
+      chartDotX: chartData ? chartData.chartDotX : "0", chartDotY: chartData ? chartData.chartDotY : "0",
+
       totalValue: f2(val),
       gainAbs: (g >= 0 ? "+" : "") + f2(g),
       gainPct: cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
       posCount: holdings.length + " Titel",
       quota: used + " / 15 Uploads",
       quotaPct: Math.min(100, used / 15 * 100).toFixed(0) + "%",
-      months: ["Mrz", "Apr", "Mai", "Jun", "Jul", "Aug"].map(l => ({ l })),
+      months: chartData ? chartData.months : [],
       investedTotal: f2(cost),
       isDepot: screen === "depot",
       noHoldings: !holdings.length,
@@ -863,7 +994,7 @@ class Component extends DCLogic {
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
         const w = val ? v / val * 100 : 0;
         return {
-          abbr: h.abbr, name: h.name,
+          abbr: h.abbr, logo: logoFor(h.sym || h.abbr), name: h.name,
           value: f2(v),
           gain: (d >= 0 ? "+" : "") + f2(d),
           color: d >= 0 ? "var(--pos)" : "var(--neg)",
@@ -886,13 +1017,15 @@ class Component extends DCLogic {
       ],
 
       holdings: holdings.map(h => {
+        const sym = h.sym || h.abbr;
+        const noLive = isinLike(sym) && !h.live;
         const d = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
         return {
-          abbr: h.abbr, name: h.name,
+          abbr: h.abbr, logo: logoFor(sym), name: h.name,
           sub: h.shares + " × " + f2(h.buy),
           value: f2(h.shares * h.cur),
-          change: (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
-          color: d >= 0 ? "var(--pos)" : "var(--neg)"
+          change: noLive ? "kein Live-Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
+          color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)"
         };
       }),
 
@@ -903,12 +1036,13 @@ class Component extends DCLogic {
       noReceipts: !this.state.receipts || !this.state.receipts.length,
 
       reviewHint: this.state.ocrError ? "Automatische Erkennung fehlgeschlagen — bitte prüfen" : "Felder automatisch erkannt · bitte prüfen",
-      reviewAbbr: (f.symbol || f.isin || "?").slice(0, 5),
-      reviewIsin: f.isin || (f.symbol ? "manuell erfasst" : ""),
+      reviewLogo: logoFor(f.symbol || f.isin || "?"),
+      reviewIsin: f.isin ? "ISIN " + f.isin : (f.symbol ? "manuell erfasst" : ""),
       reviewTotal: (f.currency || "CHF") + " " + f2(total),
+      tickerHint: !f.symbol || isinLike(f.symbol),
       fields: [
         { k: "Handelsdatum", v: f.date, onChange: this.setField("date") },
-        { k: "Ticker / ISIN", v: f.symbol || f.isin, onChange: this.setField("symbol") },
+        { k: "Ticker-Symbol", v: f.symbol, onChange: this.setField("symbol") },
         { k: "Stückzahl", v: f.shares, onChange: this.setField("shares") },
         { k: "Kurs pro Stück", v: f.price, onChange: this.setField("price") }
       ],
