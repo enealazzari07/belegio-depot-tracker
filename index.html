@@ -61,6 +61,8 @@ input::placeholder{color:var(--tx3)}
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
+    <div style="position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);z-index:999;pointer-events:none"></div>
+
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
         <div style="width:150px;height:150px;transform-origin:50% 53.3%;animation:zoomIn 1.2s cubic-bezier(.72,0,.9,.06) 1.15s both">
@@ -578,8 +580,8 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
-      <div style="position:absolute;bottom:calc(4px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
+      <div style="position:fixed;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
+      <div style="position:fixed;bottom:calc(4px + env(safe-area-inset-bottom, 0px));left:16px;right:16px;max-width:448px;margin:0 auto;display:flex;align-items:center;gap:7px;z-index:6">
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
         </button>
