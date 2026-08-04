@@ -396,6 +396,11 @@ input::placeholder{color:var(--tx3)}
             </div>
             <span style="padding:4px 9px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:11px;font-weight:600">Kauf</span>
           </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 18px;border-bottom:1px solid var(--line)">
+            <span style="color:var(--tx3);font-size:12.5px;flex:none">ISIN</span>
+            <input value="{{ isinField }}" onChange="{{ onIsinField }}" placeholder="z. B. IE00B..." style="flex:1;min-width:0;text-align:right;border:none;background:transparent;outline:none;color:var(--tx);font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace" style-focus="color:var(--acc2)">
+            <button onClick="{{ resolveIsinField }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:6px 10px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:11px;font-weight:600" style-hover="background:var(--line2)">{{ resolveIsinLabel }}</button>
+          </div>
           <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 18px;border-bottom:1px solid var(--line)">
               <span style="color:var(--tx3);font-size:12.5px">{{ f.k }}</span>
@@ -637,7 +642,7 @@ class Component extends DCLogic {
     user: null,
     authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
 
-    extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false
+    extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
@@ -778,6 +783,25 @@ class Component extends DCLogic {
   };
 
   // ---------- Beleg-Scan ----------
+  // Nur Prüfziffer-gültige O/0-Varianten anfragen — vermeidet unnötige API-Calls für
+  // Kandidaten, die ohnehin keine echte ISIN sein können. Wird sowohl nach dem Scan
+  // als auch beim manuellen "Suchen"-Button für das ISIN-Feld verwendet.
+  resolveIsinToTicker = async isin => {
+    const candidates = isinVariants(isin);
+    if (!candidates.length) return { unresolved: true };
+    try {
+      const api = await this.api();
+      for (const candidate of candidates) {
+        let matches = null;
+        try { matches = await api.search(candidate); } catch (e) { continue; }
+        if (matches && matches.length) {
+          return { symbol: matches[0].symbol, name: matches[0].name, isin: candidate, unresolved: false };
+        }
+      }
+    } catch (e) { /* fällt auf unresolved zurück */ }
+    return { unresolved: true };
+  };
+
   onFile = async e => {
     const file = e.target.files && e.target.files[0];
     e.target.value = "";
@@ -788,33 +812,27 @@ class Component extends DCLogic {
       const { fields } = await ocr.scanReceipt(file);
       let isinUnresolved = false;
       if (!fields.symbol && fields.isin) {
-        // Nur Prüfziffer-gültige O/0-Varianten anfragen — vermeidet unnötige API-Calls
-        // für Kandidaten, die ohnehin keine echte ISIN sein können.
-        const candidates = isinVariants(fields.isin);
-        if (candidates.length) {
-          try {
-            const api = await this.api();
-            for (const candidate of candidates) {
-              let matches = null;
-              try { matches = await api.search(candidate); } catch (e) { continue; }
-              if (matches && matches.length) {
-                fields.symbol = matches[0].symbol;
-                fields.name = matches[0].name;
-                fields.isin = candidate;
-                break;
-              }
-            }
-            if (!fields.symbol) isinUnresolved = true;
-          } catch (e) { isinUnresolved = true; }
-        } else {
-          isinUnresolved = true;
-        }
+        const r = await this.resolveIsinToTicker(fields.isin);
+        if (r.symbol) { fields.symbol = r.symbol; fields.name = r.name; fields.isin = r.isin; }
+        isinUnresolved = r.unresolved;
       }
       this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file, isinUnresolved });
     } catch (err) {
       console.error(err);
       this.setState({ parsing: false, screen: "review", extracted: emptyFields(), pendingFile: file, ocrError: true });
     }
+  };
+
+  resolveIsinField = async () => {
+    const isin = ((this.state.extracted && this.state.extracted.isin) || "").trim().toUpperCase();
+    if (!isin) return;
+    this.setState({ resolvingIsin: true });
+    const r = await this.resolveIsinToTicker(isin);
+    this.setState(s => ({
+      resolvingIsin: false,
+      isinUnresolved: r.unresolved,
+      extracted: { ...s.extracted, isin: r.isin || isin, symbol: r.symbol || s.extracted.symbol, name: r.name || s.extracted.name }
+    }));
   };
 
   manualEntry = () => {
@@ -1090,11 +1108,14 @@ class Component extends DCLogic {
 
       reviewHint: this.state.ocrError ? "Automatische Erkennung fehlgeschlagen — bitte prüfen" : "Felder automatisch erkannt · bitte prüfen",
       reviewLogo: logoFor(f.symbol || f.isin || "?"),
-      reviewIsin: f.isin ? "ISIN " + f.isin : (f.symbol ? "manuell erfasst" : ""),
+      reviewIsin: f.name && !isinLike(f.name) ? f.name : (this.state.isinUnresolved ? "ISIN nicht gefunden" : ""),
       reviewTotal: (f.currency || "CHF") + " " + f2(total),
+      isinField: f.isin, onIsinField: this.setField("isin"),
+      resolveIsinField: this.resolveIsinField,
+      resolveIsinLabel: this.state.resolvingIsin ? "…" : "Suchen",
       tickerHint: !f.symbol || isinLike(f.symbol),
       tickerHintMsg: this.state.isinUnresolved
-        ? "Die erkannte ISIN scheint fehlerhaft gescannt worden zu sein (Prüfziffer ungültig) — bitte auf dem Beleg nachschauen und den Ticker manuell eintragen."
+        ? "Die ISIN scheint fehlerhaft (Prüfziffer ungültig) oder unbekannt zu sein — bitte prüfen und den Ticker manuell eintragen."
         : "Ohne echten Ticker (z. B. VWRL, AAPL) gibt es keine Live-Kurse für diese Position — die ISIN allein reicht dafür nicht.",
       fields: [
         { k: "Handelsdatum", v: f.date, onChange: this.setField("date") },
