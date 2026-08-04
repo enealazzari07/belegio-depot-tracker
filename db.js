@@ -8,9 +8,19 @@ export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export async function signUp(email, password) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw error;
-  return data;
+  // Läuft über die "register"-Edge-Function: legt den User serverseitig
+  // (Service-Role-Key) direkt bestätigt an — keine E-Mail-Verifizierung nötig.
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({ email, password }),
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    const messages = { "email-taken": "Diese E-Mail-Adresse ist bereits registriert.", "invalid-email": "Ungültige E-Mail-Adresse.", "invalid-password": "Passwort muss mindestens 6 Zeichen haben." };
+    throw new Error(messages[body.error] || body.error || "Registrierung fehlgeschlagen.");
+  }
+  return signIn(email, password);
 }
 
 export async function signIn(email, password) {
