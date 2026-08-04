@@ -85,6 +85,29 @@ export async function listReceipts(limit = 5) {
   return data;
 }
 
+// Gratis-Kontingent gilt pro Woche (letzte 7 Tage), nicht insgesamt.
+export async function countWeeklyReceipts() {
+  const since = new Date(Date.now() - 7 * 864e5).toISOString();
+  const { count, error } = await supabase
+    .from("receipts")
+    .select("id", { count: "exact", head: true })
+    .gte("created_at", since);
+  if (error) throw error;
+  return count || 0;
+}
+
+export async function getProfile() {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("user_id", userData.user.id)
+    .maybeSingle();
+  if (error) throw error;
+  return data || { plan: "free" };
+}
+
 export async function callMarket(action, payload) {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;

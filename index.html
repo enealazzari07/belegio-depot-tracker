@@ -61,8 +61,6 @@ input::placeholder{color:var(--tx3)}
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
-    <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:#FFFFFF;z-index:50;pointer-events:none"></div>
-
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
         <div style="width:150px;height:150px;transform-origin:50% 53.3%;animation:zoomIn 1.2s cubic-bezier(.72,0,.9,.06) 1.15s both">
@@ -692,7 +690,7 @@ class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
-    toast: false, toastMsg: "", plan: "monthly",
+    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     splash: true, dashLoading: true,
 
@@ -730,7 +728,10 @@ class Component extends DCLogic {
       this.setState({ user: session.user, screen: "dash" });
       const holdings = await this.loadPortfolio();
       await this.loadHistory(holdings);
+      await this.loadEtfCompositions(holdings);
+      if (holdings.length) this.sync();
       await this.loadReceipts();
+      this.loadProfile();
     }
     this.setState({ dashLoading: false });
   }
@@ -761,7 +762,10 @@ class Component extends DCLogic {
       this.setState({ authLoading: false, user: session.user, screen: "dash", authPassword: "", dashLoading: true });
       const holdings = await this.loadPortfolio();
       await this.loadHistory(holdings);
+      await this.loadEtfCompositions(holdings);
+      if (holdings.length) this.sync();
       await this.loadReceipts();
+      this.loadProfile();
       this.setState({ dashLoading: false });
     } catch (e) {
       this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
@@ -773,7 +777,7 @@ class Component extends DCLogic {
     await db.signOut();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-      conn: "idle", authEmail: "", authPassword: ""
+      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}
     });
   };
 
@@ -796,7 +800,6 @@ class Component extends DCLogic {
       cur: h.shares ? h.invested / h.shares : 0
     }));
     this.setState({ holdings, txs, txCount: txs.length });
-    if (holdings.length) this.sync();
     return holdings;
   };
 
@@ -817,8 +820,36 @@ class Component extends DCLogic {
     const db = await this.db();
     try {
       const rows = await db.listReceipts(5);
-      this.setState({ receipts: rows });
+      const weeklyUploads = await db.countWeeklyReceipts();
+      this.setState({ receipts: rows, weeklyUploads });
     } catch (e) { /* keine Belege oder Fehler beim Laden — Liste bleibt leer */ }
+  };
+
+  loadProfile = async () => {
+    try {
+      const db = await this.db();
+      const profile = await db.getProfile();
+      this.setState({ userPlan: profile.plan === "pro" ? "pro" : "free" });
+    } catch (e) { /* Standard bleibt "free" */ }
+  };
+
+  // ETFs vs. Einzelaktien lassen sich nicht am Symbol erkennen — deshalb best-effort
+  // für jede Position versuchen, echte Holdings zu laden. Erfolg = ETF (kein
+  // Einzelrisiko-Hinweis nötig, News über die grössten enthaltenen Aktien statt
+  // über den Fonds selbst, der praktisch nie eigene News hat).
+  loadEtfCompositions = async holdings => {
+    const have = this.state.etfHoldings || {};
+    const list = [...new Set((holdings || this.state.holdings).map(h => h.sym || h.abbr))].filter(s => !have[s] && !isinLike(s));
+    if (!list.length) return;
+    const api = await this.api();
+    for (const sym of list) {
+      try {
+        const data = await api.etfHoldings(sym);
+        if (data && data.holdings && data.holdings.length) {
+          this.setState(s => ({ etfHoldings: { ...s.etfHoldings, [sym]: data } }));
+        }
+      } catch (e) { /* kein ETF oder keine Daten — bleibt als Einzelaktie behandelt */ }
+    }
   };
 
   sync = async () => {
@@ -829,8 +860,12 @@ class Component extends DCLogic {
     try {
       const api = await this.api();
       const q = await api.quotes(syms);
+      const newsSymbols = [...new Set(syms.flatMap(sym => {
+        const comp = this.state.etfHoldings[sym];
+        return comp && comp.holdings && comp.holdings.length ? comp.holdings.slice(0, 3).map(h => h.symbol) : [sym];
+      }))].slice(0, 8);
       let news = null;
-      try { news = await api.news(syms, 10); } catch (e) {}
+      try { news = await api.news(newsSymbols, 10); } catch (e) {}
       this.setState({
         quotes: q, liveNews: news && news.length ? news : null,
         conn: Object.keys(q).length ? "live" : "empty", syncing: false
@@ -947,6 +982,8 @@ class Component extends DCLogic {
       }
       const holdings = await this.loadPortfolio();
       await this.loadHistory(holdings);
+      await this.loadEtfCompositions(holdings);
+      if (holdings.length) this.sync();
       await this.loadReceipts();
       this.setState({ screen: "dash", toast: true, toastMsg: symbol + " ins Depot gebucht", pendingFile: null, extracted: null });
       clearTimeout(this.t2);
@@ -1089,7 +1126,7 @@ class Component extends DCLogic {
       noNews: !this.state.liveNews || !this.state.liveNews.length,
       prefs: [
         ["Konto", "", "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8", null],
-        ["Abo", "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
+        ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
         ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", "pro"]
       ].map(([label, hint, d, to]) => ({
         label, hint,
@@ -1127,8 +1164,8 @@ class Component extends DCLogic {
       gainAbs: (g >= 0 ? "+" : "") + f2(g),
       gainPct: cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
       posCount: holdings.length + " Titel",
-      quota: used + " / 15 Uploads",
-      quotaPct: Math.min(100, used / 15 * 100).toFixed(0) + "%",
+      quota: this.state.userPlan === "pro" ? "Unbegrenzt" : (this.state.weeklyUploads || 0) + " / 15 pro Woche",
+      quotaPct: this.state.userPlan === "pro" ? "100%" : Math.min(100, (this.state.weeklyUploads || 0) / 15 * 100).toFixed(0) + "%",
       months: chartData ? chartData.months : [],
       investedTotal: f2(cost),
       isDepot: screen === "depot",
@@ -1136,11 +1173,39 @@ class Component extends DCLogic {
       insights: holdings.length ? (() => {
         const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
         const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
-        return [
-          { tone: "var(--acc2)", t: "Klumpenrisiko bei " + displayName(top.h), d: Math.round(top.v / val * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." },
-          { tone: "var(--neg)", t: displayName(worst.h) + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." },
-          { tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert." }
-        ];
+        const topSym = top.h.sym || top.h.abbr;
+        const topComp = this.state.etfHoldings[topSym];
+        const topWeight = val ? top.v / val : 0;
+        const out = [];
+
+        // ETFs sind diversifiziert — kein Einzelrisiko-Hinweis, stattdessen Infos zur
+        // grössten enthaltenen Aktie/zum Sektorschwerpunkt, wenn wir echte Holdings kennen.
+        if (topComp && topComp.holdings && topComp.holdings.length) {
+          const biggest = topComp.holdings[0];
+          const topSector = (topComp.sectors || []).slice().sort((a, b) => b.weight - a.weight)[0];
+          out.push({
+            tone: "var(--acc2)", t: displayName(top.h) + " ist ein ETF",
+            d: "Breit diversifiziert über " + topComp.holdings.length + "+ Positionen. Grösste Einzelaktie darin: " +
+              (biggest.name || biggest.symbol) + " (" + (biggest.weight * 100).toFixed(1) + " %)" +
+              (topSector ? ", Schwerpunkt " + topSector.sector.replace(/_/g, " ") + " (" + (topSector.weight * 100).toFixed(0) + " %)." : ".")
+          });
+        } else if (topWeight > 0.3) {
+          out.push({ tone: "var(--acc2)", t: "Klumpenrisiko bei " + displayName(top.h), d: Math.round(topWeight * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." });
+        } else {
+          out.push({ tone: "var(--acc2)", t: "Gewichtung im Rahmen", d: displayName(top.h) + " macht " + Math.round(topWeight * 100) + " % des Depots aus — keine übermässige Konzentration." });
+        }
+
+        out.push({ tone: "var(--neg)", t: displayName(worst.h) + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." });
+
+        // Echte Empfehlung statt generischem Steuer-Hinweis.
+        if (holdings.length < 3) {
+          out.push({ tone: "var(--tx3)", t: "Empfehlung: mehr Diversifikation", d: "Nur " + holdings.length + " Titel im Depot — eine breitere Streuung über mehr Positionen oder Anlageklassen kann das Risiko senken." });
+        } else if (topWeight > 0.5) {
+          out.push({ tone: "var(--tx3)", t: "Empfehlung: Konzentration reduzieren", d: displayName(top.h) + " macht über die Hälfte des Depots aus — ein Nachkauf in andere Positionen würde das Gewicht ausgleichen." });
+        } else {
+          out.push({ tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert." });
+        }
+        return out;
       })() : [],
       goDepot: this.go("depot"),
       depot: holdings.map(h => {
