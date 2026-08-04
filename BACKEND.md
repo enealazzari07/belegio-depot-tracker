@@ -64,19 +64,24 @@ sonst zuletzt als Fallback, wenn kein Kurs gefunden wurde:
 1. **Yahoo Finance** (kein Key, inoffizielle Chart-/Search-API) — kennt
    SIX-Titel nativ unter demselben `.SW`-Suffix, den die App schon verwendet
    (`NESN.SW`, `VWRL.SW`, …), inkl. bis zu 10 Jahren täglicher Historie in
-   einem Call. Löst das eigentliche Schweizer-ETF-Problem, das weder Alpha
-   Vantage noch der kostenlose Twelve-Data-Plan können (SIX-Daten dort nur ab
-   bezahltem Plan). Inoffiziell/undokumentiert — kann sich ändern, deshalb
-   nie als einzige Quelle, sondern immer mit Fallback-Kette.
-2. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
+   einem Call, kein Rate-Limit-Problem. Inoffiziell/undokumentiert — kann sich
+   ändern, deshalb nie als einzige Quelle, sondern immer mit Fallback-Kette.
+2. **EODHD** (`EODHD_API_KEY`, `/real-time`, `/eod`) — legitimer, lizenzierter
+   Anbieter mit nativer SIX-Abdeckung (Exchange-Code `SW`, gleiche `.SW`-
+   Konvention). Nur als Backup NACH Yahoo, weil der Free-Plan auf **20
+   Requests/Tag** limitiert ist (`/api/user` zeigt Kontingent/Verbrauch) — bei
+   mehreren Positionen wäre das Tageslimit sonst im Nu aufgebraucht.
+3. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
    `SYMBOL_SEARCH`, `TIME_SERIES_DAILY`. Free-Tier: 25 Calls/Tag, 5/Min.
-3. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
-4. **Twelve Data** (`TWELVEDATA_API_KEY`) — nur als letzter Fallback. Der
+4. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
+5. **Twelve Data** (`TWELVEDATA_API_KEY`) — nur als letzter Fallback. Der
    hinterlegte Key ist der kostenlose Plan, der **keine SIX-Kurse abdeckt**
    (`NESN:SIX` etc. → „available starting with the Grow/Venture plan"), hilft
    also nur bei US-/sonstigen Titeln.
 
-Für Nicht-Schweizer Symbole: Alpha Vantage → Finnhub → Yahoo → Twelve Data.
+Für Nicht-Schweizer Symbole: Alpha Vantage → Finnhub → Yahoo → Twelve Data
+(EODHD wird dort bewusst nicht angefragt — Symbol-Suffixe für andere Börsen
+sind uneinheitlich, und das Tageskontingent ist zu knapp, um es zu verbrauchen).
 
 Ergebnis wird 30 Minuten in `quote_cache` gehalten (`fetched_at`, inkl.
 `provider`-Spalte zur Diagnose), bevor erneut ein Anbieter angefragt wird —
@@ -109,7 +114,7 @@ sind im Prüf-Screen editierbar, bevor die `transactions`-Zeile entsteht.
 
 `Investiert` ist exakt (kumulierte Summe aus echten Transaktionsdaten).
 `Aktueller Wert` nutzt echte historische Tagesschlusskurse (`market`-Function,
-Action `history`: Yahoo Finance zuerst, dann Alpha-Vantage `TIME_SERIES_DAILY`,
-dann Twelve Data) je Symbol; fehlt Historie für ein Symbol, wird mit dem
-Einstandspreis approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird
+Action `history`: Yahoo Finance zuerst, bei Schweizer Titeln dann EODHD, dann
+Alpha-Vantage `TIME_SERIES_DAILY`, dann Twelve Data) je Symbol; fehlt Historie
+für ein Symbol, wird mit dem Einstandspreis approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird
 immer auf das erste Kaufdatum geclamped — kein Verlauf vor dem ersten Kauf.
