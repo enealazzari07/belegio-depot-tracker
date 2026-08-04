@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#FFFFFF">
 <title>Belegio</title>
 <script src="./support.js"></script>
@@ -629,59 +629,85 @@ input::placeholder{color:var(--tx3)}
       <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
+    <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeMenu }}" style="position:absolute;inset:0;background:transparent;z-index:8"></div>
+      <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(74px + env(safe-area-inset-bottom, 0px));width:188px;background:var(--surf);border-radius:18px;border:1px solid var(--line);box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
+        <button onClick="{{ goAccountPage }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;height:48px;padding:0 14px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"></path></svg>
+          <span style="color:var(--tx);font-size:13.5px;font-weight:600">Account</span>
+        </button>
+        <button onClick="{{ goSettingsPage }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;height:48px;padding:0 14px" style-hover="background:var(--surf2)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>
+          <span style="color:var(--tx);font-size:13.5px;font-weight:600">Einstellungen</span>
+        </button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Account</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
+          <div style="width:44px;height:44px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:14px;font-weight:700">{{ userInitials }}</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+            <span style="color:var(--tx);font-size:15px;font-weight:600">Mein Konto</span>
+            <span style="color:var(--tx3);font-size:12px">{{ userEmail }}</span>
+          </div>
+        </div>
+
+        <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--neg)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+          <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
+        </button>
+        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
+      </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
+    </sc-if>
+
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeSettings }}" style="position:absolute;inset:0;background:rgba(10,12,18,.35);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:8;animation:fade .2s ease">
-        <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(74px + env(safe-area-inset-bottom, 0px));left:16px;max-width:340px;margin-left:auto;max-height:70dvh;overflow-y:auto;background:var(--bg);border-radius:24px;padding:16px;box-shadow:0 20px 60px -16px rgba(0,0,0,.5);border:1px solid var(--line);transform-origin:bottom right;animation:pop .22s cubic-bezier(.2,.8,.2,1) both">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.02em">Einstellungen</span>
-            <button onClick="{{ closeSettings }}" style="all:unset;cursor:pointer;width:34px;height:34px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Einstellungen</span>
+        </div>
+
+        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
+            <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:600">Marktdaten</span>
+            <span style="width:7px;height:7px;border-radius:50%;background:{{ connTone }}"></span>
+            <span style="font-size:11.5px;font-weight:600;color:{{ connTone }}">{{ connLabel }}</span>
+          </div>
+          <p style="margin:0 0 12px;color:var(--tx3);font-size:11.5px;line-height:1.5">Alpha Vantage / Finnhub laufen serverseitig über eine Supabase Edge Function — keine Keys im Client.</p>
+          <button onClick="{{ sync }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">{{ syncLabel }}</button>
+        </div>
+
+        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
+            <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
+            <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
+              <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
             </button>
           </div>
-
-          <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
-            <div style="width:44px;height:44px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:14px;font-weight:700">{{ userInitials }}</div>
-            <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-              <span style="color:var(--tx);font-size:15px;font-weight:600">Mein Konto</span>
-              <span style="color:var(--tx3);font-size:12px">{{ userEmail }}</span>
-            </div>
-          </div>
-
-          <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
-              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:600">Marktdaten</span>
-              <span style="width:7px;height:7px;border-radius:50%;background:{{ connTone }}"></span>
-              <span style="font-size:11.5px;font-weight:600;color:{{ connTone }}">{{ connLabel }}</span>
-            </div>
-            <p style="margin:0 0 12px;color:var(--tx3);font-size:11.5px;line-height:1.5">Alpha Vantage / Finnhub laufen serverseitig über eine Supabase Edge Function — keine Keys im Client.</p>
-            <button onClick="{{ sync }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">{{ syncLabel }}</button>
-          </div>
-
-          <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
-            <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
-              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
-              <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
-                <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
-              </button>
-            </div>
-            <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
-              <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
-                <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
-                <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ p.label }}</span>
-                <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ p.hint }}</span>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
-              </button>
-            </sc-for>
-          </div>
-
-          <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--neg)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
-            <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
-          </button>
-          <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
+          <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
+            <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
+              <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
+              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ p.label }}</span>
+              <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ p.hint }}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+          </sc-for>
         </div>
+        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
       </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
@@ -772,7 +798,7 @@ class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
-    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0, settingsOpen: false,
+    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0, menuOpen: false,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     splash: true, dashLoading: true,
 
@@ -793,8 +819,10 @@ class Component extends DCLogic {
   set = (k, v) => this.setState({ [k]: v });
   go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
 
-  openSettings = () => this.setState({ settingsOpen: true });
-  closeSettings = () => this.setState({ settingsOpen: false });
+  openMenu = () => this.setState({ menuOpen: true });
+  closeMenu = () => this.setState({ menuOpen: false });
+  goAccountPage = () => { this.closeMenu(); this.go("account")(); };
+  goSettingsPage = () => { this.closeMenu(); this.go("settings")(); };
   stopPropagation = e => e.stopPropagation();
 
   // Pro-Nutzer sollen die Kauf-Seite nicht mehr sehen — stattdessen kurzer Hinweis.
@@ -878,7 +906,7 @@ class Component extends DCLogic {
     await db.signOut();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, settingsOpen: false
+      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false
     });
   };
 
@@ -1241,8 +1269,9 @@ class Component extends DCLogic {
       toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
 
       logout: this.logoutUser,
-      isNews: screen === "news", isSettings: this.state.settingsOpen,
-      goNews: this.go("news"), goSettings: this.openSettings, closeSettings: this.closeSettings, stopPropagation: this.stopPropagation,
+      isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
+      goNews: this.go("news"), goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
+      goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
       shortcuts: [
         { label: "Depot", go: this.go("depot"), d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19" },
         { label: "News", go: this.go("news"), d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" },
@@ -1256,7 +1285,7 @@ class Component extends DCLogic {
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
       tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
       tNews: screen === "news" ? "var(--tx)" : "var(--tx3)",
-      tSet: this.state.settingsOpen || screen === "pro" ? "var(--tx)" : "var(--tx3)",
+      tSet: this.state.menuOpen || screen === "settings" || screen === "account" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
       connLabel: {
         live: "Live-Kurse", demo: "Demo-Daten", badkey: "Key ungültig",
         limit: "Limit erreicht", error: "Keine Verbindung", empty: "Keine Kursdaten", idle: "—"
@@ -1294,13 +1323,12 @@ class Component extends DCLogic {
       }) : [],
       noNews: !this.state.liveNews || !this.state.liveNews.length,
       prefs: [
-        ["Konto", "", "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8", null],
         ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
         ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", "pro"]
       ].map(([label, hint, d, to]) => ({
         label, hint,
         icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })),
-        go: label === "Abo" ? (() => { this.closeSettings(); this.openAbo(); }) : to ? (() => { this.closeSettings(); this.go(to)(); }) : () => {}
+        go: label === "Abo" ? this.openAbo : to ? this.go(to) : () => {}
       })),
 
       splash: this.state.splash, skipSplash: this.skipSplash,
