@@ -58,24 +58,29 @@ eigenen Ordner (`{user_id}/...`).
 
 ## Marktdaten-Anbieter (`market`-Function)
 
-Reihenfolge je Symbol — bei Schweizer Titeln (`.SW`) zuerst Twelve Data, sonst
-zuletzt als Fallback, wenn kein Kurs gefunden wurde:
+Reihenfolge je Symbol — bei Schweizer Titeln (`.SW`) zuerst Yahoo Finance,
+sonst zuletzt als Fallback, wenn kein Kurs gefunden wurde:
 
-1. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
-   `SYMBOL_SEARCH`, `TIME_SERIES_DAILY`. Schweizer Titel als `NESN.SWI`. Free-Tier:
-   25 Calls/Tag, 5/Min.
-2. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
-3. **Twelve Data** (`TWELVEDATA_API_KEY`) — `/quote`, `/time_series`,
-   `/symbol_search`. **Wichtig:** Der aktuell hinterlegte Key ist der
-   kostenlose Plan — der deckt **keine SIX-Kurse ab** (`NESN:SIX`, `VWRL:SIX`
-   etc. kommen mit „available starting with the Grow/Venture plan"). Er hilft
-   also nur als zusätzlicher Fallback für US-/sonstige Titel, nicht für
-   Schweizer ETFs. Für echte SIX-Kurse braucht es einen bezahlten Twelve-Data-
-   Plan oder einen anderen SIX-fähigen Anbieter.
+1. **Yahoo Finance** (kein Key, inoffizielle Chart-/Search-API) — kennt
+   SIX-Titel nativ unter demselben `.SW`-Suffix, den die App schon verwendet
+   (`NESN.SW`, `VWRL.SW`, …), inkl. bis zu 10 Jahren täglicher Historie in
+   einem Call. Löst das eigentliche Schweizer-ETF-Problem, das weder Alpha
+   Vantage noch der kostenlose Twelve-Data-Plan können (SIX-Daten dort nur ab
+   bezahltem Plan). Inoffiziell/undokumentiert — kann sich ändern, deshalb
+   nie als einzige Quelle, sondern immer mit Fallback-Kette.
+2. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
+   `SYMBOL_SEARCH`, `TIME_SERIES_DAILY`. Free-Tier: 25 Calls/Tag, 5/Min.
+3. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
+4. **Twelve Data** (`TWELVEDATA_API_KEY`) — nur als letzter Fallback. Der
+   hinterlegte Key ist der kostenlose Plan, der **keine SIX-Kurse abdeckt**
+   (`NESN:SIX` etc. → „available starting with the Grow/Venture plan"), hilft
+   also nur bei US-/sonstigen Titeln.
 
-Ergebnis wird 30 Minuten in `quote_cache` gehalten (`fetched_at`), bevor erneut
-ein Anbieter angefragt wird — reduziert Rate-Limit-Treffer bei Alpha Vantage
-deutlich.
+Für Nicht-Schweizer Symbole: Alpha Vantage → Finnhub → Yahoo → Twelve Data.
+
+Ergebnis wird 30 Minuten in `quote_cache` gehalten (`fetched_at`, inkl.
+`provider`-Spalte zur Diagnose), bevor erneut ein Anbieter angefragt wird —
+reduziert Rate-Limit-Treffer bei Alpha Vantage deutlich.
 
 Symbole, die wie eine ISIN aussehen (`isinLike`, Regex `[A-Z]{2}[A-Z0-9]{9}\d`),
 werden clientseitig gar nicht erst angefragt — keiner der Anbieter kann damit
@@ -104,7 +109,7 @@ sind im Prüf-Screen editierbar, bevor die `transactions`-Zeile entsteht.
 
 `Investiert` ist exakt (kumulierte Summe aus echten Transaktionsdaten).
 `Aktueller Wert` nutzt echte historische Tagesschlusskurse (`market`-Function,
-Action `history`, Alpha-Vantage `TIME_SERIES_DAILY` mit Twelve-Data-Fallback)
-je Symbol; fehlt Historie für ein Symbol, wird mit dem Einstandspreis
-approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird immer auf das
-erste Kaufdatum geclamped — kein Verlauf vor dem ersten Kauf.
+Action `history`: Yahoo Finance zuerst, dann Alpha-Vantage `TIME_SERIES_DAILY`,
+dann Twelve Data) je Symbol; fehlt Historie für ein Symbol, wird mit dem
+Einstandspreis approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird
+immer auf das erste Kaufdatum geclamped — kein Verlauf vor dem ersten Kauf.
