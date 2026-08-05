@@ -647,6 +647,27 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
         </div>
 
+        <div style="padding:0 20px;display:flex;gap:8px;margin-bottom:14px">
+          <input value="{{ marketSearchTerm }}" onChange="{{ onMarketSearchTerm }}" placeholder="Ticker oder Name suchen, z. B. Apple" style="flex:1;min-width:0;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+          <button onClick="{{ runMarketSearch }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 18px;height:44px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ marketSearchLabel }}</button>
+        </div>
+        <sc-if value="{{ marketSearchError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0 0 14px;padding:0 20px;color:var(--tx3);font-size:12.5px">{{ marketSearchError }}</p>
+        </sc-if>
+        <sc-if value="{{ hasMarketSearchResults }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ marketSearchResults }}" as="r" hint-placeholder-count="4">
+              <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="color:var(--tx);font-size:13.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ r.symbol }}</span>
+                  <span style="color:var(--tx3);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+                </div>
+                <span style="color:var(--tx3);font-size:10.5px;font-weight:600;flex:none">{{ r.type }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ marketsLoading }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;align-items:center;justify-content:center;height:120px">
             <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
@@ -677,7 +698,7 @@ input::placeholder{color:var(--tx3)}
           </div>
           <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
             <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
-              <div style="display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+              <div onClick="{{ m.open }}" style="cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
                 <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ m.logo }}</div>
                 <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
@@ -686,6 +707,49 @@ input::placeholder{color:var(--tx3)}
                 </div>
               </div>
             </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
+    </sc-if>
+
+    <sc-if value="{{ isStockDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:rise .32s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ closeStockDetail }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ stockDetailSymbol }}</span>
+        </div>
+
+        <sc-if value="{{ stockDetailLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:center;height:160px">
+            <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ stockDetailError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;color:var(--tx3);font-size:12.5px">{{ stockDetailError }}</p>
+        </sc-if>
+
+        <sc-if value="{{ hasStockDetail }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px">
+              <span style="color:var(--tx);font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1;font-family:'IBM Plex Mono',monospace">{{ stockDetailPrice }}</span>
+              <span style="color:{{ stockDetailColor }};font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;padding-bottom:3px">{{ stockDetailPct }}</span>
+            </div>
+            <div style="display:flex;gap:4px;padding:3px;border-radius:9px;background:var(--surf2);margin-bottom:16px;width:fit-content">
+              <sc-for list="{{ stockDetailRanges }}" as="r" hint-placeholder-count="5">
+                <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 10px;border-radius:7px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ hasStockDetailChart }}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:112px;display:block">
+                <path d="{{ stockDetailChartPath }}" fill="none" stroke="{{ stockDetailColor }}" stroke-width="2.4" stroke-linecap="round"></path>
+              </svg>
+            </sc-if>
+            <sc-if value="{{ noStockDetailChart }}" hint-placeholder-val="{{ false }}">
+              <div style="height:112px;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:12px">Zu wenig Daten für diesen Zeitraum.</div>
+            </sc-if>
           </div>
         </sc-if>
       </div>
@@ -925,6 +989,9 @@ class Component extends DCLogic {
     posChartRange: "D", aiExpanded: false,
     intraday: {}, intradayDate: null, quoteProviders: {},
 
+    marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
+    stockDetailSymbol: null, stockDetailData: null, stockDetailLoading: false, stockDetailError: "", stockDetailRange: "M",
+
     scrubIndex: null
   };
 
@@ -949,6 +1016,41 @@ class Component extends DCLogic {
       this.setState({ marketsLoading: false, marketsError: true });
     }
   };
+
+  // ---------- Märkte-Suche & Aktien-Detail — läuft serverseitig nur über Yahoo
+  // (unlimitiert), nie über die auf Schweizer Titel limitierte EODHD-Quelle. ----------
+  onMarketSearchTerm = e => this.setState({ marketSearchTerm: e.target.value });
+
+  runMarketSearch = async () => {
+    const term = this.state.marketSearchTerm.trim();
+    if (!term) return this.setState({ marketSearchResults: [], marketSearchError: "" });
+    this.setState({ marketSearchLoading: true, marketSearchError: "" });
+    try {
+      const api = await this.api();
+      const results = await api.marketSearch(term);
+      this.setState({ marketSearchLoading: false, marketSearchResults: results || [], marketSearchError: results && results.length ? "" : "Keine Treffer." });
+    } catch (e) {
+      this.setState({ marketSearchLoading: false, marketSearchError: "Suche aktuell nicht verfügbar." });
+    }
+  };
+
+  openStockDetail = sym => async () => {
+    this.setState({
+      screen: "stockDetail", stockDetailSymbol: sym, stockDetailRange: "M",
+      stockDetailLoading: true, stockDetailError: "", stockDetailData: null
+    });
+    try {
+      const api = await this.api();
+      const data = await api.stockDetail(sym);
+      if (!data || data.c == null) { this.setState({ stockDetailLoading: false, stockDetailError: "Keine Kursdaten gefunden." }); return; }
+      this.setState({ stockDetailLoading: false, stockDetailData: data });
+    } catch (e) {
+      this.setState({ stockDetailLoading: false, stockDetailError: "Kursdaten aktuell nicht verfügbar." });
+    }
+  };
+
+  closeStockDetail = () => this.setState({ screen: "markets", stockDetailSymbol: null, stockDetailData: null });
+  setStockDetailRange = key => () => this.setState({ stockDetailRange: key });
 
   openMenu = () => this.setState({ menuOpen: true });
   closeMenu = () => this.setState({ menuOpen: false });
@@ -1547,6 +1649,29 @@ class Component extends DCLogic {
       return { path, pct, pos: pct >= 0 };
     };
 
+    // ---------- Chart für die Aktien-Detailansicht (Märkte-Suche) ----------
+    const stockDetailChart = (() => {
+      const d = this.state.stockDetailData;
+      if (!d || !d.history) return null;
+      const days = RANGE_DAYS[this.state.stockDetailRange] ?? 30;
+      const cutoff = days === Infinity ? null : dstr(new Date(Date.now() - days * 864e5));
+      let pts = cutoff ? d.history.filter(p => p.date >= cutoff) : d.history;
+      if (pts.length < 2) pts = d.history.slice(-2);
+      const lastHistDate = d.history.length ? d.history[d.history.length - 1].date : null;
+      if (d.c != null && lastHistDate !== dstr(new Date())) pts = [...pts, { date: dstr(new Date()), close: d.c }];
+      if (pts.length < 2) return null;
+      const vals = pts.map(p => p.close);
+      const vMin = Math.min(...vals), vMax = Math.max(...vals);
+      const span = (vMax - vMin) || 1;
+      const n = pts.length;
+      const X = i => n > 1 ? (i / (n - 1)) * 320 : 0;
+      const Y = v => 92 - ((v - vMin) / span) * 80;
+      const path = pts.map((p, i) => (i === 0 ? "M" : "L") + X(i).toFixed(1) + " " + Y(p.close).toFixed(1)).join(" ");
+      const first = pts[0].close, last = pts[pts.length - 1].close;
+      const pct = first ? (last - first) / first * 100 : 0;
+      return { path, pct, pos: pct >= 0 };
+    })();
+
     const insightsList = holdings.length ? (() => {
       const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
       const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
@@ -1607,7 +1732,7 @@ class Component extends DCLogic {
       fHome: screen === "dash" ? "var(--tx)" : "none",
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
       tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
-      tMarkets: screen === "markets" ? "var(--tx)" : "var(--tx3)",
+      tMarkets: screen === "markets" || screen === "stockDetail" ? "var(--tx)" : "var(--tx3)",
       tSet: this.state.menuOpen || screen === "settings" || screen === "account" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
       connLabel: {
         live: "Live-Kurse", demo: "Demo-Daten", badkey: "Key ungültig",
@@ -1667,10 +1792,41 @@ class Component extends DCLogic {
           change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
           changeAbs: (abs >= 0 ? "+" : "") + abs.toLocaleString("de-CH", { maximumFractionDigits: 2 }),
           color: dp >= 0 ? "var(--pos)" : "var(--neg)",
-          dp
+          dp,
+          open: this.openStockDetail(sym)
         };
       }).sort((a, b) => Math.abs(b.dp) - Math.abs(a.dp)) : [],
       noMarkets: !this.state.marketsLoading && !this.state.marketsError && !this.state.marketQuotes,
+
+      marketSearchTerm: this.state.marketSearchTerm, onMarketSearchTerm: this.onMarketSearchTerm,
+      runMarketSearch: this.runMarketSearch,
+      marketSearchLabel: this.state.marketSearchLoading ? "…" : "Suchen",
+      marketSearchLoading: this.state.marketSearchLoading,
+      marketSearchError: this.state.marketSearchError,
+      hasMarketSearchResults: this.state.marketSearchResults.length > 0,
+      marketSearchResults: this.state.marketSearchResults.map(r => ({
+        symbol: r.symbol, name: r.name || r.symbol, type: r.type || "",
+        open: this.openStockDetail(r.symbol)
+      })),
+
+      isStockDetail: screen === "stockDetail", closeStockDetail: this.closeStockDetail,
+      stockDetailSymbol: this.state.stockDetailSymbol || "",
+      stockDetailLoading: this.state.stockDetailLoading,
+      stockDetailError: this.state.stockDetailError,
+      hasStockDetail: !this.state.stockDetailLoading && !this.state.stockDetailError && !!this.state.stockDetailData,
+      stockDetailPrice: this.state.stockDetailData ? f2(this.state.stockDetailData.c) : "",
+      stockDetailPct: this.state.stockDetailData
+        ? (this.state.stockDetailData.dp >= 0 ? "+" : "") + this.state.stockDetailData.dp.toFixed(2) + " %"
+        : "",
+      stockDetailColor: this.state.stockDetailData && this.state.stockDetailData.dp < 0 ? "var(--neg)" : "var(--pos)",
+      stockDetailRanges: chartRangeKeys.map(key => ({
+        label: RANGE_LABELS[key], go: this.setStockDetailRange(key),
+        bg: this.state.stockDetailRange === key ? "var(--surf)" : "transparent",
+        tx: this.state.stockDetailRange === key ? "var(--tx)" : "var(--tx3)"
+      })),
+      hasStockDetailChart: !!stockDetailChart,
+      noStockDetailChart: !!this.state.stockDetailData && !stockDetailChart,
+      stockDetailChartPath: stockDetailChart ? stockDetailChart.path : "",
       prefs: [
         ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
         ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", "pro"]

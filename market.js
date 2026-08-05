@@ -21,3 +21,14 @@ export async function history(symbols) {
 export async function etfHoldings(symbol) {
   return callMarket("etf", { symbol });
 }
+
+// Nur fuer die Maerkte-Suche/Aktien-Detailansicht: laeuft ausschliesslich ueber
+// Yahoo (unlimitiert), nie ueber die auf 20 Requests/Tag limitierte
+// Schweiz-Quelle (EODHD).
+export async function marketSearch(term) {
+  return callMarket("marketSearch", { term });
+}
+
+export async function stockDetail(symbol) {
+  return callMarket("stockDetail", { symbol });
+}
