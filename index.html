@@ -1490,16 +1490,18 @@ class Component extends DCLogic {
         pts = arr.filter(p => p.date >= cutoff).map(p => ({ close: p.close }));
         if (!pts.length || pts[pts.length - 1].close !== cur) pts = [...pts, { close: cur }];
       } else {
-        // Live-Samples (aus dieser Session gesammelt, ~alle 20 Min.) geben die
-        // echte Tagesbewegung wieder — die historischen Tagesschlusskurse sind
-        // teils mehrere Tage alt und würden eine falsche Linie zeichnen.
-        const samples = todaySamples[sym] || [];
-        if (samples.length >= 2) {
-          pts = samples.map(s => ({ close: s.p }));
-          if (pts[pts.length - 1].close !== cur) pts = [...pts, { close: cur }];
+        // Startpunkt ist immer der echte Vortagesschluss (aus dp% der Live-Quote) —
+        // sonst würde die Linie bei "Änderung seit dem ersten Sample von heute"
+        // starten, was fast immer nahe 0 % ist, statt der echten Tagesbewegung.
+        // Session-Samples (alle 10-60 Min. gesammelt) werden nur als zusätzliche
+        // Zwischenpunkte auf dieser Linie eingefügt, für mehr Auflösung im Verlauf.
+        const prevClose = typeof dp === "number" ? cur / (1 + dp / 100) : null;
+        if (prevClose == null) {
+          pts = null;
         } else {
-          const prevClose = typeof dp === "number" ? cur / (1 + dp / 100) : null;
-          pts = prevClose != null ? [{ close: prevClose }, { close: cur }] : null;
+          const samples = (todaySamples[sym] || []).map(s => s.p);
+          const closes = [prevClose, ...samples, cur];
+          pts = closes.filter((c, i) => i === 0 || c !== closes[i - 1]).map(close => ({ close }));
         }
       }
       if (!pts || pts.length < 2) return null;
