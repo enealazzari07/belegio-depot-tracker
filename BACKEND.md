@@ -66,7 +66,7 @@ Inoffiziell/undokumentiert (`query1.finance.yahoo.com/v8/finance/chart/...`)
 — kann sich ändern, deshalb nie als einzige Quelle, sondern immer mit
 Fallback-Kette:
 
-- **Nicht-Schweizer Symbole:** Yahoo → Alpha Vantage → Finnhub → Twelve Data
+- **Nicht-Schweizer Symbole:** Yahoo → EODHD → Massive → Finnhub → Twelve Data
 - **Schweizer Symbole (`.SW`):** Yahoo → EODHD → Twelve Data → Alpha Vantage → Finnhub
 
 1. **Yahoo Finance** — siehe oben. `yfQuote` nutzt bewusst `range=1d`, nicht
@@ -81,16 +81,32 @@ Fallback-Kette:
    Kontingent/Verbrauch) — bei mehreren Positionen wäre das sonst im Nu
    aufgebraucht. Wird für Nicht-Schweizer Symbole gar nicht erst angefragt
    (uneinheitliche Exchange-Suffixe, zu knappes Kontingent).
-3. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — `GLOBAL_QUOTE`, `NEWS_SENTIMENT`,
-   `SYMBOL_SEARCH`, `TIME_SERIES_DAILY`. Free-Tier: 25 Calls/Tag, 5/Min.
-4. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
-5. **Twelve Data** (`TWELVEDATA_API_KEY`) — Free-Plan deckt **keine SIX-Kurse**
+3. **Massive** (`MASSIVE_API_KEY`, https://massive.com) — ersetzt Alpha Vantage
+   als dritte Stufe für Nicht-Schweizer Symbole. **Nur US-Titel** (19 US-Börsen,
+   kein SIX/Swiss-Coverage) — wird deshalb in der Schweizer Kette gar nicht
+   erst versucht. Free-Tier ("Stocks Basic") deckt laut Doku nur
+   Aggregates/Referenzdaten ab, keine Live-Snapshots — `massiveQuote` holt
+   deshalb die letzten ~10 Tages-Bars (`/v2/aggs/ticker/{t}/range/1/day/...`)
+   und berechnet die Tagesveränderung selbst aus den letzten zwei Closes
+   (Daten laut API-Response mit `status: "DELAYED"`, also nicht echtzeit).
+   `massiveHistory` nutzt denselben Endpoint über den vollen Zeitraum und
+   ersetzt dort ebenfalls Alpha Vantage (`TIME_SERIES_DAILY`).
+4. **Alpha Vantage** (`ALPHAVANTAGE_API_KEY`) — nur noch in der Schweizer
+   Quote-Kette sowie für `news()`/`search()` verwendet (`NEWS_SENTIMENT`,
+   `SYMBOL_SEARCH`). Free-Tier: 25 Calls/Tag, 5/Min.
+5. **Finnhub** (`FINNHUB_API_KEY`) — `/quote`, `/company-news`, `/search`.
+6. **Twelve Data** (`TWELVEDATA_API_KEY`) — Free-Plan deckt **keine SIX-Kurse**
    ab (`NESN:SIX` etc. → „available starting with the Grow/Venture plan"),
    hilft also nur bei US-/sonstigen Titeln, falls Yahoo mal ausfällt.
 
 Ergebnis wird 30 Minuten in `quote_cache` gehalten (`fetched_at`, inkl.
-`provider`-Spalte zur Diagnose), bevor erneut ein Anbieter angefragt wird —
-reduziert Rate-Limit-Treffer bei Alpha Vantage deutlich.
+`provider`-Spalte zur Diagnose, seit Version 14 auch in der `quotes()`-Antwort
+an den Client), bevor erneut ein Anbieter angefragt wird — reduziert
+Rate-Limit-Treffer deutlich. Der Client (`index.html`) drosselt seinen
+automatischen Auto-Sync (alle 10-60 Min., zufällig) zusätzlich pro Symbol:
+Yahoo-Symbole werden bei jedem Tick aktualisiert, alle anderen Anbieter
+höchstens alle 90 Min., damit deren Tageskontingent auch bei durchgehend
+offener App reicht.
 
 Symbole, die wie eine ISIN aussehen (`isinLike`, Regex `[A-Z]{2}[A-Z0-9]{9}\d`),
 werden clientseitig gar nicht erst angefragt — keiner der Anbieter kann damit
