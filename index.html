@@ -276,24 +276,40 @@ input::placeholder{color:var(--tx3)}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
             </div>
             <span style="flex:1;color:var(--tx);font-size:13.5px;font-weight:600">KI-Analyse</span>
-            <span style="color:var(--tx3);font-size:10.5px;font-family:'IBM Plex Mono',monospace">heute 08:12</span>
+            <button onClick="{{ toggleAi }}" style="all:unset;cursor:pointer;color:var(--acc2);font-size:11.5px;font-weight:600">{{ aiToggleLabel }}</button>
           </div>
           <div style="display:flex;flex-direction:column;gap:12px">
-            <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
-              <div style="display:flex;gap:11px">
-                <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ i.tone }}"></span>
-                <div style="display:flex;flex-direction:column;gap:3px">
-                  <span style="color:var(--tx);font-size:13px;font-weight:600">{{ i.t }}</span>
-                  <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ i.d }}</span>
+            <sc-if value="{{ aiCollapsed }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:11px">
+                  <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ insightPreview.tone }}"></span>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span style="color:var(--tx);font-size:13px;font-weight:600">{{ insightPreview.t }}</span>
+                    <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical">{{ insightPreview.d }}</span>
+                  </div>
                 </div>
-              </div>
-            </sc-for>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ aiExpanded }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex;gap:11px">
+                  <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ i.tone }}"></span>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span style="color:var(--tx);font-size:13px;font-weight:600">{{ i.t }}</span>
+                    <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ i.d }}</span>
+                  </div>
+                </div>
+              </sc-for>
+              <span style="color:var(--tx3);font-size:10.5px;font-family:'IBM Plex Mono',monospace">heute 08:12</span>
+            </sc-if>
           </div>
-          <button style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
-            Analyse neu erstellen
-          </button>
-          <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Automatisch generiert, keine Anlageberatung.</p>
+          <sc-if value="{{ aiExpanded }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ refreshInsights }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
+              {{ refreshLabel }}
+            </button>
+            <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Automatisch generiert, keine Anlageberatung.</p>
+          </sc-if>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px">
@@ -353,29 +369,24 @@ input::placeholder{color:var(--tx3)}
                   </sc-if>
                 </div>
               </sc-if>
-              <button onClick="{{ d.toggleChart }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:6px;border-top:1px solid var(--line);color:var(--acc2);font-size:12px;font-weight:600" style-hover="color:var(--tx)">
-                {{ d.chartLabel }}
-              </button>
-              <sc-if value="{{ d.showChart }}" hint-placeholder-val="{{ false }}">
-                <div style="padding:2px 0 14px">
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                    <span style="color:{{ d.posChartColor }};font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ d.posChartPct }}</span>
-                    <div style="display:flex;gap:4px;padding:3px;border-radius:8px;background:var(--surf2)">
-                      <sc-for list="{{ d.chartRangeButtons }}" as="r" hint-placeholder-count="2">
-                        <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 10px;border-radius:6px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
-                      </sc-for>
-                    </div>
+              <div style="padding:6px 0 14px;border-top:1px solid var(--line)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <span style="color:{{ d.posChartColor }};font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ d.posChartPct }}</span>
+                  <div style="display:flex;gap:4px;padding:3px;border-radius:8px;background:var(--surf2)">
+                    <sc-for list="{{ d.chartRangeButtons }}" as="r" hint-placeholder-count="2">
+                      <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 10px;border-radius:6px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
+                    </sc-for>
                   </div>
-                  <sc-if value="{{ d.hasPosChart }}" hint-placeholder-val="{{ false }}">
-                    <svg viewBox="0 0 280 56" preserveAspectRatio="none" style="width:100%;height:56px;display:block">
-                      <path d="{{ d.posChartPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2" stroke-linecap="round"></path>
-                    </svg>
-                  </sc-if>
-                  <sc-if value="{{ d.noPosChart }}" hint-placeholder-val="{{ false }}">
-                    <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Kursdaten für diesen Zeitraum verfügbar.</p>
-                  </sc-if>
                 </div>
-              </sc-if>
+                <sc-if value="{{ d.hasPosChart }}" hint-placeholder-val="{{ false }}">
+                  <svg viewBox="0 0 280 56" preserveAspectRatio="none" style="width:100%;height:56px;display:block">
+                    <path d="{{ d.posChartPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2" stroke-linecap="round"></path>
+                  </svg>
+                </sc-if>
+                <sc-if value="{{ d.noPosChart }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Kursdaten für diesen Zeitraum verfügbar.</p>
+                </sc-if>
+              </div>
               <button onClick="{{ d.toggleTransactions }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:6px;border-top:1px solid var(--line);color:var(--acc2);font-size:12px;font-weight:600" style-hover="color:var(--tx)">
                 {{ d.transactionsLabel }}
               </button>
@@ -911,7 +922,7 @@ class Component extends DCLogic {
 
     txOpenSymbol: null, editingTxId: null, editingTxFields: null,
 
-    chartOpenSymbol: null, posChartRange: "D",
+    posChartRange: "D", aiExpanded: false,
 
     scrubIndex: null
   };
@@ -1222,11 +1233,10 @@ class Component extends DCLogic {
   cancelEditTx = () => this.setState({ editingTxId: null, editingTxFields: null });
 
   // ---------- Kursverlauf je Position (Tag/Woche) ----------
-  toggleChart = sym => () => {
-    this.setState(s => ({ chartOpenSymbol: s.chartOpenSymbol === sym ? null : sym }));
-  };
-
   setPosChartRange = key => () => this.setState({ posChartRange: key });
+
+  // ---------- KI-Analyse ----------
+  toggleAiExpanded = () => this.setState(s => ({ aiExpanded: !s.aiExpanded }));
 
   setTxField = k => e => this.setState(s => ({ editingTxFields: { ...s.editingTxFields, [k]: e.target.value } }));
 
@@ -1448,6 +1458,44 @@ class Component extends DCLogic {
       return { path, pct, pos: pct >= 0 };
     };
 
+    const insightsList = holdings.length ? (() => {
+      const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
+      const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
+      const topSym = top.h.sym || top.h.abbr;
+      const topComp = this.state.etfHoldings[topSym];
+      const topWeight = val ? top.v / val : 0;
+      const out = [];
+
+      // ETFs sind diversifiziert — kein Einzelrisiko-Hinweis, stattdessen Infos zur
+      // grössten enthaltenen Aktie/zum Sektorschwerpunkt, wenn wir echte Holdings kennen.
+      if (topComp && topComp.holdings && topComp.holdings.length) {
+        const biggest = topComp.holdings[0];
+        const topSector = (topComp.sectors || []).slice().sort((a, b) => b.weight - a.weight)[0];
+        out.push({
+          tone: "var(--acc2)", t: displayName(top.h) + " ist ein ETF",
+          d: "Breit diversifiziert über " + topComp.holdings.length + "+ Positionen. Grösste Einzelaktie darin: " +
+            (biggest.name || biggest.symbol) + " (" + (biggest.weight * 100).toFixed(1) + " %)" +
+            (topSector ? ", Schwerpunkt " + topSector.sector.replace(/_/g, " ") + " (" + (topSector.weight * 100).toFixed(0) + " %)." : ".")
+        });
+      } else if (topWeight > 0.3) {
+        out.push({ tone: "var(--acc2)", t: "Klumpenrisiko bei " + displayName(top.h), d: Math.round(topWeight * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." });
+      } else {
+        out.push({ tone: "var(--acc2)", t: "Gewichtung im Rahmen", d: displayName(top.h) + " macht " + Math.round(topWeight * 100) + " % des Depots aus — keine übermässige Konzentration." });
+      }
+
+      out.push({ tone: "var(--neg)", t: displayName(worst.h) + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." });
+
+      // Echte Empfehlung statt generischem Steuer-Hinweis.
+      if (holdings.length < 3) {
+        out.push({ tone: "var(--tx3)", t: "Empfehlung: mehr Diversifikation", d: "Nur " + holdings.length + " Titel im Depot — eine breitere Streuung über mehr Positionen oder Anlageklassen kann das Risiko senken." });
+      } else if (topWeight > 0.5) {
+        out.push({ tone: "var(--tx3)", t: "Empfehlung: Konzentration reduzieren", d: displayName(top.h) + " macht über die Hälfte des Depots aus — ein Nachkauf in andere Positionen würde das Gewicht ausgleichen." });
+      } else {
+        out.push({ tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert." });
+      }
+      return out;
+    })() : [];
+
     return {
       theme,
       themeLabel: theme === "dark" ? "Dark Mode" : "Light Mode",
@@ -1598,43 +1646,15 @@ class Component extends DCLogic {
       investedTotal: f2(cost),
       isDepot: screen === "depot",
       noHoldings: !holdings.length,
-      insights: holdings.length ? (() => {
-        const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
-        const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
-        const topSym = top.h.sym || top.h.abbr;
-        const topComp = this.state.etfHoldings[topSym];
-        const topWeight = val ? top.v / val : 0;
-        const out = [];
-
-        // ETFs sind diversifiziert — kein Einzelrisiko-Hinweis, stattdessen Infos zur
-        // grössten enthaltenen Aktie/zum Sektorschwerpunkt, wenn wir echte Holdings kennen.
-        if (topComp && topComp.holdings && topComp.holdings.length) {
-          const biggest = topComp.holdings[0];
-          const topSector = (topComp.sectors || []).slice().sort((a, b) => b.weight - a.weight)[0];
-          out.push({
-            tone: "var(--acc2)", t: displayName(top.h) + " ist ein ETF",
-            d: "Breit diversifiziert über " + topComp.holdings.length + "+ Positionen. Grösste Einzelaktie darin: " +
-              (biggest.name || biggest.symbol) + " (" + (biggest.weight * 100).toFixed(1) + " %)" +
-              (topSector ? ", Schwerpunkt " + topSector.sector.replace(/_/g, " ") + " (" + (topSector.weight * 100).toFixed(0) + " %)." : ".")
-          });
-        } else if (topWeight > 0.3) {
-          out.push({ tone: "var(--acc2)", t: "Klumpenrisiko bei " + displayName(top.h), d: Math.round(topWeight * 100) + " % deines Depots liegen in einer Position. Ab 30 % steigt das Einzelrisiko deutlich." });
-        } else {
-          out.push({ tone: "var(--acc2)", t: "Gewichtung im Rahmen", d: displayName(top.h) + " macht " + Math.round(topWeight * 100) + " % des Depots aus — keine übermässige Konzentration." });
-        }
-
-        out.push({ tone: "var(--neg)", t: displayName(worst.h) + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." });
-
-        // Echte Empfehlung statt generischem Steuer-Hinweis.
-        if (holdings.length < 3) {
-          out.push({ tone: "var(--tx3)", t: "Empfehlung: mehr Diversifikation", d: "Nur " + holdings.length + " Titel im Depot — eine breitere Streuung über mehr Positionen oder Anlageklassen kann das Risiko senken." });
-        } else if (topWeight > 0.5) {
-          out.push({ tone: "var(--tx3)", t: "Empfehlung: Konzentration reduzieren", d: displayName(top.h) + " macht über die Hälfte des Depots aus — ein Nachkauf in andere Positionen würde das Gewicht ausgleichen." });
-        } else {
-          out.push({ tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert." });
-        }
-        return out;
-      })() : [],
+      aiExpanded: this.state.aiExpanded,
+      aiCollapsed: !this.state.aiExpanded,
+      toggleAi: this.toggleAiExpanded,
+      aiToggleLabel: this.state.aiExpanded ? "Weniger anzeigen" : "Alle anzeigen",
+      refreshInsights: this.sync,
+      refreshLabel: this.state.syncing ? "Wird aktualisiert…" : "Analyse neu erstellen",
+      insights: insightsList,
+      hasInsightPreview: insightsList.length > 0,
+      insightPreview: insightsList[0] || { tone: "var(--tx3)", t: "", d: "" },
       goDepot: this.go("depot"),
       depot: holdings.map(h => {
         const sym = h.sym || h.abbr;
@@ -1643,9 +1663,8 @@ class Component extends DCLogic {
         const isOpen = this.state.etfOpenSymbol === sym;
         const txOpen = this.state.txOpenSymbol === sym;
         const symTxs = txOpen ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
-        const chartOpen = this.state.chartOpenSymbol === sym;
         const posChartRange = this.state.posChartRange || "D";
-        const posChart = chartOpen ? buildPositionChart(sym, h.cur, posChartRange) : null;
+        const posChart = buildPositionChart(sym, h.cur, posChartRange);
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
@@ -1668,17 +1687,14 @@ class Component extends DCLogic {
           compositionBlocks: isOpen ? buildCompositionBlocks(this.state.etfHoldings[sym]) : [],
           hasComposition: isOpen && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0,
 
-          toggleChart: this.toggleChart(sym),
-          chartLabel: chartOpen ? "Kursverlauf ausblenden" : "Kursverlauf anzeigen",
-          showChart: chartOpen,
           chartRangeButtons: ["D", "W"].map(k => ({
             label: k === "D" ? "Tag" : "Woche",
             go: this.setPosChartRange(k),
             bg: posChartRange === k ? "var(--surf)" : "transparent",
             tx: posChartRange === k ? "var(--tx)" : "var(--tx3)"
           })),
-          hasPosChart: chartOpen && !!posChart,
-          noPosChart: chartOpen && !posChart,
+          hasPosChart: !!posChart,
+          noPosChart: !posChart,
           posChartPath: posChart ? posChart.path : "",
           posChartPct: posChart ? (posChart.pos ? "+" : "") + posChart.pct.toFixed(2) + " %" : "",
           posChartColor: posChart ? (posChart.pos ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
