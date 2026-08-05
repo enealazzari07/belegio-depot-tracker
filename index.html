@@ -923,7 +923,7 @@ class Component extends DCLogic {
     txOpenSymbol: null, editingTxId: null, editingTxFields: null,
 
     posChartRange: "D", aiExpanded: false,
-    intraday: {}, intradayDate: null,
+    intraday: {}, intradayDate: null, quoteProviders: {},
 
     scrubIndex: null
   };
@@ -1033,7 +1033,7 @@ class Component extends DCLogic {
     const schedule = () => {
       const delayMin = 10 + Math.random() * 50;
       this._autoSyncTimer = setTimeout(() => {
-        if (this.state.holdings.length) this.sync();
+        this.runAutoSync();
         schedule();
       }, delayMin * 60 * 1000);
     };
@@ -1041,6 +1041,26 @@ class Component extends DCLogic {
   };
 
   stopAutoSync = () => { clearTimeout(this._autoSyncTimer); this._autoSyncTimer = null; };
+
+  // Nur Yahoo-Symbole bei jedem Tick aktualisieren (kein Tageslimit). Alle
+  // anderen Anbieter (EODHD 20/Tag, Alpha Vantage 25/Tag, ...) haben ein knappes
+  // Tageskontingent, das sich über alle Positionen teilt, die dort landen — die
+  // werden höchstens alle 90 Min. angefragt, damit das auch bei durchgehend
+  // offener App über den ganzen Tag reicht. Symbole ohne bekannten Provider
+  // (noch nie erfolgreich abgefragt) gelten als fällig, damit sie überhaupt
+  // einmal einen Provider zugewiesen bekommen.
+  runAutoSync = () => {
+    if (!this.state.holdings.length) return;
+    const syms = this.state.holdings.map(h => h.sym || h.abbr).filter(s => !isinLike(s));
+    const due = syms.filter(sym => {
+      const provider = this.state.quoteProviders[sym];
+      if (!provider || provider === "yahoo") return true;
+      const samples = this.state.intraday[sym] || [];
+      const last = samples.length ? samples[samples.length - 1].t : 0;
+      return Date.now() - last >= 90 * 60 * 1000;
+    });
+    if (due.length) this.sync(due, { skipNews: true });
+  };
 
   // ---------- Auth ----------
   onAuthEmail = e => this.set("authEmail", e.target.value);
@@ -1173,24 +1193,34 @@ class Component extends DCLogic {
     }
   };
 
-  sync = async () => {
+  // symsOverride: nur diese Symbole abfragen (z. B. für den gedrosselten Auto-Sync);
+  // ohne Angabe werden wie bisher alle Positionen abgefragt (manueller Refresh-Button).
+  sync = async (symsOverride, opts = {}) => {
     if (!this.state.holdings.length) return this.setState({ conn: "empty" });
-    const syms = this.state.holdings.map(h => h.sym || h.abbr).filter(s => !isinLike(s));
+    const allSyms = this.state.holdings.map(h => h.sym || h.abbr).filter(s => !isinLike(s));
+    const syms = symsOverride && symsOverride.length ? symsOverride : allSyms;
     if (!syms.length) return this.setState({ conn: "empty" });
     this.setState({ syncing: true });
     try {
       const api = await this.api();
       const q = await api.quotes(syms);
-      const newsSymbols = [...new Set(syms.flatMap(sym => {
-        const comp = this.state.etfHoldings[sym];
-        return comp && comp.holdings && comp.holdings.length ? comp.holdings.slice(0, 3).map(h => h.symbol) : [sym];
-      }))].slice(0, 8);
       let news = null;
-      try { news = await api.news(newsSymbols, 10); } catch (e) {}
-      this.setState({
-        quotes: q, liveNews: news && news.length ? news : null,
-        conn: Object.keys(q).length ? "live" : "empty", syncing: false
-      });
+      if (!opts.skipNews) {
+        const newsSymbols = [...new Set(syms.flatMap(sym => {
+          const comp = this.state.etfHoldings[sym];
+          return comp && comp.holdings && comp.holdings.length ? comp.holdings.slice(0, 3).map(h => h.symbol) : [sym];
+        }))].slice(0, 8);
+        try { news = await api.news(newsSymbols, 10); } catch (e) {}
+      }
+      const providers = {};
+      for (const sym of Object.keys(q)) { if (q[sym] && q[sym].provider) providers[sym] = q[sym].provider; }
+      this.setState(s => ({
+        quotes: { ...s.quotes, ...q },
+        quoteProviders: { ...s.quoteProviders, ...providers },
+        liveNews: news && news.length ? news : s.liveNews,
+        conn: Object.keys(q).length || Object.keys(s.quotes).length ? "live" : "empty",
+        syncing: false
+      }));
       if (Object.keys(q).length) this.recordIntraday(q);
     } catch (e) {
       const map = { "bad-key": "badkey", "rate-limit": "limit", "no-key": "demo" };
