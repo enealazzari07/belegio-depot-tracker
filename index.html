@@ -923,6 +923,7 @@ class Component extends DCLogic {
     txOpenSymbol: null, editingTxId: null, editingTxFields: null,
 
     posChartRange: "D", aiExpanded: false,
+    intraday: {}, intradayDate: null,
 
     scrubIndex: null
   };
@@ -981,6 +982,7 @@ class Component extends DCLogic {
 
   async componentDidMount() {
     this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
+    this.loadIntraday();
     const db = await this.db();
     const session = await db.getSession();
     if (session) {
@@ -991,11 +993,44 @@ class Component extends DCLogic {
       if (holdings.length) this.sync();
       await this.loadReceipts();
       this.loadProfile();
+      this.startAutoSync();
     }
     this.setState({ dashLoading: false });
   }
 
-  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); }
+  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); this.stopAutoSync(); }
+
+  // ---------- Intraday-Verlauf je Position (nur Session/Tag, für den Tages-Chart) ----------
+  loadIntraday = () => {
+    try {
+      const raw = localStorage.getItem("belegio_intraday");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.date === dstr(new Date())) this.setState({ intraday: parsed.data || {}, intradayDate: parsed.date });
+    } catch (e) { /* localStorage nicht verfügbar oder korrupt — startet einfach leer */ }
+  };
+
+  recordIntraday = q => {
+    const today = dstr(new Date());
+    this.setState(s => {
+      const base = s.intradayDate === today ? s.intraday : {};
+      const next = { ...base };
+      for (const sym of Object.keys(q)) {
+        const quote = q[sym];
+        if (!quote || typeof quote.c !== "number") continue;
+        next[sym] = [...(next[sym] || []).slice(-47), { t: Date.now(), p: quote.c }];
+      }
+      try { localStorage.setItem("belegio_intraday", JSON.stringify({ date: today, data: next })); } catch (e) {}
+      return { intraday: next, intradayDate: today };
+    });
+  };
+
+  startAutoSync = () => {
+    if (this._autoSync) return;
+    this._autoSync = setInterval(() => { if (this.state.holdings.length) this.sync(); }, 20 * 60 * 1000);
+  };
+
+  stopAutoSync = () => { clearInterval(this._autoSync); this._autoSync = null; };
 
   // ---------- Auth ----------
   onAuthEmail = e => this.set("authEmail", e.target.value);
@@ -1025,6 +1060,7 @@ class Component extends DCLogic {
       if (holdings.length) this.sync();
       await this.loadReceipts();
       this.loadProfile();
+      this.startAutoSync();
       this.setState({ dashLoading: false });
     } catch (e) {
       this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
@@ -1034,6 +1070,7 @@ class Component extends DCLogic {
   logoutUser = async () => {
     const db = await this.db();
     await db.signOut();
+    this.stopAutoSync();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
       conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false
@@ -1144,6 +1181,7 @@ class Component extends DCLogic {
         quotes: q, liveNews: news && news.length ? news : null,
         conn: Object.keys(q).length ? "live" : "empty", syncing: false
       });
+      if (Object.keys(q).length) this.recordIntraday(q);
     } catch (e) {
       const map = { "bad-key": "badkey", "rate-limit": "limit", "no-key": "demo" };
       this.setState({ conn: map[e.message] || "error", syncing: false });
@@ -1432,18 +1470,27 @@ class Component extends DCLogic {
     }
 
     // ---------- Mini-Kursverlauf je Position (Tag/Woche) ----------
-    const buildPositionChart = (sym, cur, range) => {
-      const arr = (hist[sym] || []).slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-      const todayStr = dstr(new Date());
+    const todayStr = dstr(new Date());
+    const todaySamples = this.state.intradayDate === todayStr ? this.state.intraday : {};
+    const buildPositionChart = (sym, cur, range, dp) => {
       let pts;
       if (range === "W") {
+        const arr = (hist[sym] || []).slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
         const cutoff = dstr(new Date(Date.now() - 7 * 864e5));
-        pts = arr.filter(p => p.date >= cutoff);
-        if (!pts.length || pts[pts.length - 1].date !== todayStr) pts = [...pts, { date: todayStr, close: cur }];
+        pts = arr.filter(p => p.date >= cutoff).map(p => ({ close: p.close }));
+        if (!pts.length || pts[pts.length - 1].close !== cur) pts = [...pts, { close: cur }];
       } else {
-        const last = arr.length ? arr[arr.length - 1] : null;
-        const prevClose = last && last.date === todayStr ? (arr.length > 1 ? arr[arr.length - 2] : null) : last;
-        pts = prevClose ? [{ date: prevClose.date, close: prevClose.close }, { date: todayStr, close: cur }] : null;
+        // Live-Samples (aus dieser Session gesammelt, ~alle 20 Min.) geben die
+        // echte Tagesbewegung wieder — die historischen Tagesschlusskurse sind
+        // teils mehrere Tage alt und würden eine falsche Linie zeichnen.
+        const samples = todaySamples[sym] || [];
+        if (samples.length >= 2) {
+          pts = samples.map(s => ({ close: s.p }));
+          if (pts[pts.length - 1].close !== cur) pts = [...pts, { close: cur }];
+        } else {
+          const prevClose = typeof dp === "number" ? cur / (1 + dp / 100) : null;
+          pts = prevClose != null ? [{ close: prevClose }, { close: cur }] : null;
+        }
       }
       if (!pts || pts.length < 2) return null;
       const vals = pts.map(p => p.close);
@@ -1664,7 +1711,7 @@ class Component extends DCLogic {
         const txOpen = this.state.txOpenSymbol === sym;
         const symTxs = txOpen ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
         const posChartRange = this.state.posChartRange || "D";
-        const posChart = buildPositionChart(sym, h.cur, posChartRange);
+        const posChart = buildPositionChart(sym, h.cur, posChartRange, h.dp);
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
