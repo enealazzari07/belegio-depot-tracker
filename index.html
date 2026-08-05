@@ -1025,12 +1025,22 @@ class Component extends DCLogic {
     });
   };
 
+  // Zufällige Wartezeit zwischen 10 und 60 Min. statt fixem Intervall — Yahoo hat
+  // kein hartes Rate-Limit, aber ein bisschen Streuung vermeidet unnötig regelmässige
+  // Anfragen und holt trotzdem öfter mal einen frischeren Kurs als der 30-Min.-Cache.
   startAutoSync = () => {
-    if (this._autoSync) return;
-    this._autoSync = setInterval(() => { if (this.state.holdings.length) this.sync(); }, 20 * 60 * 1000);
+    if (this._autoSyncTimer) return;
+    const schedule = () => {
+      const delayMin = 10 + Math.random() * 50;
+      this._autoSyncTimer = setTimeout(() => {
+        if (this.state.holdings.length) this.sync();
+        schedule();
+      }, delayMin * 60 * 1000);
+    };
+    schedule();
   };
 
-  stopAutoSync = () => { clearInterval(this._autoSync); this._autoSync = null; };
+  stopAutoSync = () => { clearTimeout(this._autoSyncTimer); this._autoSyncTimer = null; };
 
   // ---------- Auth ----------
   onAuthEmail = e => this.set("authEmail", e.target.value);
