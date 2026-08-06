@@ -201,18 +201,25 @@ input::placeholder{color:var(--tx3)}
         </div>
 
         <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
-          <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;margin:0 24px 20px;border-radius:20px;background:linear-gradient(135deg, #2E6BE6, #4C8DFF);padding:16px 18px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 10px 24px -12px rgba(46,107,230,.55)">
-            <div style="width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:none">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
-            </div>
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-              <div style="display:flex;align-items:center;gap:8px">
-                <span style="color:rgba(255,255,255,.85);font-size:10px;font-weight:700;letter-spacing:.12em">{{ topNewsBanner.tick }}</span>
-                <span style="color:rgba(255,255,255,.6);font-size:10.5px">{{ topNewsBanner.time }}</span>
+          <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;margin:0 24px 20px;border-radius:22px;background:linear-gradient(135deg, #2E6BE6, #4C8DFF);padding:20px;box-shadow:0 14px 30px -14px rgba(46,107,230,.55)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
               </div>
-              <span style="color:#fff;font-size:13.5px;font-weight:600;line-height:1.4;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ topNewsBanner.head }}</span>
+              <span style="flex:1;color:#fff;font-size:15.5px;font-weight:700">Marktnews</span>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:4px"><path d="M9 18l6-6-6-6"></path></svg>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ newsBannerItems }}" as="n" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:4px;{{ n.dividerStyle }}">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="color:rgba(255,255,255,.85);font-size:10.5px;font-weight:700;letter-spacing:.1em">{{ n.tick }}</span>
+                    <span style="color:rgba(255,255,255,.6);font-size:11px">{{ n.time }}</span>
+                  </div>
+                  <span style="color:#fff;font-size:14.5px;font-weight:600;line-height:1.45;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
+                </div>
+              </sc-for>
+            </div>
           </div>
         </sc-if>
 
@@ -239,6 +246,29 @@ input::placeholder{color:var(--tx3)}
             </div>
           </sc-for>
         </div>
+
+        <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:22px 24px 0">
+            <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;display:flex;align-items:center;gap:20px">
+              <svg viewBox="0 0 100 100" width="108" height="108" style="flex:none;transform:rotate(-90deg)">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"></circle>
+                <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="16" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+                </sc-for>
+              </svg>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
+                <span style="color:var(--tx);font-size:13.5px;font-weight:600;margin-bottom:2px">Gewichtung im Depot</span>
+                <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="width:9px;height:9px;border-radius:3px;background:{{ lg.color }};flex:none"></span>
+                    <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
+                    <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace;flex:none">{{ lg.pct }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
 
         <div style="padding:22px 24px 0">
           <div style="border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--surf2);display:flex;flex-direction:column;gap:10px">
@@ -1690,6 +1720,30 @@ class Component extends DCLogic {
 
     const topMoverToday = holdings.reduce((best, h) => (typeof h.dp === "number" && (!best || h.dp > best.dp)) ? h : best, null);
 
+    // ---------- Depot-Gewichtung als Kreisdiagramm (Donut via stroke-dasharray) ----------
+    const allocationSlices = [], allocationLegend = [];
+    if (holdings.length && val) {
+      const R = 40, CIRC = 2 * Math.PI * R;
+      const sorted = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
+      const top = sorted.slice(0, 7);
+      const otherV = sorted.slice(7).reduce((a, x) => a + x.v, 0);
+      let offset = 0;
+      top.forEach((x, i) => {
+        const frac = x.v / val;
+        const len = frac * CIRC;
+        const color = BLOCK_COLORS[i % BLOCK_COLORS.length];
+        allocationSlices.push({ color, dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
+        allocationLegend.push({ color, label: displayName(x.h), pct: (frac * 100).toFixed(1) + " %" });
+        offset += len;
+      });
+      if (otherV > 0.0001) {
+        const frac = otherV / val;
+        const len = frac * CIRC;
+        allocationSlices.push({ color: "#DCDFE6", dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
+        allocationLegend.push({ color: "#DCDFE6", label: "Sonstige", pct: (frac * 100).toFixed(1) + " %" });
+      }
+    }
+
     const insightsList = holdings.length ? (() => {
       const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
       const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
@@ -1921,16 +1975,19 @@ class Component extends DCLogic {
       goDepot: this.go("depot"),
       goNewsFromBanner: this.go("news"),
       hasTopNews: !!(this.state.liveNews && this.state.liveNews.length),
-      topNewsBanner: this.state.liveNews && this.state.liveNews.length ? (() => {
-        const n = this.state.liveNews[0];
+      newsBannerItems: (this.state.liveNews || []).slice(0, 3).map((n, i) => {
         const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
         const mins = Math.round((Date.now() - n.datetime) / 60000);
         return {
           tick: h ? h.abbr : n.symbol,
           head: n.headline,
-          time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg"
+          time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
+          dividerStyle: i === 0 ? "" : "border-top:1px solid rgba(255,255,255,.18);padding-top:12px"
         };
-      })() : { tick: "", head: "", time: "" },
+      }),
+      hasAllocation: allocationSlices.length > 0,
+      allocationSlices,
+      allocationLegend,
       depot: holdings.map(h => {
         const sym = h.sym || h.abbr;
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
