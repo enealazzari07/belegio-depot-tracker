@@ -200,6 +200,29 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
 
+        <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 24px 20px">
+            <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;display:flex;align-items:center;gap:20px">
+              <svg viewBox="0 0 100 100" width="108" height="108" style="flex:none;transform:rotate(-90deg)">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"></circle>
+                <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="16" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+                </sc-for>
+              </svg>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
+                <span style="color:var(--tx);font-size:13.5px;font-weight:600;margin-bottom:2px">Gewichtung im Depot</span>
+                <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="width:9px;height:9px;border-radius:3px;background:{{ lg.color }};flex:none"></span>
+                    <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
+                    <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace;flex:none">{{ lg.pct }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
           <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;margin:0 24px 20px;border-radius:22px;background:linear-gradient(135deg, #2E6BE6, #4C8DFF);padding:20px;box-shadow:0 14px 30px -14px rgba(46,107,230,.55)">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
@@ -246,29 +269,6 @@ input::placeholder{color:var(--tx3)}
             </div>
           </sc-for>
         </div>
-
-        <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:22px 24px 0">
-            <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;display:flex;align-items:center;gap:20px">
-              <svg viewBox="0 0 100 100" width="108" height="108" style="flex:none;transform:rotate(-90deg)">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"></circle>
-                <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="16" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
-                </sc-for>
-              </svg>
-              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
-                <span style="color:var(--tx);font-size:13.5px;font-weight:600;margin-bottom:2px">Gewichtung im Depot</span>
-                <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <span style="width:9px;height:9px;border-radius:3px;background:{{ lg.color }};flex:none"></span>
-                    <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
-                    <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace;flex:none">{{ lg.pct }}</span>
-                  </div>
-                </sc-for>
-              </div>
-            </div>
-          </div>
-        </sc-if>
 
         <div style="padding:22px 24px 0">
           <div style="border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--surf2);display:flex;flex-direction:column;gap:10px">
