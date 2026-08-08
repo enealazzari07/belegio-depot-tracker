@@ -200,6 +200,56 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
 
+        <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 24px 8px;display:flex;align-items:center;justify-content:space-between">
+            <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">MARKTLAGE</span>
+            <a href="#markets" onClick="{{ goMarkets }}" style="color:var(--acc2);font-size:12px;font-weight:600">Märkte</a>
+          </div>
+          <div style="padding:0 24px 20px;display:flex;gap:8px;overflow-x:auto">
+            <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
+              <div style="flex:none;min-width:96px;border-radius:14px;background:var(--surf);border:1px solid var(--line);padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+                <span style="color:var(--tx3);font-size:10.5px;font-weight:600;white-space:nowrap">{{ idx.label }}</span>
+                <span style="color:var(--tx);font-size:13.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap">{{ idx.price }}</span>
+                <span style="color:{{ idx.color }};font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ idx.change }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasDrivers }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 24px 20px">
+            <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px">
+              <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+                <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"></path></svg>
+                </div>
+                <span style="flex:1;color:var(--tx);font-size:13.5px;font-weight:600">Was heute bewegt</span>
+                <span style="color:{{ dayTotalColor }};font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ dayTotalLabel }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:13px">
+                <sc-for list="{{ drivers }}" as="dr" hint-placeholder-count="3">
+                  <div style="display:flex;gap:11px">
+                    <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ dr.color }}"></span>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                      <div style="display:flex;align-items:baseline;gap:8px">
+                        <span style="color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
+                        <span style="flex:1"></span>
+                        <span style="color:{{ dr.color }};font-size:12.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ dr.contrib }}</span>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <span style="color:{{ dr.color }};font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ dr.pct }}</span>
+                        <span style="color:var(--tx3);font-size:11px">{{ dr.sharePct }}</span>
+                      </div>
+                      <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ dr.reason }}</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Beitrag zum heutigen Depot-Ergebnis. Zuordnung automatisch, keine Anlageberatung.</p>
+            </div>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 24px 20px">
             <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;display:flex;align-items:center;gap:20px">
@@ -415,19 +465,46 @@ input::placeholder{color:var(--tx3)}
                   </sc-if>
                 </div>
               </sc-if>
+              <sc-if value="{{ d.has52w }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:10px 0 12px;border-top:1px solid var(--line)">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+                    <span style="color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em">52-WOCHEN-SPANNE</span>
+                  </div>
+                  <div style="position:relative;height:5px;border-radius:3px;background:var(--surf2);margin-bottom:6px">
+                    <span style="position:absolute;top:-3px;width:3px;height:11px;border-radius:2px;background:var(--acc2);left:{{ d.pos52 }};transform:translateX(-50%);display:block"></span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--tx3);font-size:11px;font-family:'IBM Plex Mono',monospace">{{ d.lo52Label }}</span>
+                    <span style="color:var(--tx3);font-size:11px;font-family:'IBM Plex Mono',monospace">{{ d.hi52Label }}</span>
+                  </div>
+                </div>
+              </sc-if>
               <div style="padding:6px 0 14px;border-top:1px solid var(--line)">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
                   <span style="color:{{ d.posChartColor }};font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ d.posChartPct }}</span>
-                  <div style="display:flex;gap:4px;padding:3px;border-radius:8px;background:var(--surf2)">
-                    <sc-for list="{{ d.chartRangeButtons }}" as="r" hint-placeholder-count="2">
-                      <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 10px;border-radius:6px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
+                  <div style="display:flex;gap:3px;padding:3px;border-radius:8px;background:var(--surf2)">
+                    <sc-for list="{{ d.chartRangeButtons }}" as="r" hint-placeholder-count="5">
+                      <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:6px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
                     </sc-for>
                   </div>
                 </div>
                 <sc-if value="{{ d.hasPosChart }}" hint-placeholder-val="{{ false }}">
-                  <svg viewBox="0 0 280 56" preserveAspectRatio="none" style="width:100%;height:56px;display:block">
-                    <path d="{{ d.posChartPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2" stroke-linecap="round"></path>
-                  </svg>
+                  <div style="display:flex;align-items:baseline;gap:8px;height:16px;margin-bottom:6px;visibility:{{ d.posScrubVisibility }}">
+                    <span style="color:var(--tx3);font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ d.posScrubWhen }}</span>
+                    <span style="flex:1"></span>
+                    <span style="color:var(--tx2);font-size:11px;font-family:'IBM Plex Mono',monospace">Kurs {{ d.posScrubPrice }}</span>
+                    <span style="color:var(--tx);font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">Wert {{ d.posScrubValue }}</span>
+                  </div>
+                  <div style="position:relative">
+                    <svg viewBox="0 0 280 56" preserveAspectRatio="none" style="width:100%;height:56px;display:block;overflow:visible">
+                      <path d="{{ d.posChartPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2" stroke-linecap="round"></path>
+                      <sc-if value="{{ d.posScrubActive }}" hint-placeholder-val="{{ false }}">
+                        <line x1="{{ d.posScrubX }}" y1="0" x2="{{ d.posScrubX }}" y2="56" stroke="var(--line2)" stroke-width="1.2" stroke-dasharray="3 3"></line>
+                        <circle cx="{{ d.posScrubX }}" cy="{{ d.posScrubY }}" r="4" fill="{{ d.posChartColor }}" stroke="var(--surf)" stroke-width="2"></circle>
+                      </sc-if>
+                    </svg>
+                    <div onPointerDown="{{ d.posScrubStart }}" onPointerMove="{{ d.posScrubMove }}" onPointerUp="{{ d.posScrubEnd }}" onPointerLeave="{{ d.posScrubEnd }}" onPointerCancel="{{ d.posScrubEnd }}" style="position:absolute;inset:-6px 0;touch-action:none;cursor:pointer"></div>
+                  </div>
                 </sc-if>
                 <sc-if value="{{ d.noPosChart }}" hint-placeholder-val="{{ false }}">
                   <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Kursdaten für diesen Zeitraum verfügbar.</p>
@@ -974,6 +1051,11 @@ const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
 
+// Haltedauer/Alter kompakt: Tage bis 45, danach Monate, ab einem Jahr Jahre.
+const durLabel = d => d == null ? "–" : d < 1 ? "heute" : d < 45 ? d + " Tg" : d < 365 ? Math.round(d / 30.4) + " Mt" : (d / 365).toFixed(1).replace(".", ",") + " J";
+const daysSince = dateStr => Math.max(0, Math.round((Date.now() - new Date(dateStr).getTime()) / 864e5));
+const agoLabel = dateStr => { const d = daysSince(dateStr); return d < 1 ? "heute" : "vor " + durLabel(d); };
+
 // ---------- Märkte ----------
 const MARKET_INDICES = [
   { sym: "^SSMI", label: "SMI" },
@@ -1032,8 +1114,8 @@ class Component extends DCLogic {
 
     txOpenSymbol: null, editingTxId: null, editingTxFields: null,
 
-    posChartRange: "D", aiExpanded: false,
-    intraday: {}, intradayDate: null, quoteProviders: {},
+    posChartRange: "D", aiExpanded: false, posScrub: null,
+    intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     stockDetailSymbol: null, stockDetailData: null, stockDetailLoading: false, stockDetailError: "", stockDetailRange: "M",
@@ -1141,6 +1223,9 @@ class Component extends DCLogic {
       if (holdings.length) this.sync();
       await this.loadReceipts();
       this.loadProfile();
+      // Marktkontext auch auf der Home-Seite — zeigt, ob eine Depot-Bewegung
+      // marktgetrieben oder titelspezifisch ist.
+      this.loadMarkets();
       this.startAutoSync();
     }
     this.setState({ dashLoading: false });
@@ -1238,6 +1323,7 @@ class Component extends DCLogic {
       if (holdings.length) this.sync();
       await this.loadReceipts();
       this.loadProfile();
+      this.loadMarkets();
       this.startAutoSync();
       this.setState({ dashLoading: false });
     } catch (e) {
@@ -1367,7 +1453,8 @@ class Component extends DCLogic {
         quoteProviders: { ...s.quoteProviders, ...providers },
         liveNews: news && news.length ? news : s.liveNews,
         conn: Object.keys(q).length || Object.keys(s.quotes).length ? "live" : "empty",
-        syncing: false
+        syncing: false,
+        lastSyncAt: Object.keys(q).length ? Date.now() : s.lastSyncAt
       }));
       if (Object.keys(q).length) this.recordIntraday(q);
     } catch (e) {
@@ -1458,8 +1545,25 @@ class Component extends DCLogic {
 
   cancelEditTx = () => this.setState({ editingTxId: null, editingTxFields: null });
 
-  // ---------- Kursverlauf je Position (Tag/Woche) ----------
-  setPosChartRange = key => () => this.setState({ posChartRange: key });
+  // ---------- Kursverlauf je Position (Tag/Woche/Monat/Jahr/Max) ----------
+  setPosChartRange = key => () => this.setState({ posChartRange: key, posScrub: null });
+
+  // Streichen über den Positions-Chart: gleiche Mechanik wie beim Depot-Chart,
+  // nur pro Symbol — die Punkte legt renderVals in _posChartPoints[sym] ab.
+  posScrubAt = (sym, e) => {
+    const pts = (this._posChartPoints || {})[sym];
+    if (!pts || pts.length < 2) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : null);
+    if (clientX == null || !rect.width) return;
+    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const idx = Math.round(frac * (pts.length - 1));
+    const cur = this.state.posScrub;
+    if (!cur || cur.sym !== sym || cur.idx !== idx) this.setState({ posScrub: { sym, idx } });
+  };
+  posScrubStart = sym => e => { this._posScrubbing = sym; this.posScrubAt(sym, e); };
+  posScrubMove = sym => e => { if (this._posScrubbing === sym) this.posScrubAt(sym, e); };
+  posScrubEnd = () => { this._posScrubbing = null; if (this.state.posScrub) this.setState({ posScrub: null }); };
 
   // ---------- KI-Analyse ----------
   toggleAiExpanded = () => this.setState(s => ({ aiExpanded: !s.aiExpanded }));
@@ -1662,11 +1766,12 @@ class Component extends DCLogic {
     const todaySamples = this.state.intradayDate === todayStr ? this.state.intraday : {};
     const buildPositionChart = (sym, cur, range, dp) => {
       let pts;
-      if (range === "W") {
+      if (range !== "D") {
         const arr = (hist[sym] || []).slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-        const cutoff = dstr(new Date(Date.now() - 7 * 864e5));
-        pts = arr.filter(p => p.date >= cutoff).map(p => ({ close: p.close }));
-        if (!pts.length || pts[pts.length - 1].close !== cur) pts = [...pts, { close: cur }];
+        const days = RANGE_DAYS[range] ?? 30;
+        const cutoff = days === Infinity ? null : dstr(new Date(Date.now() - days * 864e5));
+        pts = (cutoff ? arr.filter(p => p.date >= cutoff) : arr).map(p => ({ date: p.date, close: p.close }));
+        if (!pts.length || pts[pts.length - 1].close !== cur) pts = [...pts, { date: todayStr, close: cur }];
       } else {
         // Startpunkt ist immer der echte Vortagesschluss (aus dp% der Live-Quote) —
         // sonst würde die Linie bei "Änderung seit dem ersten Sample von heute"
@@ -1677,9 +1782,12 @@ class Component extends DCLogic {
         if (prevClose == null) {
           pts = null;
         } else {
-          const samples = (todaySamples[sym] || []).map(s => s.p);
-          const closes = [prevClose, ...samples, cur];
-          pts = closes.filter((c, i) => i === 0 || c !== closes[i - 1]).map(close => ({ close }));
+          const raw = [
+            { date: todayStr, close: prevClose },
+            ...(todaySamples[sym] || []).map(s => ({ date: todayStr, close: s.p, t: s.t })),
+            { date: todayStr, close: cur }
+          ];
+          pts = raw.filter((p, i) => i === 0 || p.close !== raw[i - 1].close);
         }
       }
       if (!pts || pts.length < 2) return null;
@@ -1692,7 +1800,22 @@ class Component extends DCLogic {
       const path = pts.map((p, i) => (i === 0 ? "M" : "L") + X(i).toFixed(1) + " " + Y(p.close).toFixed(1)).join(" ");
       const first = pts[0].close, last = pts[pts.length - 1].close;
       const pct = first ? (last - first) / first * 100 : 0;
-      return { path, pct, pos: pct >= 0 };
+      // Beschriftung für das Streichen: intraday die Uhrzeit des Samples,
+      // sonst das Handelsdatum (mit Jahr in den langen Zeiträumen).
+      const labelFor = (p, i) => {
+        if (range === "D") {
+          if (i === 0) return "Vortagesschluss";
+          if (i === n - 1) return "Jetzt";
+          return p.t ? new Date(p.t).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }) + " Uhr" : "im Tagesverlauf";
+        }
+        const opts = { day: "2-digit", month: "short" };
+        if (range === "Y" || range === "MAX") opts.year = "numeric";
+        return new Date(p.date).toLocaleDateString("de-CH", opts);
+      };
+      const points = pts.map((p, i) => ({
+        date: p.date, close: p.close, label: labelFor(p, i), x: X(i), y: Y(p.close)
+      }));
+      return { path, pct, pos: pct >= 0, points, first };
     };
 
     // ---------- Chart für die Aktien-Detailansicht (Märkte-Suche) ----------
@@ -1719,6 +1842,67 @@ class Component extends DCLogic {
     })();
 
     const topMoverToday = holdings.reduce((best, h) => (typeof h.dp === "number" && (!best || h.dp > best.dp)) ? h : best, null);
+    const worstMoverToday = holdings.reduce((w, h) => (typeof h.dp === "number" && (!w || h.dp < w.dp)) ? h : w, null);
+
+    // ---------- Marktkontext (Indizes) ----------
+    // Indizes ohne Kursdaten weglassen statt als "–  +0.00%" anzeigen.
+    const marketIndexList = this.state.marketQuotes ? MARKET_INDICES.filter(idx => {
+      const q = this.state.marketQuotes[idx.sym];
+      return q && typeof q.c === "number";
+    }).map(idx => {
+      const q = this.state.marketQuotes[idx.sym];
+      const dp = q && typeof q.dp === "number" ? q.dp : 0;
+      return {
+        label: idx.label,
+        sym: idx.sym,
+        dp,
+        price: q ? q.c.toLocaleString("de-CH", { maximumFractionDigits: 2 }) : "–",
+        change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
+        color: dp >= 0 ? "var(--pos)" : "var(--neg)",
+        sparkline: buildSparkline((this.state.marketHistory || {})[idx.sym])
+      };
+    }) : [];
+    const benchmark = marketIndexList.find(i => i.dp !== 0) || null;
+
+    // ---------- „Was heute bewegt" — Tagesbeitrag je Position + Begründung ----------
+    // Beitrag = (Kurs jetzt − Vortagesschluss) × Anteile. Der Vortagesschluss wird
+    // aus dp% der Live-Quote zurückgerechnet, andere Provider liefern ihn nicht mit.
+    const dayContrib = h => typeof h.dp === "number" ? (h.cur - h.cur / (1 + h.dp / 100)) * h.shares : null;
+    const dayTotal = holdings.reduce((a, h) => { const c = dayContrib(h); return c == null ? a : a + c; }, 0);
+    // Anteil an der gesamten Tagesbewegung (Summe der Beträge) — die Netto-Summe
+    // taugt nicht als Nenner, sonst käme bei gegenläufigen Positionen >100 % heraus.
+    const dayGross = holdings.reduce((a, h) => { const c = dayContrib(h); return c == null ? a : a + Math.abs(c); }, 0);
+    const newsBySym = {};
+    for (const n of (this.state.liveNews || [])) { if (n && n.symbol && !newsBySym[n.symbol]) newsBySym[n.symbol] = n; }
+    // Begründung, absteigend nach Aussagekraft: eigene Schlagzeile → Schlagzeile zu
+    // einer grossen ETF-Position → gleichgerichtete Marktbewegung → nichts gefunden.
+    const reasonFor = (h, sym) => {
+      const own = newsBySym[sym];
+      if (own) return own.headline;
+      const comp = this.state.etfHoldings[sym];
+      if (comp && comp.holdings && comp.holdings.length) {
+        for (const c of comp.holdings.slice(0, 3)) {
+          const n = newsBySym[c.symbol];
+          if (n) return n.headline + " — über " + (c.name || c.symbol) + " im Fonds";
+        }
+      }
+      if (benchmark && h.dp && Math.sign(benchmark.dp) === Math.sign(h.dp)) {
+        return "Folgt dem Gesamtmarkt — " + benchmark.label + " " + (benchmark.dp >= 0 ? "+" : "") + benchmark.dp.toFixed(2) + " %.";
+      }
+      return "Kein einzelner Auslöser in den News erkennbar.";
+    };
+    const driverRows = holdings
+      .map(h => ({ h, sym: h.sym || h.abbr, c: dayContrib(h) }))
+      .filter(d => d.c != null && Math.abs(d.c) > 0.005)
+      .sort((a, b) => Math.abs(b.c) - Math.abs(a.c))
+      .slice(0, 3);
+
+    // ---------- Depot-Eckdaten über alle Transaktionen ----------
+    // Wird beim Aufbau der Depot-Liste befüllt; posScrubAt liest daraus.
+    const posChartPoints = {};
+    this._posChartPoints = posChartPoints;
+    const firstBuyDate = txs.length ? txs.reduce((m, t) => (t.date < m ? t.date : m), txs[0].date) : null;
+    const avgHoldDays = txs.length ? Math.round(txs.reduce((a, t) => a + daysSince(t.date), 0) / txs.length) : null;
 
     // ---------- Depot-Gewichtung als Kreisdiagramm (Donut via stroke-dasharray) ----------
     const allocationSlices = [], allocationLegend = [];
@@ -1843,17 +2027,8 @@ class Component extends DCLogic {
         };
       }) : [],
       noNews: !this.state.liveNews || !this.state.liveNews.length,
-      marketIndices: this.state.marketQuotes ? MARKET_INDICES.map(idx => {
-        const q = this.state.marketQuotes[idx.sym];
-        const dp = q && typeof q.dp === "number" ? q.dp : 0;
-        return {
-          label: idx.label,
-          price: q ? q.c.toLocaleString("de-CH", { maximumFractionDigits: 2 }) : "–",
-          change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
-          color: dp >= 0 ? "var(--pos)" : "var(--neg)",
-          sparkline: buildSparkline((this.state.marketHistory || {})[idx.sym])
-        };
-      }) : [],
+      marketIndices: marketIndexList,
+      hasMarketStrip: marketIndexList.length > 0,
       marketMovers: this.state.moverQuotes ? MARKET_MOVERS.map(sym => {
         const q = this.state.moverQuotes[sym];
         const dp = q && typeof q.dp === "number" ? q.dp : 0;
@@ -1988,6 +2163,19 @@ class Component extends DCLogic {
       hasAllocation: allocationSlices.length > 0,
       allocationSlices,
       allocationLegend,
+
+      // ---------- „Was heute bewegt" ----------
+      hasDrivers: driverRows.length > 0,
+      dayTotalLabel: (dayTotal >= 0 ? "+" : "") + f2(dayTotal),
+      dayTotalColor: dayTotal >= 0 ? "var(--pos)" : "var(--neg)",
+      drivers: driverRows.map(d => ({
+        tick: d.h.abbr, name: displayName(d.h),
+        contrib: (d.c >= 0 ? "+" : "") + f2(d.c),
+        pct: (d.h.dp >= 0 ? "+" : "") + d.h.dp.toFixed(2) + " %",
+        color: d.c >= 0 ? "var(--pos)" : "var(--neg)",
+        sharePct: dayGross ? Math.round(Math.abs(d.c) / dayGross * 100) + " % der Tagesbewegung" : "",
+        reason: reasonFor(d.h, d.sym)
+      })),
       depot: holdings.map(h => {
         const sym = h.sym || h.abbr;
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
@@ -1997,6 +2185,24 @@ class Component extends DCLogic {
         const symTxs = txOpen ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
         const posChartRange = this.state.posChartRange || "D";
         const posChart = buildPositionChart(sym, h.cur, posChartRange, h.dp);
+        posChartPoints[sym] = posChart ? posChart.points : null;
+        const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
+          ? posChart.points[this.state.posScrub.idx] : null;
+        const scrubDelta = scrubP && posChart.first ? (scrubP.close - posChart.first) / posChart.first * 100 : 0;
+
+        // Kennzahlen je Position
+        const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
+        const posFirstBuy = allSymTxs.length ? allSymTxs.reduce((m, t) => (t.date < m ? t.date : m), allSymTxs[0].date) : null;
+        const posDayAbs = typeof h.dp === "number" ? (h.cur - h.cur / (1 + h.dp / 100)) * h.shares : null;
+        const posGainPct = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
+        // 52-Wochen-Spanne nur zeigen, wenn wirklich genug Historie da ist —
+        // sonst wäre der Balken irreführend.
+        const yearRows = (hist[sym] || []).filter(p => p.date >= dstr(new Date(Date.now() - 365 * 864e5)));
+        const has52 = yearRows.length >= 60;
+        const lo52 = has52 ? Math.min(h.cur, ...yearRows.map(p => p.close)) : 0;
+        const hi52 = has52 ? Math.max(h.cur, ...yearRows.map(p => p.close)) : 0;
+        const pos52 = has52 && hi52 > lo52 ? (h.cur - lo52) / (hi52 - lo52) * 100 : 50;
+
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
@@ -2009,8 +2215,18 @@ class Component extends DCLogic {
             { k: "Anteile", v: String(h.shares) },
             { k: "Ø Kaufkurs", v: f2(h.buy) },
             { k: "Investiert", v: f2(inv) },
-            { k: "Kurs jetzt", v: f2(h.cur) }
+            { k: "Kurs jetzt", v: f2(h.cur) },
+            { k: "Heute", v: posDayAbs != null ? (posDayAbs >= 0 ? "+" : "") + f2(posDayAbs) : "–" },
+            { k: "G/V", v: (posGainPct >= 0 ? "+" : "") + posGainPct.toFixed(1) + " %" },
+            { k: "Erstkauf", v: posFirstBuy ? new Date(posFirstBuy).toLocaleDateString("de-CH") : "–" },
+            { k: "Haltedauer", v: posFirstBuy ? durLabel(daysSince(posFirstBuy)) : "–" },
+            { k: "Käufe", v: String(allSymTxs.length) },
+            { k: "Währung", v: h.currency || "CHF" }
           ],
+          has52w: has52,
+          lo52Label: has52 ? f2(lo52) : "",
+          hi52Label: has52 ? f2(hi52) : "",
+          pos52: pos52.toFixed(1) + "%",
           toggleComposition: this.toggleComposition(sym),
           compositionLabel: isOpen ? "Zusammensetzung ausblenden" : "Zusammensetzung anzeigen",
           showComposition: isOpen,
@@ -2019,8 +2235,8 @@ class Component extends DCLogic {
           compositionBlocks: isOpen ? buildCompositionBlocks(this.state.etfHoldings[sym]) : [],
           hasComposition: isOpen && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0,
 
-          chartRangeButtons: ["D", "W"].map(k => ({
-            label: k === "D" ? "Tag" : "Woche",
+          chartRangeButtons: chartRangeKeys.map(k => ({
+            label: RANGE_LABELS[k],
             go: this.setPosChartRange(k),
             bg: posChartRange === k ? "var(--surf)" : "transparent",
             tx: posChartRange === k ? "var(--tx)" : "var(--tx3)"
@@ -2028,8 +2244,24 @@ class Component extends DCLogic {
           hasPosChart: !!posChart,
           noPosChart: !posChart,
           posChartPath: posChart ? posChart.path : "",
-          posChartPct: posChart ? (posChart.pos ? "+" : "") + posChart.pct.toFixed(2) + " %" : "",
-          posChartColor: posChart ? (posChart.pos ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
+          posChartPct: scrubP
+            ? (scrubDelta >= 0 ? "+" : "") + scrubDelta.toFixed(2) + " %"
+            : posChart ? (posChart.pos ? "+" : "") + posChart.pct.toFixed(2) + " %" : "",
+          posChartColor: scrubP
+            ? (scrubDelta >= 0 ? "var(--pos)" : "var(--neg)")
+            : posChart ? (posChart.pos ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
+
+          // Streichen über den Chart
+          posScrubStart: this.posScrubStart(sym),
+          posScrubMove: this.posScrubMove(sym),
+          posScrubEnd: this.posScrubEnd,
+          posScrubActive: !!scrubP,
+          posScrubVisibility: scrubP ? "visible" : "hidden",
+          posScrubWhen: scrubP ? scrubP.label : "",
+          posScrubPrice: scrubP ? f2(scrubP.close) : "",
+          posScrubValue: scrubP ? f2(scrubP.close * h.shares) : "",
+          posScrubX: scrubP ? scrubP.x.toFixed(1) : "0",
+          posScrubY: scrubP ? scrubP.y.toFixed(1) : "0",
 
           toggleTransactions: this.toggleTransactions(sym),
           transactionsLabel: txOpen ? "Transaktionen ausblenden" : "Transaktionen anzeigen",
@@ -2041,8 +2273,8 @@ class Component extends DCLogic {
             return {
               id: t.id,
               isEditing: editing, isNotEditing: !editing,
-              dateLabel: new Date(t.date).toLocaleDateString("de-CH"),
-              detail: t.shares + " × " + f2(Number(t.purchase_price)),
+              dateLabel: new Date(t.date).toLocaleDateString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }),
+              detail: t.shares + " × " + f2(Number(t.purchase_price)) + " · " + agoLabel(t.date),
               total: f2(Number(t.shares) * Number(t.purchase_price)),
               editDate: editing ? f.date : t.date,
               editShares: editing ? f.shares : String(t.shares),
@@ -2060,7 +2292,12 @@ class Component extends DCLogic {
         { k: "TITEL", v: String(holdings.length) },
         { k: "BELEGE", v: String(used) },
         { k: "RENDITE", v: (cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) : "0.0") + " %" },
-        { k: "TOP HEUTE", v: topMoverToday ? topMoverToday.abbr + " " + (topMoverToday.dp >= 0 ? "+" : "") + topMoverToday.dp.toFixed(1) + "%" : "–" }
+        { k: "TOP HEUTE", v: topMoverToday ? topMoverToday.abbr + " " + (topMoverToday.dp >= 0 ? "+" : "") + topMoverToday.dp.toFixed(1) + "%" : "–" },
+        { k: "HEUTE CHF", v: (dayTotal >= 0 ? "+" : "") + f2(dayTotal) },
+        { k: "SCHWÄCHSTE", v: worstMoverToday ? worstMoverToday.abbr + " " + (worstMoverToday.dp >= 0 ? "+" : "") + worstMoverToday.dp.toFixed(1) + "%" : "–" },
+        { k: "Ø HALTEDAUER", v: durLabel(avgHoldDays) },
+        { k: "ERSTER KAUF", v: firstBuyDate ? new Date(firstBuyDate).toLocaleDateString("de-CH") : "–" },
+        { k: "AKTUALISIERT", v: this.state.lastSyncAt ? new Date(this.state.lastSyncAt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }) + " Uhr" : "–" }
       ],
 
       holdings: holdings.map(h => {
