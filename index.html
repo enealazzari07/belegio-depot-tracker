@@ -64,10 +64,10 @@
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
 }
 /* iOS-Statusleiste: mit apple-mobile-web-app-status-bar-style=black-translucent
-   reicht der Inhalt bis unter die Uhr. Dieser Streifen färbt den Safe-Area-
-   Bereich im Markenblau — auf dem Home-Screen geht er nahtlos in den Kopfbereich
-   über, auf den hellen Screens bleibt die weisse iOS-Uhr darauf lesbar. */
-.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;background:var(--brand-flat)}
+   reicht der Inhalt bis unter die Uhr. Die Farbe kommt aus statusBarBg und folgt
+   dem aktuellen Screen (blauer Kopfbereich auf der Startseite, sonst die
+   Seitenfarbe), damit oben keine fremde Fläche steht. */
+.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none}
 *{box-sizing:border-box}
 /* Nicht transparent lassen: iOS füllt die Statusleiste sonst mit seinem Grau. */
 html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#2C63DC}
@@ -104,7 +104,7 @@ input::placeholder{color:var(--tx3)}
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
-    <div class="statusbar"></div>
+    <div class="statusbar" style="background:{{ statusBarBg }}"></div>
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
@@ -2408,6 +2408,10 @@ class Component extends DCLogic {
         tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
       })),
       connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
+      // Statusleisten-Streifen nimmt die Farbe des Screens an, der gerade oben
+      // anliegt: der blaue Kopfbereich nur auf der Startseite, sonst die
+      // Seitenfarbe (hell bzw. dunkel je nach Theme).
+      statusBarBg: screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
