@@ -30,6 +30,13 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
+  /* Blauer Kopfbereich — nur der Hero-Block, alles darunter bleibt neutral. */
+  --brand:linear-gradient(160deg,#3A78F2 0%,#2C63DC 55%,#2150BE 100%);
+  --brand-flat:#2C63DC;
+  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.74); --onBrand3:rgba(255,255,255,.54);
+  --onBrand-line:rgba(255,255,255,.20); --onBrand-soft:rgba(255,255,255,.15);
+  --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
+  --brand-shadow:0 12px 26px -14px rgba(33,80,190,.55), 0 26px 54px -30px rgba(33,80,190,.45);
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
   --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
@@ -45,6 +52,12 @@
   --pos-soft:rgba(79,191,159,.13); --neg-soft:rgba(224,124,113,.13);
   --warn:#E0B252; --warn-soft:rgba(224,178,82,.14);
   --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
+  --brand:linear-gradient(160deg,#2A5FD4 0%,#1F4CB4 55%,#173C94 100%);
+  --brand-flat:#1F4CB4;
+  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
+  --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
+  --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
+  --brand-shadow:0 12px 28px -16px rgba(0,0,0,.7), 0 28px 56px -32px rgba(0,0,0,.8);
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
@@ -136,13 +149,13 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
 
-        <div style="background:var(--surf);border-radius:0 0 32px 32px;padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px 22px;margin-bottom:16px;box-shadow:var(--hero-shadow)">
+        <div style="background:var(--brand);border-radius:0 0 32px 32px;padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px 22px;margin-bottom:16px;box-shadow:var(--brand-shadow)">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
-                <span class="lbl">Gesamtwert · CHF</span>
-                <span title="{{ connLabel }}" style="width:6px;height:6px;border-radius:50%;background:{{ connTone }};display:block;flex:none"></span>
+                <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert · CHF</span>
+                <span title="{{ connLabel }}" style="width:6px;height:6px;border-radius:50%;background:{{ connToneBrand }};display:block;flex:none"></span>
               </div>
-              <div class="seg">
+              <div style="display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--onBrand-soft)">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
                   <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
                 </sc-for>
@@ -150,56 +163,136 @@ input::placeholder{color:var(--tx3)}
             </div>
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:120px">
-                <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
+                <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--onBrand-line);border-top-color:var(--onBrand);animation:spin .8s linear infinite;display:block"></span>
               </div>
             </sc-if>
             <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:6px">
-              <span class="mono" style="color:var(--tx);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
+              <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-bottom:3px">
-                <span class="mono chip" style="background:{{ gainBg }};color:{{ gainColor }}">{{ gainPct }}</span>
-                <span class="mono" style="color:var(--tx3);font-size:11.5px">{{ gainAbs }}</span>
+                <span class="mono chip" style="background:var(--onBrand-soft);color:{{ gainColor }}">{{ gainPct }}</span>
+                <span class="mono" style="color:var(--onBrand3);font-size:11.5px">{{ gainAbs }}</span>
               </div>
             </div>
             <div style="height:16px;margin-bottom:8px;text-align:right;visibility:{{ scrubVisibility }}">
-              <span class="mono" style="color:var(--tx3);font-size:11px;font-weight:600">{{ scrubDateLabel }}</span>
+              <span class="mono" style="color:var(--onBrand2);font-size:11px;font-weight:600">{{ scrubDateLabel }}</span>
             </div>
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative">
               <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:118px;display:block;overflow:visible">
-                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)" stop-opacity=".22"></stop><stop offset="1" stop-color="var(--acc2)" stop-opacity="0"></stop></linearGradient></defs>
-                <path d="{{ chartInvestedPath }}" fill="none" stroke="var(--line2)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round"></path>
+                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="{{ chartInvestedPath }}" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round"></path>
                 <path d="{{ chartValueFillPath }}" fill="url(#vfill)"></path>
-                <path d="{{ chartValuePath }}" fill="none" stroke="var(--acc2)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4" fill="var(--acc2)" stroke="var(--surf)" stroke-width="2"></circle>
+                <path d="{{ chartValuePath }}" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4.2" fill="#FFFFFF"></circle>
                 <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
-                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="var(--line2)" stroke-width="1.3" stroke-dasharray="3 3"></line>
-                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5" fill="var(--acc2)" stroke="var(--surf)" stroke-width="2.5"></circle>
+                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="rgba(255,255,255,.55)" stroke-width="1.3" stroke-dasharray="3 3"></line>
+                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5.5" fill="#FFFFFF" stroke="var(--brand-flat)" stroke-width="2.5"></circle>
                 </sc-if>
               </svg>
               <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:-8px 0;touch-action:none;cursor:pointer"></div>
               <div style="display:flex;justify-content:space-between;padding:10px 0 0">
                 <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
-                  <span class="mono" style="color:var(--tx3);font-size:10px;font-weight:600">{{ m.l }}</span>
+                  <span class="mono" style="color:var(--onBrand3);font-size:10px;font-weight:600">{{ m.l }}</span>
                 </sc-for>
               </div>
             </div>
             </sc-if>
             <sc-if value="{{ noChart }}" hint-placeholder-val="{{ false }}">
-              <div style="height:100px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--tx3);font-size:12px;padding:0 16px">{{ chartEmptyMsg }}</div>
+              <div style="height:100px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--onBrand2);font-size:12px;padding:0 16px">{{ chartEmptyMsg }}</div>
             </sc-if>
-            <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+            <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--onBrand-line)">
               <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:14px;height:2.5px;border-radius:2px;background:var(--acc2);display:block"></span>
-                <span style="color:var(--tx2);font-size:11.5px;font-weight:500">Aktueller Wert</span>
+                <span style="width:14px;height:2.5px;border-radius:2px;background:#FFFFFF;display:block"></span>
+                <span style="color:var(--onBrand2);font-size:11.5px;font-weight:500">Aktueller Wert</span>
               </div>
               <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:14px;height:0;border-top:2.5px dashed var(--line2);display:block"></span>
-                <span style="color:var(--tx2);font-size:11.5px;font-weight:500">Investiert</span>
+                <span style="width:14px;height:0;border-top:2.5px dashed rgba(255,255,255,.45);display:block"></span>
+                <span style="color:var(--onBrand2);font-size:11.5px;font-weight:500">Investiert</span>
               </div>
             </div>
             </sc-if>
         </div>
+
+        <sc-if value="{{ hasCarousel }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:18px">
+            <div id="dash-carousel" onScroll="{{ onCarouselScroll }}" onPointerDown="{{ onCarouselTouch }}" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch">
+
+              <sc-if value="{{ hasDrivers }}" hint-placeholder-val="{{ false }}">
+                <div style="flex:0 0 100%;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
+                  <div class="card" style="padding:18px;min-height:{{ carouselHeight }};display:flex;flex-direction:column">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+                      <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"></path></svg>
+                      </div>
+                      <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Was heute bewegt</span>
+                      <span class="mono chip" style="background:{{ dayTotalBg }};color:{{ dayTotalColor }}">{{ dayTotalLabel }}</span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:14px">
+                      <sc-for list="{{ drivers }}" as="dr" hint-placeholder-count="3">
+                        <div style="display:flex;gap:11px">
+                          <div style="width:3px;border-radius:2px;flex:none;background:{{ dr.color }};opacity:.55"></div>
+                          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                            <div style="display:flex;align-items:baseline;gap:8px">
+                              <span style="color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
+                              <span style="flex:1"></span>
+                              <span class="mono" style="color:{{ dr.color }};font-size:12.5px;font-weight:700;flex:none">{{ dr.contrib }}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:7px">
+                              <span class="mono" style="color:{{ dr.color }};font-size:10.5px;font-weight:700;background:{{ dr.bg }};padding:2px 6px;border-radius:6px">{{ dr.pct }}</span>
+                              <span style="color:var(--tx3);font-size:11px">{{ dr.sharePct }}</span>
+                            </div>
+                            <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ dr.reason }}</span>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="flex:1;min-height:8px"></div>
+                    <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Beitrag zum heutigen Depot-Ergebnis. Zuordnung automatisch, keine Anlageberatung.</p>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
+                <div style="flex:0 0 100%;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
+                  <div onClick="{{ goNewsFromBanner }}" class="card" style="cursor:pointer;min-height:{{ carouselHeight }};padding:18px;display:flex;flex-direction:column">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+                      <div style="width:28px;height:28px;border-radius:10px;background:var(--info-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
+                      </div>
+                      <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Marktnews</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:13px">
+                      <sc-for list="{{ newsBannerItems }}" as="n" hint-placeholder-count="3">
+                        <div style="display:flex;gap:11px">
+                          <div style="width:3px;border-radius:2px;flex:none;background:var(--info);opacity:.45"></div>
+                          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                            <div style="display:flex;align-items:center;gap:8px">
+                              <span class="mono" style="color:var(--tx2);font-size:10.5px;font-weight:700;letter-spacing:.06em">{{ n.tick }}</span>
+                              <span style="color:var(--tx3);font-size:11px">{{ n.time }}</span>
+                            </div>
+                            <span style="color:var(--tx);font-size:13px;font-weight:600;line-height:1.45;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="flex:1;min-height:8px"></div>
+                    <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Alle Nachrichten zu deinen Titeln ansehen</p>
+                  </div>
+                </div>
+              </sc-if>
+
+            </div>
+            <sc-if value="{{ hasCarouselDots }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding-top:12px">
+                <sc-for list="{{ carouselDots }}" as="dot" hint-placeholder-count="2">
+                  <button onClick="{{ dot.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;height:6px;width:{{ dot.w }};border-radius:3px;background:{{ dot.bg }};transition:width .22s ease,background .22s ease;display:block"></button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
 
         <div style="padding:0 20px 18px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px">
           <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="6">
@@ -242,40 +335,6 @@ input::placeholder{color:var(--tx3)}
                 </svg>
               </div>
             </sc-for>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ hasDrivers }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 20px 20px">
-            <div class="card" style="padding:18px">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
-                <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"></path></svg>
-                </div>
-                <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Was heute bewegt</span>
-                <span class="mono chip" style="background:{{ dayTotalBg }};color:{{ dayTotalColor }}">{{ dayTotalLabel }}</span>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:14px">
-                <sc-for list="{{ drivers }}" as="dr" hint-placeholder-count="3">
-                  <div style="display:flex;gap:11px">
-                    <div style="width:3px;border-radius:2px;flex:none;background:{{ dr.color }};opacity:.55"></div>
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-                      <div style="display:flex;align-items:baseline;gap:8px">
-                        <span style="color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
-                        <span style="flex:1"></span>
-                        <span class="mono" style="color:{{ dr.color }};font-size:12.5px;font-weight:700;flex:none">{{ dr.contrib }}</span>
-                      </div>
-                      <div style="display:flex;align-items:center;gap:7px">
-                        <span class="mono" style="color:{{ dr.color }};font-size:10.5px;font-weight:700;background:{{ dr.bg }};padding:2px 6px;border-radius:6px">{{ dr.pct }}</span>
-                        <span style="color:var(--tx3);font-size:11px">{{ dr.sharePct }}</span>
-                      </div>
-                      <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ dr.reason }}</span>
-                    </div>
-                  </div>
-                </sc-for>
-              </div>
-              <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Beitrag zum heutigen Depot-Ergebnis. Zuordnung automatisch, keine Anlageberatung.</p>
-            </div>
           </div>
         </sc-if>
 
@@ -345,29 +404,6 @@ input::placeholder{color:var(--tx3)}
                   </sc-for>
                 </div>
               </div>
-            </div>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
-          <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;margin:0 20px 20px;border-radius:22px;background:linear-gradient(140deg, #23509E 0%, #2E6BE6 55%, #4C8DFF 100%);padding:19px;box-shadow:0 16px 32px -18px rgba(46,107,230,.7)">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
-              <div style="width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex:none">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
-              </div>
-              <span style="flex:1;color:#fff;font-size:15px;font-weight:700;letter-spacing:-.01em">Marktnews</span>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <sc-for list="{{ newsBannerItems }}" as="n" hint-placeholder-count="3">
-                <div style="display:flex;flex-direction:column;gap:4px;{{ n.dividerStyle }}">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <span style="color:rgba(255,255,255,.9);font-size:10.5px;font-weight:700;letter-spacing:.1em">{{ n.tick }}</span>
-                    <span style="color:rgba(255,255,255,.6);font-size:11px">{{ n.time }}</span>
-                  </div>
-                  <span style="color:#fff;font-size:14px;font-weight:600;line-height:1.45;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
-                </div>
-              </sc-for>
             </div>
           </div>
         </sc-if>
@@ -1293,6 +1329,7 @@ class Component extends DCLogic {
     txOpenSymbol: null, editingTxId: null, editingTxFields: null, openPosSymbol: null,
 
     posChartRange: "D", aiExpanded: false, posScrub: null,
+    carouselIndex: 0, carouselTouched: false,
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
@@ -1391,6 +1428,7 @@ class Component extends DCLogic {
   async componentDidMount() {
     this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
     this.loadIntraday();
+    this.startCarousel();
     const db = await this.db();
     const session = await db.getSession();
     if (session) {
@@ -1409,7 +1447,62 @@ class Component extends DCLogic {
     this.setState({ dashLoading: false });
   }
 
-  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); this.stopAutoSync(); }
+  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
+
+  // ---------- Carousel „Was heute bewegt" ↔ „Marktnews" ----------
+  // Das Wischen macht CSS scroll-snap; hier wird nur die aktive Seite für die
+  // Punkte mitgeführt und alle 7 s automatisch weitergeblättert. Sobald der
+  // Nutzer selbst wischt, bleibt das Blättern aus — sonst springt es unter der
+  // Hand weg, während man liest.
+  carouselEl = () => document.getElementById("dash-carousel");
+
+  onCarouselScroll = e => {
+    const el = e.currentTarget;
+    if (!el || !el.clientWidth) return;
+    const i = Math.round(el.scrollLeft / el.clientWidth);
+    if (i !== this.state.carouselIndex) this.setState({ carouselIndex: i });
+  };
+
+  onCarouselTouch = () => { if (!this.state.carouselTouched) this.setState({ carouselTouched: true }); };
+
+  // Weder css scroll-behavior:smooth noch scrollTo({behavior:"smooth"}) kommen in
+  // einem scroll-snap-mandatory-Container zuverlässig am Ziel an — das Snapping
+  // bricht die Animation ab, der Container bleibt zwischen zwei Seiten stehen.
+  // Deshalb selbst animieren und das Snapping solange abschalten.
+  animateCarousel = (el, target) => {
+    cancelAnimationFrame(this._carouselRaf);
+    const start = el.scrollLeft, delta = target - start;
+    if (!delta) return;
+    const t0 = performance.now(), dur = 340;
+    el.style.scrollSnapType = "none";
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      el.scrollLeft = start + delta * e;
+      if (p < 1) this._carouselRaf = requestAnimationFrame(step);
+      else el.style.scrollSnapType = "";
+    };
+    this._carouselRaf = requestAnimationFrame(step);
+  };
+
+  goCarousel = i => () => {
+    const el = this.carouselEl();
+    this.setState({ carouselTouched: true, carouselIndex: i });
+    if (el) this.animateCarousel(el, i * el.clientWidth);
+  };
+
+  startCarousel = () => {
+    clearInterval(this._carouselTimer);
+    this._carouselTimer = setInterval(() => {
+      if (this.state.screen !== "dash" || this.state.carouselTouched) return;
+      const el = this.carouselEl();
+      if (!el || !el.clientWidth) return;
+      const pages = Math.round(el.scrollWidth / el.clientWidth);
+      if (pages < 2) return;
+      const next = (Math.round(el.scrollLeft / el.clientWidth) + 1) % pages;
+      el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+    }, 7000);
+  };
 
   // ---------- Intraday-Verlauf je Position (nur Session/Tag, für den Tages-Chart) ----------
   loadIntraday = () => {
@@ -2096,6 +2189,11 @@ class Component extends DCLogic {
     // Verlaufslinie des Depotwerts für die "Heute bewegt"-Karte.
     const portfolioSpark = chartData ? buildSparkline(chartData.points.map(p => ({ close: p.value }))) : "";
 
+    // Carousel-Seiten: Treiber und/oder News — je nachdem, was Daten hat.
+    const hasNews = !!(this.state.liveNews && this.state.liveNews.length);
+    const carouselPages = (driverRows.length ? 1 : 0) + (hasNews ? 1 : 0);
+    const carouselIdx = Math.min(this.state.carouselIndex || 0, Math.max(0, carouselPages - 1));
+
     // Wird beim Aufbau der Depot-Liste befüllt; posScrubAt liest daraus.
     const posChartPoints = {};
     this._posChartPoints = posChartPoints;
@@ -2296,11 +2394,13 @@ class Component extends DCLogic {
       confirmCta: "Ins Depot buchen",
 
       dashLoading: this.state.dashLoading, dashReady: !this.state.dashLoading,
+      // Zeitraum-Umschalter sitzt auf dem blauen Kopfbereich.
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
         bg: this.state.chartRange === key ? "#FFFFFF" : "transparent",
-        tx: this.state.chartRange === key ? "#0F172A" : "#8B93A5"
+        tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
       })),
+      connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
@@ -2319,13 +2419,9 @@ class Component extends DCLogic {
         : rangePct != null
           ? (rangePct >= 0 ? "+" : "") + rangePct.toFixed(2) + " %"
           : cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
-      gainColor: scrubPt
-        ? (scrubPt.dayPct >= 0 ? "var(--pos)" : "var(--neg)")
-        : rangePct != null
-          ? (rangePct >= 0 ? "var(--pos)" : "var(--neg)")
-          : (g >= 0 ? "var(--pos)" : "var(--neg)"),
-      gainBg: (scrubPt ? scrubPt.dayPct >= 0 : rangePct != null ? rangePct >= 0 : g >= 0)
-        ? "var(--pos-soft)" : "var(--neg-soft)",
+      // Auf dem blauen Kopfbereich braucht es hellere Grün-/Rottöne als im Rest der App.
+      gainColor: (scrubPt ? scrubPt.dayPct >= 0 : rangePct != null ? rangePct >= 0 : g >= 0)
+        ? "var(--brandPos)" : "var(--brandNeg)",
       scrubActive: !!scrubPt,
       scrubVisibility: scrubPt ? "visible" : "hidden",
       scrubDateLabel: scrubPt ? new Date(scrubPt.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }) : "",
@@ -2374,6 +2470,19 @@ class Component extends DCLogic {
       signals: signalsShown,
       signalsLocked: !proActive,
       signalsBlur: proActive ? "" : "blurred",
+
+      // ---------- Carousel: „Was heute bewegt" ↔ „Marktnews" ----------
+      hasCarousel: carouselPages > 0,
+      hasCarouselDots: carouselPages > 1,
+      // Beide Seiten gleich hoch halten, sonst springt die Seite beim Wischen.
+      carouselHeight: hasNews && driverRows.length ? "232px" : "0px",
+      carouselDots: Array.from({ length: carouselPages }, (_, i) => ({
+        go: this.goCarousel(i),
+        w: i === carouselIdx ? "18px" : "6px",
+        bg: i === carouselIdx ? "var(--acc2)" : "var(--line2)"
+      })),
+      onCarouselScroll: this.onCarouselScroll,
+      onCarouselTouch: this.onCarouselTouch,
 
       // ---------- „Was heute bewegt" ----------
       hasDrivers: driverRows.length > 0,
