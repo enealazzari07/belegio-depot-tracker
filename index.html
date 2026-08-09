@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2C63DC">
 <link rel="manifest" href="./manifest.json">
 <title>Belegio</title>
 <script src="./support.js"></script>
@@ -31,7 +30,9 @@
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
   /* Blauer Kopfbereich — nur der Hero-Block, alles darunter bleibt neutral. */
-  --brand:linear-gradient(160deg,#3A78F2 0%,#2C63DC 55%,#2150BE 100%);
+  /* Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
+     eine sichtbare Kante zum Statusleisten-Streifen darüber. */
+  --brand:linear-gradient(180deg,#2C63DC 0%,#2A5FD4 45%,#2150BE 100%);
   --brand-flat:#2C63DC;
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.74); --onBrand3:rgba(255,255,255,.54);
   --onBrand-line:rgba(255,255,255,.20); --onBrand-soft:rgba(255,255,255,.15);
@@ -52,7 +53,7 @@
   --pos-soft:rgba(79,191,159,.13); --neg-soft:rgba(224,124,113,.13);
   --warn:#E0B252; --warn-soft:rgba(224,178,82,.14);
   --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
-  --brand:linear-gradient(160deg,#2A5FD4 0%,#1F4CB4 55%,#173C94 100%);
+  --brand:linear-gradient(180deg,#1F4CB4 0%,#1B44A2 45%,#173C94 100%);
   --brand-flat:#1F4CB4;
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
@@ -62,11 +63,14 @@
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
 }
-/* Transparente, nur leicht mattierte Leiste über dem Safe-Area-Bereich —
-   der Inhalt scrollt sichtbar darunter durch, keine graue/schwarze Fläche. */
-.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:20;pointer-events:none;-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%)}
+/* iOS-Statusleiste: mit apple-mobile-web-app-status-bar-style=black-translucent
+   reicht der Inhalt bis unter die Uhr. Dieser Streifen färbt den Safe-Area-
+   Bereich im Markenblau — auf dem Home-Screen geht er nahtlos in den Kopfbereich
+   über, auf den hellen Screens bleibt die weisse iOS-Uhr darauf lesbar. */
+.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;background:var(--brand-flat)}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:transparent}
+/* Nicht transparent lassen: iOS füllt die Statusleiste sonst mit seinem Grau. */
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#2C63DC}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc2);text-decoration:none}
 a:hover{color:var(--tx)}
@@ -221,13 +225,13 @@ input::placeholder{color:var(--tx3)}
             <div id="dash-carousel" onScroll="{{ onCarouselScroll }}" onPointerDown="{{ onCarouselTouch }}" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch">
 
               <sc-if value="{{ hasDrivers }}" hint-placeholder-val="{{ false }}">
-                <div style="flex:0 0 100%;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
-                  <div class="card" style="padding:18px;min-height:{{ carouselHeight }};display:flex;flex-direction:column">
+                <div style="flex:0 0 100%;min-width:0;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
+                  <div class="card" style="padding:18px;min-width:0;min-height:{{ carouselHeight }};display:flex;flex-direction:column">
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
                       <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"></path></svg>
                       </div>
-                      <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Was heute bewegt</span>
+                      <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Was heute bewegt</span>
                       <span class="mono chip" style="background:{{ dayTotalBg }};color:{{ dayTotalColor }}">{{ dayTotalLabel }}</span>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:14px">
@@ -235,9 +239,8 @@ input::placeholder{color:var(--tx3)}
                         <div style="display:flex;gap:11px">
                           <div style="width:3px;border-radius:2px;flex:none;background:{{ dr.color }};opacity:.55"></div>
                           <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-                            <div style="display:flex;align-items:baseline;gap:8px">
-                              <span style="color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
-                              <span style="flex:1"></span>
+                            <div style="display:flex;align-items:baseline;gap:8px;min-width:0">
+                              <span style="flex:1;min-width:0;color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
                               <span class="mono" style="color:{{ dr.color }};font-size:12.5px;font-weight:700;flex:none">{{ dr.contrib }}</span>
                             </div>
                             <div style="display:flex;align-items:center;gap:7px">
@@ -256,13 +259,13 @@ input::placeholder{color:var(--tx3)}
               </sc-if>
 
               <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
-                <div style="flex:0 0 100%;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
-                  <div onClick="{{ goNewsFromBanner }}" class="card" style="cursor:pointer;min-height:{{ carouselHeight }};padding:18px;display:flex;flex-direction:column">
+                <div style="flex:0 0 100%;min-width:0;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
+                  <div onClick="{{ goNewsFromBanner }}" class="card" style="cursor:pointer;min-width:0;min-height:{{ carouselHeight }};padding:18px;display:flex;flex-direction:column">
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
                       <div style="width:28px;height:28px;border-radius:10px;background:var(--info-soft);display:flex;align-items:center;justify-content:center;flex:none">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
                       </div>
-                      <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Marktnews</span>
+                      <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Marktnews</span>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:13px">
