@@ -147,9 +147,9 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--brand-flat);animation:fade .3s ease">
 
-        <div style="background:var(--brand);border-radius:0 0 32px 32px;padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px 22px;margin-bottom:16px;box-shadow:var(--brand-shadow)">
+        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
                 <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert · CHF</span>
@@ -213,6 +213,8 @@ input::placeholder{color:var(--tx3)}
             </div>
             </sc-if>
         </div>
+
+        <div style="position:relative;margin-top:-26px;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 128px;min-height:64dvh">
 
         <sc-if value="{{ hasCarousel }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:18px">
@@ -451,6 +453,8 @@ input::placeholder{color:var(--tx3)}
               <a href="#1a" onClick="{{ openAbo }}" style="color:var(--acc2);font-size:12px;font-weight:700;white-space:nowrap">{{ quotaCta }}</a>
             </div>
           </div>
+        </div>
+
         </div>
       </div>
     </sc-if>
