@@ -20,36 +20,56 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --stage:#E9EBEF; --stage2:#DFE2E8;
-  --bg:#F3F4F7; --surf:#FFFFFF; --surf2:#F0F2F5; --line:#EBEDF1; --line2:#DCDFE6;
-  --tx:#14171F; --tx2:#5C6270; --tx3:#9096A2;
-  --acc:#14171F; --accTx:#FFFFFF;
-  --acc2:#2F7D6B; --acc-soft:rgba(47,125,107,.10);
-  --pos:#1E7F63; --neg:#B4463C;
-  --shadow:0 30px 70px -26px rgba(20,23,31,.26);
-  --statusbar-rgb:255 255 255;
+  --stage:#EEF0F4; --stage2:#DFE2E8;
+  --bg:#F5F6F9; --surf:#FFFFFF; --surf2:#F2F4F8; --surf3:#E9ECF2;
+  --line:#E9ECF1; --line2:#D8DCE4;
+  --tx:#10131A; --tx2:#575E6D; --tx3:#8B92A1;
+  --acc:#10131A; --accTx:#FFFFFF;
+  --acc2:#12775F; --acc-soft:rgba(18,119,95,.09); --acc-line:rgba(18,119,95,.22);
+  --pos:#12775F; --neg:#C0453A;
+  --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
+  --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
+  --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
+  --shadow:0 30px 70px -26px rgba(16,19,26,.26);
+  --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
+  --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
 }
 [data-theme="dark"]{
-  --stage:#08090C; --stage2:#0F1116;
-  --bg:#0B0C10; --surf:#14161C; --surf2:#1C1F26; --line:rgba(255,255,255,.07);
-  --line2:rgba(255,255,255,.14);
-  --tx:#EBECF0; --tx2:#9AA0AC; --tx3:#616673;
-  --acc:#EDEFF3; --accTx:#0B0C10;
-  --acc2:#4FBF9F; --acc-soft:rgba(79,191,159,.14);
-  --pos:#4FBF9F; --neg:#DD7268;
+  --stage:#07080B; --stage2:#0F1116;
+  --bg:#0A0B0F; --surf:#14161C; --surf2:#1B1E25; --surf3:#242832;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.15);
+  --tx:#ECEEF2; --tx2:#9BA1AD; --tx3:#666C79;
+  --acc:#ECEEF2; --accTx:#0A0B0F;
+  --acc2:#4FBF9F; --acc-soft:rgba(79,191,159,.13); --acc-line:rgba(79,191,159,.28);
+  --pos:#4FBF9F; --neg:#E07C71;
+  --pos-soft:rgba(79,191,159,.13); --neg-soft:rgba(224,124,113,.13);
+  --warn:#E0B252; --warn-soft:rgba(224,178,82,.14);
+  --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
-  --statusbar-rgb:20 22 28;
+  --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
+  --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
 }
-.statusbar{position:fixed;left:0;right:0;top:-80px;height:80px;overflow:hidden;z-index:100;pointer-events:none}
-.statusbar::before{content:'';position:absolute;left:0;right:0;top:0;height:150%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);background-color:rgb(var(--statusbar-rgb) / 0.6)}
+/* Transparente, nur leicht mattierte Leiste über dem Safe-Area-Bereich —
+   der Inhalt scrollt sichtbar darunter durch, keine graue/schwarze Fläche. */
+.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:20;pointer-events:none;-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%)}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#FFFFFF!important}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:transparent}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc2);text-decoration:none}
 a:hover{color:var(--tx)}
 input{font-family:inherit}
 input::placeholder{color:var(--tx3)}
 ::-webkit-scrollbar{width:0;height:0}
+/* ---- Design-Grundbausteine ---- */
+.card{background:var(--surf);border:1px solid var(--line);border-radius:20px;box-shadow:var(--card-shadow)}
+.mono{font-family:'IBM Plex Mono',monospace}
+.lbl{color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.seg{display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--surf2);border:1px solid var(--line)}
+.segb{all:unset;box-sizing:border-box;cursor:pointer;padding:5px 10px;border-radius:8px;font-size:10.5px;font-weight:700;text-align:center;transition:background .16s ease,color .16s ease}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.02em}
+.sect{padding:0 20px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rowbtn{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%}
+.blurred{filter:blur(6px);opacity:.55;pointer-events:none;user-select:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes markIn{0%{opacity:0;transform:scale(.7) rotate(-8deg)}60%{opacity:1;transform:scale(1.06) rotate(0)}100%{opacity:1;transform:scale(1) rotate(0)}}
@@ -115,129 +135,138 @@ input::placeholder{color:var(--tx3)}
 
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
-        <div style="margin-bottom:24px">
-          <div style="background:#FFFFFF;border-radius:0 0 30px 30px;padding:calc(env(safe-area-inset-top, 0px) + 6px) 22px 22px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-              <div style="display:flex;align-items:center;gap:7px">
-                <span style="color:#7A8296;font-size:10.5px;font-weight:700;letter-spacing:.14em">GESAMTWERT · CHF</span>
-                <span style="width:6px;height:6px;border-radius:50%;background:{{ connTone }}"></span>
+
+        <div style="background:var(--surf);border-radius:0 0 32px 32px;padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px 22px;margin-bottom:16px;box-shadow:var(--hero-shadow)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:7px;min-width:0">
+                <span class="lbl">Gesamtwert · CHF</span>
+                <span title="{{ connLabel }}" style="width:6px;height:6px;border-radius:50%;background:{{ connTone }};display:block;flex:none"></span>
               </div>
-              <div style="display:flex;gap:4px;padding:3px;border-radius:9px;background:#F1F4F9">
+              <div class="seg">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
-                  <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:7px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
+                  <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
                 </sc-for>
               </div>
             </div>
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;align-items:center;justify-content:center;height:80px">
-                <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid #E3E6EC;border-top-color:#2F7D6B;animation:spin .8s linear infinite;display:block"></span>
+              <div style="display:flex;align-items:center;justify-content:center;height:120px">
+                <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
               </div>
             </sc-if>
             <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:20px">
-              <span style="color:#0F172A;font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1;font-family:'IBM Plex Mono',monospace">{{ totalValue }}</span>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:3px">
-                <span style="color:{{ gainColor }};font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ gainPct }}</span>
-                <span style="color:#8B93A5;font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ gainAbs }}</span>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:6px">
+              <span class="mono" style="color:var(--tx);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-bottom:3px">
+                <span class="mono chip" style="background:{{ gainBg }};color:{{ gainColor }}">{{ gainPct }}</span>
+                <span class="mono" style="color:var(--tx3);font-size:11.5px">{{ gainAbs }}</span>
               </div>
             </div>
-            <div style="height:15px;margin-bottom:12px;text-align:right;visibility:{{ scrubVisibility }}">
-              <span style="color:#9AA1B1;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ scrubDateLabel }}</span>
+            <div style="height:16px;margin-bottom:8px;text-align:right;visibility:{{ scrubVisibility }}">
+              <span class="mono" style="color:var(--tx3);font-size:11px;font-weight:600">{{ scrubDateLabel }}</span>
             </div>
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative">
-              <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:112px;display:block;overflow:visible">
-                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F7D6B" stop-opacity=".18"></stop><stop offset="1" stop-color="#2F7D6B" stop-opacity="0"></stop></linearGradient></defs>
-                <path d="{{ chartInvestedPath }}" fill="none" stroke="#C6CBD4" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round"></path>
+              <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:118px;display:block;overflow:visible">
+                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)" stop-opacity=".22"></stop><stop offset="1" stop-color="var(--acc2)" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="{{ chartInvestedPath }}" fill="none" stroke="var(--line2)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round"></path>
                 <path d="{{ chartValueFillPath }}" fill="url(#vfill)"></path>
-                <path d="{{ chartValuePath }}" fill="none" stroke="#2F7D6B" stroke-width="2.4" stroke-linecap="round"></path>
-                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4" fill="#2F7D6B"></circle>
+                <path d="{{ chartValuePath }}" fill="none" stroke="var(--acc2)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4" fill="var(--acc2)" stroke="var(--surf)" stroke-width="2"></circle>
                 <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
-                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="#C6CBD4" stroke-width="1.5" stroke-dasharray="3 3"></line>
-                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5" fill="#2F7D6B" stroke="#fff" stroke-width="2"></circle>
+                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="var(--line2)" stroke-width="1.3" stroke-dasharray="3 3"></line>
+                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5" fill="var(--acc2)" stroke="var(--surf)" stroke-width="2.5"></circle>
                 </sc-if>
               </svg>
-              <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:0;touch-action:none;cursor:pointer"></div>
+              <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:-8px 0;touch-action:none;cursor:pointer"></div>
               <div style="display:flex;justify-content:space-between;padding:10px 0 0">
                 <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
-                  <span style="color:#9AA1B1;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ m.l }}</span>
+                  <span class="mono" style="color:var(--tx3);font-size:10px;font-weight:600">{{ m.l }}</span>
                 </sc-for>
               </div>
             </div>
             </sc-if>
             <sc-if value="{{ noChart }}" hint-placeholder-val="{{ false }}">
-              <div style="height:80px;display:flex;align-items:center;justify-content:center;text-align:center;color:#8B93A5;font-size:12px;padding:0 20px">{{ chartEmptyMsg }}</div>
+              <div style="height:100px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--tx3);font-size:12px;padding:0 16px">{{ chartEmptyMsg }}</div>
             </sc-if>
-            </sc-if>
-            <div style="display:flex;gap:18px;margin-top:14px">
+            <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
               <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:14px;height:2.5px;border-radius:2px;background:#2F7D6B;display:block"></span>
-                <span style="color:#5C6270;font-size:11.5px;font-weight:500">Aktueller Wert</span>
+                <span style="width:14px;height:2.5px;border-radius:2px;background:var(--acc2);display:block"></span>
+                <span style="color:var(--tx2);font-size:11.5px;font-weight:500">Aktueller Wert</span>
               </div>
               <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:14px;height:0;border-top:2.5px dashed #C6CBD4;display:block"></span>
-                <span style="color:#5C6270;font-size:11.5px;font-weight:500">Investiert</span>
+                <span style="width:14px;height:0;border-top:2.5px dashed var(--line2);display:block"></span>
+                <span style="color:var(--tx2);font-size:11.5px;font-weight:500">Investiert</span>
               </div>
             </div>
-            <div style="height:1px;background:#EDF1F6;margin:18px 0 14px"></div>
-            <div style="display:flex;gap:20px;overflow-x:auto">
-              <sc-for list="{{ stats }}" as="s" hint-placeholder-count="5">
-                <div style="flex:none;display:flex;flex-direction:column;gap:4px">
-                  <span style="color:#8B93A5;font-size:10px;font-weight:600;letter-spacing:.1em;white-space:nowrap">{{ s.k }}</span>
-                  <span style="color:#0F172A;font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap">{{ s.v }}</span>
-                </div>
-              </sc-for>
-            </div>
-          </div>
+            </sc-if>
         </div>
 
-        <div style="padding:0 24px 20px;display:flex;gap:10px">
+        <div style="padding:0 20px 18px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px">
+          <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="6">
+            <div style="background:var(--surf);border:1px solid var(--line);border-radius:20px;box-shadow:var(--card-shadow);padding:15px 16px;display:flex;flex-direction:column;min-height:112px;min-width:0">
+              <span style="color:var(--tx3);font-size:12.5px;font-weight:500;line-height:1.3;margin-bottom:7px">{{ s.k }}</span>
+              <span class="mono" style="color:{{ s.c }};font-size:21px;font-weight:700;letter-spacing:-.025em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.v }}</span>
+              <span style="color:var(--tx3);font-size:11.5px;line-height:1.35;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.sub }}</span>
+              <div style="flex:1;min-height:6px"></div>
+              <sc-if value="{{ s.hasSpark }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:26px;display:block;margin-top:4px">
+                  <path d="{{ s.spark }}" fill="none" stroke="{{ s.c }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="padding:0 20px 20px;display:flex;gap:9px">
           <sc-for list="{{ shortcuts }}" as="s" hint-placeholder-count="3">
-            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;height:72px;border-radius:18px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
-              <div style="width:32px;height:32px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2)">{{ s.icon }}</div>
-              <span style="color:var(--tx);font-size:11.5px;font-weight:600">{{ s.label }}</span>
+            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:16px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--acc-line)">
+              <div style="width:28px;height:28px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2);flex:none">{{ s.icon }}</div>
+              <span style="color:var(--tx);font-size:12px;font-weight:600;white-space:nowrap">{{ s.label }}</span>
             </button>
           </sc-for>
         </div>
 
         <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 24px 8px;display:flex;align-items:center;justify-content:space-between">
-            <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">MARKTLAGE</span>
-            <a href="#markets" onClick="{{ goMarkets }}" style="color:var(--acc2);font-size:12px;font-weight:600">Märkte</a>
+          <div class="sect">
+            <span class="lbl">Marktlage</span>
+            <a href="#markets" onClick="{{ goMarkets }}" style="color:var(--acc2);font-size:12px;font-weight:600">Märkte öffnen</a>
           </div>
-          <div style="padding:0 24px 20px;display:flex;gap:8px;overflow-x:auto">
+          <div style="padding:0 20px 20px;display:flex;gap:8px;overflow-x:auto">
             <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
-              <div style="flex:none;min-width:96px;border-radius:14px;background:var(--surf);border:1px solid var(--line);padding:11px 13px;display:flex;flex-direction:column;gap:3px">
-                <span style="color:var(--tx3);font-size:10.5px;font-weight:600;white-space:nowrap">{{ idx.label }}</span>
-                <span style="color:var(--tx);font-size:13.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap">{{ idx.price }}</span>
-                <span style="color:{{ idx.color }};font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ idx.change }}</span>
+              <div style="flex:none;min-width:104px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:12px 13px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--card-shadow)">
+                <span style="color:var(--tx3);font-size:10.5px;font-weight:700;white-space:nowrap">{{ idx.label }}</span>
+                <span class="mono" style="color:var(--tx);font-size:14px;font-weight:700;white-space:nowrap">{{ idx.price }}</span>
+                <span class="mono" style="color:{{ idx.color }};font-size:11.5px;font-weight:700">{{ idx.change }}</span>
+                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:22px;display:block;margin-top:2px">
+                  <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
               </div>
             </sc-for>
           </div>
         </sc-if>
 
         <sc-if value="{{ hasDrivers }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 24px 20px">
-            <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px">
-              <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
-                <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+          <div style="padding:0 20px 20px">
+            <div class="card" style="padding:18px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+                <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"></path></svg>
                 </div>
-                <span style="flex:1;color:var(--tx);font-size:13.5px;font-weight:600">Was heute bewegt</span>
-                <span style="color:{{ dayTotalColor }};font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ dayTotalLabel }}</span>
+                <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Was heute bewegt</span>
+                <span class="mono chip" style="background:{{ dayTotalBg }};color:{{ dayTotalColor }}">{{ dayTotalLabel }}</span>
               </div>
-              <div style="display:flex;flex-direction:column;gap:13px">
+              <div style="display:flex;flex-direction:column;gap:14px">
                 <sc-for list="{{ drivers }}" as="dr" hint-placeholder-count="3">
                   <div style="display:flex;gap:11px">
-                    <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ dr.color }}"></span>
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                    <div style="width:3px;border-radius:2px;flex:none;background:{{ dr.color }};opacity:.55"></div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
                       <div style="display:flex;align-items:baseline;gap:8px">
                         <span style="color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
                         <span style="flex:1"></span>
-                        <span style="color:{{ dr.color }};font-size:12.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ dr.contrib }}</span>
+                        <span class="mono" style="color:{{ dr.color }};font-size:12.5px;font-weight:700;flex:none">{{ dr.contrib }}</span>
                       </div>
-                      <div style="display:flex;align-items:center;gap:8px">
-                        <span style="color:{{ dr.color }};font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ dr.pct }}</span>
+                      <div style="display:flex;align-items:center;gap:7px">
+                        <span class="mono" style="color:{{ dr.color }};font-size:10.5px;font-weight:700;background:{{ dr.bg }};padding:2px 6px;border-radius:6px">{{ dr.pct }}</span>
                         <span style="color:var(--tx3);font-size:11px">{{ dr.sharePct }}</span>
                       </div>
                       <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ dr.reason }}</span>
@@ -250,88 +279,140 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
 
-        <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 24px 20px">
-            <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;display:flex;align-items:center;gap:20px">
-              <svg viewBox="0 0 100 100" width="108" height="108" style="flex:none;transform:rotate(-90deg)">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="16"></circle>
-                <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="16" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
-                </sc-for>
-              </svg>
-              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
-                <span style="color:var(--tx);font-size:13.5px;font-weight:600;margin-bottom:2px">Gewichtung im Depot</span>
-                <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <span style="width:9px;height:9px;border-radius:3px;background:{{ lg.color }};flex:none"></span>
-                    <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
-                    <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace;flex:none">{{ lg.pct }}</span>
+        <sc-if value="{{ hasSignals }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px">
+            <div class="card" style="padding:18px;border-color:var(--acc-line)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
+                <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3.5 3.5L21 5"></path><path d="M15 5h6v6"></path></svg>
+                </div>
+                <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Signale</span>
+                <span class="chip" style="background:var(--acc-soft);color:var(--acc2)">PRO</span>
+              </div>
+              <p style="margin:0 0 15px;color:var(--tx3);font-size:11px;line-height:1.5">Aus deiner Kurshistorie berechnet — Trend, Momentum, Schwankung. Beschreibt die Lage, sagt keine Kurse voraus.</p>
+              <div style="display:flex;flex-direction:column;gap:11px" class="{{ signalsBlur }}">
+                <sc-for list="{{ signals }}" as="sg" hint-placeholder-count="3">
+                  <div style="border-radius:14px;background:var(--surf2);border:1px solid var(--line);padding:12px 13px">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                      <span class="mono" style="color:var(--tx);font-size:12px;font-weight:700">{{ sg.tick }}</span>
+                      <span class="chip" style="background:{{ sg.bg }};color:{{ sg.color }}">{{ sg.tag }}</span>
+                      <span style="flex:1"></span>
+                      <span class="mono" style="color:{{ sg.color }};font-size:11.5px;font-weight:700">{{ sg.headline }}</span>
+                    </div>
+                    <span style="display:block;color:var(--tx2);font-size:12px;line-height:1.5;text-wrap:pretty">{{ sg.body }}</span>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+                      <sc-for list="{{ sg.metrics }}" as="mt" hint-placeholder-count="3">
+                        <span class="mono" style="color:var(--tx3);font-size:10px;font-weight:600;background:var(--surf);border:1px solid var(--line);padding:3px 7px;border-radius:7px;white-space:nowrap">{{ mt }}</span>
+                      </sc-for>
+                    </div>
                   </div>
                 </sc-for>
+              </div>
+              <sc-if value="{{ signalsLocked }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ openAbo }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:14px;width:100%;height:46px;border-radius:13px;background:var(--acc);color:var(--accTx);font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="opacity:.9">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                  Signale mit Pro freischalten
+                </button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px">
+            <div class="card" style="padding:18px">
+              <span style="display:block;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:14px">Gewichtung im Depot</span>
+              <div style="display:flex;align-items:center;gap:18px">
+                <div style="position:relative;flex:none;width:112px;height:112px">
+                  <svg viewBox="0 0 100 100" width="112" height="112" style="display:block;transform:rotate(-90deg)">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surf2)" stroke-width="15"></circle>
+                    <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="15" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+                    </sc-for>
+                  </svg>
+                  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+                    <span class="mono" style="color:var(--tx);font-size:15px;font-weight:700">{{ posCountNum }}</span>
+                    <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.1em">TITEL</span>
+                  </div>
+                </div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span style="width:9px;height:9px;border-radius:3px;background:{{ lg.color }};flex:none"></span>
+                      <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
+                      <span class="mono" style="color:var(--tx3);font-size:11.5px;flex:none">{{ lg.pct }}</span>
+                    </div>
+                  </sc-for>
+                </div>
               </div>
             </div>
           </div>
         </sc-if>
 
         <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
-          <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;margin:0 24px 20px;border-radius:22px;background:linear-gradient(135deg, #2E6BE6, #4C8DFF);padding:20px;box-shadow:0 14px 30px -14px rgba(46,107,230,.55)">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-              <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:none">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
+          <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;margin:0 20px 20px;border-radius:22px;background:linear-gradient(140deg, #23509E 0%, #2E6BE6 55%, #4C8DFF 100%);padding:19px;box-shadow:0 16px 32px -18px rgba(46,107,230,.7)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+              <div style="width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
               </div>
-              <span style="flex:1;color:#fff;font-size:15.5px;font-weight:700">Marktnews</span>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+              <span style="flex:1;color:#fff;font-size:15px;font-weight:700;letter-spacing:-.01em">Marktnews</span>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
             </div>
             <div style="display:flex;flex-direction:column;gap:12px">
               <sc-for list="{{ newsBannerItems }}" as="n" hint-placeholder-count="3">
                 <div style="display:flex;flex-direction:column;gap:4px;{{ n.dividerStyle }}">
                   <div style="display:flex;align-items:center;gap:8px">
-                    <span style="color:rgba(255,255,255,.85);font-size:10.5px;font-weight:700;letter-spacing:.1em">{{ n.tick }}</span>
+                    <span style="color:rgba(255,255,255,.9);font-size:10.5px;font-weight:700;letter-spacing:.1em">{{ n.tick }}</span>
                     <span style="color:rgba(255,255,255,.6);font-size:11px">{{ n.time }}</span>
                   </div>
-                  <span style="color:#fff;font-size:14.5px;font-weight:600;line-height:1.45;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
+                  <span style="color:#fff;font-size:14px;font-weight:600;line-height:1.45;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
                 </div>
               </sc-for>
             </div>
           </div>
         </sc-if>
 
-        <div style="padding:0 24px 12px;display:flex;align-items:center;justify-content:space-between">
-          <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">POSITIONEN</span>
+        <div class="sect">
+          <span class="lbl">Positionen</span>
           <a href="#depot" onClick="{{ goDepot }}" style="color:var(--acc2);font-size:12px;font-weight:600">Depot öffnen</a>
         </div>
 
-        <div style="padding:0 24px;display:flex;flex-direction:column;gap:8px">
+        <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
           <sc-if value="{{ noHoldings }}" hint-placeholder-val="{{ false }}">
-            <div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:16px;background:var(--surf);border:1px dashed var(--line2)">Noch keine Positionen — scanne deinen ersten Beleg.</div>
+            <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
-            <div style="display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
-              <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ h.logo }}</div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--line2)">
+              <div style="width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ h.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                <span style="color:var(--tx);font-size:14px;font-weight:600">{{ h.name }}</span>
-                <span style="color:var(--tx3);font-size:11.5px;font-family:'IBM Plex Mono',monospace">{{ h.sub }}</span>
+                <span style="color:var(--tx);font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</span>
+                <span class="mono" style="color:var(--tx3);font-size:11px">{{ h.sub }}</span>
               </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-                <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ h.value }}</span>
-                <span style="color:{{ h.color }};font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ h.change }}</span>
+              <sc-if value="{{ h.hasSpark }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:52px;height:24px;display:block;flex:none;opacity:.9">
+                  <path d="{{ h.spark }}" fill="none" stroke="{{ h.color }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </sc-if>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none">
+                <span class="mono" style="color:var(--tx);font-size:13.5px;font-weight:700">{{ h.value }}</span>
+                <span class="mono" style="color:{{ h.color }};font-size:11px;font-weight:700">{{ h.change }}</span>
               </div>
             </div>
           </sc-for>
         </div>
 
-        <div style="padding:22px 24px 0">
-          <div style="border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:var(--surf2);display:flex;flex-direction:column;gap:10px">
+        <div style="padding:20px 20px 0">
+          <div style="border:1px solid var(--line);border-radius:18px;padding:16px 18px;background:var(--surf);box-shadow:var(--card-shadow);display:flex;flex-direction:column;gap:11px">
             <div style="display:flex;align-items:center;justify-content:space-between">
-              <span style="color:var(--tx);font-size:13px;font-weight:600">Gratis-Kontingent</span>
-              <span style="color:var(--tx2);font-size:12px;font-family:'IBM Plex Mono',monospace">{{ quota }}</span>
+              <span style="color:var(--tx);font-size:13px;font-weight:700">{{ quotaTitle }}</span>
+              <span class="mono" style="color:var(--tx2);font-size:12px">{{ quota }}</span>
             </div>
-            <div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden">
-              <div style="height:100%;width:{{ quotaPct }};background:var(--acc);border-radius:3px"></div>
+            <div style="height:6px;border-radius:4px;background:var(--surf2);overflow:hidden">
+              <div style="height:100%;width:{{ quotaPct }};background:var(--acc2);border-radius:4px"></div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <span style="color:var(--tx3);font-size:11.5px">Steuer-Report ab Pro</span>
-              <a href="#1a" onClick="{{ openAbo }}" style="color:var(--acc);font-size:12px;font-weight:600">{{ quotaCta }}</a>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <span style="color:var(--tx3);font-size:11.5px">{{ quotaHint }}</span>
+              <a href="#1a" onClick="{{ openAbo }}" style="color:var(--acc2);font-size:12px;font-weight:700;white-space:nowrap">{{ quotaCta }}</a>
             </div>
           </div>
         </div>
@@ -410,31 +491,46 @@ input::placeholder{color:var(--tx3)}
 
         <div style="display:flex;flex-direction:column;gap:10px">
           <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
-            <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px 16px 6px">
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-                <div style="width:40px;height:40px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ d.logo }}</div>
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                  <span style="color:var(--tx);font-size:14.5px;font-weight:600">{{ d.name }}</span>
-                  <span style="color:var(--tx3);font-size:11.5px">{{ d.share }} des Depots</span>
+            <div class="card" style="overflow:hidden">
+              <button onClick="{{ d.toggleOpen }}" class="rowbtn" style="padding:14px 15px" style-hover="background:var(--surf2)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ d.logo }}</div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left">
+                    <span style="color:var(--tx);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.name }}</span>
+                    <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                      <span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600;background:var(--surf2);padding:2px 6px;border-radius:6px;white-space:nowrap;flex:none">{{ d.share }}</span>
+                      <span class="mono" style="color:{{ d.dayColor }};font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.dayLabel }}</span>
+                    </div>
+                  </div>
+                  <sc-if value="{{ d.hasSpark }}" hint-placeholder-val="{{ false }}">
+                    <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:40px;height:20px;display:block;flex:none;opacity:.85">
+                      <path d="{{ d.spark }}" fill="none" stroke="{{ d.color }}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                  </sc-if>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none">
+                    <span class="mono" style="color:var(--tx);font-size:14px;font-weight:700">{{ d.value }}</span>
+                    <span class="mono" style="font-size:11px;font-weight:700;color:{{ d.color }}">{{ d.gain }}</span>
+                  </div>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;transform:rotate({{ d.chevron }}deg);transition:transform .2s ease"><path d="M6 9l6 6 6-6"></path></svg>
                 </div>
-                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-                  <span style="color:var(--tx);font-size:14.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ d.value }}</span>
-                  <span style="font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:{{ d.color }}">{{ d.gain }}</span>
-                </div>
-              </div>
-              <div style="display:flex;flex-wrap:wrap">
-                <sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="4">
-                  <div style="width:50%;display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line)">
-                    <span style="color:var(--tx3);font-size:11.5px">{{ r.k }}</span>
-                    <span style="color:var(--tx2);font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;padding-right:14px">{{ r.v }}</span>
+              </button>
+
+              <sc-if value="{{ d.isOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 15px 15px;animation:fade .22s ease">
+              <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:7px;margin-bottom:14px">
+                <sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="10">
+                  <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                    <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.k }}</span>
+                    <span class="mono" style="color:{{ r.c }};font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.v }}</span>
                   </div>
                 </sc-for>
               </div>
-              <button onClick="{{ d.toggleComposition }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:6px;border-top:1px solid var(--line);color:var(--acc2);font-size:12px;font-weight:600" style-hover="color:var(--tx)">
-                {{ d.compositionLabel }}
-              </button>
+              <div style="display:flex;gap:8px;margin-bottom:4px">
+                <button onClick="{{ d.toggleComposition }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:{{ d.compBg }};border:1px solid {{ d.compBorder }};color:{{ d.compTx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">{{ d.compositionLabel }}</button>
+                <button onClick="{{ d.toggleTransactions }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:{{ d.txBg }};border:1px solid {{ d.txBorder }};color:{{ d.txTx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">{{ d.transactionsLabel }}</button>
+              </div>
               <sc-if value="{{ d.showComposition }}" hint-placeholder-val="{{ false }}">
-                <div style="padding:4px 0 14px">
+                <div style="padding:12px 0 4px">
                   <sc-if value="{{ d.compositionLoading }}" hint-placeholder-val="{{ false }}">
                     <div style="display:flex;align-items:center;justify-content:center;height:60px">
                       <span style="width:22px;height:22px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
@@ -510,11 +606,8 @@ input::placeholder{color:var(--tx3)}
                   <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Kursdaten für diesen Zeitraum verfügbar.</p>
                 </sc-if>
               </div>
-              <button onClick="{{ d.toggleTransactions }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:6px;border-top:1px solid var(--line);color:var(--acc2);font-size:12px;font-weight:600" style-hover="color:var(--tx)">
-                {{ d.transactionsLabel }}
-              </button>
               <sc-if value="{{ d.showTransactions }}" hint-placeholder-val="{{ false }}">
-                <div style="padding:4px 0 14px">
+                <div style="padding:8px 0 0">
                   <sc-if value="{{ d.noTransactions }}" hint-placeholder-val="{{ false }}">
                     <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:10px 0">Keine Transaktionen gefunden.</p>
                   </sc-if>
@@ -561,11 +654,12 @@ input::placeholder{color:var(--tx3)}
                   </sc-for>
                 </div>
               </sc-if>
+              </div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
@@ -638,7 +732,6 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
@@ -696,7 +789,6 @@ input::placeholder{color:var(--tx3)}
           <button onClick="{{ confirm }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:52px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ confirmCta }}</button>
         </div>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
@@ -739,7 +831,6 @@ input::placeholder{color:var(--tx3)}
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:54px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ proCta }}</button>
         <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11.5px">15 Uploads pro Monat bleiben gratis.</p>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
@@ -833,7 +924,6 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isStockDetail }}" hint-placeholder-val="{{ false }}">
@@ -876,7 +966,6 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
@@ -905,7 +994,6 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
@@ -945,7 +1033,6 @@ input::placeholder{color:var(--tx3)}
         </button>
         <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
@@ -986,7 +1073,6 @@ input::placeholder{color:var(--tx3)}
         </div>
         <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
       </div>
-      <div style="position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top, 0px);background:var(--surf);pointer-events:none;z-index:5"></div>
     </sc-if>
 
     <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
@@ -1096,6 +1182,98 @@ const buildCompositionBlocks = data => {
   return blocks;
 };
 
+// ---------- Signale (Pro) ----------
+// Rein deskriptive Kennzahlen aus der vorhandenen Kurshistorie. Bewusst KEINE
+// Prognose und kein Kursziel — es gibt keine Datengrundlage, die das hergäbe.
+// Jede Aussage lässt sich an den mitgelieferten Zahlen nachprüfen.
+const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+const buildSignal = (sym, name, rows, cur) => {
+  if (!rows || rows.length < 60) return null;
+  const closes = rows.map(r => r.close).concat(typeof cur === "number" ? [cur] : []);
+  const n = closes.length;
+  const last = closes[n - 1];
+  const at = back => closes[Math.max(0, n - 1 - back)];
+  const ma = k => mean(closes.slice(-k));
+  const ma20 = ma(20), ma50 = ma(50);
+  const mom10 = at(10) ? (last - at(10)) / at(10) * 100 : 0;
+  const mom30 = at(30) ? (last - at(30)) / at(30) * 100 : 0;
+  const mom90 = at(90) ? (last - at(90)) / at(90) * 100 : 0;
+  const yearCloses = closes.slice(-252);
+  const hi = Math.max(...yearCloses), lo = Math.min(...yearCloses);
+  const fromHigh = hi ? (last - hi) / hi * 100 : 0;
+  const fromLow = lo ? (last - lo) / lo * 100 : 0;
+  // Tagesrenditen -> annualisierte Schwankung
+  const rets = [];
+  for (let i = Math.max(1, n - 60); i < n; i++) if (closes[i - 1]) rets.push(closes[i] / closes[i - 1] - 1);
+  const mu = rets.length ? mean(rets) : 0;
+  const vol = rets.length > 2
+    ? Math.sqrt(mean(rets.map(r => (r - mu) * (r - mu))) * 252) * 100
+    : 0;
+  // RSI(14), Wilder-frei (einfacher Mittelwert) — reicht für die Einordnung
+  const win = closes.slice(-15);
+  let up = 0, dn = 0;
+  for (let i = 1; i < win.length; i++) { const d = win[i] - win[i - 1]; if (d >= 0) up += d; else dn -= d; }
+  const rsi = (up + dn) === 0 ? 50 : up / (up + dn) * 100;
+  // Serie aufeinanderfolgender Plus-/Minustage
+  let streak = 0;
+  for (let i = n - 1; i > 0; i--) {
+    const dir = Math.sign(closes[i] - closes[i - 1]);
+    if (dir === 0) break;
+    if (streak === 0) streak = dir;
+    else if (Math.sign(streak) !== dir) break;
+    else streak += dir;
+  }
+  const upTrend = ma20 > ma50;
+  // "0.0 % unter dem Hoch" liest sich falsch — am Hoch ist am Hoch.
+  const highPhrase = fromHigh > -0.15
+    ? "steht am 52-Wochen-Hoch"
+    : "liegt " + Math.abs(fromHigh).toFixed(1) + " % unter dem 52-Wochen-Hoch";
+  const metrics = [
+    "30 Tg " + (mom30 >= 0 ? "+" : "") + mom30.toFixed(1) + " %",
+    "90 Tg " + (mom90 >= 0 ? "+" : "") + mom90.toFixed(1) + " %",
+    "52-W-Hoch " + fromHigh.toFixed(1) + " %",
+    "RSI " + rsi.toFixed(0),
+    "Vola " + vol.toFixed(0) + " %"
+  ];
+  // Einordnung: die auffälligste Lage gewinnt.
+  let tag, tone, headline, body, score;
+  // Überkauft nur melden, wenn der Titel auch wirklich gestiegen ist — sonst
+  // bekäme ein fallender Titel bei einer kurzen Gegenbewegung das Etikett.
+  if (rsi >= 72 && streak >= 3 && mom10 > 0) {
+    tag = "Heiss gelaufen"; tone = "warn"; score = 70 + rsi - 72;
+    headline = "RSI " + rsi.toFixed(0);
+    body = name + " ist " + streak + " Tage in Folge gestiegen und " + highPhrase +
+      ". Nach solchen Serien schwankt der Kurs erfahrungsgemäss stärker — in beide Richtungen.";
+  } else if (rsi <= 30 && mom10 < 0) {
+    tag = "Stark abverkauft"; tone = "neg"; score = 70 + (30 - rsi);
+    headline = "RSI " + rsi.toFixed(0);
+    body = name + " " + highPhrase + ", der " +
+      (upTrend ? "20-Tage-Schnitt liegt aber noch über dem 50-Tage-Schnitt" : "20-Tage-Schnitt ist unter den 50-Tage-Schnitt gefallen") + ".";
+  } else if (upTrend && mom30 > 5) {
+    tag = "Aufwärtstrend"; tone = "pos"; score = 40 + mom30;
+    headline = (mom30 >= 0 ? "+" : "") + mom30.toFixed(1) + " % / 30 Tg";
+    body = "20-Tage-Schnitt über dem 50-Tage-Schnitt, " + highPhrase.replace(/^steht /, "steht ") +
+      " und " + fromLow.toFixed(0) + " % über dem 52-Wochen-Tief. Trend ist intakt.";
+  } else if (!upTrend && mom30 < -5) {
+    tag = "Abwärtstrend"; tone = "neg"; score = 40 + Math.abs(mom30);
+    headline = mom30.toFixed(1) + " % / 30 Tg";
+    body = "20-Tage-Schnitt unter dem 50-Tage-Schnitt, " + highPhrase +
+      ". Die Schwäche hält seit mehreren Wochen an.";
+  } else if (vol > 45) {
+    tag = "Hohe Schwankung"; tone = "warn"; score = 20 + (vol - 45) / 2;
+    headline = "Vola " + vol.toFixed(0) + " %";
+    body = name + " schwankt deutlich stärker als ein breiter Markt (typisch 12–20 %). Grössere Tagesausschläge sind hier normal.";
+  } else {
+    tag = "Seitwärts"; tone = "tx3"; score = 10 - Math.abs(mom30);
+    headline = (mom30 >= 0 ? "+" : "") + mom30.toFixed(1) + " % / 30 Tg";
+    body = "Kein klarer Trend: 20- und 50-Tage-Schnitt liegen nah beieinander, die Schwankung ist mit " +
+      vol.toFixed(0) + " % moderat.";
+  }
+  const colorMap = { pos: "var(--pos)", neg: "var(--neg)", warn: "var(--warn)", tx3: "var(--tx2)" };
+  const bgMap = { pos: "var(--pos-soft)", neg: "var(--neg-soft)", warn: "var(--warn-soft)", tx3: "var(--surf3)" };
+  return { sym, tick: sym, tag, headline, body, metrics, score, color: colorMap[tone], bg: bgMap[tone] };
+};
+
 class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
@@ -1112,7 +1290,7 @@ class Component extends DCLogic {
 
     etfOpenSymbol: null, etfHoldings: {}, etfLoading: false, etfError: "",
 
-    txOpenSymbol: null, editingTxId: null, editingTxFields: null,
+    txOpenSymbol: null, editingTxId: null, editingTxFields: null, openPosSymbol: null,
 
     posChartRange: "D", aiExpanded: false, posScrub: null,
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
@@ -1534,6 +1712,13 @@ class Component extends DCLogic {
     }
   };
 
+  // Nur eine Position gleichzeitig offen — hält die Depot-Liste überschaubar.
+  togglePosOpen = sym => () => {
+    this.setState(s => s.openPosSymbol === sym
+      ? { openPosSymbol: null, txOpenSymbol: null, etfOpenSymbol: null, posScrub: null }
+      : { openPosSymbol: sym, txOpenSymbol: null, etfOpenSymbol: null, posScrub: null });
+  };
+
   // ---------- Transaktionen je Position ----------
   toggleTransactions = sym => () => {
     this.setState(s => ({ txOpenSymbol: s.txOpenSymbol === sym ? null : sym, editingTxId: null, editingTxFields: null }));
@@ -1702,7 +1887,8 @@ class Component extends DCLogic {
         const dateFmt = this.state.chartRange === "Y" || this.state.chartRange === "MAX"
           ? d => new Date(d).toLocaleDateString("de-CH", { month: "short", year: "2-digit" })
           : d => new Date(d).toLocaleDateString("de-CH", { day: "2-digit", month: "short" });
-        const axisCount = Math.min(6, n);
+        // 4 Beschriftungen — bei 6 laufen sie auf schmalen Displays über den Rand.
+        const axisCount = Math.min(4, n);
         const axisLabels = Array.from({ length: axisCount }, (_, i) => {
           const idx = axisCount > 1 ? Math.round((i / (axisCount - 1)) * (n - 1)) : 0;
           return { l: dateFmt(points[idx].date) };
@@ -1898,6 +2084,18 @@ class Component extends DCLogic {
       .slice(0, 3);
 
     // ---------- Depot-Eckdaten über alle Transaktionen ----------
+    // ---------- Signale (Pro) ----------
+    const proActive = this.state.userPlan === "pro";
+    const signalList = holdings
+      .map(h => buildSignal(h.sym || h.abbr, displayName(h), hist[h.sym || h.abbr], h.cur))
+      .filter(Boolean)
+      .sort((a, b) => b.score - a.score);
+    // Gratis-Nutzer sehen, dass es Signale gibt (unscharf), Pro sieht alle.
+    const signalsShown = proActive ? signalList.slice(0, 4) : signalList.slice(0, 2);
+
+    // Verlaufslinie des Depotwerts für die "Heute bewegt"-Karte.
+    const portfolioSpark = chartData ? buildSparkline(chartData.points.map(p => ({ close: p.value }))) : "";
+
     // Wird beim Aufbau der Depot-Liste befüllt; posScrubAt liest daraus.
     const posChartPoints = {};
     this._posChartPoints = posChartPoints;
@@ -2126,12 +2324,18 @@ class Component extends DCLogic {
         : rangePct != null
           ? (rangePct >= 0 ? "var(--pos)" : "var(--neg)")
           : (g >= 0 ? "var(--pos)" : "var(--neg)"),
+      gainBg: (scrubPt ? scrubPt.dayPct >= 0 : rangePct != null ? rangePct >= 0 : g >= 0)
+        ? "var(--pos-soft)" : "var(--neg-soft)",
       scrubActive: !!scrubPt,
       scrubVisibility: scrubPt ? "visible" : "hidden",
       scrubDateLabel: scrubPt ? new Date(scrubPt.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }) : "",
       chartScrubX: scrubPt ? scrubPt.x.toFixed(1) : "0", chartScrubY: scrubPt ? scrubPt.y.toFixed(1) : "0",
       scrubStart: this.scrubStart, scrubMove: this.scrubMove, scrubEnd: this.scrubEnd,
       posCount: holdings.length + " Titel",
+      quotaTitle: proActive ? "Pro aktiv" : "Gratis-Kontingent",
+      quotaHint: proActive
+        ? used + " Belege archiviert · Steuer-Report verfügbar"
+        : used + " Belege archiviert · Steuer-Report ab Pro",
       quota: this.state.userPlan === "pro" ? "Unbegrenzt" : (this.state.weeklyUploads || 0) + " / 15 pro Woche",
       quotaPct: this.state.userPlan === "pro" ? "100%" : Math.min(100, (this.state.weeklyUploads || 0) / 15 * 100).toFixed(0) + "%",
       months: chartData ? chartData.months : [],
@@ -2163,16 +2367,25 @@ class Component extends DCLogic {
       hasAllocation: allocationSlices.length > 0,
       allocationSlices,
       allocationLegend,
+      posCountNum: String(holdings.length),
+
+      // ---------- Signale (Pro) ----------
+      hasSignals: signalsShown.length > 0,
+      signals: signalsShown,
+      signalsLocked: !proActive,
+      signalsBlur: proActive ? "" : "blurred",
 
       // ---------- „Was heute bewegt" ----------
       hasDrivers: driverRows.length > 0,
       dayTotalLabel: (dayTotal >= 0 ? "+" : "") + f2(dayTotal),
       dayTotalColor: dayTotal >= 0 ? "var(--pos)" : "var(--neg)",
+      dayTotalBg: dayTotal >= 0 ? "var(--pos-soft)" : "var(--neg-soft)",
       drivers: driverRows.map(d => ({
         tick: d.h.abbr, name: displayName(d.h),
         contrib: (d.c >= 0 ? "+" : "") + f2(d.c),
         pct: (d.h.dp >= 0 ? "+" : "") + d.h.dp.toFixed(2) + " %",
         color: d.c >= 0 ? "var(--pos)" : "var(--neg)",
+        bg: d.c >= 0 ? "var(--pos-soft)" : "var(--neg-soft)",
         sharePct: dayGross ? Math.round(Math.abs(d.c) / dayGross * 100) + " % der Tagesbewegung" : "",
         reason: reasonFor(d.h, d.sym)
       })),
@@ -2203,6 +2416,8 @@ class Component extends DCLogic {
         const hi52 = has52 ? Math.max(h.cur, ...yearRows.map(p => p.close)) : 0;
         const pos52 = has52 && hi52 > lo52 ? (h.cur - lo52) / (hi52 - lo52) * 100 : 50;
 
+        const isOpenPos = this.state.openPosSymbol === sym;
+        const spark = buildSparkline(hist[sym]);
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
@@ -2211,24 +2426,38 @@ class Component extends DCLogic {
           weight: w.toFixed(1) + "%",
           share: w.toFixed(1) + " %",
           tone: d >= 0 ? "var(--acc2)" : "var(--neg)",
+          spark, hasSpark: !!spark,
+          dayLabel: typeof h.dp === "number" ? (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %" : "kein Kurs",
+          dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
+          isOpen: isOpenPos,
+          toggleOpen: this.togglePosOpen(sym),
+          chevron: isOpenPos ? "180" : "0",
+          compBg: isOpen ? "var(--acc-soft)" : "var(--surf2)",
+          compBorder: isOpen ? "var(--acc-line)" : "var(--line)",
+          compTx: isOpen ? "var(--acc2)" : "var(--tx2)",
+          txBg: txOpen ? "var(--acc-soft)" : "var(--surf2)",
+          txBorder: txOpen ? "var(--acc-line)" : "var(--line)",
+          txTx: txOpen ? "var(--acc2)" : "var(--tx2)",
           rows: [
-            { k: "Anteile", v: String(h.shares) },
-            { k: "Ø Kaufkurs", v: f2(h.buy) },
-            { k: "Investiert", v: f2(inv) },
-            { k: "Kurs jetzt", v: f2(h.cur) },
-            { k: "Heute", v: posDayAbs != null ? (posDayAbs >= 0 ? "+" : "") + f2(posDayAbs) : "–" },
-            { k: "G/V", v: (posGainPct >= 0 ? "+" : "") + posGainPct.toFixed(1) + " %" },
-            { k: "Erstkauf", v: posFirstBuy ? new Date(posFirstBuy).toLocaleDateString("de-CH") : "–" },
-            { k: "Haltedauer", v: posFirstBuy ? durLabel(daysSince(posFirstBuy)) : "–" },
-            { k: "Käufe", v: String(allSymTxs.length) },
-            { k: "Währung", v: h.currency || "CHF" }
+            { k: "Kurs jetzt", v: f2(h.cur), c: "var(--tx)" },
+            { k: "Heute", v: posDayAbs != null ? (posDayAbs >= 0 ? "+" : "") + f2(posDayAbs) : "–", c: posDayAbs == null ? "var(--tx3)" : posDayAbs >= 0 ? "var(--pos)" : "var(--neg)" },
+            { k: "Gewinn / Verlust", v: (d >= 0 ? "+" : "") + f2(d), c: d >= 0 ? "var(--pos)" : "var(--neg)" },
+            { k: "Rendite", v: (posGainPct >= 0 ? "+" : "") + posGainPct.toFixed(1) + " %", c: posGainPct >= 0 ? "var(--pos)" : "var(--neg)" },
+            { k: "Anteile", v: String(h.shares), c: "var(--tx)" },
+            { k: "Ø Kaufkurs", v: f2(h.buy), c: "var(--tx)" },
+            { k: "Investiert", v: f2(inv), c: "var(--tx)" },
+            { k: "Währung", v: h.currency || "CHF", c: "var(--tx)" },
+            { k: "Erstkauf", v: posFirstBuy ? new Date(posFirstBuy).toLocaleDateString("de-CH") : "–", c: "var(--tx)" },
+            { k: "Haltedauer", v: posFirstBuy ? durLabel(daysSince(posFirstBuy)) : "–", c: "var(--tx)" },
+            { k: "Käufe", v: String(allSymTxs.length), c: "var(--tx)" },
+            { k: "Ø Kaufabstand", v: allSymTxs.length > 1 && posFirstBuy ? durLabel(Math.round(daysSince(posFirstBuy) / (allSymTxs.length - 1))) : "–", c: "var(--tx)" }
           ],
           has52w: has52,
           lo52Label: has52 ? f2(lo52) : "",
           hi52Label: has52 ? f2(hi52) : "",
           pos52: pos52.toFixed(1) + "%",
           toggleComposition: this.toggleComposition(sym),
-          compositionLabel: isOpen ? "Zusammensetzung ausblenden" : "Zusammensetzung anzeigen",
+          compositionLabel: "Zusammensetzung",
           showComposition: isOpen,
           compositionLoading: isOpen && this.state.etfLoading,
           compositionError: isOpen ? this.state.etfError : "",
@@ -2264,7 +2493,7 @@ class Component extends DCLogic {
           posScrubY: scrubP ? scrubP.y.toFixed(1) : "0",
 
           toggleTransactions: this.toggleTransactions(sym),
-          transactionsLabel: txOpen ? "Transaktionen ausblenden" : "Transaktionen anzeigen",
+          transactionsLabel: "Transaktionen · " + allSymTxs.length,
           showTransactions: txOpen,
           noTransactions: txOpen && !symTxs.length,
           transactions: symTxs.map(t => {
@@ -2287,29 +2516,50 @@ class Component extends DCLogic {
         };
       }),
 
-      stats: [
-        { k: "EINZAHLUNG", v: f2(cost) },
-        { k: "TITEL", v: String(holdings.length) },
-        { k: "BELEGE", v: String(used) },
-        { k: "RENDITE", v: (cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) : "0.0") + " %" },
-        { k: "TOP HEUTE", v: topMoverToday ? topMoverToday.abbr + " " + (topMoverToday.dp >= 0 ? "+" : "") + topMoverToday.dp.toFixed(1) + "%" : "–" },
-        { k: "HEUTE CHF", v: (dayTotal >= 0 ? "+" : "") + f2(dayTotal) },
-        { k: "SCHWÄCHSTE", v: worstMoverToday ? worstMoverToday.abbr + " " + (worstMoverToday.dp >= 0 ? "+" : "") + worstMoverToday.dp.toFixed(1) + "%" : "–" },
-        { k: "Ø HALTEDAUER", v: durLabel(avgHoldDays) },
-        { k: "ERSTER KAUF", v: firstBuyDate ? new Date(firstBuyDate).toLocaleDateString("de-CH") : "–" },
-        { k: "AKTUALISIERT", v: this.state.lastSyncAt ? new Date(this.state.lastSyncAt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }) + " Uhr" : "–" }
+      statCards: [
+        {
+          k: "Heute bewegt", v: (dayTotal >= 0 ? "+" : "") + f2(dayTotal),
+          c: dayTotal >= 0 ? "var(--pos)" : "var(--neg)",
+          sub: dayGross ? "über " + driverRows.length + " von " + holdings.length + " Titeln" : "keine Live-Kurse",
+          hasSpark: !!portfolioSpark, spark: portfolioSpark
+        },
+        {
+          k: "Rendite gesamt", v: (cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) : "0.0") + " %",
+          c: g >= 0 ? "var(--pos)" : "var(--neg)",
+          sub: (g >= 0 ? "+" : "") + f2(g) + " CHF"
+        },
+        {
+          k: "Stärkste heute", v: topMoverToday ? (topMoverToday.dp >= 0 ? "+" : "") + topMoverToday.dp.toFixed(2) + " %" : "–",
+          c: topMoverToday && topMoverToday.dp < 0 ? "var(--neg)" : "var(--pos)",
+          sub: topMoverToday ? displayName(topMoverToday) : "keine Live-Kurse"
+        },
+        {
+          k: "Schwächste heute", v: worstMoverToday ? (worstMoverToday.dp >= 0 ? "+" : "") + worstMoverToday.dp.toFixed(2) + " %" : "–",
+          c: worstMoverToday && worstMoverToday.dp >= 0 ? "var(--pos)" : "var(--neg)",
+          sub: worstMoverToday ? displayName(worstMoverToday) : "keine Live-Kurse"
+        },
+        {
+          k: "Investiert", v: f2(cost), c: "var(--tx)",
+          sub: holdings.length + (holdings.length === 1 ? " Titel" : " Titel") + " · " + used + " Belege"
+        },
+        {
+          k: "Ø Haltedauer", v: durLabel(avgHoldDays), c: "var(--tx)",
+          sub: firstBuyDate ? "seit " + new Date(firstBuyDate).toLocaleDateString("de-CH") : "noch keine Käufe"
+        }
       ],
 
       holdings: holdings.map(h => {
         const sym = h.sym || h.abbr;
         const noLive = isinLike(sym) && !h.live;
         const d = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
+        const spark = buildSparkline(hist[sym]);
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           sub: h.shares + " × " + f2(h.buy),
           value: f2(h.shares * h.cur),
-          change: noLive ? "kein Live-Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
-          color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)"
+          change: noLive ? "kein Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
+          color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
+          spark, hasSpark: !!spark
         };
       }),
 
