@@ -2409,9 +2409,12 @@ class Component extends DCLogic {
       })),
       connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
       // Statusleisten-Streifen nimmt die Farbe des Screens an, der gerade oben
-      // anliegt: der blaue Kopfbereich nur auf der Startseite, sonst die
-      // Seitenfarbe (hell bzw. dunkel je nach Theme).
-      statusBarBg: screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
+      // anliegt: blauer Kopfbereich auf der Startseite, var(--tx) während Splash
+      // und Login (dieselbe Farbe wie die Animation, sonst blitzt der Streifen
+      // beim Übergang hell auf), sonst die normale Seitenfarbe.
+      statusBarBg: this.state.splash || screen === "login"
+        ? "var(--tx)"
+        : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
