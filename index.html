@@ -552,6 +552,81 @@ input::placeholder{color:var(--tx3)}
           </sc-if>
         </div>
 
+        <div class="card" style="padding:18px;margin-bottom:20px">
+          <button onClick="{{ toggleCompound }}" class="rowbtn" style-hover="opacity:.85">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </div>
+              <div style="flex:1;min-width:0;text-align:left">
+                <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:600">Zinseszins-Rechner</span>
+                <sc-if value="{{ compoundCollapsed }}" hint-placeholder-val="{{ true }}">
+                  <span style="display:block;color:var(--tx2);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ compoundTeaser }}</span>
+                </sc-if>
+              </div>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;transform:rotate({{ compoundChevron }}deg);transition:transform .2s ease"><path d="M6 9l6 6 6-6"></path></svg>
+            </div>
+          </button>
+
+          <sc-if value="{{ compoundExpanded }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:10px">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">STARTKAPITAL CHF</span>
+                  <input type="number" value="{{ compoundStartValue }}" onChange="{{ onCompoundStart }}" style="width:100%;height:42px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 12px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">SPARRATE / MONAT</span>
+                  <input type="number" value="{{ compoundMonthlyValue }}" onChange="{{ onCompoundMonthly }}" style="width:100%;height:42px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 12px;outline:none;box-sizing:border-box">
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">RENDITE PRO JAHR</span>
+                <div style="display:flex;gap:6px">
+                  <sc-for list="{{ compoundRateOptions }}" as="ro" hint-placeholder-count="5">
+                    <button onClick="{{ ro.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:36px;border-radius:9px;background:{{ ro.bg }};border:1px solid {{ ro.border }};color:{{ ro.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ ro.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZEITRAUM</span>
+                <div style="display:flex;gap:6px">
+                  <sc-for list="{{ compoundYearOptions }}" as="yo" hint-placeholder-count="6">
+                    <button onClick="{{ yo.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:36px;border-radius:9px;background:{{ yo.bg }};border:1px solid {{ yo.border }};color:{{ yo.tx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ yo.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <sc-if value="{{ compoundHasChart }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 280 80" preserveAspectRatio="none" style="width:100%;height:80px;display:block">
+                  <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)" stop-opacity=".2"></stop><stop offset="1" stop-color="var(--acc2)" stop-opacity="0"></stop></linearGradient></defs>
+                  <path d="{{ compoundFillPath }}" fill="url(#cfill)"></path>
+                  <path d="{{ compoundValuePath }}" fill="none" stroke="var(--acc2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </sc-if>
+
+              <div style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px">
+                <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                  <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">ENDKAPITAL</span>
+                  <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundFinal }}</span>
+                </div>
+                <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                  <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">EINGEZAHLT</span>
+                  <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundContributed }}</span>
+                </div>
+                <div style="background:var(--pos-soft);border:1px solid var(--acc-line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                  <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">ZINSERTRAG</span>
+                  <span class="mono" style="color:var(--pos);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundGain }}</span>
+                </div>
+              </div>
+
+              <p style="margin:0;color:var(--tx3);font-size:10.5px;line-height:1.5">Modellrechnung mit angenommener, konstanter Rendite — keine Prognose und keine Anlageberatung. Echte Renditen schwanken von Jahr zu Jahr.</p>
+            </div>
+          </sc-if>
+        </div>
+
         <div style="display:flex;flex-direction:column;gap:10px">
           <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
             <div class="card" style="overflow:hidden">
@@ -580,14 +655,6 @@ input::placeholder{color:var(--tx3)}
 
               <sc-if value="{{ d.isOpen }}" hint-placeholder-val="{{ false }}">
               <div style="padding:0 15px 15px;animation:fade .22s ease">
-              <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:7px;margin-bottom:14px">
-                <sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="10">
-                  <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
-                    <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.k }}</span>
-                    <span class="mono" style="color:{{ r.c }};font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.v }}</span>
-                  </div>
-                </sc-for>
-              </div>
               <div style="display:flex;gap:8px;margin-bottom:4px">
                 <button onClick="{{ d.toggleComposition }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:{{ d.compBg }};border:1px solid {{ d.compBorder }};color:{{ d.compTx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">{{ d.compositionLabel }}</button>
                 <button onClick="{{ d.toggleTransactions }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:{{ d.txBg }};border:1px solid {{ d.txBorder }};color:{{ d.txTx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">{{ d.transactionsLabel }}</button>
@@ -1337,6 +1404,22 @@ const buildSignal = (sym, name, rows, cur) => {
   return { sym, tick: sym, tag, headline, body, metrics, score, color: colorMap[tone], bg: bgMap[tone] };
 };
 
+// ---------- Zinseszins-Rechner ----------
+// Monatliche Simulation statt geschlossener Formel — einfacher korrekt bei
+// zusätzlichen Sparraten, und liefert nebenbei die Jahrespunkte für den Chart.
+const compoundProject = (start, monthly, ratePct, years) => {
+  const months = Math.max(1, Math.round(years * 12));
+  const r = ratePct / 100 / 12;
+  let value = start, contributed = start;
+  const yearly = [{ value, contributed }];
+  for (let m = 1; m <= months; m++) {
+    value = value * (1 + r) + monthly;
+    contributed += monthly;
+    if (m % 12 === 0) yearly.push({ value, contributed });
+  }
+  return { finalValue: value, contributed, yearly };
+};
+
 class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
@@ -1357,6 +1440,7 @@ class Component extends DCLogic {
 
     posChartRange: "D", aiExpanded: false, posScrub: null,
     carouselIndex: 0, carouselTouched: false,
+    compoundOpen: false, compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
@@ -1832,6 +1916,13 @@ class Component extends DCLogic {
     }
   };
 
+  // ---------- Zinseszins-Rechner ----------
+  toggleCompound = () => this.setState(s => ({ compoundOpen: !s.compoundOpen }));
+  setCompoundRate = r => () => this.setState({ compoundRate: r });
+  setCompoundYears = y => () => this.setState({ compoundYears: y });
+  onCompoundStart = e => this.setState({ compoundStartInput: e.target.value });
+  onCompoundMonthly = e => this.setState({ compoundMonthlyInput: e.target.value });
+
   // Nur eine Position gleichzeitig offen — hält die Depot-Liste überschaubar.
   togglePosOpen = sym => () => {
     this.setState(s => s.openPosSymbol === sym
@@ -1955,6 +2046,26 @@ class Component extends DCLogic {
     const cost = holdings.reduce((a, h) => a + h.shares * h.buy, 0);
     const g = val - cost;
     const used = this.state.txCount || 0;
+
+    // ---------- Zinseszins-Rechner ----------
+    // Startkapital: eigene Eingabe, sonst automatisch der aktuelle Depotwert.
+    const compoundStart = this.state.compoundStartInput !== ""
+      ? Math.max(0, parseFloat(this.state.compoundStartInput) || 0) : val;
+    const compoundMonthly = Math.max(0, parseFloat(this.state.compoundMonthlyInput) || 0);
+    const compoundResult = compoundProject(compoundStart, compoundMonthly, this.state.compoundRate, this.state.compoundYears);
+    // Teaser bleibt immer bei 8 % / 25 Jahren — unabhaengig von den Reglern,
+    // damit der eingeklappte Anreisser nicht durch eigene Eingaben verwirrt.
+    const compoundTeaserCalc = compoundProject(val, 0, 8, 25);
+    const cPts = compoundResult.yearly;
+    const cVals = cPts.flatMap(p => [p.value, p.contributed]);
+    const cMin = Math.min(...cVals), cMax = Math.max(...cVals);
+    const cRange = (cMax - cMin) || 1;
+    const cN = cPts.length;
+    const cX = i => cN > 1 ? (i / (cN - 1)) * 280 : 0;
+    const cY = v => 78 - ((v - cMin) / cRange) * 72;
+    const toCPath = key => cPts.map((p, i) => (i === 0 ? "M" : "L") + cX(i).toFixed(1) + " " + cY(p[key]).toFixed(1)).join(" ");
+    const compoundValuePath = toCPath("value");
+    const compoundGainVal = compoundResult.finalValue - compoundResult.contributed;
 
     const f = this.state.extracted || emptyFields();
     const shares = parseFloat(f.shares) || 0;
@@ -2464,6 +2575,39 @@ class Component extends DCLogic {
       months: chartData ? chartData.months : [],
       investedTotal: f2(cost),
       isDepot: screen === "depot",
+
+      // ---------- Zinseszins-Rechner ----------
+      compoundCollapsed: !this.state.compoundOpen,
+      compoundExpanded: this.state.compoundOpen,
+      compoundChevron: this.state.compoundOpen ? "180" : "0",
+      toggleCompound: this.toggleCompound,
+      compoundTeaser: val > 0
+        ? "Bei 8 % pro Jahr: in 25 Jahren rund CHF " + Math.round(compoundTeaserCalc.finalValue).toLocaleString("de-CH")
+        : "Sieh, wie dein Depot mit Zinseszins wachsen könnte",
+      compoundStartValue: this.state.compoundStartInput !== "" ? this.state.compoundStartInput : String(Math.round(compoundStart)),
+      onCompoundStart: this.onCompoundStart,
+      compoundMonthlyValue: this.state.compoundMonthlyInput,
+      onCompoundMonthly: this.onCompoundMonthly,
+      compoundRateOptions: [4, 6, 8, 10, 12].map(r => ({
+        label: r + " %", go: this.setCompoundRate(r),
+        bg: this.state.compoundRate === r ? "var(--acc-soft)" : "var(--surf2)",
+        border: this.state.compoundRate === r ? "var(--acc-line)" : "var(--line)",
+        tx: this.state.compoundRate === r ? "var(--acc2)" : "var(--tx2)"
+      })),
+      compoundYearOptions: [5, 10, 15, 20, 25, 30].map(y => ({
+        label: y + " J", go: this.setCompoundYears(y),
+        bg: this.state.compoundYears === y ? "var(--acc-soft)" : "var(--surf2)",
+        border: this.state.compoundYears === y ? "var(--acc-line)" : "var(--line)",
+        tx: this.state.compoundYears === y ? "var(--acc2)" : "var(--tx2)"
+      })),
+      compoundHasChart: cN > 1,
+      compoundValuePath,
+      compoundFillPath: compoundValuePath + " L " + cX(cN - 1).toFixed(1) + " 80 L 0 80 Z",
+      // Ganze Franken statt Rappen — bei einer Modellrechnung waere die zweite
+      // Nachkommastelle ohnehin Scheinpraezision, und es passt besser in die Kachel.
+      compoundFinal: Math.round(compoundResult.finalValue).toLocaleString("de-CH"),
+      compoundContributed: Math.round(compoundResult.contributed).toLocaleString("de-CH"),
+      compoundGain: (compoundGainVal >= 0 ? "+" : "") + Math.round(compoundGainVal).toLocaleString("de-CH"),
       noHoldings: !holdings.length,
       aiExpanded: this.state.aiExpanded,
       aiCollapsed: !this.state.aiExpanded,
@@ -2539,11 +2683,7 @@ class Component extends DCLogic {
           ? posChart.points[this.state.posScrub.idx] : null;
         const scrubDelta = scrubP && posChart.first ? (scrubP.close - posChart.first) / posChart.first * 100 : 0;
 
-        // Kennzahlen je Position
         const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
-        const posFirstBuy = allSymTxs.length ? allSymTxs.reduce((m, t) => (t.date < m ? t.date : m), allSymTxs[0].date) : null;
-        const posDayAbs = typeof h.dp === "number" ? (h.cur - h.cur / (1 + h.dp / 100)) * h.shares : null;
-        const posGainPct = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
         // 52-Wochen-Spanne nur zeigen, wenn wirklich genug Historie da ist —
         // sonst wäre der Balken irreführend.
         const yearRows = (hist[sym] || []).filter(p => p.date >= dstr(new Date(Date.now() - 365 * 864e5)));
@@ -2574,20 +2714,6 @@ class Component extends DCLogic {
           txBg: txOpen ? "var(--acc-soft)" : "var(--surf2)",
           txBorder: txOpen ? "var(--acc-line)" : "var(--line)",
           txTx: txOpen ? "var(--acc2)" : "var(--tx2)",
-          rows: [
-            { k: "Kurs jetzt", v: f2(h.cur), c: "var(--tx)" },
-            { k: "Heute", v: posDayAbs != null ? (posDayAbs >= 0 ? "+" : "") + f2(posDayAbs) : "–", c: posDayAbs == null ? "var(--tx3)" : posDayAbs >= 0 ? "var(--pos)" : "var(--neg)" },
-            { k: "Gewinn / Verlust", v: (d >= 0 ? "+" : "") + f2(d), c: d >= 0 ? "var(--pos)" : "var(--neg)" },
-            { k: "Rendite", v: (posGainPct >= 0 ? "+" : "") + posGainPct.toFixed(1) + " %", c: posGainPct >= 0 ? "var(--pos)" : "var(--neg)" },
-            { k: "Anteile", v: String(h.shares), c: "var(--tx)" },
-            { k: "Ø Kaufkurs", v: f2(h.buy), c: "var(--tx)" },
-            { k: "Investiert", v: f2(inv), c: "var(--tx)" },
-            { k: "Währung", v: h.currency || "CHF", c: "var(--tx)" },
-            { k: "Erstkauf", v: posFirstBuy ? new Date(posFirstBuy).toLocaleDateString("de-CH") : "–", c: "var(--tx)" },
-            { k: "Haltedauer", v: posFirstBuy ? durLabel(daysSince(posFirstBuy)) : "–", c: "var(--tx)" },
-            { k: "Käufe", v: String(allSymTxs.length), c: "var(--tx)" },
-            { k: "Ø Kaufabstand", v: allSymTxs.length > 1 && posFirstBuy ? durLabel(Math.round(daysSince(posFirstBuy) / (allSymTxs.length - 1))) : "–", c: "var(--tx)" }
-          ],
           has52w: has52,
           lo52Label: has52 ? f2(lo52) : "",
           hi52Label: has52 ? f2(hi52) : "",
