@@ -6,7 +6,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#2C63DC">
+<!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
+     (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
+     und an das OS-Farbschema gekoppelt statt an unseren In-App-Theme-Toggle —
+     ein dynamisches Update via JS liess sich in Mobile Safari nicht
+     zuverlaessig beobachten. -->
+<meta name="theme-color" content="#F5F6F9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B0F" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="./manifest.json">
 <title>Belegio</title>
 <script src="./support.js"></script>
@@ -63,14 +69,18 @@
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
 }
-/* iOS-Statusleiste: mit apple-mobile-web-app-status-bar-style=black-translucent
-   reicht der Inhalt bis unter die Uhr. Die Farbe kommt aus statusBarBg und folgt
-   dem aktuellen Screen (blauer Kopfbereich auf der Startseite, sonst die
-   Seitenfarbe), damit oben keine fremde Fläche steht. */
+/* iOS-Statusleiste (installierte App): mit apple-mobile-web-app-status-bar-
+   style=black-translucent reicht der Inhalt bis unter die Uhr. Bewusst KEIN
+   eigener Hintergrund hier — die Leiste bleibt komplett transparent und zeigt
+   einfach, was gerade dahinter scrollt: blau auf der Startseite ganz oben,
+   weiss/schwarz sobald die Fläche darunter hochgescrollt ist. Kein Umschalten
+   per Screen/Theme nötig, das ergibt sich von selbst. */
 .statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none}
 *{box-sizing:border-box}
-/* Nicht transparent lassen: iOS füllt die Statusleiste sonst mit seinem Grau. */
-html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#2C63DC}
+/* Neutral statt fest gefärbt — sonst blitzt vor dem ersten Render oder in
+   leeren Randbereichen eine falsche Fläche durch, obwohl die App selbst dort
+   nie diese Farbe zeigt. */
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#F5F6F9}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc2);text-decoration:none}
 a:hover{color:var(--tx)}
@@ -104,7 +114,7 @@ input::placeholder{color:var(--tx3)}
 
   <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
-    <div class="statusbar" style="background:{{ statusBarBg }}"></div>
+    <div class="statusbar"></div>
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
@@ -1432,31 +1442,10 @@ class Component extends DCLogic {
     return this._api;
   }
 
-  // Mobile Safari (nicht die installierte App) färbt eigene Adress- und
-  // Werkzeugleiste über das <meta name="theme-color">-Tag, nicht über unsere
-  // .statusbar-Div — die wirkt nur im Safe-Area-Bereich der installierten PWA.
-  // Der <helmet>-Block wird beim Boot einmalig statisch übernommen (keine
-  // {{ }}-Bindung), deshalb hier direkt den DOM-Wert nachziehen: die echte,
-  // von der Statusleiste bereits korrekt berechnete Farbe abgreifen und ins
-  // Meta-Tag kopieren, statt Screen/Theme-Zuordnung ein zweites Mal zu pflegen.
-  syncThemeColor = () => {
-    const el = document.querySelector(".statusbar");
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (!el || !meta) return;
-    const bg = getComputedStyle(el).backgroundColor;
-    if (bg && bg !== this._lastThemeColor) {
-      meta.setAttribute("content", bg);
-      this._lastThemeColor = bg;
-    }
-  };
-
-  componentDidUpdate() { this.syncThemeColor(); }
-
   async componentDidMount() {
     this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
     this.loadIntraday();
     this.startCarousel();
-    this.syncThemeColor();
     const db = await this.db();
     const session = await db.getSession();
     if (session) {
@@ -2429,13 +2418,6 @@ class Component extends DCLogic {
         tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
       })),
       connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
-      // Statusleisten-Streifen nimmt die Farbe des Screens an, der gerade oben
-      // anliegt: blauer Kopfbereich auf der Startseite, var(--tx) während Splash
-      // und Login (dieselbe Farbe wie die Animation, sonst blitzt der Streifen
-      // beim Übergang hell auf), sonst die normale Seitenfarbe.
-      statusBarBg: this.state.splash || screen === "login"
-        ? "var(--tx)"
-        : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
