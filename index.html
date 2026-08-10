@@ -117,6 +117,8 @@ input::placeholder{color:var(--tx3)}
 @keyframes wordUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes pop{from{opacity:0;transform:scale(.94) translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes scrimIn{from{opacity:0}to{opacity:1}}
 </style>
 </helmet>
 
@@ -263,7 +265,12 @@ input::placeholder{color:var(--tx3)}
               </sc-if>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none">
                 <span class="mono" style="color:var(--tx);font-size:13.5px;font-weight:700">{{ h.value }}</span>
-                <span class="mono" style="color:{{ h.color }};font-size:11px;font-weight:700">{{ h.change }}</span>
+                <div style="display:flex;align-items:center;gap:4px">
+                  <sc-if value="{{ h.marketClosed }}" hint-placeholder-val="{{ false }}">
+                    <svg title="Markt geschlossen" width="9" height="9" viewBox="0 0 24 24" fill="var(--tx3)" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
+                  </sc-if>
+                  <span class="mono" style="color:{{ h.color }};font-size:11px;font-weight:700">{{ h.change }}</span>
+                </div>
               </div>
             </div>
           </sc-for>
@@ -510,121 +517,27 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx3);font-size:11.5px">Gewichtung nach aktuellem Wert</span>
         </div>
 
-        <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;margin-bottom:20px">
-          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
-            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
-            </div>
-            <span style="flex:1;color:var(--tx);font-size:13.5px;font-weight:600">KI-Analyse</span>
-            <button onClick="{{ toggleAi }}" style="all:unset;cursor:pointer;color:var(--acc2);font-size:11.5px;font-weight:600">{{ aiToggleLabel }}</button>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <sc-if value="{{ aiCollapsed }}" hint-placeholder-val="{{ true }}">
-              <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;gap:11px">
-                  <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ insightPreview.tone }}"></span>
-                  <div style="display:flex;flex-direction:column;gap:3px">
-                    <span style="color:var(--tx);font-size:13px;font-weight:600">{{ insightPreview.t }}</span>
-                    <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical">{{ insightPreview.d }}</span>
-                  </div>
-                </div>
-              </sc-if>
-            </sc-if>
-            <sc-if value="{{ aiExpanded }}" hint-placeholder-val="{{ false }}">
-              <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
-                <div style="display:flex;gap:11px">
-                  <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ i.tone }}"></span>
-                  <div style="display:flex;flex-direction:column;gap:3px">
-                    <span style="color:var(--tx);font-size:13px;font-weight:600">{{ i.t }}</span>
-                    <span style="color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ i.d }}</span>
-                  </div>
-                </div>
-              </sc-for>
-              <span style="color:var(--tx3);font-size:10.5px;font-family:'IBM Plex Mono',monospace">heute 08:12</span>
-            </sc-if>
-          </div>
-          <sc-if value="{{ aiExpanded }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ refreshInsights }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
-              {{ refreshLabel }}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+          <div class="card" style="aspect-ratio:1;overflow:hidden">
+            <button onClick="{{ openAiSheet }}" class="rowbtn" style="height:100%;padding:16px;display:flex;flex-direction:column;text-align:left" style-hover="background:var(--surf2)">
+              <div style="width:30px;height:30px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
+              </div>
+              <span style="flex:1"></span>
+              <span style="color:var(--tx);font-size:13.5px;font-weight:700">KI-Analyse</span>
+              <span style="color:var(--tx2);font-size:11.5px;line-height:1.4;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ aiTeaser }}</span>
             </button>
-            <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Automatisch generiert, keine Anlageberatung.</p>
-          </sc-if>
-        </div>
-
-        <div class="card" style="padding:18px;margin-bottom:20px">
-          <button onClick="{{ toggleCompound }}" class="rowbtn" style-hover="opacity:.85">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+          </div>
+          <div class="card" style="aspect-ratio:1;overflow:hidden">
+            <button onClick="{{ openCompoundSheet }}" class="rowbtn" style="height:100%;padding:16px;display:flex;flex-direction:column;text-align:left" style-hover="background:var(--surf2)">
+              <div style="width:30px;height:30px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
               </div>
-              <div style="flex:1;min-width:0;text-align:left">
-                <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:600">Zinseszins-Rechner</span>
-                <sc-if value="{{ compoundCollapsed }}" hint-placeholder-val="{{ true }}">
-                  <span style="display:block;color:var(--tx2);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ compoundTeaser }}</span>
-                </sc-if>
-              </div>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;transform:rotate({{ compoundChevron }}deg);transition:transform .2s ease"><path d="M6 9l6 6 6-6"></path></svg>
-            </div>
-          </button>
-
-          <sc-if value="{{ compoundExpanded }}" hint-placeholder-val="{{ false }}">
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
-              <div style="display:flex;gap:10px">
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">STARTKAPITAL CHF</span>
-                  <input type="number" value="{{ compoundStartValue }}" onChange="{{ onCompoundStart }}" style="width:100%;height:42px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 12px;outline:none;box-sizing:border-box">
-                </div>
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">SPARRATE / MONAT</span>
-                  <input type="number" value="{{ compoundMonthlyValue }}" onChange="{{ onCompoundMonthly }}" style="width:100%;height:42px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 12px;outline:none;box-sizing:border-box">
-                </div>
-              </div>
-
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">RENDITE PRO JAHR</span>
-                <div style="display:flex;gap:6px">
-                  <sc-for list="{{ compoundRateOptions }}" as="ro" hint-placeholder-count="5">
-                    <button onClick="{{ ro.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:36px;border-radius:9px;background:{{ ro.bg }};border:1px solid {{ ro.border }};color:{{ ro.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ ro.label }}</button>
-                  </sc-for>
-                </div>
-              </div>
-
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZEITRAUM</span>
-                <div style="display:flex;gap:6px">
-                  <sc-for list="{{ compoundYearOptions }}" as="yo" hint-placeholder-count="6">
-                    <button onClick="{{ yo.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:36px;border-radius:9px;background:{{ yo.bg }};border:1px solid {{ yo.border }};color:{{ yo.tx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ yo.label }}</button>
-                  </sc-for>
-                </div>
-              </div>
-
-              <sc-if value="{{ compoundHasChart }}" hint-placeholder-val="{{ false }}">
-                <svg viewBox="0 0 280 80" preserveAspectRatio="none" style="width:100%;height:80px;display:block">
-                  <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)" stop-opacity=".2"></stop><stop offset="1" stop-color="var(--acc2)" stop-opacity="0"></stop></linearGradient></defs>
-                  <path d="{{ compoundFillPath }}" fill="url(#cfill)"></path>
-                  <path d="{{ compoundValuePath }}" fill="none" stroke="var(--acc2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </sc-if>
-
-              <div style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px">
-                <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
-                  <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">ENDKAPITAL</span>
-                  <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundFinal }}</span>
-                </div>
-                <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
-                  <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">EINGEZAHLT</span>
-                  <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundContributed }}</span>
-                </div>
-                <div style="background:var(--pos-soft);border:1px solid var(--acc-line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
-                  <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">ZINSERTRAG</span>
-                  <span class="mono" style="color:var(--pos);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundGain }}</span>
-                </div>
-              </div>
-
-              <p style="margin:0;color:var(--tx3);font-size:10.5px;line-height:1.5">Modellrechnung mit angenommener, konstanter Rendite — keine Prognose und keine Anlageberatung. Echte Renditen schwanken von Jahr zu Jahr.</p>
-            </div>
-          </sc-if>
+              <span style="flex:1"></span>
+              <span style="color:var(--tx);font-size:13.5px;font-weight:700">Zinseszins-Rechner</span>
+              <span style="color:var(--tx2);font-size:11.5px;line-height:1.4;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ compoundTeaser }}</span>
+            </button>
+          </div>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px">
@@ -637,6 +550,9 @@ input::placeholder{color:var(--tx3)}
                     <span style="color:var(--tx);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.name }}</span>
                     <div style="display:flex;align-items:center;gap:6px;min-width:0">
                       <span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600;background:var(--surf2);padding:2px 6px;border-radius:6px;white-space:nowrap;flex:none">{{ d.share }}</span>
+                      <sc-if value="{{ d.marketClosed }}" hint-placeholder-val="{{ false }}">
+                        <svg title="Markt geschlossen" width="8" height="8" viewBox="0 0 24 24" fill="var(--tx3)" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
+                      </sc-if>
                       <span class="mono" style="color:{{ d.dayColor }};font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.dayLabel }}</span>
                     </div>
                   </div>
@@ -790,6 +706,116 @@ input::placeholder{color:var(--tx3)}
           </sc-for>
         </div>
       </div>
+
+      <sc-if value="{{ aiSheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeAiSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+          <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
+            </div>
+            <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">KI-Analyse</span>
+            <button onClick="{{ closeAiSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex;gap:11px">
+                  <span style="width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:{{ i.tone }}"></span>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <span style="color:var(--tx);font-size:13.5px;font-weight:600">{{ i.t }}</span>
+                    <span style="color:var(--tx2);font-size:13px;line-height:1.5;text-wrap:pretty">{{ i.d }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ noInsightPreview }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0;color:var(--tx3);font-size:12.5px;text-align:center;padding:20px 0">Noch keine Analyse — sobald Positionen im Depot sind, erscheinen hier Einschätzungen.</p>
+            </sc-if>
+          </div>
+          <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ refreshInsights }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
+              {{ refreshLabel }}
+            </button>
+          </sc-if>
+          <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Automatisch generiert, keine Anlageberatung.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ compoundSheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeCompoundSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+          <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Zinseszins-Rechner</span>
+            <button onClick="{{ closeCompoundSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:10px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">STARTKAPITAL CHF</span>
+                <input type="number" value="{{ compoundStartValue }}" onChange="{{ onCompoundStart }}" style="width:100%;height:42px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 12px;outline:none;box-sizing:border-box">
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">SPARRATE / MONAT</span>
+                <input type="number" value="{{ compoundMonthlyValue }}" onChange="{{ onCompoundMonthly }}" style="width:100%;height:42px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 12px;outline:none;box-sizing:border-box">
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">RENDITE PRO JAHR</span>
+              <div style="display:flex;gap:6px">
+                <sc-for list="{{ compoundRateOptions }}" as="ro" hint-placeholder-count="5">
+                  <button onClick="{{ ro.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:36px;border-radius:9px;background:{{ ro.bg }};border:1px solid {{ ro.border }};color:{{ ro.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ ro.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZEITRAUM</span>
+              <div style="display:flex;gap:6px">
+                <sc-for list="{{ compoundYearOptions }}" as="yo" hint-placeholder-count="6">
+                  <button onClick="{{ yo.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:36px;border-radius:9px;background:{{ yo.bg }};border:1px solid {{ yo.border }};color:{{ yo.tx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ yo.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <sc-if value="{{ compoundHasChart }}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="0 0 280 80" preserveAspectRatio="none" style="width:100%;height:80px;display:block">
+                <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)" stop-opacity=".2"></stop><stop offset="1" stop-color="var(--acc2)" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="{{ compoundFillPath }}" fill="url(#cfill)"></path>
+                <path d="{{ compoundValuePath }}" fill="none" stroke="var(--acc2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </sc-if>
+
+            <div style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px">
+              <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">ENDKAPITAL</span>
+                <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundFinal }}</span>
+              </div>
+              <div style="background:var(--surf2);border:1px solid var(--line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">EINGEZAHLT</span>
+                <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundContributed }}</span>
+              </div>
+              <div style="background:var(--pos-soft);border:1px solid var(--acc-line);border-radius:12px;padding:10px 11px;display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.06em;white-space:nowrap">ZINSERTRAG</span>
+                <span class="mono" style="color:var(--pos);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ compoundGain }}</span>
+              </div>
+            </div>
+
+            <p style="margin:0;color:var(--tx3);font-size:10.5px;line-height:1.5">Modellrechnung mit angenommener, konstanter Rendite — keine Prognose und keine Anlageberatung. Echte Renditen schwanken von Jahr zu Jahr.</p>
+          </div>
+        </div>
+      </sc-if>
     </sc-if>
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
@@ -1267,6 +1293,24 @@ const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
 
+// Boersenoeffnungszeiten je Symbol — .SW laeuft ueber SIX, alles andere wird
+// als US-Titel behandelt (NYSE/Nasdaq), da das die grosse Mehrheit der
+// Nicht-Schweizer Symbole in dieser App sind. Beruecksichtigt keine
+// Feiertage — nur Wochentag/Uhrzeit, bewusste Vereinfachung.
+const isMarketOpen = sym => {
+  const isSwiss = /\.SW$/i.test(String(sym || ""));
+  const tz = isSwiss ? "Europe/Zurich" : "America/New_York";
+  const openMins = isSwiss ? 9 * 60 : 9 * 60 + 30;
+  const closeMins = isSwiss ? 17 * 60 + 30 : 16 * 60;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false, weekday: "short"
+  }).formatToParts(new Date());
+  const get = t => parts.find(p => p.type === t).value;
+  const wd = get("weekday");
+  const mins = parseInt(get("hour"), 10) * 60 + parseInt(get("minute"), 10);
+  return wd !== "Sat" && wd !== "Sun" && mins >= openMins && mins < closeMins;
+};
+
 // Haltedauer/Alter kompakt: Tage bis 45, danach Monate, ab einem Jahr Jahre.
 const durLabel = d => d == null ? "–" : d < 1 ? "heute" : d < 45 ? d + " Tg" : d < 365 ? Math.round(d / 30.4) + " Mt" : (d / 365).toFixed(1).replace(".", ",") + " J";
 const daysSince = dateStr => Math.max(0, Math.round((Date.now() - new Date(dateStr).getTime()) / 864e5));
@@ -1438,9 +1482,10 @@ class Component extends DCLogic {
 
     txOpenSymbol: null, editingTxId: null, editingTxFields: null, openPosSymbol: null,
 
-    posChartRange: "D", aiExpanded: false, posScrub: null,
+    posChartRange: "D", posScrub: null,
     carouselIndex: 0, carouselTouched: false,
-    compoundOpen: false, compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
+    aiSheetOpen: false, compoundSheetOpen: false,
+    compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
@@ -1917,7 +1962,8 @@ class Component extends DCLogic {
   };
 
   // ---------- Zinseszins-Rechner ----------
-  toggleCompound = () => this.setState(s => ({ compoundOpen: !s.compoundOpen }));
+  openCompoundSheet = () => this.setState({ compoundSheetOpen: true });
+  closeCompoundSheet = () => this.setState({ compoundSheetOpen: false });
   setCompoundRate = r => () => this.setState({ compoundRate: r });
   setCompoundYears = y => () => this.setState({ compoundYears: y });
   onCompoundStart = e => this.setState({ compoundStartInput: e.target.value });
@@ -1962,7 +2008,8 @@ class Component extends DCLogic {
   posScrubEnd = () => { this._posScrubbing = null; if (this.state.posScrub) this.setState({ posScrub: null }); };
 
   // ---------- KI-Analyse ----------
-  toggleAiExpanded = () => this.setState(s => ({ aiExpanded: !s.aiExpanded }));
+  openAiSheet = () => this.setState({ aiSheetOpen: true });
+  closeAiSheet = () => this.setState({ aiSheetOpen: false });
 
   setTxField = k => e => this.setState(s => ({ editingTxFields: { ...s.editingTxFields, [k]: e.target.value } }));
 
@@ -2577,10 +2624,9 @@ class Component extends DCLogic {
       isDepot: screen === "depot",
 
       // ---------- Zinseszins-Rechner ----------
-      compoundCollapsed: !this.state.compoundOpen,
-      compoundExpanded: this.state.compoundOpen,
-      compoundChevron: this.state.compoundOpen ? "180" : "0",
-      toggleCompound: this.toggleCompound,
+      compoundSheetOpen: this.state.compoundSheetOpen,
+      openCompoundSheet: this.openCompoundSheet,
+      closeCompoundSheet: this.closeCompoundSheet,
       compoundTeaser: val > 0
         ? "Bei 8 % pro Jahr: in 25 Jahren rund CHF " + Math.round(compoundTeaserCalc.finalValue).toLocaleString("de-CH")
         : "Sieh, wie dein Depot mit Zinseszins wachsen könnte",
@@ -2609,15 +2655,15 @@ class Component extends DCLogic {
       compoundContributed: Math.round(compoundResult.contributed).toLocaleString("de-CH"),
       compoundGain: (compoundGainVal >= 0 ? "+" : "") + Math.round(compoundGainVal).toLocaleString("de-CH"),
       noHoldings: !holdings.length,
-      aiExpanded: this.state.aiExpanded,
-      aiCollapsed: !this.state.aiExpanded,
-      toggleAi: this.toggleAiExpanded,
-      aiToggleLabel: this.state.aiExpanded ? "Weniger anzeigen" : "Alle anzeigen",
+      aiSheetOpen: this.state.aiSheetOpen,
+      openAiSheet: this.openAiSheet,
+      closeAiSheet: this.closeAiSheet,
       refreshInsights: this.sync,
       refreshLabel: this.state.syncing ? "Wird aktualisiert…" : "Analyse neu erstellen",
       insights: insightsList,
       hasInsightPreview: insightsList.length > 0,
-      insightPreview: insightsList[0] || { tone: "var(--tx3)", t: "", d: "" },
+      noInsightPreview: !insightsList.length,
+      aiTeaser: insightsList.length ? insightsList[0].t : "Noch keine Analyse — sobald Positionen im Depot sind",
       goDepot: this.go("depot"),
       goNewsFromBanner: this.go("news"),
       hasTopNews: !!(this.state.liveNews && this.state.liveNews.length),
@@ -2705,6 +2751,7 @@ class Component extends DCLogic {
           spark, hasSpark: !!spark,
           dayLabel: typeof h.dp === "number" ? (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %" : "kein Kurs",
           dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
+          marketClosed: !isinLike(sym) && !isMarketOpen(sym),
           isOpen: isOpenPos,
           toggleOpen: this.togglePosOpen(sym),
           chevron: isOpenPos ? "180" : "0",
@@ -2821,7 +2868,8 @@ class Component extends DCLogic {
           value: f2(h.shares * h.cur),
           change: noLive ? "kein Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
           color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
-          spark, hasSpark: !!spark
+          spark, hasSpark: !!spark,
+          marketClosed: !noLive && !isMarketOpen(sym)
         };
       }),
 
