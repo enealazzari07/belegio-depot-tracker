@@ -5,16 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- "black-translucent" laesst die obere Leiste den Inhalt darunter zeigen
-     (blau/weiss/schwarz statt fest grau). Frueherer Verdacht war, dass dieser
-     Wert allein die untere Tab-Leiste verschiebt — wahrscheinlicherer Grund:
-     env(safe-area-inset-bottom) wird von iOS im Vollbild-/Overlay-Modus
-     (den dieser Wert aktiviert) offenbar anders berechnet als im
-     nicht-ueberlappenden "default"-Modus, obwohl die Spezifikation das nicht
-     vorsieht. Deshalb haengt die untere Leiste jetzt NICHT mehr an env(),
-     sondern an einem festen 34px-Wert (Standard-Home-Indicator-Hoehe auf
-     Face-ID-iPhones in Hochformat) — unabhaengig vom Status-Bar-Modus. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- WICHTIG — bitte nicht mehr aendern ohne die untere Tab-Leiste separat
+     gegenzutesten. "black-translucent" macht die obere Leiste an echten
+     Geraeten sichtbar besser (passt sich dem Inhalt an statt fest grau),
+     bricht dabei aber dreimal unabhaengig reproduziert die Position der
+     unteren Tab-Leiste — sowohl mit env(safe-area-inset-bottom) als auch mit
+     einem komplett fest verdrahteten Pixelwert (34px) statt der env()-
+     Variable. Da selbst der harte Pixelwert nicht half, liegt es nicht am
+     berechneten Sicherheitsabstand selbst, sondern vermutlich an einer
+     unterschiedlichen Gesamt-Viewporthoehe (100dvh) zwischen den beiden
+     Statusleisten-Modi. Untere Leiste hat Prioritaet -> "default" bleibt,
+     bis es dafuer eine echte Loesung gibt. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
      (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
      und an das OS-Farbschema gekoppelt statt an unseren In-App-Theme-Toggle —
@@ -896,7 +898,7 @@ input::placeholder{color:var(--tx3)}
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
-      <div style="position:absolute;bottom:34px;left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
+      <div style="position:absolute;bottom:env(safe-area-inset-bottom, 0px);left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
         </button>
@@ -1059,7 +1061,7 @@ input::placeholder{color:var(--tx3)}
 
     <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeMenu }}" style="position:absolute;inset:0;background:transparent;z-index:8"></div>
-      <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:98px;width:188px;background:var(--surf);border-radius:18px;border:1px solid var(--line);box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
+      <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(64px + env(safe-area-inset-bottom, 0px));width:188px;background:var(--surf);border-radius:18px;border:1px solid var(--line);box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
         <button onClick="{{ goAccountPage }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;height:48px;padding:0 14px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"></path></svg>
           <span style="color:var(--tx);font-size:13.5px;font-weight:600">Account</span>
