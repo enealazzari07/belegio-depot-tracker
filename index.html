@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- Von Apples drei erlaubten Werten passt sich NUR "black-translucent" ueberhaupt
-     an das an, was gerade dahinter liegt — "default" wurde getestet und ist eine
-     fixe, vom Inhalt komplett unabhaengige System-Grau-Leiste (schlechter, nicht
-     besser). "black-translucent" legt zwar selbst noch einen leichten Weichzeichner/
-     Farbstich obendrauf (natives OS-Chrome, ausserhalb unseres DOM, dort kommen wir
-     mit CSS nicht mehr ran), zeigt den echten Inhalt darunter aber wenigstens
-     durchscheinend an, statt ihn komplett zu ignorieren. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- "black-translucent" laesst iOS selbst eine halbtransparente Leiste ueber
+     den Inhalt zeichnen — das ist natives OS-Chrome ausserhalb unseres DOM,
+     unsere .statusbar-Div (Blur/Transparenz) kann diese Ebene nicht erreichen
+     oder veraendern. Trat bei echten Nutzern auch nach komplett frischer
+     Installation unveraendert auf, also kein Cache-Problem, sondern genau
+     dieses OS-Verhalten. "default" gibt stattdessen eine garantiert opake,
+     vom System gezeichnete Leiste (hell, mit dunklem Text) — zuverlaessig
+     weiss statt einer nicht kontrollierbaren dunklen Tönung. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
      (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
      und an das OS-Farbschema gekoppelt statt an unseren In-App-Theme-Toggle —
