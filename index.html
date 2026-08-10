@@ -1432,10 +1432,31 @@ class Component extends DCLogic {
     return this._api;
   }
 
+  // Mobile Safari (nicht die installierte App) färbt eigene Adress- und
+  // Werkzeugleiste über das <meta name="theme-color">-Tag, nicht über unsere
+  // .statusbar-Div — die wirkt nur im Safe-Area-Bereich der installierten PWA.
+  // Der <helmet>-Block wird beim Boot einmalig statisch übernommen (keine
+  // {{ }}-Bindung), deshalb hier direkt den DOM-Wert nachziehen: die echte,
+  // von der Statusleiste bereits korrekt berechnete Farbe abgreifen und ins
+  // Meta-Tag kopieren, statt Screen/Theme-Zuordnung ein zweites Mal zu pflegen.
+  syncThemeColor = () => {
+    const el = document.querySelector(".statusbar");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!el || !meta) return;
+    const bg = getComputedStyle(el).backgroundColor;
+    if (bg && bg !== this._lastThemeColor) {
+      meta.setAttribute("content", bg);
+      this._lastThemeColor = bg;
+    }
+  };
+
+  componentDidUpdate() { this.syncThemeColor(); }
+
   async componentDidMount() {
     this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
     this.loadIntraday();
     this.startCarousel();
+    this.syncThemeColor();
     const db = await this.db();
     const session = await db.getSession();
     if (session) {
