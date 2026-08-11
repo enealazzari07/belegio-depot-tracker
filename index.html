@@ -404,8 +404,13 @@ input::placeholder{color:var(--tx3)}
 
         <div style="padding:0 20px 20px;display:flex;gap:9px">
           <sc-for list="{{ shortcuts }}" as="s" hint-placeholder-count="3">
-            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:16px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--acc-line)">
-              <div style="width:28px;height:28px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2);flex:none">{{ s.icon }}</div>
+            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;position:relative;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:16px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--acc-line)">
+              <div style="position:relative;width:28px;height:28px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2);flex:none">
+                {{ s.icon }}
+                <sc-if value="{{ s.showDot }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:2px solid var(--surf);display:block"></span>
+                </sc-if>
+              </div>
               <span style="color:var(--tx);font-size:12px;font-weight:600;white-space:nowrap">{{ s.label }}</span>
             </button>
           </sc-for>
@@ -553,6 +558,12 @@ input::placeholder{color:var(--tx3)}
                       <sc-if value="{{ d.marketClosed }}" hint-placeholder-val="{{ false }}">
                         <svg title="Markt geschlossen" width="8" height="8" viewBox="0 0 24 24" fill="var(--tx3)" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
                       </sc-if>
+                      <sc-if value="{{ d.hasInsider }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:flex;align-items:center;gap:2px;background:{{ d.insiderBadgeBg }};color:{{ d.insiderBadgeColor }};font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:6px;white-space:nowrap;flex:none">
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
+                          {{ d.insiderCount }}
+                        </span>
+                      </sc-if>
                       <span class="mono" style="color:{{ d.dayColor }};font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.dayLabel }}</span>
                     </div>
                   </div>
@@ -574,6 +585,9 @@ input::placeholder{color:var(--tx3)}
               <div style="display:flex;gap:8px;margin-bottom:4px">
                 <button onClick="{{ d.toggleComposition }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:{{ d.compBg }};border:1px solid {{ d.compBorder }};color:{{ d.compTx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">{{ d.compositionLabel }}</button>
                 <button onClick="{{ d.toggleTransactions }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:{{ d.txBg }};border:1px solid {{ d.txBorder }};color:{{ d.txTx }};font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">{{ d.transactionsLabel }}</button>
+                <sc-if value="{{ d.hasInsider }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ d.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);color:var(--tx2);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-align:center">Insider</button>
+                </sc-if>
               </div>
               <sc-if value="{{ d.showComposition }}" hint-placeholder-val="{{ false }}">
                 <div style="padding:12px 0 4px">
@@ -814,6 +828,38 @@ input::placeholder{color:var(--tx3)}
 
             <p style="margin:0;color:var(--tx3);font-size:10.5px;line-height:1.5">Modellrechnung mit angenommener, konstanter Rendite — keine Prognose und keine Anlageberatung. Echte Renditen schwanken von Jahr zu Jahr.</p>
           </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ insiderSheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+          <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
+            </div>
+            <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Insider-Trades · {{ insiderSheetSymbolLabel }}</span>
+            <button onClick="{{ closeInsiderSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ insiderSheetRows }}" as="ins" hint-placeholder-count="3">
+              <a href="{{ ins.filingUrl }}" target="_blank" rel="noopener" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)">
+                <span style="flex:none;padding:3px 7px;border-radius:7px;background:{{ ins.bg }};color:{{ ins.color }};font-size:10.5px;font-weight:700">{{ ins.codeLabel }}</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ins.filerName }}</span>
+                  <span style="color:var(--tx3);font-size:11px">{{ ins.filerTitle }} · {{ ins.dateLabel }}</span>
+                </div>
+                <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                  <span class="mono" style="color:var(--tx2);font-size:11.5px;font-weight:600">{{ ins.detail }}</span>
+                  <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ ins.value }}</span>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+          <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Direkt aus SEC-Form-4-Meldungen (offizielle US-Insider-Handelspflichten). Keine Anlageberatung.</p>
         </div>
       </sc-if>
     </sc-if>
@@ -1487,6 +1533,7 @@ class Component extends DCLogic {
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
+    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     stockDetailSymbol: null, stockDetailData: null, stockDetailLoading: false, stockDetailError: "", stockDetailRange: "M",
@@ -1500,6 +1547,7 @@ class Component extends DCLogic {
   go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
 
   goMarkets = () => { this.go("markets")(); this.loadMarkets(); };
+  goDepotPage = () => { this.go("depot")(); this.markInsiderSeen(); };
 
   loadMarkets = async () => {
     if (this.state.marketQuotes || this.state.marketsLoading) return;
@@ -1598,6 +1646,7 @@ class Component extends DCLogic {
       // Marktkontext auch auf der Home-Seite — zeigt, ob eine Depot-Bewegung
       // marktgetrieben oder titelspezifisch ist.
       this.loadMarkets();
+      this.loadInsiderTrades(holdings);
       this.startAutoSync();
     }
     this.setState({ dashLoading: false });
@@ -1751,6 +1800,7 @@ class Component extends DCLogic {
       await this.loadReceipts();
       this.loadProfile();
       this.loadMarkets();
+      this.loadInsiderTrades(holdings);
       this.startAutoSync();
       this.setState({ dashLoading: false });
     } catch (e) {
@@ -1831,8 +1881,33 @@ class Component extends DCLogic {
     try {
       const db = await this.db();
       const profile = await db.getProfile();
-      this.setState({ userPlan: profile.plan === "pro" ? "pro" : "free" });
+      this.setState({ userPlan: profile.plan === "pro" ? "pro" : "free", insiderAlertsSeenAt: profile.insider_alerts_seen_at });
     } catch (e) { /* Standard bleibt "free" */ }
+  };
+
+  // ---------- Insider-Trades (SEC Form 4) ----------
+  loadInsiderTrades = async holdings => {
+    const syms = [...new Set((holdings || this.state.holdings).map(h => h.sym || h.abbr))].filter(s => !isinLike(s));
+    if (!syms.length) return;
+    try {
+      const api = await this.api();
+      const data = await api.insiderTrades(syms);
+      this.setState({ insiderTrades: data || {} });
+    } catch (e) { /* keine Daten — Badges bleiben einfach weg */ }
+  };
+
+  openInsiderSheet = sym => () => this.setState({ insiderSheetSymbol: sym });
+  closeInsiderSheet = () => this.setState({ insiderSheetSymbol: null });
+
+  // Beim Betreten des Depots gelten alle bisherigen Meldungen als gesehen —
+  // der Badge zaehlt danach nur noch, was seither neu dazugekommen ist.
+  markInsiderSeen = async () => {
+    const now = new Date().toISOString();
+    this.setState({ insiderAlertsSeenAt: now });
+    try {
+      const db = await this.db();
+      await db.markInsiderAlertsSeen();
+    } catch (e) { /* naechstes Mal wieder versuchen */ }
   };
 
   // ETFs vs. Einzelaktien lassen sich nicht am Symbol erkennen — deshalb best-effort
@@ -2074,6 +2149,7 @@ class Component extends DCLogic {
       await this.loadEtfCompositions(holdings);
       if (holdings.length) this.sync();
       await this.loadReceipts();
+      this.loadInsiderTrades(holdings);
       this.setState({ screen: "dash", toast: true, toastMsg: symbol + " ins Depot gebucht", pendingFile: null, extracted: null });
       clearTimeout(this.t2);
       this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
@@ -2447,6 +2523,16 @@ class Component extends DCLogic {
       return out;
     })() : [];
 
+    // Ein einzelnes Signal fuer "neue Insider-Aktivitaet seit dem letzten
+    // Depot-Besuch" — wird sowohl fuer den Home-Kachel-Punkt als auch fuer das
+    // Depot-eigene Flag gebraucht, deshalb einmal vorab berechnet.
+    const insiderAlertHint = holdings.some(h => {
+      const list = this.state.insiderTrades[h.sym || h.abbr] || [];
+      return this.state.insiderAlertsSeenAt
+        ? list.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt))
+        : list.length > 0;
+    });
+
     return {
       theme,
       themeLabel: theme === "dark" ? "Dark Mode" : "Light Mode",
@@ -2458,11 +2544,12 @@ class Component extends DCLogic {
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
       shortcuts: [
-        { label: "Depot", go: this.go("depot"), d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19" },
+        { label: "Depot", go: this.goDepotPage, d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19", dot: true },
         { label: "Märkte", go: this.goMarkets, d: "M3 17l6-6 4 4 8-8 M15 7h6v6" },
         { label: "News", go: this.go("news"), d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" }
       ].map(s => ({
         label: s.label, go: s.go,
+        showDot: !!s.dot && insiderAlertHint,
         icon: React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: s.d }))
       })),
       tHome: screen === "dash" ? "var(--tx)" : "var(--tx3)",
@@ -2623,6 +2710,32 @@ class Component extends DCLogic {
       investedTotal: f2(cost),
       isDepot: screen === "depot",
 
+      // ---------- Insider-Trades (SEC Form 4) ----------
+      insiderSheetOpen: !!this.state.insiderSheetSymbol,
+      closeInsiderSheet: this.closeInsiderSheet,
+      insiderSheetSymbolLabel: (() => {
+        const h = holdings.find(x => (x.sym || x.abbr) === this.state.insiderSheetSymbol);
+        return h ? displayName(h) : (this.state.insiderSheetSymbol || "");
+      })(),
+      insiderSheetRows: (this.state.insiderTrades[this.state.insiderSheetSymbol] || [])
+        .slice()
+        .sort((a, b) => b.transaction_date < a.transaction_date ? -1 : 1)
+        .map(t => ({
+          filerName: t.filer_name,
+          filerTitle: t.filer_title || "Insider",
+          isBuy: t.transaction_code === "P",
+          codeLabel: t.transaction_code === "P" ? "Kauf" : "Verkauf",
+          color: t.transaction_code === "P" ? "var(--pos)" : "var(--neg)",
+          bg: t.transaction_code === "P" ? "var(--pos-soft)" : "var(--neg-soft)",
+          dateLabel: new Date(t.transaction_date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
+          detail: f2(Number(t.shares)) + " Stk" + (t.price_per_share != null ? " × " + f2(Number(t.price_per_share)) : ""),
+          value: t.price_per_share != null ? f2(Number(t.shares) * Number(t.price_per_share)) + " USD" : "",
+          filingUrl: t.filing_url
+        })),
+      // Kleiner Punkt auf der Depot-Kachel/Kurzzugriff — nur EIN Signal, kein
+      // Zahlen-Overkill, damit es "nicht zu voll" bleibt.
+      hasNewInsiderAlerts: insiderAlertHint,
+
       // ---------- Zinseszins-Rechner ----------
       compoundSheetOpen: this.state.compoundSheetOpen,
       openCompoundSheet: this.openCompoundSheet,
@@ -2664,7 +2777,7 @@ class Component extends DCLogic {
       hasInsightPreview: insightsList.length > 0,
       noInsightPreview: !insightsList.length,
       aiTeaser: insightsList.length ? insightsList[0].t : "Noch keine Analyse — sobald Positionen im Depot sind",
-      goDepot: this.go("depot"),
+      goDepot: this.goDepotPage,
       goNewsFromBanner: this.go("news"),
       hasTopNews: !!(this.state.liveNews && this.state.liveNews.length),
       newsBannerItems: (this.state.liveNews || []).slice(0, 3).map((n, i) => {
@@ -2740,6 +2853,9 @@ class Component extends DCLogic {
 
         const isOpenPos = this.state.openPosSymbol === sym;
         const spark = buildSparkline(hist[sym]);
+        const symInsider = this.state.insiderTrades[sym] || [];
+        const insiderNew = this.state.insiderAlertsSeenAt
+          ? symInsider.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt)) : symInsider.length > 0;
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           value: f2(v),
@@ -2752,6 +2868,12 @@ class Component extends DCLogic {
           dayLabel: typeof h.dp === "number" ? (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %" : "kein Kurs",
           dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
           marketClosed: !isinLike(sym) && !isMarketOpen(sym),
+          hasInsider: symInsider.length > 0,
+          insiderCount: symInsider.length > 9 ? "9+" : String(symInsider.length),
+          insiderNew,
+          insiderBadgeBg: insiderNew ? "var(--acc-soft)" : "var(--surf2)",
+          insiderBadgeColor: insiderNew ? "var(--acc2)" : "var(--tx3)",
+          openInsider: this.openInsiderSheet(sym),
           isOpen: isOpenPos,
           toggleOpen: this.togglePosOpen(sym),
           chevron: isOpenPos ? "180" : "0",

@@ -117,11 +117,23 @@ export async function getProfile() {
   if (userErr) throw userErr;
   const { data, error } = await supabase
     .from("profiles")
-    .select("plan")
+    .select("plan, insider_alerts_seen_at")
     .eq("user_id", userData.user.id)
     .maybeSingle();
   if (error) throw error;
-  return data || { plan: "free" };
+  return data || { plan: "free", insider_alerts_seen_at: null };
+}
+
+// Markiert alle bisherigen Insider-Trade-Meldungen als gesehen — Basis für den
+// Benachrichtigungs-Badge, der nur neue Meldungen seit dem letzten Besuch zählt.
+export async function markInsiderAlertsSeen() {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const { error } = await supabase
+    .from("profiles")
+    .update({ insider_alerts_seen_at: new Date().toISOString() })
+    .eq("user_id", userData.user.id);
+  if (error) throw error;
 }
 
 export async function callMarket(action, payload) {

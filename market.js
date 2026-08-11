@@ -32,3 +32,10 @@ export async function marketSearch(term) {
 export async function stockDetail(symbol) {
   return callMarket("stockDetail", { symbol });
 }
+
+// SEC-Insider-Trades (Form 4, echte Kauf/Verkauf-Meldungen von Firmeninsidern).
+// Kostenlos ueber SEC EDGAR — liefert fuer nicht bei der SEC meldepflichtige
+// Symbole (z. B. .SW) einfach ein leeres Array statt eines Fehlers.
+export async function insiderTrades(symbols) {
+  return callMarket("insiderTrades", { symbols });
+}
