@@ -117,11 +117,23 @@ export async function getProfile() {
   if (userErr) throw userErr;
   const { data, error } = await supabase
     .from("profiles")
-    .select("plan, insider_alerts_seen_at")
+    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years")
     .eq("user_id", userData.user.id)
     .maybeSingle();
   if (error) throw error;
-  return data || { plan: "free", insider_alerts_seen_at: null };
+  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null };
+}
+
+// Speichert die Eingaben des Zinseszins-Rechners dauerhaft im Profil, damit sie
+// beim naechsten Besuch (auch auf einem anderen Geraet) wieder geladen werden.
+export async function saveCompoundSettings(patch) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const { error } = await supabase
+    .from("profiles")
+    .update(patch)
+    .eq("user_id", userData.user.id);
+  if (error) throw error;
 }
 
 // Markiert alle bisherigen Insider-Trade-Meldungen als gesehen — Basis für den

@@ -1881,7 +1881,16 @@ class Component extends DCLogic {
     try {
       const db = await this.db();
       const profile = await db.getProfile();
-      this.setState({ userPlan: profile.plan === "pro" ? "pro" : "free", insiderAlertsSeenAt: profile.insider_alerts_seen_at });
+      const compoundPatch = {};
+      if (profile.compound_start != null) compoundPatch.compoundStartInput = String(profile.compound_start);
+      if (profile.compound_monthly != null) compoundPatch.compoundMonthlyInput = String(profile.compound_monthly);
+      if (profile.compound_rate != null) compoundPatch.compoundRate = profile.compound_rate;
+      if (profile.compound_years != null) compoundPatch.compoundYears = profile.compound_years;
+      this.setState({
+        userPlan: profile.plan === "pro" ? "pro" : "free",
+        insiderAlertsSeenAt: profile.insider_alerts_seen_at,
+        ...compoundPatch,
+      });
     } catch (e) { /* Standard bleibt "free" */ }
   };
 
@@ -2039,10 +2048,31 @@ class Component extends DCLogic {
   // ---------- Zinseszins-Rechner ----------
   openCompoundSheet = () => this.setState({ compoundSheetOpen: true });
   closeCompoundSheet = () => this.setState({ compoundSheetOpen: false });
-  setCompoundRate = r => () => this.setState({ compoundRate: r });
-  setCompoundYears = y => () => this.setState({ compoundYears: y });
-  onCompoundStart = e => this.setState({ compoundStartInput: e.target.value });
-  onCompoundMonthly = e => this.setState({ compoundMonthlyInput: e.target.value });
+  setCompoundRate = r => () => { this.setState({ compoundRate: r }); this.saveCompoundSettings({ compound_rate: r }); };
+  setCompoundYears = y => () => { this.setState({ compoundYears: y }); this.saveCompoundSettings({ compound_years: y }); };
+  onCompoundStart = e => {
+    const v = e.target.value;
+    this.setState({ compoundStartInput: v });
+    this.saveCompoundSettingsDebounced({ compound_start: v === "" ? null : parseFloat(v) || 0 });
+  };
+  onCompoundMonthly = e => {
+    const v = e.target.value;
+    this.setState({ compoundMonthlyInput: v });
+    this.saveCompoundSettingsDebounced({ compound_monthly: v === "" ? null : parseFloat(v) || 0 });
+  };
+  // Speichert sofort (Klicks auf Rendite/Zeitraum-Buttons); bei Texteingaben
+  // wird stattdessen debounced gespeichert, damit nicht bei jedem Tastendruck
+  // ein Request rausgeht.
+  saveCompoundSettings = async patch => {
+    try {
+      const db = await this.db();
+      await db.saveCompoundSettings(patch);
+    } catch (e) { /* naechstes Mal wieder versuchen */ }
+  };
+  saveCompoundSettingsDebounced = patch => {
+    clearTimeout(this._compoundSaveTimer);
+    this._compoundSaveTimer = setTimeout(() => this.saveCompoundSettings(patch), 700);
+  };
 
   // Nur eine Position gleichzeitig offen — hält die Depot-Liste überschaubar.
   togglePosOpen = sym => () => {
