@@ -25,6 +25,9 @@
 <meta name="theme-color" content="#F5F6F9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0B0F" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <title>Belegio</title>
 <script src="./support.js"></script>
 </head>
@@ -1264,6 +1267,16 @@ input::placeholder{color:var(--tx3)}
               <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
             </button>
           </div>
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div style="flex:1">
+              <div style="color:var(--tx);font-size:14.5px;font-weight:500">Täglicher Depotstand</div>
+              <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">{{ notifHint }}</div>
+            </div>
+            <button onClick="{{ toggleNotifications }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block;flex:none">
+              <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ notifKnobX }}"></span>
+            </button>
+          </div>
           <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
             <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
               <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
@@ -1290,6 +1303,15 @@ input::placeholder{color:var(--tx3)}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:800,&quot;height&quot;:1000}}">
 const f2 = n => (n || 0).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/’|'/g, "’");
+
+// Fuer PushManager.subscribe: der VAPID-Public-Key muss als Uint8Array
+// ankommen, kommt aber base64url-kodiert von der Migration/Edge Function.
+const VAPID_PUBLIC_KEY = "BNR5yRMc-Fplt5GBNh048Dvg5R9yKCWjE6iKf8IQRuCGqQttYEh_a_aUgNLyAuNuQrzyUV_TecnXbOAUE6JdYHU";
+const urlBase64ToUint8Array = base64 => {
+  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+  const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+};
 const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", total: "", currency: "CHF" });
 
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}\d$/;
@@ -1538,7 +1560,9 @@ class Component extends DCLogic {
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     stockDetailSymbol: null, stockDetailData: null, stockDetailLoading: false, stockDetailError: "", stockDetailRange: "M",
 
-    scrubIndex: null
+    scrubIndex: null,
+
+    notifSubscribed: false, notifBusy: false, notifSupported: typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
@@ -1603,6 +1627,45 @@ class Component extends DCLogic {
   closeMenu = () => this.setState({ menuOpen: false });
   goAccountPage = () => { this.closeMenu(); this.go("account")(); };
   goSettingsPage = () => { this.closeMenu(); this.go("settings")(); };
+
+  // ---------- Täglicher Depotstand per Web Push (verschickt serverseitig per
+  // Cron gegen 12 Uhr, siehe supabase/push-daily) ----------
+  checkNotificationSubscription = async () => {
+    if (!this.state.notifSupported) return;
+    try {
+      const reg = await navigator.serviceWorker.register("./sw.js");
+      const sub = await reg.pushManager.getSubscription();
+      this.setState({ notifSubscribed: !!sub });
+    } catch (e) {}
+  };
+
+  toggleNotifications = async () => {
+    if (!this.state.notifSupported || this.state.notifBusy) return;
+    this.setState({ notifBusy: true });
+    try {
+      const reg = await navigator.serviceWorker.register("./sw.js");
+      const existing = await reg.pushManager.getSubscription();
+      const db = await this.db();
+      if (existing) {
+        await existing.unsubscribe();
+        await db.deletePushSubscription(existing.endpoint);
+        this.setState({ notifSubscribed: false });
+      } else {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          });
+          await db.savePushSubscription(sub);
+          this.setState({ notifSubscribed: true });
+        }
+      }
+    } catch (e) {
+      // Berechtigung verweigert/abgebrochen o.ä. — kein Fehler-Toast nötig.
+    }
+    this.setState({ notifBusy: false });
+  };
   stopPropagation = e => e.stopPropagation();
 
   // Pro-Nutzer sollen die Kauf-Seite nicht mehr sehen — stattdessen kurzer Hinweis.
@@ -1648,6 +1711,7 @@ class Component extends DCLogic {
       this.loadMarkets();
       this.loadInsiderTrades(holdings);
       this.startAutoSync();
+      this.checkNotificationSubscription();
     }
     this.setState({ dashLoading: false });
   }
@@ -2568,6 +2632,16 @@ class Component extends DCLogic {
       themeLabel: theme === "dark" ? "Dark Mode" : "Light Mode",
       knobX: theme === "dark" ? "23px" : "3px",
       toggleTheme: () => this.set("theme", theme === "dark" ? "light" : "dark"),
+
+      toggleNotifications: this.toggleNotifications,
+      notifKnobX: this.state.notifSubscribed ? "23px" : "3px",
+      notifHint: !this.state.notifSupported
+        ? "Nicht unterstützt in diesem Browser"
+        : this.state.notifBusy
+        ? "…"
+        : this.state.notifSubscribed
+        ? "Ein · einmal täglich gegen 12 Uhr"
+        : "Aus · Depotwert einmal täglich als Push",
 
       logout: this.logoutUser,
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,

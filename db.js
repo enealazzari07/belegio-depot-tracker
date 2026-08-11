@@ -148,6 +148,33 @@ export async function markInsiderAlertsSeen() {
   if (error) throw error;
 }
 
+// Ein Geraet kann sich mehrfach fuer den taeglichen Depotstand-Push anmelden
+// (Handy + Desktop); "endpoint" ist pro Push-Subscription eindeutig, daher
+// upsert statt insert, falls die Subscription bereits existiert.
+export async function savePushSubscription(sub) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const json = sub.toJSON();
+  const { error } = await supabase.from("push_subscriptions").upsert({
+    user_id: userData.user.id,
+    endpoint: json.endpoint,
+    p256dh: json.keys.p256dh,
+    auth: json.keys.auth,
+  }, { onConflict: "endpoint" });
+  if (error) throw error;
+}
+
+export async function deletePushSubscription(endpoint) {
+  const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint);
+  if (error) throw error;
+}
+
+export async function hasPushSubscription(endpoint) {
+  const { data, error } = await supabase.from("push_subscriptions").select("id").eq("endpoint", endpoint).maybeSingle();
+  if (error) throw error;
+  return !!data;
+}
+
 export async function callMarket(action, payload) {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;

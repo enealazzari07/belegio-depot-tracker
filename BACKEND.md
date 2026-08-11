@@ -43,6 +43,20 @@ create table quote_cache (
   provider text,                                -- welcher Anbieter den Kurs geliefert hat
   fetched_at timestamptz not null default now()
 );
+
+create table push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,                -- Push-Endpoint des Browsers, pro Geraet eindeutig
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+create table app_secrets (
+  key text primary key,                         -- vapid_public / vapid_private / cron_secret
+  value text not null                            -- RLS ohne Policies: nur service_role liest das
+);
 ```
 
 Storage-Bucket `receipts` (privat): Policies erlauben nur Zugriff auf den
@@ -55,6 +69,7 @@ eigenen Ordner (`{user_id}/...`).
 | `register` | Legt Nutzer per Service-Role direkt bestätigt an (`email_confirm: true`) — keine E-Mail-Verifizierung nötig | offen (kein Login vorhanden) |
 | `market` | Proxy für Kurse/News/Suche/Historie | JWT erforderlich |
 | `ocr` | Proxy für API-Ninjas Image-to-Text | JWT erforderlich |
+| `push-daily` | Verschickt den täglichen Depotstand per Web Push | `x-cron-secret`-Header (kein User-JWT, `verify_jwt` deaktiviert) |
 
 ## Marktdaten-Anbieter (`market`-Function)
 
@@ -139,3 +154,21 @@ Action `history`: Yahoo Finance zuerst, bei Schweizer Titeln dann EODHD, dann
 Alpha-Vantage `TIME_SERIES_DAILY`, dann Twelve Data) je Symbol; fehlt Historie
 für ein Symbol, wird mit dem Einstandspreis approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird
 immer auf das erste Kaufdatum geclamped — kein Verlauf vor dem ersten Kauf.
+
+## Tägliche Benachrichtigung (Web Push)
+
+Einstellungen → Umschalter „Täglicher Depotstand" registriert `sw.js` als
+Service Worker und abonniert `PushManager` mit dem VAPID-Public-Key
+(`VAPID_PUBLIC_KEY` in `index.html`); die Subscription landet über
+`db.savePushSubscription` in `push_subscriptions`. Ein `pg_cron`-Job
+(`daily-push-portfolio`, `0 11 * * *` UTC — ca. 12 Uhr MEZ / 13 Uhr MESZ, je
+nach Sommer-/Winterzeit im Bereich Mittag/früher Nachmittag) ruft per
+`pg_net` einmal täglich die Edge Function `push-daily` auf. Die Function
+liest das Cron-Secret sowie die VAPID-Keys aus `app_secrets` (per
+service_role, RLS ohne Policies sperrt anon/authenticated komplett aus),
+rechnet pro abonniertem User den aktuellen Depotwert aus (gleiche Formel wie
+oben: `investiert` / `wert` mit Fallback auf den Einstandspreis, keine
+Währungsumrechnung) und verschickt die Push-Notification über `web-push`.
+410/404-Antworten (Subscription vom Browser verworfen) löschen die
+zugehörige Zeile aus `push_subscriptions` gleich mit. `sw.js` zeigt die
+Notification an und öffnet beim Antippen die App.
