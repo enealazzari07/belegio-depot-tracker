@@ -88,7 +88,7 @@
    Screen (siehe statusbarBg), die exakt die Farbe direkt darunter trifft:
    dunkel auf dem Splash, Marken-Blau auf dem Dashboard, sonst --bg. Kein
    Weichzeichner mehr noetig, da es kein echtes Durchscheinen mehr gibt. */
-.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;transition:background-color .25s ease;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none}
 *{box-sizing:border-box}
 /* Neutral statt fest gefärbt — sonst blitzt vor dem ersten Render oder in
    leeren Randbereichen eine falsche Fläche durch, obwohl die App selbst dort
@@ -2644,16 +2644,12 @@ class Component extends DCLogic {
         : "Aus · Depotwert einmal täglich als Push",
 
       logout: this.logoutUser,
-      // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
-      // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
-      // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
-      // Volle Deckfarbe wie bei allen anderen Screens (var(--bg)) — die
-      // sehen auf black-translucent einwandfrei aus, weil da nichts
-      // durchscheint. Home hatte zwischenzeitlich eine halbtransparente
-      // Fuellung fuers Scroll-Verhalten, aber genau die Transparenz liess
-      // den Verlauf durchschimmern und erzeugte zusammen mit dem
-      // Weichzeichner den zusaetzlichen Schleier. Zurueck auf volldeckend.
-      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
+      // Test: .statusbar faerbt nichts mehr ein (siehe CSS-Regel oben, kein
+      // background, kein Blur mehr) — komplett durchsichtig, zeigt exakt den
+      // echten Inhalt dahinter. Wenn das nach frischem "Zum Home-Bildschirm
+      // hinzufuegen" immer noch weiss/falsch aussieht, lag es nie an unserer
+      // Farbwahl.
+      statusbarBg: "transparent",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
