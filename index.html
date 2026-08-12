@@ -5,18 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- WICHTIG — bitte nicht mehr aendern ohne die untere Tab-Leiste separat
-     gegenzutesten. "black-translucent" macht die obere Leiste an echten
-     Geraeten sichtbar besser (passt sich dem Inhalt an statt fest grau),
-     bricht dabei aber dreimal unabhaengig reproduziert die Position der
-     unteren Tab-Leiste — sowohl mit env(safe-area-inset-bottom) als auch mit
-     einem komplett fest verdrahteten Pixelwert (34px) statt der env()-
-     Variable. Da selbst der harte Pixelwert nicht half, liegt es nicht am
-     berechneten Sicherheitsabstand selbst, sondern vermutlich an einer
-     unterschiedlichen Gesamt-Viewporthoehe (100dvh) zwischen den beiden
-     Statusleisten-Modi. Untere Leiste hat Prioritaet -> "default" bleibt,
-     bis es dafuer eine echte Loesung gibt. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- black-translucent bestaetigt auf echtem Geraet (iOS 27 beta) funktionsfaehig,
+     inkl. untere Tab-Leiste (siehe .statusbar-Kommentar im CSS fuer die
+     100dvh->100vh-Anpassung, die das diesmal geloest hat — zwei fruehere
+     Versuche waren daran gescheitert). Der weiche Verlauf am oberen Rand ist
+     iOS' eigenes Statusleisten-Material (black-translucent), nicht per CSS
+     entfernbar — bewusst so akzeptiert, statusbarBg unten sorgt nur noch
+     dafuer, dass die Farbe direkt darunter stimmt. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
      (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
      und an das OS-Farbschema gekoppelt statt an unseren In-App-Theme-Toggle —
@@ -84,11 +80,15 @@
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
 }
 /* iOS-Statusleiste (installierte App): mit apple-mobile-web-app-status-bar-
-   style=black-translucent reicht der Inhalt bis unter die Uhr. Kein eigener
-   Grauton/Tönung hier — nur ein Weichzeichner auf dem, was gerade dahinter
-   scrollt (blau oben auf der Startseite, weiss/schwarz sobald die Fläche
-   hochgescrollt ist), ohne dessen Farbe zu verändern. */
-.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+   style=black-translucent reicht der Inhalt bis unter die Uhr, der Bereich
+   ist also fuer echte Transparenz gedacht. iOS 26.1+ legt aber, abhaengig
+   von der Liquid-Glass/"Transparenz reduzieren"-Einstellung des Nutzers,
+   eine abdunkelnde Toenung über alles Transluzente — nicht beeinflussbar.
+   Deshalb hier bewusst KEINE echte Transparenz, sondern eine feste Farbe pro
+   Screen (siehe statusbarBg), die exakt die Farbe direkt darunter trifft:
+   dunkel auf dem Splash, Marken-Blau auf dem Dashboard, sonst --bg. Kein
+   Weichzeichner mehr noetig, da es kein echtes Durchscheinen mehr gibt. */
+.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;transition:background-color .25s ease}
 *{box-sizing:border-box}
 /* Neutral statt fest gefärbt — sonst blitzt vor dem ersten Render oder in
    leeren Randbereichen eine falsche Fläche durch, obwohl die App selbst dort
@@ -125,11 +125,11 @@ input::placeholder{color:var(--tx3)}
 </style>
 </helmet>
 
-<div data-theme="{{ theme }}" style="width:100%;min-height:100dvh;background:var(--stage);display:flex;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
+<div data-theme="{{ theme }}" style="width:100%;min-height:100vh;background:var(--stage);display:flex;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
 
-  <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
+  <div style="width:100%;max-width:480px;height:100vh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
-    <div class="statusbar"></div>
+    <div class="statusbar" style="background:{{ statusbarBg }}"></div>
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
       <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
@@ -2644,6 +2644,10 @@ class Component extends DCLogic {
         : "Aus · Depotwert einmal täglich als Push",
 
       logout: this.logoutUser,
+      // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
+      // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
+      // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
+      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
