@@ -2652,7 +2652,7 @@ class Component extends DCLogic {
       // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
       // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
       // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
-      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
+      statusbarBg: this.state.splash || screen === "login" ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
