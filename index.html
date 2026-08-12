@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- WICHTIG — bitte nicht mehr aendern ohne die untere Tab-Leiste separat
-     gegenzutesten. "black-translucent" macht die obere Leiste an echten
-     Geraeten sichtbar besser (passt sich dem Inhalt an statt fest grau),
-     bricht dabei aber dreimal unabhaengig reproduziert die Position der
-     unteren Tab-Leiste — sowohl mit env(safe-area-inset-bottom) als auch mit
-     einem komplett fest verdrahteten Pixelwert (34px) statt der env()-
-     Variable. Da selbst der harte Pixelwert nicht half, liegt es nicht am
-     berechneten Sicherheitsabstand selbst, sondern vermutlich an einer
-     unterschiedlichen Gesamt-Viewporthoehe (100dvh) zwischen den beiden
-     Statusleisten-Modi. Untere Leiste hat Prioritaet -> "default" bleibt,
-     bis es dafuer eine echte Loesung gibt. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- EXPERIMENT (Branch claude/ios-transparent-status-bar, main bleibt bei
+     "default" auf Commit 499f3fc) — schon zweimal an der unteren Tab-Leiste
+     gescheitert (env(safe-area-inset-bottom) und ein hart verdrahteter
+     Pixelwert brachten beide dasselbe Ergebnis). Verdacht laut Recherche:
+     iOS berichtet 100dvh im Standalone-Modus beim Kaltstart teils falsch
+     (korrigiert sich erst nach einer Rotation) — dieses Mal zusaetzlich
+     100dvh -> 100vh unten in den zwei Wrapper-Divs getauscht, das soll im
+     Standalone-Modus (kein Adressleisten-Ein-/Ausblenden wie im normalen
+     Safari-Tab) zuverlaessiger sein. Falls die Tab-Leiste nach echtem
+     Geraetetest (nicht nur beim ersten Oeffnen, auch nach Hintergrund/
+     Wiederoeffnen) wieder springt: einfach nicht mergen, main ist
+     unveraendert. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
      (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
      und an das OS-Farbschema gekoppelt statt an unseren In-App-Theme-Toggle —
@@ -125,9 +126,9 @@ input::placeholder{color:var(--tx3)}
 </style>
 </helmet>
 
-<div data-theme="{{ theme }}" style="width:100%;min-height:100dvh;background:var(--stage);display:flex;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
+<div data-theme="{{ theme }}" style="width:100%;min-height:100vh;background:var(--stage);display:flex;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
 
-  <div style="width:100%;max-width:480px;height:100dvh;background:var(--bg);overflow:hidden;position:relative;flex:none">
+  <div style="width:100%;max-width:480px;height:100vh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
     <div class="statusbar"></div>
 
