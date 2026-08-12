@@ -55,6 +55,12 @@
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
   --brand:linear-gradient(180deg,#2C63DC 0%,#2A5FD4 45%,#2150BE 100%);
   --brand-flat:#2C63DC;
+  /* Etwas heller als --brand-flat, nur fuer den Statusleisten-Streifen auf dem
+     Dashboard: gleicht die zusaetzliche Abdunkelung aus, die iOS bei
+     black-translucent je nach Liquid-Glass/"Transparenz reduzieren"-Zustand
+     des Geraets ueber alles darueberlegt (nicht per CSS kontrollierbar) —
+     Erstversuch, ggf. nach Geraetetest nachjustieren. */
+  --brand-statusbar:#5682E3;
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.74); --onBrand3:rgba(255,255,255,.54);
   --onBrand-line:rgba(255,255,255,.20); --onBrand-soft:rgba(255,255,255,.15);
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
@@ -76,6 +82,7 @@
   --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
   --brand:linear-gradient(180deg,#1F4CB4 0%,#1B44A2 45%,#173C94 100%);
   --brand-flat:#1F4CB4;
+  --brand-statusbar:#4C70C3;
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
@@ -2652,7 +2659,7 @@ class Component extends DCLogic {
       // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
       // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
       // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
-      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
+      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-statusbar)" : "var(--bg)",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
