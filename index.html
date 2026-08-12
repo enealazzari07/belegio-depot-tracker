@@ -2647,20 +2647,13 @@ class Component extends DCLogic {
       // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
       // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
       // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
-      // Home ist die einzige Seite, bei der die Farbe direkt unter der
-      // Statusleiste sich beim Scrollen aendert (blauer Header -> weisse
-      // Positionen-Karte) — eine feste Deckfarbe saehe dann beim Scrollen
-      // falsch aus. Deshalb hier eigene, halbtransparente + geblurrte
-      // Fuellung (reines CSS auf unserem .statusbar-Div, nicht das native
-      // iOS-Material) statt einer festen Farbe: passt sich beim Scrollen an
-      // das an, was gerade darunter liegt, unabhaengig vom Liquid-Glass-
-      // Zustand des Geraets. Andere Screens aendern ihre Farbe beim Scrollen
-      // nicht, da bleibt die feste Deckfarbe.
-      statusbarBg: this.state.splash
-        ? "var(--tx)"
-        : screen === "dash"
-        ? (theme === "dark" ? "rgba(31,76,180,.85)" : "rgba(44,99,220,.85)")
-        : "var(--bg)",
+      // Volle Deckfarbe wie bei allen anderen Screens (var(--bg)) — die
+      // sehen auf black-translucent einwandfrei aus, weil da nichts
+      // durchscheint. Home hatte zwischenzeitlich eine halbtransparente
+      // Fuellung fuers Scroll-Verhalten, aber genau die Transparenz liess
+      // den Verlauf durchschimmern und erzeugte zusammen mit dem
+      // Weichzeichner den zusaetzlichen Schleier. Zurueck auf volldeckend.
+      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
