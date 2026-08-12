@@ -5,18 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- EXPERIMENT (Branch claude/ios-transparent-status-bar, main bleibt bei
-     "default" auf Commit 499f3fc) — schon zweimal an der unteren Tab-Leiste
-     gescheitert (env(safe-area-inset-bottom) und ein hart verdrahteter
-     Pixelwert brachten beide dasselbe Ergebnis). Verdacht laut Recherche:
-     iOS berichtet 100dvh im Standalone-Modus beim Kaltstart teils falsch
-     (korrigiert sich erst nach einer Rotation) — dieses Mal zusaetzlich
-     100dvh -> 100vh unten in den zwei Wrapper-Divs getauscht, das soll im
-     Standalone-Modus (kein Adressleisten-Ein-/Ausblenden wie im normalen
-     Safari-Tab) zuverlaessiger sein. Falls die Tab-Leiste nach echtem
-     Geraetetest (nicht nur beim ersten Oeffnen, auch nach Hintergrund/
-     Wiederoeffnen) wieder springt: einfach nicht mergen, main ist
-     unveraendert. -->
+<!-- black-translucent bestaetigt auf echtem Geraet (iOS 27 beta) funktionsfaehig,
+     inkl. untere Tab-Leiste (siehe .statusbar-Kommentar im CSS fuer die
+     100dvh->100vh-Anpassung, die das diesmal geloest hat — zwei fruehere
+     Versuche waren daran gescheitert). Der weiche Verlauf am oberen Rand ist
+     iOS' eigenes Statusleisten-Material (black-translucent), nicht per CSS
+     entfernbar — bewusst so akzeptiert, statusbarBg unten sorgt nur noch
+     dafuer, dass die Farbe direkt darunter stimmt. -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
      (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
@@ -2652,7 +2647,7 @@ class Component extends DCLogic {
       // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
       // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
       // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
-      statusbarBg: this.state.splash || screen === "login" ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
+      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
