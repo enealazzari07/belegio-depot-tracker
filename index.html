@@ -45,15 +45,23 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Blauer Kopfbereich — nur der Hero-Block, alles darunter bleibt neutral. */
+  /* Hellblaugrauer Kopfbereich — nur der Hero-Block, alles darunter bleibt neutral. */
   /* Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:linear-gradient(180deg,#2C63DC 0%,#2A5FD4 45%,#2150BE 100%);
-  --brand-flat:#2C63DC;
-  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.74); --onBrand3:rgba(255,255,255,.54);
-  --onBrand-line:rgba(255,255,255,.20); --onBrand-soft:rgba(255,255,255,.15);
-  --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
-  --brand-shadow:0 12px 26px -14px rgba(33,80,190,.55), 0 26px 54px -30px rgba(33,80,190,.45);
+  --brand:linear-gradient(180deg,#CFD9E6 0%,#C6D1E0 45%,#B9C6D8 100%);
+  --brand-flat:#CFD9E6;
+  /* Die Flaeche ist jetzt hell, also muss die Schrift darauf dunkel sein —
+     vorher war der Kopfbereich kraeftig blau und alles hier drauf weiss.
+     onBrand* wird ausschliesslich im Home-Hero verwendet. */
+  /* Alphas/Farben sind gegen das dunkelste Ende des Verlaufs (#B9C6D8) auf
+     mindestens 4.5:1 gerechnet — die Werte hier tragen 10–11.5px Schrift. */
+  --onBrand:#10131A; --onBrand2:rgba(16,19,26,.72); --onBrand3:rgba(16,19,26,.66);
+  --onBrand-line:rgba(16,19,26,.16); --onBrand-soft:rgba(16,19,26,.08);
+  --onBrand-dash:rgba(16,19,26,.42);
+  /* Auf hellem Grund brauchen Gewinn/Verlust deutlich dunklere Varianten —
+     das helle Mint/Lachs von vorher war fuer die dunkelblaue Flaeche gedacht. */
+  --brandPos:#0C5744; --brandNeg:#8A2D24;
+  --brand-shadow:0 12px 26px -14px rgba(88,102,124,.45), 0 26px 54px -30px rgba(88,102,124,.38);
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
   --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
@@ -69,10 +77,14 @@
   --pos-soft:rgba(79,191,159,.13); --neg-soft:rgba(224,124,113,.13);
   --warn:#E0B252; --warn-soft:rgba(224,178,82,.14);
   --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
-  --brand:linear-gradient(180deg,#1F4CB4 0%,#1B44A2 45%,#173C94 100%);
-  --brand-flat:#1F4CB4;
+  /* Im Dark Mode bleibt der Kopfbereich dunkel, folgt aber derselben
+     entsaettigten Blaugrau-Richtung wie im Light Mode statt kraeftigem Blau.
+     Eine helle Flaeche waere hier ein Fremdkoerper. */
+  --brand:linear-gradient(180deg,#2A3340 0%,#262E3A 45%,#1F2733 100%);
+  --brand-flat:#2A3340;
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
+  --onBrand-dash:rgba(255,255,255,.45);
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
   --brand-shadow:0 12px 28px -16px rgba(0,0,0,.7), 0 28px 56px -32px rgba(0,0,0,.8);
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
@@ -198,14 +210,14 @@ input::placeholder{color:var(--tx3)}
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative">
               <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:118px;display:block;overflow:visible">
-                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></linearGradient></defs>
-                <path d="{{ chartInvestedPath }}" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round"></path>
+                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--onBrand)" stop-opacity=".22"></stop><stop offset="1" style="stop-color:var(--onBrand)" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="{{ chartInvestedPath }}" fill="none" stroke="var(--onBrand-dash)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round"></path>
                 <path d="{{ chartValueFillPath }}" fill="url(#vfill)"></path>
-                <path d="{{ chartValuePath }}" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
-                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4.2" fill="#FFFFFF"></circle>
+                <path d="{{ chartValuePath }}" fill="none" stroke="var(--onBrand)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4.2" fill="var(--onBrand)"></circle>
                 <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
-                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="rgba(255,255,255,.55)" stroke-width="1.3" stroke-dasharray="3 3"></line>
-                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5.5" fill="#FFFFFF" stroke="var(--brand-flat)" stroke-width="2.5"></circle>
+                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="var(--onBrand3)" stroke-width="1.3" stroke-dasharray="3 3"></line>
+                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5.5" fill="var(--brand-flat)" stroke="var(--onBrand)" stroke-width="2.5"></circle>
                 </sc-if>
               </svg>
               <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:-8px 0;touch-action:none;cursor:pointer"></div>
@@ -221,11 +233,11 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
             <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--onBrand-line)">
               <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:14px;height:2.5px;border-radius:2px;background:#FFFFFF;display:block"></span>
+                <span style="width:14px;height:2.5px;border-radius:2px;background:var(--onBrand);display:block"></span>
                 <span style="color:var(--onBrand2);font-size:11.5px;font-weight:500">Aktueller Wert</span>
               </div>
               <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:14px;height:0;border-top:2.5px dashed rgba(255,255,255,.45);display:block"></span>
+                <span style="width:14px;height:0;border-top:2.5px dashed var(--onBrand-dash);display:block"></span>
                 <span style="color:var(--onBrand2);font-size:11.5px;font-weight:500">Investiert</span>
               </div>
             </div>
@@ -2790,10 +2802,12 @@ class Component extends DCLogic {
       confirmCta: "Ins Depot buchen",
 
       dashLoading: this.state.dashLoading, dashReady: !this.state.dashLoading,
-      // Zeitraum-Umschalter sitzt auf dem blauen Kopfbereich.
+      // Zeitraum-Umschalter sitzt auf dem Kopfbereich. Die aktive Pille ist
+      // bewusst invertiert (Tinte als Flaeche, Flaechenfarbe als Schrift) —
+      // so bleibt sie in beiden Themes lesbar, ohne feste Farbwerte.
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
-        bg: this.state.chartRange === key ? "#FFFFFF" : "transparent",
+        bg: this.state.chartRange === key ? "var(--onBrand)" : "transparent",
         tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
       })),
       connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
