@@ -10,12 +10,17 @@
      und wird deshalb bewusst nicht verwendet. -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
-     (im Browser-Tab, nicht der installierten App) darueber. Bewusst statisch
-     und an das OS-Farbschema gekoppelt statt an unseren In-App-Theme-Toggle —
-     ein dynamisches Update via JS liess sich in Mobile Safari nicht
-     zuverlaessig beobachten. -->
-<meta name="theme-color" content="#F5F6F9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0A0B0F" media="(prefers-color-scheme: dark)">
+     darueber. Bewusst statisch und an das OS-Farbschema gekoppelt statt an
+     unseren In-App-Theme-Toggle — ein dynamisches Update via JS liess sich in
+     Mobile Safari nicht zuverlaessig beobachten.
+     WICHTIG: nur (display-mode: browser). In der installierten App malt iOS
+     aus theme-color eine eigene Flaeche hinter Uhr und Kamera und ueberstimmt
+     damit black-translucent — genau das war der weisse Schleier (#F5F6F9).
+     Ohne theme-color im Standalone-Modus greift black-translucent und der
+     Seiteninhalt liegt wirklich transparent unter der Statusleiste.
+     Aus dem gleichen Grund fuehrt manifest.json kein theme_color mehr. -->
+<meta name="theme-color" content="#F5F6F9" media="(display-mode: browser) and (prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B0F" media="(display-mode: browser) and (prefers-color-scheme: dark)">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png">
