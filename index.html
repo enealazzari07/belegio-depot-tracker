@@ -5,22 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- black-translucent zeichnet den Seiteninhalt hinter Uhr und Kamera.
-     Ein CSS-Layer in diesem Bereich wuerde einen zusaetzlichen Balken erzeugen
-     und wird deshalb bewusst nicht verwendet. -->
+<!-- Nur noch fuer aeltere iOS-Versionen. Ab iOS 26 ist black-translucent
+     deprecated (Safari warnt, dass es entfernt wird) und iOS zeichnet hinter
+     Uhr und Dynamic Island seine eigene Flaeche, die sich per CSS nicht
+     wegnehmen laesst — daher der weisse Schleier. Statt dagegen anzukaempfen
+     faerben wir die Flaeche exakt wie den Inhalt darunter, siehe
+     syncStatusBar() im JS. -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- Neutral und nie blau: Safari faerbt seine eigene Adress-/Werkzeugleiste
-     darueber. Bewusst statisch und an das OS-Farbschema gekoppelt statt an
-     unseren In-App-Theme-Toggle — ein dynamisches Update via JS liess sich in
-     Mobile Safari nicht zuverlaessig beobachten.
-     WICHTIG: nur (display-mode: browser). In der installierten App malt iOS
-     aus theme-color eine eigene Flaeche hinter Uhr und Kamera und ueberstimmt
-     damit black-translucent — genau das war der weisse Schleier (#F5F6F9).
-     Ohne theme-color im Standalone-Modus greift black-translucent und der
-     Seiteninhalt liegt wirklich transparent unter der Statusleiste.
-     Aus dem gleichen Grund fuehrt manifest.json kein theme_color mehr. -->
-<meta name="theme-color" content="#F5F6F9" media="(display-mode: browser) and (prefers-color-scheme: light)">
-<meta name="theme-color" content="#0A0B0F" media="(display-mode: browser) and (prefers-color-scheme: dark)">
+<!-- Wird ab dem ersten Render von syncStatusBar() uebernommen und pro Screen
+     gesetzt (Home blau, sonst Hintergrundfarbe, Splash dunkel). Der Wert hier
+     ist nur der Startwert fuers allererste Bild, bevor JS laeuft — deshalb die
+     helle Grundfarbe. Bewusst ohne media-Attribut: der Theme-Toggle der App
+     entscheidet, nicht das OS-Schema.
+     manifest.json fuehrt absichtlich kein theme_color, sonst wuerde der
+     statische Wert von dort den dynamischen hier ueberstimmen. -->
+<meta name="theme-color" content="#F5F6F9">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png">
@@ -2243,8 +2242,39 @@ class Component extends DCLogic {
     }
   };
 
+  // ---------- iOS-Statusleiste ----------
+  // Ab iOS 26 laesst sich die Flaeche hinter Uhr und Dynamic Island nicht mehr
+  // transparent schalten (black-translucent ist deprecated, iOS zeichnet dort
+  // sein eigenes Material). Frueher wurde das mit einem .statusbar-Div plus
+  // backdrop-filter bekaempft — das ergab nur einen zweiten Balken obendrauf.
+  // Stattdessen faerben wir jetzt die iOS-Flaeche selbst ueber theme-color,
+  // und zwar exakt in der Farbe, die direkt darunter liegt: Home ist blau,
+  // der Splash dunkel, alles andere normale Hintergrundfarbe. Dadurch faellt
+  // der Balken optisch nicht mehr auf.
+  //
+  // Die Farbe wird bewusst aus den CSS-Variablen gelesen statt hier als Hex
+  // dupliziert — so folgt sie automatisch dem Theme-Toggle und kann nie von
+  // der Flaeche darunter abweichen. theme-color akzeptiert kein var(), daher
+  // der Umweg ueber getComputedStyle.
+  syncStatusBar(screen) {
+    const root = document.querySelector("[data-theme]");
+    if (!root) return;
+    const token = this.state.splash ? "--tx" : screen === "dash" ? "--brand-flat" : "--bg";
+    const color = getComputedStyle(root).getPropertyValue(token).trim();
+    if (!color || color === this._statusBarColor) return;
+    this._statusBarColor = color;
+    // Node ersetzen statt nur .content setzen: iOS uebernimmt eine reine
+    // Wertaenderung im installierten Web-App-Modus nicht zuverlaessig.
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    meta.setAttribute("content", color);
+    document.head.appendChild(meta);
+  }
+
   renderVals() {
     const { theme, screen, plan, quotes: qs, conn, user } = this.state;
+    this.syncStatusBar(screen);
     const holdings = this.state.holdings.map(h => {
       const q = qs[h.sym || h.abbr];
       return q ? { ...h, cur: q.c, dp: q.dp, live: true } : h;
