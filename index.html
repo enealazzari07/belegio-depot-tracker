@@ -91,6 +91,15 @@
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
   --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
+  /* Login-Screen: eigene, theme-feste Blau-Palette (bewusst kein Gruen) mit
+     feinem Linien-Streifen ueber einem vertikalen Verlauf, siehe Referenzbild.
+     Folgt demselben Muster wie --brand: fixe Werte pro Theme statt var(--surf). */
+  --login-bg:repeating-linear-gradient(90deg, rgba(255,255,255,.5) 0 1px, transparent 1px 11px),
+    linear-gradient(165deg, #EEF8F6 0%, #D9EDF3 26%, #AFD3EC 55%, #5E8FD6 80%, #3E6FC2 100%);
+  --login-cta:linear-gradient(90deg, #0F1D33 0%, #2E6BE6 100%);
+  --login-flat:#EEF8F6;
+  --onLogin:#0F1D33; --onLogin2:rgba(15,29,51,.7); --onLogin3:rgba(15,29,51,.5);
+  --onLogin-line:rgba(15,29,51,.24); --onLogin-glass:rgba(255,255,255,.5);
 }
 [data-theme="dark"]{
   --stage:#07080B; --stage2:#0F1116;
@@ -116,6 +125,13 @@
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
+  /* Dunklere Fortsetzung derselben Blau-Richtung, kein Umschlag auf neutrales Grau/Schwarz. */
+  --login-bg:repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 11px),
+    linear-gradient(165deg, #0E1520 0%, #121E30 30%, #17294A 60%, #1C3868 85%, #1F4B8C 100%);
+  --login-cta:linear-gradient(90deg, #13203A 0%, #4C8DFF 100%);
+  --login-flat:#0E1520;
+  --onLogin:#F3F7FF; --onLogin2:rgba(243,247,255,.72); --onLogin3:rgba(243,247,255,.52);
+  --onLogin-line:rgba(255,255,255,.24); --onLogin-glass:rgba(255,255,255,.08);
 }
 /* Der aktive Seitenhintergrund liegt direkt hinter der iOS-Statusleiste. */
 *{box-sizing:border-box}
@@ -130,7 +146,7 @@ input{font-family:inherit}
 input::placeholder{color:var(--tx3)}
 ::-webkit-scrollbar{width:0;height:0}
 /* ---- Design-Grundbausteine ---- */
-.card{background:var(--surf);border:1px solid var(--line);border-radius:20px;box-shadow:var(--card-shadow)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:28px;box-shadow:var(--card-shadow)}
 .mono{font-family:'IBM Plex Mono',monospace}
 .lbl{color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
 .seg{display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--surf2);border:1px solid var(--line)}
@@ -173,32 +189,33 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
-      <div style="position:absolute;inset:0;padding:132px 32px 44px;display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
-        <div style="width:52px;height:52px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;margin-bottom:36px">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accTx)" stroke-width="2.2" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--login-bg);padding:calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px) + 72px) 32px calc(env(safe-area-inset-bottom, 0px) + 44px);display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
+        <div style="width:52px;height:52px;border-radius:16px;background:var(--onLogin-glass);border:1px solid var(--onLogin-line);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;margin-bottom:36px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--onLogin)" stroke-width="2.2" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
         </div>
-        <h1 style="margin:0 0 10px;color:var(--tx);font-size:31px;font-weight:700;letter-spacing:-.03em;line-height:1.15">{{ authTitle }}</h1>
-        <p style="margin:0 0 36px;color:var(--tx2);font-size:14.5px;line-height:1.5">Dein Depot, ohne Tabellen.</p>
+        <h1 style="margin:0 0 10px;color:var(--onLogin);font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.18;white-space:pre-line">{{ authTitle }}</h1>
+        <p style="margin:0 0 36px;color:var(--onLogin2);font-size:14.5px;line-height:1.5">Dein Depot, ohne Tabellen.</p>
 
         <div style="display:flex;flex-direction:column;gap:12px">
           <div style="display:flex;flex-direction:column;gap:7px">
-            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">E-MAIL</label>
-            <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="du@example.com" style="width:100%;height:52px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="border-color:var(--acc)">
+            <label style="color:var(--onLogin3);font-size:11px;font-weight:600;letter-spacing:.1em">E-MAIL</label>
+            <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="du@example.com" style="width:100%;height:52px;border-radius:16px;background:var(--onLogin-glass);backdrop-filter:blur(6px);border:1px solid var(--onLogin-line);color:var(--onLogin);font-size:15px;padding:0 16px;outline:none" style-focus="border-color:var(--onLogin)">
           </div>
           <div style="display:flex;flex-direction:column;gap:7px">
-            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
-            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="border-color:var(--acc)">
+            <label style="color:var(--onLogin3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
+            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:16px;background:var(--onLogin-glass);backdrop-filter:blur(6px);border:1px solid var(--onLogin-line);color:var(--onLogin);font-size:15px;padding:0 16px;outline:none" style-focus="border-color:var(--onLogin)">
           </div>
         </div>
 
         <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:12px 0 0;color:var(--neg);font-size:12.5px;line-height:1.5">{{ authError }}</p>
+          <p style="margin:12px 0 0;padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.85);color:#B23B30;font-size:12.5px;line-height:1.5">{{ authError }}</p>
         </sc-if>
 
-        <button onClick="{{ submitAuth }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;width:100%;height:54px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ authCta }}</button>
+        <button onClick="{{ submitAuth }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;width:100%;height:56px;border-radius:999px;background:var(--login-cta);box-shadow:0 14px 28px -14px rgba(15,29,51,.5);color:#FFFFFF;font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.92">{{ authCta }}</button>
 
-        <div style="flex:1"></div>
-        <p style="margin:0;text-align:center;color:var(--tx3);font-size:12px">{{ authSwitchLabel }} <a href="#1a" onClick="{{ toggleAuthMode }}" style="color:var(--acc);font-weight:600">{{ authSwitchCta }}</a></p>
+        <div style="flex:1;min-height:24px"></div>
+        <p style="margin:0 0 10px;text-align:center;color:var(--onLogin3);font-size:12px">{{ authSwitchLabel }}</p>
+        <button onClick="{{ toggleAuthMode }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:56px;border-radius:999px;background:transparent;border:1.5px solid var(--onLogin-line);color:var(--onLogin);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="background:var(--onLogin-glass)">{{ authSwitchCta }}</button>
       </div>
     </sc-if>
 
@@ -282,7 +299,7 @@ input::placeholder{color:var(--tx3)}
             <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
-            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--line2)">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--line2)">
               <div style="width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ h.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                 <span style="color:var(--tx);font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</span>
@@ -418,7 +435,7 @@ input::placeholder{color:var(--tx3)}
 
         <div style="padding:0 20px 18px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px">
           <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="6">
-            <div style="background:var(--surf);border:1px solid var(--line);border-radius:20px;box-shadow:var(--card-shadow);padding:15px 16px;display:flex;flex-direction:column;min-height:112px;min-width:0">
+            <div style="background:var(--surf);border:1px solid var(--line);border-radius:28px;box-shadow:var(--card-shadow);padding:15px 16px;display:flex;flex-direction:column;min-height:112px;min-width:0">
               <span style="color:var(--tx3);font-size:12.5px;font-weight:500;line-height:1.3;margin-bottom:7px">{{ s.k }}</span>
               <span class="mono" style="color:{{ s.c }};font-size:21px;font-weight:700;letter-spacing:-.025em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.v }}</span>
               <span style="color:var(--tx3);font-size:11.5px;line-height:1.35;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.sub }}</span>
@@ -434,7 +451,7 @@ input::placeholder{color:var(--tx3)}
 
         <div style="padding:0 20px 20px;display:flex;gap:9px">
           <sc-for list="{{ shortcuts }}" as="s" hint-placeholder-count="3">
-            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;position:relative;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:16px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--acc-line)">
+            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;position:relative;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:20px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)" style-hover="border-color:var(--acc-line)">
               <div style="position:relative;width:28px;height:28px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2);flex:none">
                 {{ s.icon }}
                 <sc-if value="{{ s.showDot }}" hint-placeholder-val="{{ false }}">
@@ -453,7 +470,7 @@ input::placeholder{color:var(--tx3)}
           </div>
           <div style="padding:0 20px 20px;display:flex;gap:8px;overflow-x:auto">
             <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
-              <div style="flex:none;min-width:104px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:12px 13px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--card-shadow)">
+              <div style="flex:none;min-width:104px;border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:12px 13px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--card-shadow)">
                 <span style="color:var(--tx3);font-size:10.5px;font-weight:700;white-space:nowrap">{{ idx.label }}</span>
                 <span class="mono" style="color:var(--tx);font-size:14px;font-weight:700;white-space:nowrap">{{ idx.price }}</span>
                 <span class="mono" style="color:{{ idx.color }};font-size:11.5px;font-weight:700">{{ idx.change }}</span>
@@ -505,7 +522,7 @@ input::placeholder{color:var(--tx3)}
         </sc-if>
 
         <div style="padding:20px 20px 0">
-          <div style="border:1px solid var(--line);border-radius:18px;padding:16px 18px;background:var(--surf);box-shadow:var(--card-shadow);display:flex;flex-direction:column;gap:11px">
+          <div style="border:1px solid var(--line);border-radius:26px;padding:16px 18px;background:var(--surf);box-shadow:var(--card-shadow);display:flex;flex-direction:column;gap:11px">
             <div style="display:flex;align-items:center;justify-content:space-between">
               <span style="color:var(--tx);font-size:13px;font-weight:700">{{ quotaTitle }}</span>
               <span class="mono" style="color:var(--tx2);font-size:12px">{{ quota }}</span>
@@ -533,7 +550,7 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx);font-size:16px;font-weight:600">Depot · {{ posCount }}</span>
         </div>
 
-        <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px;margin-bottom:20px">
+        <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);padding:18px;margin-bottom:20px">
           <div style="display:flex;justify-content:space-between;margin-bottom:16px">
             <div style="display:flex;flex-direction:column;gap:4px">
               <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.12em">INVESTIERT</span>
@@ -951,7 +968,7 @@ input::placeholder{color:var(--tx3)}
             <p style="margin:0;color:var(--tx3);font-size:12.5px">Noch keine Belege verarbeitet.</p>
           </sc-if>
           <sc-for list="{{ receipts }}" as="r" hint-placeholder-count="3">
-            <div style="display:flex;align-items:center;gap:13px;padding:13px 14px;border-radius:14px;background:var(--surf);border:1px solid var(--line)">
+            <div style="display:flex;align-items:center;gap:13px;padding:13px 14px;border-radius:20px;background:var(--surf);border:1px solid var(--line)">
               <div style="width:34px;height:34px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
               </div>
@@ -980,7 +997,7 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx);font-size:12.5px;font-weight:500">{{ reviewHint }}</span>
         </div>
 
-        <div style="border:1px solid var(--line);border-radius:20px;background:var(--surf);overflow:hidden;margin-bottom:16px">
+        <div style="border:1px solid var(--line);border-radius:28px;background:var(--surf);overflow:hidden;margin-bottom:16px">
           <div style="padding:18px 18px 16px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line)">
             <div style="width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ reviewLogo }}</div>
             <div style="flex:1;display:flex;flex-direction:column;gap:2px">
@@ -1103,7 +1120,7 @@ input::placeholder{color:var(--tx3)}
         <sc-if value="{{ hasMarketSearchResults }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px">
             <sc-for list="{{ marketSearchResults }}" as="r" hint-placeholder-count="4">
-              <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+              <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                   <span style="color:var(--tx);font-size:13.5px;font-weight:600;font-family:'IBM Plex Mono',monospace">{{ r.symbol }}</span>
                   <span style="color:var(--tx3);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
@@ -1126,7 +1143,7 @@ input::placeholder{color:var(--tx3)}
         <sc-if value="{{ marketIndices.length }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 6px;margin-bottom:22px">
             <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
-              <div style="flex:none;width:140px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:14px">
+              <div style="flex:none;width:140px;border-radius:22px;background:var(--surf);border:1px solid var(--line);padding:14px">
                 <span style="display:block;color:var(--tx2);font-size:11.5px;font-weight:600;margin-bottom:6px">{{ idx.label }}</span>
                 <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin-bottom:2px">{{ idx.price }}</span>
                 <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:8px">{{ idx.change }}</span>
@@ -1144,7 +1161,7 @@ input::placeholder{color:var(--tx3)}
           </div>
           <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
             <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
-              <div onClick="{{ m.open }}" style="cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
+              <div onClick="{{ m.open }}" style="cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--line2)">
                 <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex:none">{{ m.logo }}</div>
                 <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
@@ -1177,7 +1194,7 @@ input::placeholder{color:var(--tx3)}
         </sc-if>
 
         <sc-if value="{{ hasStockDetail }}" hint-placeholder-val="{{ false }}">
-          <div style="border-radius:20px;background:var(--surf);border:1px solid var(--line);padding:18px">
+          <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);padding:18px">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px">
               <span style="color:var(--tx);font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1;font-family:'IBM Plex Mono',monospace">{{ stockDetailPrice }}</span>
               <span style="color:{{ stockDetailColor }};font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;padding-bottom:3px">{{ stockDetailPct }}</span>
@@ -1213,7 +1230,7 @@ input::placeholder{color:var(--tx3)}
             <p style="margin:0;color:var(--tx3);font-size:12.5px">Keine News — sobald du Positionen im Depot hast, erscheinen hier Nachrichten dazu.</p>
           </sc-if>
           <sc-for list="{{ news }}" as="n" hint-placeholder-count="4">
-            <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px" style-hover="border-color:var(--line2)">
+            <div style="border-radius:26px;background:var(--surf);border:1px solid var(--line);padding:16px" style-hover="border-color:var(--line2)">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
                 <span style="padding:3px 8px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'IBM Plex Mono',monospace">{{ n.tick }}</span>
                 <span style="font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ n.color }}">{{ n.move }}</span>
@@ -1230,7 +1247,7 @@ input::placeholder{color:var(--tx3)}
 
     <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeMenu }}" style="position:absolute;inset:0;background:transparent;z-index:8"></div>
-      <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(64px + env(safe-area-inset-bottom, 0px));width:188px;background:var(--surf);border-radius:18px;border:1px solid var(--line);box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
+      <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(64px + env(safe-area-inset-bottom, 0px));width:188px;background:var(--surf);border-radius:20px;border:1px solid var(--line);box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
         <button onClick="{{ goAccountPage }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;height:48px;padding:0 14px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"></path></svg>
           <span style="color:var(--tx);font-size:13.5px;font-weight:600">Account</span>
@@ -1251,7 +1268,7 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx);font-size:16px;font-weight:600">Account</span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:18px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:22px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px">
           <div style="width:44px;height:44px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:14px;font-weight:700">{{ userInitials }}</div>
           <div style="flex:1;display:flex;flex-direction:column;gap:2px">
             <span style="color:var(--tx);font-size:15px;font-weight:600">Mein Konto</span>
@@ -1276,7 +1293,7 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx);font-size:16px;font-weight:600">Einstellungen</span>
         </div>
 
-        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
+        <div style="border-radius:26px;background:var(--surf);border:1px solid var(--line);padding:16px;margin-bottom:18px">
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
             <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:600">Marktdaten</span>
             <span style="width:7px;height:7px;border-radius:50%;background:{{ connTone }}"></span>
@@ -1286,7 +1303,7 @@ input::placeholder{color:var(--tx3)}
           <button onClick="{{ sync }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">{{ syncLabel }}</button>
         </div>
 
-        <div style="border-radius:18px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
+        <div style="border-radius:26px;background:var(--surf);border:1px solid var(--line);overflow:hidden;margin-bottom:18px">
           <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
             <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
@@ -2297,7 +2314,7 @@ class Component extends DCLogic {
   syncStatusBar(screen) {
     const root = document.querySelector("[data-theme]");
     if (!root) return;
-    const token = this.state.splash ? "--tx" : screen === "dash" ? "--brand-flat" : "--bg";
+    const token = this.state.splash ? "--tx" : screen === "dash" ? "--brand-flat" : screen === "login" ? "--login-flat" : "--bg";
     const color = getComputedStyle(root).getPropertyValue(token).trim();
     if (!color || color === this._statusBarColor) return;
     this._statusBarColor = color;
