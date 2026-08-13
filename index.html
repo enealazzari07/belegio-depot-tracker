@@ -79,16 +79,12 @@
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
 }
-/* iOS-Statusleiste (installierte App): mit apple-mobile-web-app-status-bar-
-   style=black-translucent reicht der Inhalt bis unter die Uhr, der Bereich
-   ist also fuer echte Transparenz gedacht. iOS 26.1+ legt aber, abhaengig
-   von der Liquid-Glass/"Transparenz reduzieren"-Einstellung des Nutzers,
-   eine abdunkelnde Toenung über alles Transluzente — nicht beeinflussbar.
-   Deshalb hier bewusst KEINE echte Transparenz, sondern eine feste Farbe pro
-   Screen (siehe statusbarBg), die exakt die Farbe direkt darunter trifft:
-   dunkel auf dem Splash, Marken-Blau auf dem Dashboard, sonst --bg. Kein
-   Weichzeichner mehr noetig, da es kein echtes Durchscheinen mehr gibt. */
-.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;transition:background-color .25s ease;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+/* iOS-Statusleiste (installierte App): mit viewport-fit=cover und
+   apple-mobile-web-app-status-bar-style=black-translucent kann die App bis
+   unter Uhr/Kamera zeichnen. Deshalb liegt unser Statusbar-Element nur noch
+   transparent ueber der Safe-Area: die jeweils echte Screen-Flaeche darunter
+   bleibt sichtbar (Splash/Login dunkel, Dashboard-Verlauf blau, sonst --bg). */
+.statusbar{position:absolute;left:0;right:0;top:0;height:env(safe-area-inset-top, 0px);z-index:15;pointer-events:none;background:transparent}
 *{box-sizing:border-box}
 /* Neutral statt fest gefärbt — sonst blitzt vor dem ersten Render oder in
    leeren Randbereichen eine falsche Fläche durch, obwohl die App selbst dort
@@ -2644,16 +2640,11 @@ class Component extends DCLogic {
         : "Aus · Depotwert einmal täglich als Push",
 
       logout: this.logoutUser,
-      // Statusleisten-Farbe trifft exakt die Farbe direkt darunter (siehe
-      // .statusbar-Kommentar oben im CSS) — dunkel auf dem Splash,
-      // Marken-Blau auf dem Dashboard-Header, sonst die normale Hintergrundfarbe.
-      // Volle Deckfarbe wie bei allen anderen Screens (var(--bg)) — die
-      // sehen auf black-translucent einwandfrei aus, weil da nichts
-      // durchscheint. Home hatte zwischenzeitlich eine halbtransparente
-      // Fuellung fuers Scroll-Verhalten, aber genau die Transparenz liess
-      // den Verlauf durchschimmern und erzeugte zusammen mit dem
-      // Weichzeichner den zusaetzlichen Schleier. Zurueck auf volldeckend.
-      statusbarBg: this.state.splash ? "var(--tx)" : screen === "dash" ? "var(--brand-flat)" : "var(--bg)",
+      // Die native iOS-PWA-Statusbar ist per black-translucent durchsichtig;
+      // ein eigener Farbbalken wuerde bei Verlaeufen wie dem Dashboard-Header
+      // sichtbar falsch wirken. Deshalb bleibt unser Safe-Area-Layer komplett
+      // transparent und die echte Screen-Farbe darunter bestimmt das Ergebnis.
+      statusbarBg: "transparent",
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
