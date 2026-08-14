@@ -85,7 +85,7 @@
      zum kraeftigen Ton am unteren Rand.
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:radial-gradient(48% 30% at 8% 52%,rgba(93,150,220,.5) 0%,rgba(93,150,220,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(80,135,215,.48) 0%,rgba(80,135,215,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(70,120,205,.55) 0%,rgba(70,120,205,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(58,108,198,.65) 0%,rgba(58,108,198,0) 72%),linear-gradient(180deg,#FFFFFF 0%,#F5F8FE 6%,#DCE8FB 14%,#BCD3F6 24%,#9CBDEE 34%,#7CA8E4 46%,#5D90D8 58%,#4478CC 70%,#3364C0 82%,#2A56BE 100%);
+  --brand:radial-gradient(48% 30% at 8% 52%,rgba(93,150,220,.5) 0%,rgba(93,150,220,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(80,135,215,.48) 0%,rgba(80,135,215,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(70,120,205,.55) 0%,rgba(70,120,205,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(58,108,198,.65) 0%,rgba(58,108,198,0) 72%),linear-gradient(180deg,#FFFFFF 0px,#FFFFFF calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px)),#A9C8F0 calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px) + 11px),#4C7ECC calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px) + 27px),#3364C0 calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px) + 56px),#2E5CBC calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px) + 150px),#2A56BE 100%);
   --brand-flat:#FFFFFF;
   /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
      und damit weiss — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
@@ -249,9 +249,9 @@ input::placeholder{color:var(--tx3)}
         <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
-                <span style="color:rgba(16,19,26,.6);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
+                <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
               </div>
-              <div style="display:flex;gap:3px;padding:4px;border-radius:13px;background:rgba(16,19,26,.06)">
+              <div style="display:flex;gap:3px;padding:4px;border-radius:13px;background:var(--onBrand-soft)">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
                   <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
                 </sc-for>
@@ -2977,7 +2977,7 @@ class Component extends DCLogic {
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
         bg: this.state.chartRange === key ? "var(--onBrand)" : "transparent",
-        tx: this.state.chartRange === key ? "var(--chip-ink)" : "rgba(16,19,26,.55)"
+        tx: this.state.chartRange === key ? "var(--chip-ink)" : "var(--onBrand2)"
       })),
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
