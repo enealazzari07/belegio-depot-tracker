@@ -247,11 +247,11 @@ input::placeholder{color:var(--tx3)}
         <div style="background-image:linear-gradient(180deg, var(--brand-end) 0px, var(--brand-end) 380px, var(--brand-end-0) 800px);background-repeat:no-repeat;background-size:100% 800px">
 
         <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;padding:8px 10px;border-radius:16px;background:rgba(20,42,92,.4)">
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
                 <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
               </div>
-              <div style="display:flex;gap:3px;padding:4px;border-radius:13px;background:var(--onBrand-soft)">
+              <div style="display:flex;gap:3px;padding:4px;border-radius:13px;background:rgba(255,255,255,.16)">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
                   <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
                 </sc-for>
@@ -266,7 +266,7 @@ input::placeholder{color:var(--tx3)}
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:6px">
               <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-bottom:3px">
-                <span class="mono chip" style="background:var(--onBrand-soft);color:{{ gainColor }}">{{ gainPct }}</span>
+                <span class="mono chip" style="background:rgba(20,42,92,.4);color:{{ gainColor }}">{{ gainPct }}</span>
                 <span class="mono" style="color:var(--onBrand3);font-size:11.5px">{{ gainAbs }}</span>
               </div>
             </div>
