@@ -217,8 +217,7 @@ input::placeholder{color:var(--tx3)}
         <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
-                <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert · CHF</span>
-                <span title="{{ connLabel }}" style="width:6px;height:6px;border-radius:50%;background:{{ connToneBrand }};display:block;flex:none"></span>
+                <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
               </div>
               <div style="display:flex;gap:3px;padding:4px;border-radius:13px;background:var(--onBrand-soft)">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
@@ -425,27 +424,7 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
 
-        <div class="sect">
-          <span class="lbl">Kennzahlen</span>
-        </div>
-
-        <div style="padding:0 20px 18px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px">
-          <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="4">
-            <div style="background:var(--surf);border-radius:28px;box-shadow:var(--card-shadow);padding:15px 16px;display:flex;flex-direction:column;min-height:112px;min-width:0">
-              <span style="color:var(--tx3);font-size:12.5px;font-weight:500;line-height:1.3;margin-bottom:7px">{{ s.k }}</span>
-              <span class="mono" style="color:{{ s.c }};font-size:21px;font-weight:700;letter-spacing:-.025em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.v }}</span>
-              <span style="color:var(--tx3);font-size:11.5px;line-height:1.35;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.sub }}</span>
-              <div style="flex:1;min-height:6px"></div>
-              <sc-if value="{{ s.hasSpark }}" hint-placeholder-val="{{ false }}">
-                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:26px;display:block;margin-top:4px">
-                  <path d="{{ s.spark }}" fill="none" stroke="{{ s.c }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </sc-if>
-            </div>
-          </sc-for>
-        </div>
-
-        <div style="padding:0 20px 20px">
+        <div style="padding:20px 20px 0">
           <button onClick="{{ openInvestPlanSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;border-radius:26px;background:var(--brand);box-shadow:var(--brand-shadow);padding:18px;text-align:left" style-hover="opacity:.95">
             <sc-if value="{{ hasInvestPlan }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
@@ -475,19 +454,6 @@ input::placeholder{color:var(--tx3)}
           </button>
         </div>
 
-        <div style="padding:0 20px 20px;display:flex;gap:9px">
-          <sc-for list="{{ shortcuts }}" as="s" hint-placeholder-count="3">
-            <button onClick="{{ s.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;position:relative;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:20px;background:var(--surf);box-shadow:var(--card-shadow)" style-hover="box-shadow:var(--hero-shadow)">
-              <div style="position:relative;width:28px;height:28px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;color:var(--acc2);flex:none">
-                {{ s.icon }}
-                <sc-if value="{{ s.showDot }}" hint-placeholder-val="{{ false }}">
-                  <span style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:2px solid var(--surf);display:block"></span>
-                </sc-if>
-              </div>
-              <span style="color:var(--tx);font-size:12px;font-weight:600;white-space:nowrap">{{ s.label }}</span>
-            </button>
-          </sc-for>
-        </div>
 
         <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
           <div class="sect">
@@ -904,37 +870,6 @@ input::placeholder{color:var(--tx3)}
         </div>
       </sc-if>
 
-      <sc-if value="{{ investPlanSheetOpen }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
-          <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
-          <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
-            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
-            </div>
-            <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Investment-Plan</span>
-            <button onClick="{{ closeInvestPlanSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-            </button>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZEITRAUM</span>
-              <div style="display:flex;gap:6px">
-                <sc-for list="{{ investPlanIntervalOptions }}" as="io" hint-placeholder-count="3">
-                  <button onClick="{{ io.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:10px;background:{{ io.bg }};border:1px solid var(--line);color:{{ io.tx }};font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ io.label }}</button>
-                </sc-for>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZIELBETRAG CHF PRO {{ investPlanIntervalLabel }}</span>
-              <input type="number" value="{{ investPlanAmountInput }}" onChange="{{ onInvestPlanAmount }}" placeholder="z. B. 500" style="width:100%;height:48px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:15px;padding:0 14px;outline:none;box-sizing:border-box">
-            </div>
-            <p style="margin:0;color:var(--tx3);font-size:10.5px;line-height:1.5">Zaehlt echte Kaeufe seit Beginn des laufenden Zeitraums — nicht die Kursentwicklung. Nur auf diesem Geraet gespeichert.</p>
-          </div>
-        </div>
-      </sc-if>
-
       <sc-if value="{{ insiderSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
         <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
@@ -966,6 +901,40 @@ input::placeholder{color:var(--tx3)}
           <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Direkt aus SEC-Form-4-Meldungen (offizielle US-Insider-Handelspflichten). Keine Anlageberatung.</p>
         </div>
       </sc-if>
+    </sc-if>
+
+    <!-- Ausserhalb von isDepot: der Ausloeser (Investment-Plan-Karte) sitzt auf
+         dem Dashboard, nicht im Depot — der Sheet muss deshalb auf oberster
+         Ebene stehen, sonst rendert er nie (war der Bug: "Erstellen geht nicht"). -->
+    <sc-if value="{{ investPlanSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+        <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+          <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+          </div>
+          <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Investment-Plan</span>
+          <button onClick="{{ closeInvestPlanSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZEITRAUM</span>
+            <div style="display:flex;gap:6px">
+              <sc-for list="{{ investPlanIntervalOptions }}" as="io" hint-placeholder-count="3">
+                <button onClick="{{ io.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:10px;background:{{ io.bg }};border:1px solid var(--line);color:{{ io.tx }};font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ io.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZIELBETRAG CHF PRO {{ investPlanIntervalLabel }}</span>
+            <input type="number" value="{{ investPlanAmountInput }}" onChange="{{ onInvestPlanAmount }}" placeholder="z. B. 500" style="width:100%;height:48px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:15px;padding:0 14px;outline:none;box-sizing:border-box">
+          </div>
+          <p style="margin:0;color:var(--tx3);font-size:10.5px;line-height:1.5">Zaehlt echte Kaeufe seit Beginn des laufenden Zeitraums — nicht die Kursentwicklung. Nur auf diesem Geraet gespeichert.</p>
+        </div>
+      </div>
     </sc-if>
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
@@ -2730,9 +2699,6 @@ class Component extends DCLogic {
     // Gratis-Nutzer sehen, dass es Signale gibt (unscharf), Pro sieht alle.
     const signalsShown = proActive ? signalList.slice(0, 4) : signalList.slice(0, 2);
 
-    // Verlaufslinie des Depotwerts für die "Heute bewegt"-Karte.
-    const portfolioSpark = chartData ? buildSparkline(chartData.points.map(p => ({ close: p.value }))) : "";
-
     // Carousel-Seiten: Treiber und/oder News — je nachdem, was Daten hat.
     const hasNews = !!(this.state.liveNews && this.state.liveNews.length);
     const carouselPages = (driverRows.length ? 1 : 0) + (hasNews ? 1 : 0);
@@ -2741,8 +2707,6 @@ class Component extends DCLogic {
     // Wird beim Aufbau der Depot-Liste befüllt; posScrubAt liest daraus.
     const posChartPoints = {};
     this._posChartPoints = posChartPoints;
-    const firstBuyDate = txs.length ? txs.reduce((m, t) => (t.date < m ? t.date : m), txs[0].date) : null;
-    const avgHoldDays = txs.length ? Math.round(txs.reduce((a, t) => a + daysSince(t.date), 0) / txs.length) : null;
 
     // ---------- Depot-Gewichtung als Kreisdiagramm (Donut via stroke-dasharray) ----------
     // Durchgehende Segmente ohne Luecke: bei kleinen Positionen faellt eine
@@ -2840,15 +2804,6 @@ class Component extends DCLogic {
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
-      shortcuts: [
-        { label: "Depot", go: this.goDepotPage, d: "M4 19V10M10 19V5M16 19v-6M21.5 19h-19", dot: true },
-        { label: "Märkte", go: this.goMarkets, d: "M3 17l6-6 4 4 8-8 M15 7h6v6" },
-        { label: "News", go: this.go("news"), d: "M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6" }
-      ].map(s => ({
-        label: s.label, go: s.go,
-        showDot: !!s.dot && insiderAlertHint,
-        icon: React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: s.d }))
-      })),
       tHome: screen === "dash" ? "var(--tx)" : "var(--tx3)",
       fHome: screen === "dash" ? "var(--tx)" : "none",
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
@@ -2971,7 +2926,6 @@ class Component extends DCLogic {
         bg: this.state.chartRange === key ? "var(--onBrand)" : "transparent",
         tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
       })),
-      connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
@@ -3245,28 +3199,6 @@ class Component extends DCLogic {
           })
         };
       }),
-
-      statCards: [
-        {
-          k: "Heute bewegt", v: (dayTotal >= 0 ? "+" : "") + f2(dayTotal),
-          c: dayTotal >= 0 ? "var(--pos)" : "var(--neg)",
-          sub: dayGross ? "über " + driverRows.length + " von " + holdings.length + " Titeln" : "keine Live-Kurse",
-          hasSpark: !!portfolioSpark, spark: portfolioSpark
-        },
-        {
-          k: "Rendite gesamt", v: (cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) : "0.0") + " %",
-          c: g >= 0 ? "var(--pos)" : "var(--neg)",
-          sub: (g >= 0 ? "+" : "") + f2(g) + " CHF"
-        },
-        {
-          k: "Investiert", v: f2(cost), c: "var(--tx)",
-          sub: holdings.length + (holdings.length === 1 ? " Titel" : " Titel") + " · " + used + " Belege"
-        },
-        {
-          k: "Ø Haltedauer", v: durLabel(avgHoldDays), c: "var(--tx)",
-          sub: firstBuyDate ? "seit " + new Date(firstBuyDate).toLocaleDateString("de-CH") : "noch keine Käufe"
-        }
-      ],
 
       // ---------- Investment-Plan ----------
       investPlanSheetOpen: this.state.investPlanSheetOpen,
