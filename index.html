@@ -356,12 +356,12 @@ input::placeholder{color:var(--tx3)}
         </div>
         </div>
         </div>
-        <!-- Zweite, gerade Box (keine Rundung/Negativ-Margin) setzt die erste
-             nahtlos fort. Aufteilung noetig, damit der blaue Seiten-Fade des
-             aeusseren Wrappers exakt an der Positionsliste endet, unabhaengig
-             von Positionsanzahl oder Ladezustand — statt eines geratenen
-             Pixel-Werts. -->
-        <div style="margin:0 16px;background:var(--bg);padding:0 0 128px;min-height:64dvh">
+        <!-- Zweite Box setzt die erste oben nahtlos fort (keine Rundung, kein
+             Negativ-Margin) und endet unter "Gewichtung im Depot" mit gerundeten
+             unteren Ecken. Aufteilung noetig, damit der blaue Seiten-Fade an der
+             Positionsliste endet, unabhaengig von Positionsanzahl oder
+             Ladezustand — statt eines geratenen Pixel-Werts. -->
+        <div style="margin:0 16px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
 
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
@@ -393,6 +393,10 @@ input::placeholder{color:var(--tx3)}
             </div>
           </div>
         </sc-if>
+        </div>
+        <!-- Ab hier ohne weisse Flaeche: die Karten stehen direkt auf dem
+             Seitenhintergrund, Raender bleiben zur Box darueber ausgerichtet. -->
+        <div style="margin:0 16px;padding:20px 0 128px">
 
         <sc-if value="{{ hasCarousel }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:18px">
