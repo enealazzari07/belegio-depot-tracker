@@ -216,10 +216,13 @@ input::placeholder{color:var(--tx3)}
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
-             groesser als ein Bildschirm. Hier wraechst die Box mit dem echten Inhalt
+             groesser als ein Bildschirm. Hier waechst die Box mit dem echten Inhalt
              mit, der Verlauf scrollt dadurch ganz normal mit statt an einer festen
-             Bildschirmhoehe zu enden. -->
-        <div style="background-image:linear-gradient(180deg, var(--brand-flat) 0%, var(--brand-flat) 4%, color-mix(in srgb, var(--brand-flat) 78%, var(--bg)) 18%, color-mix(in srgb, var(--brand-flat) 55%, var(--bg)) 32%, color-mix(in srgb, var(--brand-flat) 32%, var(--bg)) 48%, color-mix(in srgb, var(--brand-flat) 14%, var(--bg)) 65%, var(--bg) 85%);background-repeat:no-repeat;background-size:100% 2200px">
+             Bildschirmhoehe zu enden. Absichtlich nur zwei Farben in Pixel-Werten
+             (kein color-mix(), keine Prozent-Stops) — so einfach wie moeglich, um
+             jedes Risiko einer Fehlinterpretation durch das Template-Parsing der
+             style-Attribute auszuschliessen. -->
+        <div style="background-image:linear-gradient(180deg, var(--brand-flat) 0px, var(--brand-flat) 500px, transparent 3200px);background-repeat:no-repeat;background-size:100% 3200px">
 
         <div style="background:var(--brand);border:1px solid var(--onBrand-line);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
