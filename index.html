@@ -244,7 +244,7 @@ input::placeholder{color:var(--tx3)}
              style-Attribute auszuschliessen. Faerbt bis knapp unter die Positionen-
              Liste hinein aus, statt ueber die ganze Scrollhoehe zu laufen — das Blau
              soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
-        <div style="background-image:linear-gradient(180deg, var(--brand-end) 0px, var(--brand-end) 360px, rgba(42,86,190,.4) 410px, var(--brand-end-0) 460px);background-repeat:no-repeat;background-size:100% 460px">
+        <div style="background:linear-gradient(180deg, var(--brand-end) 0%, var(--brand-end) 55%, rgba(42,86,190,.35) 78%, var(--brand-end-0) 100%)">
 
         <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
@@ -310,7 +310,7 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         </div>
 
-        <div style="position:relative;margin:-26px 16px 0;background:var(--bg);border-radius:26px;padding:22px 0 128px;min-height:64dvh">
+        <div style="position:relative;margin:-26px 16px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
 
         <div class="sect">
           <span class="lbl">Positionen</span>
@@ -345,6 +345,14 @@ input::placeholder{color:var(--tx3)}
             </div>
           </sc-for>
         </div>
+        </div>
+        </div>
+        <!-- Zweite, gerade Box (keine Rundung/Negativ-Margin) setzt die erste
+             nahtlos fort. Aufteilung noetig, damit der blaue Seiten-Fade des
+             aeusseren Wrappers exakt an der Positionsliste endet, unabhaengig
+             von Positionsanzahl oder Ladezustand — statt eines geratenen
+             Pixel-Werts. -->
+        <div style="margin:0 16px;background:var(--bg);padding:0 0 128px;min-height:64dvh">
 
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
@@ -561,7 +569,6 @@ input::placeholder{color:var(--tx3)}
           </div>
         </div>
 
-        </div>
         </div>
       </div>
     </sc-if>
