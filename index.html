@@ -76,26 +76,36 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Hellblaugrauer Kopfbereich — nur der Hero-Block, alles darunter bleibt neutral. */
-  /* Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
-     eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:linear-gradient(180deg,#CFD9E6 0%,#C6D1E0 45%,#B9C6D8 100%);
-  --brand-flat:#CFD9E6;
-  /* Die Flaeche ist jetzt hell, also muss die Schrift darauf dunkel sein —
-     vorher war der Kopfbereich kraeftig blau und alles hier drauf weiss.
-     onBrand* wird ausschliesslich im Home-Hero verwendet. */
-  /* Alphas/Farben sind gegen das dunkelste Ende des Verlaufs (#B9C6D8) auf
-     mindestens 4.5:1 gerechnet — die Werte hier tragen 10–11.5px Schrift. */
-  --onBrand:#10131A; --onBrand2:rgba(16,19,26,.72); --onBrand3:rgba(16,19,26,.66);
-  --onBrand-line:rgba(16,19,26,.16); --onBrand-soft:rgba(16,19,26,.08);
-  --onBrand-dash:rgba(16,19,26,.42);
-  /* Auf hellem Grund brauchen Gewinn/Verlust deutlich dunklere Varianten —
-     das helle Mint/Lachs von vorher war fuer die dunkelblaue Flaeche gedacht. */
-  --brandPos:#0C5744; --brandNeg:#8A2D24;
-  --brand-shadow:0 12px 26px -14px rgba(88,102,124,.45), 0 26px 54px -30px rgba(88,102,124,.38);
+  /* Kraeftiger Blau-Verlauf nur fuer den Bilanz-Block auf Home. Die Zone
+     dahinter (Label + Zeitraum-Umschalter, siehe Markup) sitzt bewusst auf
+     normalem --bg *vor* diesem Block, nicht mehr im Verlauf selbst — dadurch
+     ist der Uebergang zur Statusleiste automatisch weiss/neutral, ohne dass
+     der Verlauf hier exakt eine Flaeche treffen muss. */
+  --brand:linear-gradient(165deg,#4A7FDE 0%,#3766D2 45%,#1E3F99 100%);
+  --brand-flat:#2E5FC9;
+  /* Durchgehend Blau in beiden Themes, also durchgehend helle Schrift drauf. */
+  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.76); --onBrand3:rgba(255,255,255,.56);
+  --onBrand-line:rgba(255,255,255,.22); --onBrand-soft:rgba(255,255,255,.14);
+  --onBrand-dash:rgba(255,255,255,.5);
+  --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
+  --brand-shadow:0 14px 28px -14px rgba(30,63,153,.45), 0 28px 56px -30px rgba(30,63,153,.35);
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
   --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
+  /* Login-Screen: eigenstaendiger Verlauf hell->blau (Referenzbild), nicht an
+     --brand gekoppelt, da die Kurve/Proportionen anders sind. --onLogin* gilt
+     fuer den hellen oberen Bereich (Icon/Headline/Subtitle), --onLoginL* fuer
+     den blauen unteren Bereich (Inputs/Switch) — Inputs bleiben zusaetzlich
+     ein durchgehend helles Feld, damit dunkler Text unabhaengig von der
+     Verlaufsposition lesbar bleibt. */
+  --login-bg:repeating-linear-gradient(90deg, rgba(255,255,255,.45) 0 1px, transparent 1px 11px),
+    linear-gradient(180deg, #E4F1FA 0%, #B9D6F2 24%, #6D97E0 50%, #3763C9 75%, #1B3A8F 100%);
+  --login-flat:#E4F1FA;
+  --onLogin:#12213D; --onLogin2:rgba(18,33,61,.66);
+  --onLoginL:#FFFFFF; --onLoginL2:rgba(255,255,255,.78); --onLoginL3:rgba(255,255,255,.56);
+  --onLoginL-line:rgba(255,255,255,.28); --onLoginL-glass:rgba(255,255,255,.14);
+  --login-input-bg:rgba(255,255,255,.92); --login-input-tx:#12213D;
+  --login-btn-bg:#FFFFFF; --login-btn-tx:#12213D;
 }
 [data-theme="dark"]{
   --stage:#07080B; --stage2:#0F1116;
@@ -108,19 +118,28 @@
   --pos-soft:rgba(79,191,159,.13); --neg-soft:rgba(224,124,113,.13);
   --warn:#E0B252; --warn-soft:rgba(224,178,82,.14);
   --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
-  /* Im Dark Mode bleibt der Kopfbereich dunkel, folgt aber derselben
-     entsaettigten Blaugrau-Richtung wie im Light Mode statt kraeftigem Blau.
-     Eine helle Flaeche waere hier ein Fremdkoerper. */
-  --brand:linear-gradient(180deg,#2A3340 0%,#262E3A 45%,#1F2733 100%);
-  --brand-flat:#2A3340;
-  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
-  --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
-  --onBrand-dash:rgba(255,255,255,.45);
+  /* Dieselbe Blau-Richtung wie im Light Mode, nur satter/dunkler abgestimmt
+     auf die dunkle Umgebung. Kopfzone (Label/Zeitraum) sitzt davor auf --bg. */
+  --brand:linear-gradient(165deg,#2C4F9E 0%,#22397C 45%,#101F45 100%);
+  --brand-flat:#22397C;
+  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.76); --onBrand3:rgba(255,255,255,.54);
+  --onBrand-line:rgba(255,255,255,.2); --onBrand-soft:rgba(255,255,255,.13);
+  --onBrand-dash:rgba(255,255,255,.48);
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
-  --brand-shadow:0 12px 28px -16px rgba(0,0,0,.7), 0 28px 56px -32px rgba(0,0,0,.8);
+  --brand-shadow:0 14px 30px -16px rgba(0,0,0,.75), 0 30px 60px -32px rgba(0,0,0,.85);
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
+  /* Kein heller oberer Bereich im Dark Mode — der Verlauf startet dunkel
+     (wie --bg) und vertieft sich ins selbe Blau, Text bleibt durchgehend hell. */
+  --login-bg:repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 11px),
+    linear-gradient(180deg, #0D141F 0%, #142338 24%, #1B3868 50%, #234C97 75%, #2C5FBE 100%);
+  --login-flat:#0D141F;
+  --onLogin:#FFFFFF; --onLogin2:rgba(255,255,255,.72);
+  --onLoginL:#FFFFFF; --onLoginL2:rgba(255,255,255,.78); --onLoginL3:rgba(255,255,255,.56);
+  --onLoginL-line:rgba(255,255,255,.26); --onLoginL-glass:rgba(255,255,255,.09);
+  --login-input-bg:rgba(255,255,255,.85); --login-input-tx:#12213D;
+  --login-btn-bg:#FFFFFF; --login-btn-tx:#12213D;
 }
 /* Der aktive Seitenhintergrund liegt direkt hinter der iOS-Statusleiste. */
 *{box-sizing:border-box}
@@ -178,50 +197,53 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
-      <div style="position:absolute;inset:0;padding:132px 32px 44px;display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
-        <div style="width:52px;height:52px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;margin-bottom:36px">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accTx)" stroke-width="2.2" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--login-bg);padding:calc(env(safe-area-inset-top, 0px) + var(--sat-extra, 0px) + 56px) 32px calc(env(safe-area-inset-bottom, 0px) + 44px);display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
+        <div style="width:52px;height:52px;border-radius:16px;background:var(--onLoginL-glass);border:1px solid var(--onLoginL-line);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;margin-bottom:32px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--onLogin)" stroke-width="2.2" stroke-linecap="round"><path d="M4 18 L9 11 L14 14 L20 6"></path></svg>
         </div>
-        <h1 style="margin:0 0 10px;color:var(--tx);font-size:31px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line">{{ authTitle }}</h1>
-        <p style="margin:0 0 36px;color:var(--tx2);font-size:14.5px;line-height:1.5">Dein Depot, ohne Tabellen.</p>
+        <h1 style="margin:0 0 10px;color:var(--onLogin);font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line">{{ authTitle }}</h1>
+        <p style="margin:0 0 40px;color:var(--onLogin2);font-size:14.5px;line-height:1.5">Dein Depot, ohne Tabellen.</p>
 
         <div style="display:flex;flex-direction:column;gap:12px">
           <div style="display:flex;flex-direction:column;gap:7px">
-            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">E-MAIL</label>
-            <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="du@example.com" style="width:100%;height:52px;border-radius:16px;background:var(--surf2);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="background:var(--surf3)">
+            <label style="color:var(--onLoginL3);font-size:11px;font-weight:600;letter-spacing:.1em">E-MAIL</label>
+            <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="du@example.com" style="width:100%;height:52px;border-radius:16px;background:var(--login-input-bg);color:var(--login-input-tx);font-size:15px;padding:0 16px;outline:none" style-focus="background:#FFFFFF">
           </div>
           <div style="display:flex;flex-direction:column;gap:7px">
-            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
-            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:16px;background:var(--surf2);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="background:var(--surf3)">
+            <label style="color:var(--onLoginL3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
+            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:16px;background:var(--login-input-bg);color:var(--login-input-tx);font-size:15px;padding:0 16px;outline:none" style-focus="background:#FFFFFF">
           </div>
         </div>
 
         <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:12px 0 0;color:var(--neg);font-size:12.5px;line-height:1.5">{{ authError }}</p>
+          <p style="margin:12px 0 0;padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.9);color:#B23B30;font-size:12.5px;line-height:1.5">{{ authError }}</p>
         </sc-if>
 
-        <button onClick="{{ submitAuth }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;width:100%;height:54px;border-radius:16px;background:var(--acc);color:var(--accTx);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ authCta }}</button>
+        <button onClick="{{ submitAuth }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;width:100%;height:56px;border-radius:999px;background:var(--login-btn-bg);box-shadow:0 14px 28px -14px rgba(0,0,0,.4);color:var(--login-btn-tx);font-size:15.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-hover="opacity:.92">{{ authCta }}</button>
 
-        <div style="flex:1"></div>
-        <p style="margin:0;text-align:center;color:var(--tx3);font-size:12px">{{ authSwitchLabel }} <a href="#1a" onClick="{{ toggleAuthMode }}" style="color:var(--acc);font-weight:600">{{ authSwitchCta }}</a></p>
+        <div style="flex:1;min-height:24px"></div>
+        <p style="margin:0;text-align:center;color:var(--onLoginL3);font-size:12.5px">{{ authSwitchLabel }} <a href="#1a" onClick="{{ toggleAuthMode }}" style="color:var(--onLoginL);font-weight:700">{{ authSwitchCta }}</a></p>
       </div>
     </sc-if>
 
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--brand-flat);animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--bg);animation:fade .3s ease">
 
-        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 18px + var(--sat-extra, 0px)) 20px 36px">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
-              <div style="display:flex;align-items:center;gap:7px;min-width:0">
-                <span style="color:var(--onBrand2);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert · CHF</span>
-                <span title="{{ connLabel }}" style="width:6px;height:6px;border-radius:50%;background:{{ connToneBrand }};display:block;flex:none"></span>
-              </div>
-              <div style="display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--onBrand-soft)">
-                <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
-                  <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
-                </sc-for>
-              </div>
+        <div style="padding:calc(env(safe-area-inset-top, 0px) + 18px + var(--sat-extra, 0px)) 20px 14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="display:flex;align-items:center;gap:7px;min-width:0">
+              <span style="color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert · CHF</span>
+              <span title="{{ connLabel }}" style="width:6px;height:6px;border-radius:50%;background:{{ connTone }};display:block;flex:none"></span>
             </div>
+            <div class="seg">
+              <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
+                <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--brand);padding:4px 20px 36px">
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:120px">
                 <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--onBrand-line);border-top-color:var(--onBrand);animation:spin .8s linear infinite;display:block"></span>
@@ -2306,7 +2328,7 @@ class Component extends DCLogic {
   syncStatusBar(screen) {
     const root = document.querySelector("[data-theme]");
     if (!root) return;
-    const token = this.state.splash ? "--tx" : screen === "dash" ? "--brand-flat" : "--bg";
+    const token = this.state.splash ? "--tx" : screen === "login" ? "--login-flat" : "--bg";
     const color = getComputedStyle(root).getPropertyValue(token).trim();
     if (!color || color === this._statusBarColor) return;
     this._statusBarColor = color;
@@ -2838,15 +2860,13 @@ class Component extends DCLogic {
       confirmCta: "Ins Depot buchen",
 
       dashLoading: this.state.dashLoading, dashReady: !this.state.dashLoading,
-      // Zeitraum-Umschalter sitzt auf dem Kopfbereich. Die aktive Pille ist
-      // bewusst invertiert (Tinte als Flaeche, Flaechenfarbe als Schrift) —
-      // so bleibt sie in beiden Themes lesbar, ohne feste Farbwerte.
+      // Zeitraum-Umschalter sitzt jetzt in der weissen Kopfzone vor dem
+      // Blau-Block, folgt also den normalen Segmented-Control-Farben.
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
-        bg: this.state.chartRange === key ? "var(--onBrand)" : "transparent",
-        tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
+        bg: this.state.chartRange === key ? "var(--surf)" : "transparent",
+        tx: this.state.chartRange === key ? "var(--tx)" : "var(--tx3)"
       })),
-      connToneBrand: conn === "live" ? "var(--brandPos)" : conn === "idle" || conn === "empty" ? "var(--onBrand3)" : "var(--brandNeg)",
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
