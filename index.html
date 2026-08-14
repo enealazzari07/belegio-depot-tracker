@@ -76,16 +76,16 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Weiss-zu-Blau-Verlauf im Home-Hero. Das Weiss ist bewusst auf die obersten
-     ~8% begrenzt — der Bereich hinter der Statusleiste, wo noch kein Text
-     sitzt — und faellt danach steil auf ein bereits deutlich gesaettigtes
-     Blau ab. Text auf der Flaeche ist durchgehend weiss (--onBrand*); ein
-     Verlauf, der erst spaet (wo schon Text steht) vom Pastellton ins
-     Kraeftige wechselt, macht diesen Text dort unlesbar — deshalb die
-     steile erste Stufe statt eines sanften Verwaschens ueber die ganze Hoehe.
+  /* Weiss-zu-Blau-Verlauf im Home-Hero, in vielen kleinen Stufen statt eines
+     schnellen Sprungs gefolgt von einer langen fast einfarbigen Strecke —
+     sonst wirkt der Verlauf nach den ersten paar Prozent wie verschwunden.
+     Bei der Gesamtwert-Zeile (~14-20%) ist die Flaeche schon leicht blau
+     angetont statt fast weiss, damit der weisse Text (--onBrand*) dort
+     genug Kontrast hat; von da an vertieft sich das Blau gleichmaessig bis
+     zum kraeftigen Ton am unteren Rand.
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:linear-gradient(180deg,#FFFFFF 0%,#BFD8F5 8%,#6E97DE 16%,#4E78CC 24%,#3A64C0 50%,#2A56BE 100%);
+  --brand:linear-gradient(180deg,#FFFFFF 0%,#E3EFFC 6%,#A9C8F0 14%,#7CA8E2 28%,#5D90D8 45%,#4478CC 65%,#3364C0 85%,#2A56BE 100%);
   --brand-flat:#FFFFFF;
   /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
      und damit weiss — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
