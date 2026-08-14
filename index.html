@@ -315,7 +315,7 @@ input::placeholder{color:var(--tx3)}
                   <svg viewBox="0 0 100 100" width="112" height="112" style="display:block;transform:rotate(-90deg)">
                     <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surf2)" stroke-width="15"></circle>
                     <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="15" stroke-linecap="round" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="15" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
                     </sc-for>
                   </svg>
                   <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
@@ -1431,7 +1431,7 @@ const buildSparkline = rows => {
 
 // ETF-Zusammensetzung: proportionale "Kästchen"-Mosaik aus den Top-Holdings,
 // alles jenseits der Top 8 wird zu "Sonstige" zusammengefasst.
-const BLOCK_COLORS = ["#1F3A8F", "#2E5AAE", "#3E76C7", "#5A93D9", "#7DAEE6", "#A3C7EE", "#C7DEF5", "#E6EFFB"];
+const BLOCK_COLORS = ["#3B4A63", "#4C5F7C", "#5E7396", "#7288A8", "#8DA0BC", "#A8B8CE", "#C2CEE0", "#DCE3EF"];
 const buildCompositionBlocks = data => {
   if (!data || !data.holdings || !data.holdings.length) return [];
   const top = data.holdings.slice(0, 8);
@@ -2614,11 +2614,13 @@ class Component extends DCLogic {
     const avgHoldDays = txs.length ? Math.round(txs.reduce((a, t) => a + daysSince(t.date), 0) / txs.length) : null;
 
     // ---------- Depot-Gewichtung als Kreisdiagramm (Donut via stroke-dasharray) ----------
-    // GAP + stroke-linecap="round" (siehe Markup) geben jedem Segment eine
-    // abgerundete Luecke zum naechsten statt harter, eckiger Kanten.
+    // Durchgehende Segmente ohne Luecke: bei kleinen Positionen faellt eine
+    // Luecke+Rundung sonst als isolierter Punkt auseinander und verzerrt,
+    // wie gross der Anteil tatsaechlich wirkt. Die Rundung sitzt nur an den
+    // beiden Enden des gesamten Rings (siehe Markup), nicht zwischen Segmenten.
     const allocationSlices = [], allocationLegend = [];
     if (holdings.length && val) {
-      const R = 40, CIRC = 2 * Math.PI * R, GAP = 3;
+      const R = 40, CIRC = 2 * Math.PI * R;
       const sorted = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
       const top = sorted.slice(0, 7);
       const otherV = sorted.slice(7).reduce((a, x) => a + x.v, 0);
@@ -2626,17 +2628,15 @@ class Component extends DCLogic {
       top.forEach((x, i) => {
         const frac = x.v / val;
         const len = frac * CIRC;
-        const onLen = Math.max(0.001, len - GAP);
         const color = BLOCK_COLORS[i % BLOCK_COLORS.length];
-        allocationSlices.push({ color, dasharray: onLen.toFixed(2) + " " + (CIRC - onLen).toFixed(2), dashoffset: (-offset).toFixed(2) });
+        allocationSlices.push({ color, dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
         allocationLegend.push({ color, label: displayName(x.h), pct: (frac * 100).toFixed(1) + " %" });
         offset += len;
       });
       if (otherV > 0.0001) {
         const frac = otherV / val;
         const len = frac * CIRC;
-        const onLen = Math.max(0.001, len - GAP);
-        allocationSlices.push({ color: "#DCDFE6", dasharray: onLen.toFixed(2) + " " + (CIRC - onLen).toFixed(2), dashoffset: (-offset).toFixed(2) });
+        allocationSlices.push({ color: "#DCDFE6", dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
         allocationLegend.push({ color: "#DCDFE6", label: "Sonstige", pct: (frac * 100).toFixed(1) + " %" });
       }
     }
