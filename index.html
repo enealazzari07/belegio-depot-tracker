@@ -312,7 +312,7 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         </div>
 
-        <div style="position:relative;margin:-26px 16px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
+        <div style="position:relative;margin:-26px 12px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
@@ -320,8 +320,8 @@ input::placeholder{color:var(--tx3)}
              Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
              voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
              von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. -->
-        <div style="position:absolute;left:-16px;top:0;bottom:0;width:16px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
-        <div style="position:absolute;right:-16px;top:0;bottom:0;width:16px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
+        <div style="position:absolute;left:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
+        <div style="position:absolute;right:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
 
         <div class="sect">
           <span class="lbl">Positionen</span>
@@ -363,7 +363,7 @@ input::placeholder{color:var(--tx3)}
              unteren Ecken. Aufteilung noetig, damit der blaue Seiten-Fade an der
              Positionsliste endet, unabhaengig von Positionsanzahl oder
              Ladezustand — statt eines geratenen Pixel-Werts. -->
-        <div style="margin:0 16px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
+        <div style="margin:0 12px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
 
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
@@ -398,7 +398,7 @@ input::placeholder{color:var(--tx3)}
         </div>
         <!-- Ab hier ohne weisse Flaeche: die Karten stehen direkt auf dem
              Seitenhintergrund, Raender bleiben zur Box darueber ausgerichtet. -->
-        <div style="margin:0 16px;padding:20px 0 128px">
+        <div style="margin:0 12px;padding:20px 0 128px">
 
         <sc-if value="{{ hasCarousel }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:18px">
