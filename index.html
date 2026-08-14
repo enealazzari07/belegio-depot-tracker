@@ -1204,6 +1204,12 @@ input::placeholder{color:var(--tx3)}
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
         </div>
 
+        <div style="margin:0 20px 14px;display:flex;gap:4px;padding:3px;border-radius:12px;background:var(--surf2)">
+          <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
+            <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;text-align:center;padding:8px 0;border-radius:9px;background:{{ mt.bg }};color:{{ mt.tx }};font-size:12.5px;font-weight:600">{{ mt.label }}</button>
+          </sc-for>
+        </div>
+
         <div style="padding:0 20px;display:flex;gap:8px;margin-bottom:14px">
           <input value="{{ marketSearchTerm }}" onChange="{{ onMarketSearchTerm }}" placeholder="Ticker oder Name suchen, z. B. Apple" style="flex:1;min-width:0;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
           <button onClick="{{ runMarketSearch }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 18px;height:44px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ marketSearchLabel }}</button>
@@ -1275,7 +1281,12 @@ input::placeholder{color:var(--tx3)}
           <button onClick="{{ closeStockDetail }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
-          <span style="color:var(--tx);font-size:16px;font-weight:600;font-family:'Roboto Mono',monospace">{{ stockDetailSymbol }}</span>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span style="color:var(--tx);font-size:16px;font-weight:600;font-family:'Roboto Mono',monospace">{{ stockDetailSymbol }}</span>
+            <sc-if value="{{ stockDetailName }}" hint-placeholder-val="{{ false }}">
+              <span style="color:var(--tx3);font-size:11.5px">{{ stockDetailName }}</span>
+            </sc-if>
+          </div>
         </div>
 
         <sc-if value="{{ stockDetailLoading }}" hint-placeholder-val="{{ false }}">
@@ -1307,6 +1318,7 @@ input::placeholder{color:var(--tx3)}
               <div style="height:112px;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:12px">Zu wenig Daten für diesen Zeitraum.</div>
             </sc-if>
           </div>
+          <button onClick="{{ addFromDetail }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;height:48px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:13.5px;font-weight:600" style-hover="opacity:.9">Zum Depot hinzufügen</button>
         </sc-if>
       </div>
     </sc-if>
@@ -1626,7 +1638,29 @@ const MARKET_INDICES = [
   { sym: "^IXIC", label: "Nasdaq" },
   { sym: "^GDAXI", label: "DAX" }
 ];
-const MARKET_MOVERS = ["BTC-USD", "SPY", "QQQ", "AAPL", "MSFT", "NVDA", "TSLA", "AMZN"];
+// Kuratierte Kandidaten je Anlageklasse für den Märkte-Filter (Aktien/ETFs/
+// Rohstoffe) — Rohstoffe laufen über die Yahoo-Futures-Symbole (GC=F etc.),
+// funktionieren mit derselben quotes()/history()-API wie Aktien/ETFs, weil
+// yfQuote serverseitig symbolagnostisch ist (BTC-USD lief schon vorher genauso).
+const MARKET_TABS = [
+  { key: "stocks", label: "Aktien" },
+  { key: "etfs", label: "ETFs" },
+  { key: "commodities", label: "Rohstoffe" }
+];
+const MARKET_MOVERS_BY_CAT = {
+  stocks: [
+    { sym: "AAPL", name: "Apple" }, { sym: "MSFT", name: "Microsoft" },
+    { sym: "NVDA", name: "Nvidia" }, { sym: "TSLA", name: "Tesla" }, { sym: "AMZN", name: "Amazon" }
+  ],
+  etfs: [
+    { sym: "SPY", name: "S&P 500 ETF" }, { sym: "QQQ", name: "Nasdaq 100 ETF" }
+  ],
+  commodities: [
+    { sym: "GC=F", name: "Gold" }, { sym: "SI=F", name: "Silber" },
+    { sym: "PL=F", name: "Platin" }, { sym: "PA=F", name: "Palladium" }, { sym: "CL=F", name: "Rohöl WTI" }
+  ]
+};
+const MARKET_MOVER_SYMS = Object.values(MARKET_MOVERS_BY_CAT).flat().map(x => x.sym);
 const buildSparkline = rows => {
   if (!rows || rows.length < 2) return "";
   const closes = rows.slice(-30).map(r => r.close);
@@ -1793,7 +1827,8 @@ class Component extends DCLogic {
     insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
-    stockDetailSymbol: null, stockDetailData: null, stockDetailLoading: false, stockDetailError: "", stockDetailRange: "M",
+    marketsFilter: "stocks",
+    stockDetailSymbol: null, stockDetailName: "", stockDetailData: null, stockDetailLoading: false, stockDetailError: "", stockDetailRange: "M",
 
     scrubIndex: null,
 
@@ -1815,7 +1850,7 @@ class Component extends DCLogic {
       const api = await this.api();
       const idxSyms = MARKET_INDICES.map(i => i.sym);
       const [idxQ, idxH, movQ] = await Promise.all([
-        api.quotes(idxSyms), api.history(idxSyms), api.quotes(MARKET_MOVERS)
+        api.quotes(idxSyms), api.history(idxSyms), api.quotes(MARKET_MOVER_SYMS)
       ]);
       this.setState({ marketQuotes: idxQ, marketHistory: idxH, moverQuotes: movQ, marketsLoading: false });
     } catch (e) {
@@ -1840,9 +1875,9 @@ class Component extends DCLogic {
     }
   };
 
-  openStockDetail = sym => async () => {
+  openStockDetail = (sym, name) => async () => {
     this.setState({
-      screen: "stockDetail", stockDetailSymbol: sym, stockDetailRange: "M",
+      screen: "stockDetail", stockDetailSymbol: sym, stockDetailName: name || "", stockDetailRange: "M",
       stockDetailLoading: true, stockDetailError: "", stockDetailData: null
     });
     try {
@@ -1855,8 +1890,23 @@ class Component extends DCLogic {
     }
   };
 
-  closeStockDetail = () => this.setState({ screen: "markets", stockDetailSymbol: null, stockDetailData: null });
+  closeStockDetail = () => this.setState({ screen: "markets", stockDetailSymbol: null, stockDetailName: "", stockDetailData: null });
   setStockDetailRange = key => () => this.setState({ stockDetailRange: key });
+  setMarketsFilter = key => () => this.setState({ marketsFilter: key });
+
+  // Übernimmt Symbol/Name/aktuellen Kurs aus der Märkte-Detailansicht in die
+  // manuelle Erfassung — so lässt sich z. B. Gold (GC=F) ohne Beleg-Scan ins
+  // Depot buchen, Stückzahl und Datum trägt man dort noch selbst ein.
+  addFromDetail = () => {
+    const sym = this.state.stockDetailSymbol;
+    if (!sym) return;
+    const data = this.state.stockDetailData;
+    this.setState({
+      screen: "review",
+      extracted: { ...emptyFields(), symbol: sym, name: this.state.stockDetailName || "", price: data && data.c != null ? String(data.c) : "" },
+      pendingFile: null, ocrError: false
+    });
+  };
 
   openMenu = () => this.setState({ menuOpen: true });
   closeMenu = () => this.setState({ menuOpen: false });
@@ -3040,18 +3090,24 @@ class Component extends DCLogic {
       noNews: !this.state.liveNews || !this.state.liveNews.length,
       marketIndices: marketIndexList,
       hasMarketStrip: marketIndexList.length > 0,
-      marketMovers: this.state.moverQuotes ? MARKET_MOVERS.map(sym => {
+      marketTabs: MARKET_TABS.map(t => ({
+        key: t.key, label: t.label,
+        bg: this.state.marketsFilter === t.key ? "var(--surf)" : "transparent",
+        tx: this.state.marketsFilter === t.key ? "var(--tx)" : "var(--tx3)",
+        go: this.setMarketsFilter(t.key)
+      })),
+      marketMovers: this.state.moverQuotes ? (MARKET_MOVERS_BY_CAT[this.state.marketsFilter] || []).map(({ sym, name }) => {
         const q = this.state.moverQuotes[sym];
         const dp = q && typeof q.dp === "number" ? q.dp : 0;
         const abs = q ? q.c * dp / 100 : 0;
         return {
-          sym, logo: logoFor(sym), name: sym,
+          sym, logo: logoFor(sym), name,
           price: q ? q.c.toLocaleString("de-CH", { maximumFractionDigits: 2 }) : "–",
           change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
           changeAbs: (abs >= 0 ? "+" : "") + abs.toLocaleString("de-CH", { maximumFractionDigits: 2 }),
           color: dp >= 0 ? "var(--pos)" : "var(--neg)",
           dp,
-          open: this.openStockDetail(sym)
+          open: this.openStockDetail(sym, name)
         };
       }).sort((a, b) => Math.abs(b.dp) - Math.abs(a.dp)) : [],
       noMarkets: !this.state.marketsLoading && !this.state.marketsError && !this.state.marketQuotes,
@@ -3064,14 +3120,16 @@ class Component extends DCLogic {
       hasMarketSearchResults: this.state.marketSearchResults.length > 0,
       marketSearchResults: this.state.marketSearchResults.map(r => ({
         symbol: r.symbol, name: r.name || r.symbol, type: r.type || "",
-        open: this.openStockDetail(r.symbol)
+        open: this.openStockDetail(r.symbol, r.name)
       })),
 
       isStockDetail: screen === "stockDetail", closeStockDetail: this.closeStockDetail,
       stockDetailSymbol: this.state.stockDetailSymbol || "",
+      stockDetailName: this.state.stockDetailName || "",
       stockDetailLoading: this.state.stockDetailLoading,
       stockDetailError: this.state.stockDetailError,
       hasStockDetail: !this.state.stockDetailLoading && !this.state.stockDetailError && !!this.state.stockDetailData,
+      addFromDetail: this.addFromDetail,
       stockDetailPrice: this.state.stockDetailData ? f2(this.state.stockDetailData.c) : "",
       stockDetailPct: this.state.stockDetailData
         ? (this.state.stockDetailData.dp >= 0 ? "+" : "") + this.state.stockDetailData.dp.toFixed(2) + " %"

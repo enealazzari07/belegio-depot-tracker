@@ -165,6 +165,23 @@ Alpha-Vantage `TIME_SERIES_DAILY`, dann Twelve Data) je Symbol; fehlt Historie
 für ein Symbol, wird mit dem Einstandspreis approximiert. Zeitraum-Toggle (Tag/Woche/Monat/Jahr/Max) wird
 immer auf das erste Kaufdatum geclamped — kein Verlauf vor dem ersten Kauf.
 
+## Rohstoffe im Depot (Gold, Silber, ...)
+
+Positionen sind nicht auf Aktien/ETFs beschränkt — `transactions.symbol` ist
+freier Text, und `quotes()`/`history()`/`stockDetail()` reichen ihn 1:1 an
+Yahoo durch (bereits vorher an `BTC-USD` als Mover erkennbar), es gibt also
+keine serverseitige Whitelist nach Asset-Klasse. Neu im Client:
+
+- **Märkte-Screen**: Filter-Tabs „Aktien / ETFs / Rohstoffe" oben, dahinter
+  je Tab eine kuratierte Symbolliste (`MARKET_MOVERS_BY_CAT` in `index.html`).
+  Rohstoffe laufen über Yahoos Futures-Symbole (`GC=F` Gold, `SI=F` Silber,
+  `PL=F` Platin, `PA=F` Palladium, `CL=F` Rohöl WTI) statt ETF-Tickern —
+  liefert echte Spot-nahe Preise ohne TER/Tracking-Differenz eines Gold-ETFs.
+- **Zum Depot hinzufügen**: Button in der Aktien-Detailansicht übernimmt
+  Symbol, Name und aktuellen Kurs direkt in die manuelle Erfassung
+  (`addFromDetail` → `screen: "review"`) — Stückzahl und Kaufdatum trägt man
+  dort noch ein, genau wie bei jeder anderen manuellen Position.
+
 ## Tägliche Benachrichtigung (Web Push)
 
 Einstellungen → Umschalter „Täglicher Depotstand" registriert `sw.js` als
