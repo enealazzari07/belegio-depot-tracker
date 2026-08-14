@@ -83,6 +83,12 @@
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
   --brand:linear-gradient(165deg,#FFFFFF 0%,#E9F3FC 14%,#C6DFF7 30%,#96BEEC 48%,#6B9BE0 68%,#3F6DCB 88%,#2A56BE 100%);
   --brand-flat:#FFFFFF;
+  /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
+     und damit weiss — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
+     Der Rand-Verlauf muss dort ansetzen, wo der Hero farblich aufhoert.
+     Die Null-Alpha-Variante ist derselbe Ton, nicht `transparent`: sonst
+     interpoliert der Browser gegen rgba(0,0,0,0) und der Fade wird grau. */
+  --brand-end:#2A56BE; --brand-end-0:rgba(42,86,190,0);
   /* Die Flaeche ist jetzt hell, also muss die Schrift darauf dunkel sein —
      vorher war der Kopfbereich kraeftig blau und alles hier drauf weiss.
      onBrand* wird ausschliesslich im Home-Hero verwendet. */
@@ -117,6 +123,7 @@
      wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen. */
   --brand:linear-gradient(165deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --brand-flat:#0D1220;
+  --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
   --onBrand-dash:rgba(255,255,255,.45);
@@ -222,7 +229,7 @@ input::placeholder{color:var(--tx3)}
              (kein color-mix(), keine Prozent-Stops) — so einfach wie moeglich, um
              jedes Risiko einer Fehlinterpretation durch das Template-Parsing der
              style-Attribute auszuschliessen. -->
-        <div style="background-image:linear-gradient(180deg, var(--brand-flat) 0px, var(--brand-flat) 500px, transparent 3200px);background-repeat:no-repeat;background-size:100% 3200px">
+        <div style="background-image:linear-gradient(180deg, var(--brand-end) 0px, var(--brand-end) 520px, var(--brand-end-0) 3000px);background-repeat:no-repeat;background-size:100% 3000px">
 
         <div style="background:var(--brand);border:1px solid var(--onBrand-line);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
