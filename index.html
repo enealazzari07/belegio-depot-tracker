@@ -230,12 +230,11 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
-      <!-- Aussenflaeche (Rand links/rechts neben dem weissen Sheet) ist bewusst
-           --surf3 statt --bg: das Sheet selbst ist --bg, ein winziger Tonwert
-           heller. So bleibt der Rand sichtbar, sobald das Blau unten ausgeblendet
-           ist — sonst waeren Aussenflaeche und Sheet exakt dieselbe Farbe und
-           die abgerundete Box haette dort keinen erkennbaren Rand mehr. -->
-      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--surf3);animation:fade .3s ease">
+      <!-- Aussenflaeche exakt --bg, also derselbe Ton wie das Sheet: unterhalb
+           des blauen Bereichs soll die Box ohne erkennbare Kante in die Flaeche
+           uebergehen. Ein abweichender Ton (frueher --surf3) zeichnet dort die
+           Sheet-Kante nach, was hier unerwuenscht ist. -->
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--bg);animation:fade .3s ease">
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
