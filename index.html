@@ -479,7 +479,10 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
 
-        <div style="padding:20px 20px 0">
+        <!-- Unterer Abstand nicht 0: der Button traegt --brand-shadow, der nach
+             unten ueber seine Box hinausragt und sonst in die naechste
+             Sektionsueberschrift laeuft. -->
+        <div style="padding:20px 20px 24px">
           <button onClick="{{ openInvestPlanSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;border-radius:26px;background:var(--brand);box-shadow:var(--brand-shadow);padding:18px;text-align:left" style-hover="opacity:.95">
             <sc-if value="{{ hasInvestPlan }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
