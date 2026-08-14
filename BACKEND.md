@@ -181,6 +181,16 @@ keine serverseitige Whitelist nach Asset-Klasse. Neu im Client:
   Symbol, Name und aktuellen Kurs direkt in die manuelle Erfassung
   (`addFromDetail` → `screen: "review"`) — Stückzahl und Kaufdatum trägt man
   dort noch ein, genau wie bei jeder anderen manuellen Position.
+- **Gramm statt Feinunze**: Physisches Gold/Silber/Platin/Palladium wird
+  privat in Gramm gehalten, Yahoo liefert `GC=F`/`SI=F`/`PL=F`/`PA=F` aber in
+  USD je Feinunze (troy ounce). Der Märkte-Screen zeigt bewusst weiterhin den
+  unkonvertierten Feinunzen-Kurs (so werden Edelmetallpreise überall
+  zitiert), aber sobald ein Kurs gegen eine Depotposition verrechnet wird —
+  aktueller Wert, Kursverlauf, Intraday-Chart, Vorbefüllung beim Hinzufügen —
+  rechnet `toDepotPrice()` (`index.html`) ihn fix durch 31.1034768 g/oz auf
+  Gramm um. Das Erfassungsformular beschriftet Stückzahl/Kurs für diese vier
+  Symbole entsprechend als „Menge (Gramm)"/„Kurs pro Gramm". Rohöl (`CL=F`)
+  bleibt bewusst außen vor (kein Gramm-Pendant, Fass ist die übliche Einheit).
 
 ## Tägliche Benachrichtigung (Web Push)
 

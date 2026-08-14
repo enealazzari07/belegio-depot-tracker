@@ -1121,6 +1121,10 @@ input::placeholder{color:var(--tx3)}
           <p style="margin:0 0 14px;color:var(--tx3);font-size:11.5px;line-height:1.5">{{ tickerHintMsg }}</p>
         </sc-if>
 
+        <sc-if value="{{ gramHint }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0 0 14px;color:var(--tx3);font-size:11.5px;line-height:1.5">Erfassung in Gramm — der Kurs wird automatisch aus dem Feinunzen-Preis umgerechnet.</p>
+        </sc-if>
+
         <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}">
           <p style="margin:0 0 14px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ confirmError }}</p>
         </sc-if>
@@ -1661,6 +1665,18 @@ const MARKET_MOVERS_BY_CAT = {
   ]
 };
 const MARKET_MOVER_SYMS = Object.values(MARKET_MOVERS_BY_CAT).flat().map(x => x.sym);
+
+// Yahoo liefert diese Edelmetall-Futures in USD je Feinunze (troy ounce) —
+// im eigenen Depot wird physisches Gold/Silber/Platin/Palladium aber in
+// Gramm gehalten und gebucht. Deshalb wird der Kurs überall dort, wo er
+// gegen die in Gramm erfassten Stückzahlen einer Depotposition verrechnet
+// wird (aktueller Wert, Kursverlauf, Intraday-Chart, Vorbefüllung beim
+// Hinzufügen), fest auf Gramm umgerechnet. Der Märkte-Screen selbst zeigt
+// bewusst weiterhin den unkonvertierten Kurs je Feinunze, weil Edelmetalle
+// so allgemein zitiert werden.
+const TROY_OZ_TO_GRAM = 31.1034768;
+const GRAM_METAL_SYMS = new Set(["GC=F", "SI=F", "PL=F", "PA=F"]);
+const toDepotPrice = (sym, price) => GRAM_METAL_SYMS.has(sym) && typeof price === "number" ? price / TROY_OZ_TO_GRAM : price;
 const buildSparkline = rows => {
   if (!rows || rows.length < 2) return "";
   const closes = rows.slice(-30).map(r => r.close);
@@ -1901,9 +1917,10 @@ class Component extends DCLogic {
     const sym = this.state.stockDetailSymbol;
     if (!sym) return;
     const data = this.state.stockDetailData;
+    const price = data && data.c != null ? toDepotPrice(sym, data.c) : null;
     this.setState({
       screen: "review",
-      extracted: { ...emptyFields(), symbol: sym, name: this.state.stockDetailName || "", price: data && data.c != null ? String(data.c) : "" },
+      extracted: { ...emptyFields(), symbol: sym, name: this.state.stockDetailName || "", price: price != null ? String(price) : "" },
       pendingFile: null, ocrError: false
     });
   };
@@ -2077,7 +2094,7 @@ class Component extends DCLogic {
       for (const sym of Object.keys(q)) {
         const quote = q[sym];
         if (!quote || typeof quote.c !== "number") continue;
-        next[sym] = [...(next[sym] || []).slice(-47), { t: Date.now(), p: quote.c }];
+        next[sym] = [...(next[sym] || []).slice(-47), { t: Date.now(), p: toDepotPrice(sym, quote.c) }];
       }
       try { localStorage.setItem("belegio_intraday", JSON.stringify({ date: today, data: next })); } catch (e) {}
       return { intraday: next, intradayDate: today };
@@ -2197,7 +2214,11 @@ class Component extends DCLogic {
     try {
       const api = await this.api();
       const data = await api.history(syms);
-      this.setState(s => ({ history: { ...s.history, ...data } }));
+      const converted = {};
+      for (const sym of Object.keys(data || {})) {
+        converted[sym] = (data[sym] || []).map(r => ({ ...r, close: toDepotPrice(sym, r.close) }));
+      }
+      this.setState(s => ({ history: { ...s.history, ...converted } }));
     } catch (e) { /* Rate-Limit/Fehler — Chart faellt auf Naeherung ueber den Einstandspreis zurueck */ }
   };
 
@@ -2607,8 +2628,9 @@ class Component extends DCLogic {
     const { theme, screen, plan, quotes: qs, conn, user } = this.state;
     this.syncStatusBar(screen);
     const holdings = this.state.holdings.map(h => {
-      const q = qs[h.sym || h.abbr];
-      return q ? { ...h, cur: q.c, dp: q.dp, live: true } : h;
+      const sym = h.sym || h.abbr;
+      const q = qs[sym];
+      return q ? { ...h, cur: toDepotPrice(sym, q.c), dp: q.dp, live: true } : h;
     });
     const val = holdings.reduce((a, h) => a + h.shares * h.cur, 0);
     const cost = holdings.reduce((a, h) => a + h.shares * h.buy, 0);
@@ -2665,6 +2687,7 @@ class Component extends DCLogic {
     const shares = parseFloat(f.shares) || 0;
     const price = parseFloat(f.price) || 0;
     const total = shares && price ? shares * price : parseFloat(f.total) || 0;
+    const isGramMetal = GRAM_METAL_SYMS.has((f.symbol || "").trim().toUpperCase());
 
     // ---------- Chart: real invested-over-time + best-effort value-over-time, clamped to first purchase ----------
     const txs = this.state.txs || [];
@@ -3509,11 +3532,12 @@ class Component extends DCLogic {
       tickerHintMsg: this.state.isinUnresolved
         ? "Die ISIN scheint fehlerhaft (Prüfziffer ungültig) oder unbekannt zu sein — bitte prüfen und den Ticker manuell eintragen."
         : "Ohne echten Ticker (z. B. VWRL, AAPL) gibt es keine Live-Kurse für diese Position — die ISIN allein reicht dafür nicht.",
+      gramHint: isGramMetal,
       fields: [
         { k: "Handelsdatum", v: f.date, onChange: this.setField("date") },
         { k: "Ticker-Symbol", v: f.symbol, onChange: this.setField("symbol") },
-        { k: "Stückzahl", v: f.shares, onChange: this.setField("shares") },
-        { k: "Kurs pro Stück", v: f.price, onChange: this.setField("price") }
+        { k: isGramMetal ? "Menge (Gramm)" : "Stückzahl", v: f.shares, onChange: this.setField("shares") },
+        { k: isGramMetal ? "Kurs pro Gramm" : "Kurs pro Stück", v: f.price, onChange: this.setField("price") }
       ],
 
       perks: [
