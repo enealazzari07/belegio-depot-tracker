@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pockit">
-<link rel="apple-touch-icon" sizes="180x180" href="icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3002,7 +3002,7 @@ setTheme(DB.se.theme || (matchMedia('(prefers-color-scheme:dark)').matches ? 'da
   const manifest = {
     name:'Pockit', short_name:'Pockit', start_url:'.', display:'standalone',
     background_color:'#f7f8fa', theme_color:'#1a9b8e',
-    icons:[{ src:iconUri, sizes:'192x192', type:'image/svg+xml' }]
+    icons:[{ src:iconUri, sizes:'512x512', type:'image/png' }]
   };
   const mLink = document.createElement('link'); mLink.rel = 'manifest';
   mLink.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
