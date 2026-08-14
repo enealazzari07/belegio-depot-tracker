@@ -227,7 +227,12 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--bg);animation:fade .3s ease">
+      <!-- Aussenflaeche (Rand links/rechts neben dem weissen Sheet) ist bewusst
+           --surf3 statt --bg: das Sheet selbst ist --bg, ein winziger Tonwert
+           heller. So bleibt der Rand sichtbar, sobald das Blau unten ausgeblendet
+           ist — sonst waeren Aussenflaeche und Sheet exakt dieselbe Farbe und
+           die abgerundete Box haette dort keinen erkennbaren Rand mehr. -->
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--surf3);animation:fade .3s ease">
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
@@ -236,8 +241,10 @@ input::placeholder{color:var(--tx3)}
              Bildschirmhoehe zu enden. Absichtlich nur zwei Farben in Pixel-Werten
              (kein color-mix(), keine Prozent-Stops) — so einfach wie moeglich, um
              jedes Risiko einer Fehlinterpretation durch das Template-Parsing der
-             style-Attribute auszuschliessen. -->
-        <div style="background-image:linear-gradient(180deg, var(--brand-end) 0px, var(--brand-end) 520px, var(--brand-end-0) 3000px);background-repeat:no-repeat;background-size:100% 3000px">
+             style-Attribute auszuschliessen. Faerbt bis knapp unter die Positionen-
+             Liste hinein aus, statt ueber die ganze Scrollhoehe zu laufen — das Blau
+             soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
+        <div style="background-image:linear-gradient(180deg, var(--brand-end) 0px, var(--brand-end) 520px, var(--brand-end-0) 800px);background-repeat:no-repeat;background-size:100% 800px">
 
         <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
