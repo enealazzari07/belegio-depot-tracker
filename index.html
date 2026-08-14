@@ -178,6 +178,16 @@ input::placeholder{color:var(--tx3)}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes scrimIn{from{opacity:0}to{opacity:1}}
+/* Steuer-Report drucken/als PDF speichern: isoliert #tax-report-print statt
+   die App-Chrome (Tab-Leiste, Status, Scroll-Container) mit auszudrucken —
+   Standard-Pattern, da hier keine PDF-Bibliothek eingebunden ist, sondern der
+   Browser-Druckdialog ("Als PDF speichern") den Export uebernimmt. */
+@media print{
+  body *{visibility:hidden}
+  #tax-report-print,#tax-report-print *{visibility:visible}
+  #tax-report-print{position:absolute;top:0;left:0;width:100%;padding:24px}
+  .no-print{display:none!important}
+}
 </style>
 </helmet>
 
@@ -1329,6 +1339,102 @@ input::placeholder{color:var(--tx3)}
       </div>
     </sc-if>
 
+    <sc-if value="{{ isTaxReport }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px + var(--sat-extra, 0px)) 20px 128px;animation:fade .3s ease">
+        <div class="no-print" style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="flex:1;color:var(--tx);font-size:16px;font-weight:600">Steuer-Report</span>
+          <button onClick="{{ printTaxReport }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:12.5px;font-weight:700" style-hover="opacity:.9">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"></path></svg>
+            Drucken / PDF
+          </button>
+        </div>
+
+        <div id="tax-report-print">
+          <h2 style="margin:0 0 4px;color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.02em">Depot-Übersicht für die Steuererklärung</h2>
+          <p style="margin:0 0 4px;color:var(--tx3);font-size:12px">Stand: {{ taxReportDate }}</p>
+          <p style="margin:0 0 20px;color:var(--tx3);font-size:11.5px;line-height:1.5">Momentaufnahme aus Belegio, kein offizielles Wertschriftenverzeichnis und kein Ersatz für die Steuerwerte deiner Bank/ICTax per 31.12. Zur Kontrolle und als Beleg-Grundlage für deine Erklärung.</p>
+
+          <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+            <div style="flex:1;min-width:130px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:12px 14px">
+              <span class="lbl" style="display:block;margin-bottom:4px">Einstandswert</span>
+              <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ taxReportInvested }}</span>
+            </div>
+            <div style="flex:1;min-width:130px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:12px 14px">
+              <span class="lbl" style="display:block;margin-bottom:4px">Aktueller Wert</span>
+              <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ taxReportValue }}</span>
+            </div>
+            <div style="flex:1;min-width:130px;border-radius:16px;background:var(--surf);border:1px solid var(--line);padding:12px 14px">
+              <span class="lbl" style="display:block;margin-bottom:4px">Gewinn/Verlust</span>
+              <span class="mono" style="color:{{ taxReportGainPositive ? 'var(--pos)' : 'var(--neg)' }};font-size:16px;font-weight:700">{{ taxReportGain }}</span>
+            </div>
+          </div>
+
+          <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:700;margin-bottom:10px">Positionen</span>
+          <sc-if value="{{ hasTaxReportPositions }}" hint-placeholder-val="{{ false }}">
+            <div style="overflow-x:auto;margin-bottom:24px">
+              <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--line2)">
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Titel</th>
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">ISIN</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Anzahl</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Ø Kauf</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Kurs</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Wert</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Gewinn/Verlust</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ taxReportPositions }}" as="p" hint-placeholder-count="3">
+                    <tr style="border-bottom:1px solid var(--line)">
+                      <td style="padding:7px 8px;color:var(--tx)">{{ p.name }}</td>
+                      <td class="mono" style="padding:7px 8px;color:var(--tx3)">{{ p.isin }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ p.sharesLabel }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ p.buyAvg }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ p.curPrice }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx);font-weight:700">{{ p.curValue }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:{{ p.gainPositive ? 'var(--pos)' : 'var(--neg)' }}">{{ p.gain }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+
+          <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:700;margin-bottom:10px">Transaktionen</span>
+          <sc-if value="{{ hasTaxReportTransactions }}" hint-placeholder-val="{{ false }}">
+            <div style="overflow-x:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--line2)">
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Datum</th>
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Titel</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Anzahl</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Preis</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Betrag</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ taxReportTransactions }}" as="t" hint-placeholder-count="3">
+                    <tr style="border-bottom:1px solid var(--line)">
+                      <td class="mono" style="padding:7px 8px;color:var(--tx3)">{{ t.dateLabel }}</td>
+                      <td style="padding:7px 8px;color:var(--tx)">{{ t.name }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ t.sharesLabel }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ t.price }} {{ t.currency }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx);font-weight:700">{{ t.total }} {{ t.currency }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeMenu }}" style="position:absolute;inset:0;background:transparent;z-index:8"></div>
       <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(64px + env(safe-area-inset-bottom, 0px));width:188px;background:var(--surf);border-radius:20px;box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
@@ -2459,6 +2565,32 @@ class Component extends DCLogic {
     const g = val - cost;
     const used = this.state.txCount || 0;
 
+    // ---------- Steuer-Report ----------
+    // Erste, funktionierende Version: Momentaufnahme des Depots (kein
+    // offizielles Wertschriftenverzeichnis, keine ICTax-Steuerwerte per
+    // 31.12.) — dient als Grundlage/Beleg-Sammlung fuer die Steuererklaerung,
+    // ausdruckbar ueber die Browser-Druckfunktion (kein PDF-Lib-Import noetig).
+    const taxReportPositions = holdings.map(h => {
+      const shares = h.shares, buyVal = shares * h.buy, curVal = shares * h.cur, gain = curVal - buyVal;
+      return {
+        name: displayName(h), isin: h.isin || "–", symbol: h.sym || h.abbr, currency: h.currency || "CHF",
+        sharesLabel: shares.toLocaleString("de-CH", { maximumFractionDigits: 4 }),
+        buyAvg: f2(h.buy), curPrice: f2(h.cur), buyValue: f2(buyVal), curValue: f2(curVal),
+        gain: (gain >= 0 ? "+" : "") + f2(gain), gainPositive: gain >= 0,
+      };
+    });
+    const taxReportTransactions = (this.state.txs || [])
+      .slice()
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .map(t => ({
+        dateLabel: new Date(t.date).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" }),
+        name: t.name || t.symbol, symbol: t.symbol, isin: t.isin || "–",
+        sharesLabel: Number(t.shares).toLocaleString("de-CH", { maximumFractionDigits: 4 }),
+        price: f2(t.purchase_price), currency: t.currency || "CHF",
+        total: f2(t.total_amount != null ? t.total_amount : Number(t.shares) * Number(t.purchase_price)),
+        fees: t.fees ? f2(t.fees) : null,
+      }));
+
     // ---------- Zinseszins-Rechner ----------
     // Startkapital: eigene Eingabe, sonst automatisch der aktuelle Depotwert.
     const compoundStart = this.state.compoundStartInput !== ""
@@ -2860,6 +2992,7 @@ class Component extends DCLogic {
 
       logout: this.logoutUser,
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
+      isTaxReport: screen === "taxReport", goTaxReport: this.go("taxReport"),
       goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
       goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
       tHome: screen === "dash" ? "var(--tx)" : "var(--tx3)",
@@ -2952,9 +3085,16 @@ class Component extends DCLogic {
       hasStockDetailChart: !!stockDetailChart,
       noStockDetailChart: !!this.state.stockDetailData && !stockDetailChart,
       stockDetailChartPath: stockDetailChart ? stockDetailChart.path : "",
+
+      taxReportDate: new Date().toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" }),
+      taxReportPositions, hasTaxReportPositions: taxReportPositions.length > 0,
+      taxReportTransactions, hasTaxReportTransactions: taxReportTransactions.length > 0,
+      taxReportInvested: f2(cost), taxReportValue: f2(val),
+      taxReportGain: (g >= 0 ? "+" : "") + f2(g), taxReportGainPositive: g >= 0,
+      printTaxReport: () => window.print(),
       prefs: [
         ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
-        ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", "pro"]
+        ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", this.state.userPlan === "pro" ? "taxReport" : "pro"]
       ].map(([label, hint, d, to]) => ({
         label, hint,
         icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })),
