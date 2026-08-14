@@ -66,7 +66,12 @@
   --line:#E9ECF1; --line2:#D8DCE4;
   --tx:#10131A; --tx2:#575E6D; --tx3:#8B92A1;
   --acc:#10131A; --accTx:#FFFFFF;
-  --acc2:#12775F; --acc-soft:rgba(18,119,95,.09); --acc-line:rgba(18,119,95,.22);
+  /* Eigenstaendig vom Gewinn/Verlust-Gruen: --acc2 ist der allgemeine
+     Interaktions-Akzent (Links, Icons, Fortschrittsbalken, Badges) und war
+     bisher zufaellig derselbe Gruenton wie --pos — dadurch wirkte Gruen
+     ueberall praesent, obwohl es nur an echten Kursgewinnen etwas bedeuten
+     soll. Jetzt Blau (= --info), --pos bleibt das Finanz-Gruen fuer Gewinne. */
+  --acc2:#2E6BE6; --acc-soft:rgba(46,107,230,.09); --acc-line:rgba(46,107,230,.22);
   --pos:#12775F; --neg:#C0453A;
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
@@ -98,7 +103,7 @@
   --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.15);
   --tx:#ECEEF2; --tx2:#9BA1AD; --tx3:#666C79;
   --acc:#ECEEF2; --accTx:#0A0B0F;
-  --acc2:#4FBF9F; --acc-soft:rgba(79,191,159,.13); --acc-line:rgba(79,191,159,.28);
+  --acc2:#6FA0FF; --acc-soft:rgba(111,160,255,.13); --acc-line:rgba(111,160,255,.28);
   --pos:#4FBF9F; --neg:#E07C71;
   --pos-soft:rgba(79,191,159,.13); --neg-soft:rgba(224,124,113,.13);
   --warn:#E0B252; --warn-soft:rgba(224,178,82,.14);
@@ -416,8 +421,12 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
 
+        <div class="sect">
+          <span class="lbl">Kennzahlen</span>
+        </div>
+
         <div style="padding:0 20px 18px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px">
-          <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="6">
+          <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="4">
             <div style="background:var(--surf);border-radius:28px;box-shadow:var(--card-shadow);padding:15px 16px;display:flex;flex-direction:column;min-height:112px;min-width:0">
               <span style="color:var(--tx3);font-size:12.5px;font-weight:500;line-height:1.3;margin-bottom:7px">{{ s.k }}</span>
               <span class="mono" style="color:{{ s.c }};font-size:21px;font-weight:700;letter-spacing:-.025em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.v }}</span>
@@ -467,7 +476,7 @@ input::placeholder{color:var(--tx3)}
 
         <sc-if value="{{ hasSignals }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
-            <div class="card" style="padding:18px;border-color:var(--acc-line)">
+            <div class="card" style="padding:18px">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
                 <div style="width:28px;height:28px;border-radius:10px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3.5 3.5L21 5"></path><path d="M15 5h6v6"></path></svg>
@@ -2533,9 +2542,6 @@ class Component extends DCLogic {
       return { path, pct, pos: pct >= 0 };
     })();
 
-    const topMoverToday = holdings.reduce((best, h) => (typeof h.dp === "number" && (!best || h.dp > best.dp)) ? h : best, null);
-    const worstMoverToday = holdings.reduce((w, h) => (typeof h.dp === "number" && (!w || h.dp < w.dp)) ? h : w, null);
-
     // ---------- Marktkontext (Indizes) ----------
     // Indizes ohne Kursdaten weglassen statt als "–  +0.00%" anzeigen.
     const marketIndexList = this.state.marketQuotes ? MARKET_INDICES.filter(idx => {
@@ -3126,16 +3132,6 @@ class Component extends DCLogic {
           k: "Rendite gesamt", v: (cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) : "0.0") + " %",
           c: g >= 0 ? "var(--pos)" : "var(--neg)",
           sub: (g >= 0 ? "+" : "") + f2(g) + " CHF"
-        },
-        {
-          k: "Stärkste heute", v: topMoverToday ? (topMoverToday.dp >= 0 ? "+" : "") + topMoverToday.dp.toFixed(2) + " %" : "–",
-          c: topMoverToday && topMoverToday.dp < 0 ? "var(--neg)" : "var(--pos)",
-          sub: topMoverToday ? displayName(topMoverToday) : "keine Live-Kurse"
-        },
-        {
-          k: "Schwächste heute", v: worstMoverToday ? (worstMoverToday.dp >= 0 ? "+" : "") + worstMoverToday.dp.toFixed(2) + " %" : "–",
-          c: worstMoverToday && worstMoverToday.dp >= 0 ? "var(--pos)" : "var(--neg)",
-          sub: worstMoverToday ? displayName(worstMoverToday) : "keine Live-Kurse"
         },
         {
           k: "Investiert", v: f2(cost), c: "var(--tx)",
