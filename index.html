@@ -233,8 +233,8 @@ html[data-theme="dark"] .seg button.on{background:var(--teal);color:#fff}
   background:var(--bg);border-radius:24px 24px 0 0;padding:var(--s3) var(--s3) calc(env(safe-area-inset-bottom) + 20px);
   max-height:92vh;overflow-y:auto;animation:up .3s var(--ease);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
 @keyframes up{from{transform:translateY(100%)}to{transform:none}}
-.grabber{width:40px;height:4px;border-radius:999px;background:var(--card-2);margin:4px auto var(--s3)}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s4)}
+.grabber{width:40px;height:4px;border-radius:999px;background:var(--card-2);margin:4px auto var(--s3);touch-action:none}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s4);touch-action:none}
 .sheet-head h2{font-size:19px;font-weight:700;letter-spacing:-.02em;margin:0}
 
 /* ---------- Toast ---------- */
@@ -875,12 +875,16 @@ const TABS = [
 let route = { tab:'home', param:null };
 let routeHistory = [];
 
-function go(tab, param=null, remember=true, scrollY=0){
+function go(tab, param=null, remember=true, scrollY=0, scrollToId=null){
   if(tab === 'scan'){ Scanner.open(); return; }
   if(remember && (route.tab!==tab || route.param!==param)) routeHistory.push({ ...route, scroll: window.scrollY });
   route = { tab, param };
   render();
-  requestAnimationFrame(() => window.scrollTo({ top:scrollY, behavior:'instant' in window ? 'instant' : 'auto' }));
+  requestAnimationFrame(() => {
+    const target = scrollToId && document.getElementById(scrollToId);
+    if(target){ target.scrollIntoView({ behavior:'instant' in window ? 'instant' : 'auto', block:'start' }); return; }
+    window.scrollTo({ top:scrollY, behavior:'instant' in window ? 'instant' : 'auto' });
+  });
 }
 
 function renderNav(){
@@ -927,9 +931,11 @@ const SheetSwipe = {
     this.dragging = true;
     this.el.style.transition = 'none';
     try{ e.currentTarget.setPointerCapture(e.pointerId); }catch(_){}
+    e.preventDefault();
   },
   move(e){
     if(!this.dragging || this.y0==null || !this.el) return;
+    e.preventDefault();
     const dy = e.clientY - this.y0;
     if(dy > 0) this.el.style.transform = `translateY(${dy}px)`;
   },
@@ -1142,7 +1148,7 @@ function topbarFor(tab){
     konto: [ 'Konto', DB.se.name ],
     abos:  [ 'Abos', DB.ab.filter(a=>a.aktiv!==false).length + ' aktive Abos' ],
     budget:[ 'Budget-Ziele', 'Limits pro Kategorie' ],
-    kalender:['Kalender', 'Garantien, Abos & Meilensteine' ],
+    kalender:['Kalender', '' ],
     review:[ 'Report', 'Dein Rückblick' ],
     katdetail:[ kat(route.param).name, 'Alle Buchungen' ]
   };
@@ -1152,7 +1158,7 @@ function topbarFor(tab){
   const rechts = ['home','kat','kalender','stat'].includes(tab) ? quickActionsHTML : '';
   return `<div style="display:flex;align-items:center;gap:12px;min-width:0">
       ${zurueck ? `<button class="icon-btn" onclick="zurueck()" aria-label="Zurück">${I('left')}</button>` : logoMark()}
-      <div style="min-width:0"><h1>${esc(t)}</h1><div class="sub">${esc(s)}</div></div>
+      <div style="min-width:0"><h1>${esc(t)}</h1>${s ? `<div class="sub">${esc(s)}</div>` : ''}</div>
     </div>${rechts}`;
 }
 function zurueck(){
@@ -1479,7 +1485,7 @@ VIEWS.home = () => {
   </div>
   <div class="quick" style="margin-top:var(--s3)"><button class="qa" onclick="Modals.zahlung()">${IC('receipt','#1a9b8e',40)}<span>Zahlung</span></button><button class="qa scan" onclick="Scanner.open()"><span class="ico">${I('camera')}</span><span>Scannen</span></button><button class="qa" onclick="Modals.sparen()">${IC('heart','#2d9d78',40)}<span>Sparen</span></button></div>
   <section class="section"><div class="section-head"><div class="section-title">Letzte Transaktionen</div><button class="section-link" onclick="go('kat')">Alle</button></div>${last.length?`<div class="stack">${last.map(txRow).join('')}</div>`:`<div class="card">${empty('receipt','Noch keine Transaktionen','Scanne einen Beleg oder erfasse eine Zahlung. ',`<button class="btn" onclick="Scanner.open()">${I('camera')} Beleg scannen</button>`)}</div>`}</section>
-  <section class="section"><div class="section-head"><div><div class="section-title">Ausgaben</div><div class="tiny muted" style="margin-top:2px">${PERIOD_LABEL.monat} · ${eur(Calc.summe(monat))}</div></div><button class="section-link" onclick="go('kat')">Details</button></div>${cats.length?`<div class="card">${Chart.bars(cats.map(x=>({name:x.k.name,wert:x.betrag,farbe:x.k.farbe,icon:x.k.icon_name})))}</div>`:`<div class="card">${empty('layers','Noch keine Ausgaben','Die Ausgaben nach Kategorien erscheinen hier automatisch.')}</div>`}</section>`;
+  <section class="section"><div class="section-head"><div><div class="section-title">Ausgaben</div><div class="tiny muted" style="margin-top:2px">${PERIOD_LABEL.monat} · ${eur(Calc.summe(monat))}</div></div><button class="section-link" onclick="go('kat', null, true, 0, 'kat-kategorien')">Details</button></div>${cats.length?`<div class="card">${Chart.bars(cats.map(x=>({name:x.k.name,wert:x.betrag,farbe:x.k.farbe,icon:x.k.icon_name})))}</div>`:`<div class="card">${empty('layers','Noch keine Ausgaben','Die Ausgaben nach Kategorien erscheinen hier automatisch.')}</div>`}</section>`;
 };
 
 let sparFilter = 'monat';
@@ -1493,7 +1499,7 @@ function toggleZahlungShowAll(){ zahlungShowAll = !zahlungShowAll; render(); }
 VIEWS.kat = () => {
   const list = txInPeriod(zahlungFilter, zahlungRef), cats = Calc.nachKategorie(list), total = Calc.summe(list);
   const gezeigt = zahlungShowAll ? list : list.slice(0,5);
-  return `<div class="seg" style="margin-top:var(--s1)">${['tag','woche','monat','jahr'].map(p=>`<button class="${zahlungFilter===p?'on':''}" onclick="setZahlungFilter('${p}')">${({tag:'Tag',woche:'Woche',monat:'Monat',jahr:'Jahr'})[p]}</button>`).join('')}</div>${periodNavHTML(zahlungFilter, zahlungRef, 'shiftZahlung(-1)', 'shiftZahlung(1)')}<div class="hero" style="margin-top:var(--s3)"><div class="kpi-label">Ausgaben · ${PERIOD_SUBLABEL[zahlungFilter]}</div><div class="kpi-value">${eur0(total)}</div><div class="tiny" style="color:rgba(255,255,255,.7);margin-top:8px">${list.length} Transaktionen</div></div><section class="section"><div class="section-head"><div class="section-title">Transaktionen</div>${list.length>5?`<button class="section-link" onclick="toggleZahlungShowAll()">${zahlungShowAll?'Weniger anzeigen':'Alle anzeigen'}</button>`:''}</div>${list.length?(zahlungShowAll?txGroups(gezeigt):`<div class="stack">${gezeigt.map(txRow).join('')}</div>`):`<div class="card">${empty('receipt','Keine Zahlungen','In diesem Zeitraum wurden keine Zahlungen erfasst.')}</div>`}</section><section class="section"><div class="section-head"><div class="section-title">Ausgaben nach Kategorien</div></div>${cats.length?`<div class="card"><div class="stack" style="gap:14px">${(() => { const max = Math.max(...cats.map(x=>x.betrag)) || 1; return cats.map(x => `
+  return `<div class="seg" style="margin-top:var(--s1)">${['tag','woche','monat','jahr'].map(p=>`<button class="${zahlungFilter===p?'on':''}" onclick="setZahlungFilter('${p}')">${({tag:'Tag',woche:'Woche',monat:'Monat',jahr:'Jahr'})[p]}</button>`).join('')}</div>${periodNavHTML(zahlungFilter, zahlungRef, 'shiftZahlung(-1)', 'shiftZahlung(1)')}<div class="hero" style="margin-top:var(--s3)"><div class="kpi-label">Ausgaben · ${PERIOD_SUBLABEL[zahlungFilter]}</div><div class="kpi-value">${eur0(total)}</div><div class="tiny" style="color:rgba(255,255,255,.7);margin-top:8px">${list.length} Transaktionen</div></div><section class="section"><div class="section-head"><div class="section-title">Transaktionen</div>${list.length>5?`<button class="section-link" onclick="toggleZahlungShowAll()">${zahlungShowAll?'Weniger anzeigen':'Alle anzeigen'}</button>`:''}</div>${list.length?(zahlungShowAll?txGroups(gezeigt):`<div class="stack">${gezeigt.map(txRow).join('')}</div>`):`<div class="card">${empty('receipt','Keine Zahlungen','In diesem Zeitraum wurden keine Zahlungen erfasst.')}</div>`}</section><section class="section" id="kat-kategorien"><div class="section-head"><div class="section-title">Ausgaben nach Kategorien</div></div>${cats.length?`<div class="card"><div class="stack" style="gap:14px">${(() => { const max = Math.max(...cats.map(x=>x.betrag)) || 1; return cats.map(x => `
     <button class="tap" style="width:100%;text-align:left;display:flex;align-items:center;gap:12px" onclick="go('katdetail','${x.id}')">
       ${IC(x.k.icon_name, x.k.farbe, 36)}
       <div style="flex:1;min-width:0">
