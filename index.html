@@ -76,11 +76,12 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Weiss-zu-Blau-Verlauf im Home-Hero, angelehnt ans Referenzbild — bewusst
-     hell/weiss-lastig, kein kraeftiges Blau und kein Schwarz/Grau-Stich.
+  /* Weiss-zu-Blau-Verlauf im Home-Hero, angelehnt ans Referenzbild. Deutlich
+     mehr Farbabstand zwischen den Stufen als vorher (nicht nur ein sanftes
+     Verwaschen), plus ein spuerbar dunklerer Blauton am unteren Ende.
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:linear-gradient(165deg,#FFFFFF 0%,#F1F7FE 20%,#DCEBFB 42%,#C2DEF6 65%,#A9CEF0 85%,#93BFEC 100%);
+  --brand:linear-gradient(165deg,#FFFFFF 0%,#E9F3FC 14%,#C6DFF7 30%,#96BEEC 48%,#6B9BE0 68%,#3F6DCB 88%,#2A56BE 100%);
   --brand-flat:#FFFFFF;
   /* Die Flaeche ist jetzt hell, also muss die Schrift darauf dunkel sein —
      vorher war der Kopfbereich kraeftig blau und alles hier drauf weiss.
@@ -111,9 +112,11 @@
   --info:#6FA0FF; --info-soft:rgba(111,160,255,.14);
   /* Im Dark Mode bleibt der Kopfbereich dunkel (eine helle Flaeche waere ein
      Fremdkoerper), bekommt aber denselben erkennbar blauen Unterton statt
-     neutralem Grau/Schwarz wie vorher. */
-  --brand:linear-gradient(165deg,#10151F 0%,#131D30 20%,#16294A 42%,#1B3868 65%,#204A8C 85%,#2657B0 100%);
-  --brand-flat:#10151F;
+     neutralem Grau/Schwarz wie vorher, mit mehr Farbabstand zwischen den
+     Stufen. Schrift ist hier durchgehend hell, daher kein Kontrastkonflikt
+     wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen. */
+  --brand:linear-gradient(165deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
+  --brand-flat:#0D1220;
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
   --onBrand-dash:rgba(255,255,255,.45);
