@@ -244,7 +244,7 @@ input::placeholder{color:var(--tx3)}
              style-Attribute auszuschliessen. Faerbt bis knapp unter die Positionen-
              Liste hinein aus, statt ueber die ganze Scrollhoehe zu laufen — das Blau
              soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
-        <div style="background:linear-gradient(0deg, rgba(42,86,190,0) 0px, rgba(42,86,190,.06) 50px, rgba(42,86,190,.16) 100px, rgba(42,86,190,.31) 150px, rgba(42,86,190,.48) 200px, rgba(42,86,190,.66) 250px, rgba(42,86,190,.82) 300px, rgba(42,86,190,.93) 340px, rgba(42,86,190,1) 380px)">
+        <div>
 
         <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px + var(--sat-extra, 0px)) 20px 36px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
@@ -311,6 +311,15 @@ input::placeholder{color:var(--tx3)}
         </div>
 
         <div style="position:relative;margin:-26px 16px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
+        <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
+             Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
+             Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
+             anderen Deckkraft als der Hero selbst — sichtbare Stufe. An der
+             Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
+             voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
+             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. -->
+        <div style="position:absolute;left:-16px;top:0;bottom:0;width:16px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
+        <div style="position:absolute;right:-16px;top:0;bottom:0;width:16px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
 
         <div class="sect">
           <span class="lbl">Positionen</span>
