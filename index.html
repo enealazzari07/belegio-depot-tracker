@@ -76,30 +76,36 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Weiss-zu-Blau-Verlauf im Home-Hero, angelehnt ans Referenzbild. Deutlich
-     mehr Farbabstand zwischen den Stufen als vorher (nicht nur ein sanftes
-     Verwaschen), plus ein spuerbar dunklerer Blauton am unteren Ende.
+  /* Blau-Verlauf im Home-Hero. Text auf der Flaeche ist durchgehend weiss
+     (--onBrand*), das setzt eine Untergrenze fuer die Helligkeit jeder
+     Stufe — ein Verlauf, der oben fast bis Weiss auslaeuft (wie zuvor),
+     macht weissen Text dort unsichtbar. Deshalb bleiben auch die obersten
+     Stufen deutlich blau statt pastellig; nur der untere Ton bleibt
+     spuerbar dunkler fuers Verlaufsgefuehl.
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:linear-gradient(180deg,#FFFFFF 0%,#E9F3FC 14%,#C6DFF7 30%,#96BEEC 48%,#6B9BE0 68%,#3F6DCB 88%,#2A56BE 100%);
-  --brand-flat:#FFFFFF;
+  --brand:linear-gradient(180deg,#5483D6 0%,#4874CE 20%,#3D68C5 45%,#325CB9 70%,#2A56BE 100%);
+  --brand-flat:#5483D6;
   /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
      und damit weiss — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
      Der Rand-Verlauf muss dort ansetzen, wo der Hero farblich aufhoert.
      Die Null-Alpha-Variante ist derselbe Ton, nicht `transparent`: sonst
      interpoliert der Browser gegen rgba(0,0,0,0) und der Fade wird grau. */
   --brand-end:#2A56BE; --brand-end-0:rgba(42,86,190,0);
-  /* Die Flaeche ist jetzt hell, also muss die Schrift darauf dunkel sein —
-     vorher war der Kopfbereich kraeftig blau und alles hier drauf weiss.
-     onBrand* wird ausschliesslich im Home-Hero verwendet. */
-  /* Alphas/Farben sind gegen das dunkelste Ende des Verlaufs (#B9C6D8) auf
-     mindestens 4.5:1 gerechnet — die Werte hier tragen 10–11.5px Schrift. */
-  --onBrand:#10131A; --onBrand2:rgba(16,19,26,.72); --onBrand3:rgba(16,19,26,.66);
-  --onBrand-line:rgba(16,19,26,.16); --onBrand-soft:rgba(16,19,26,.08);
-  --onBrand-dash:rgba(16,19,26,.42);
-  /* Auf hellem Grund brauchen Gewinn/Verlust deutlich dunklere Varianten —
-     das helle Mint/Lachs von vorher war fuer die dunkelblaue Flaeche gedacht. */
-  --brandPos:#0C5744; --brandNeg:#8A2D24;
+  /* Der Kopfbereich ist kraeftig blau (siehe --brand oben), also muss die
+     Schrift darauf hell sein — nicht dunkel wie fuer den frueheren, inzwischen
+     verworfenen hellen Hero. onBrand* wird ausschliesslich im Home-Hero
+     verwendet, analog zu den identischen Werten im Dark Mode. */
+  --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.66);
+  --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
+  --onBrand-dash:rgba(255,255,255,.45);
+  --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
+  /* --onBrand ist jetzt in beiden Themes Weiss (siehe oben), die aktive
+     Zeitraum-Pille also in beiden Themes ein weisser Chip. --brand-flat kann
+     dafuer nicht mehr als Schriftfarbe dienen — das ist die reale, ebenfalls
+     weisse Statusleisten-Flaeche, kein Tinten-Ton. Eigener fester Ink-Wert,
+     unabhaengig vom Theme, weil der Chip-Hintergrund es auch ist. */
+  --chip-ink:#10131A;
   --brand-shadow:0 12px 26px -14px rgba(88,102,124,.45), 0 26px 54px -30px rgba(88,102,124,.38);
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
@@ -128,6 +134,7 @@
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
   --onBrand-dash:rgba(255,255,255,.45);
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
+  --chip-ink:#10131A;
   --brand-shadow:0 12px 28px -16px rgba(0,0,0,.7), 0 28px 56px -32px rgba(0,0,0,.8);
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
@@ -2942,7 +2949,7 @@ class Component extends DCLogic {
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
         bg: this.state.chartRange === key ? "var(--onBrand)" : "transparent",
-        tx: this.state.chartRange === key ? "var(--brand-flat)" : "var(--onBrand2)"
+        tx: this.state.chartRange === key ? "var(--chip-ink)" : "var(--onBrand2)"
       })),
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
