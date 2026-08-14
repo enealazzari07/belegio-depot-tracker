@@ -146,6 +146,16 @@ Kurs/Betrag/Währung. Wird nur eine ISIN gefunden (kein Ticker), versucht
 ISIN-Suche unterstützt (bei Alpha Vantage in der Praxis selten). Alle Felder
 sind im Prüf-Screen editierbar, bevor die `transactions`-Zeile entsteht.
 
+## Investment-Plan
+
+Zielbetrag + Zeitraum (Woche/Monat/Quartal) liegen bewusst nur in
+`localStorage` (`belegio_invest_plan`), nicht im `profiles`-Profil wie der
+Zinseszins-Rechner — spart eine Migration, ist dafür nicht geräteübergreifend
+synchron. "Investiert in diesem Zeitraum" zählt echte Käufe (`total_amount`
+je Transaktion) seit Beginn des laufenden Zeitraums, unabhängig von der
+Kursentwicklung. Bei Bedarf später aufs Profil umziehen (neue Spalten
+`invest_plan_amount` / `invest_plan_interval`), analog zu `compound_*`.
+
 ## Portfolio-Chart
 
 `Investiert` ist exakt (kumulierte Summe aus echten Transaktionsdaten).
