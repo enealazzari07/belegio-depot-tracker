@@ -342,6 +342,9 @@ input::placeholder{color:var(--tx3)}
           <sc-if value="{{ noHoldings }}" hint-placeholder-val="{{ false }}">
             <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
+          <sc-if value="{{ allHoldingsHidden }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Alle Positionen ausgeblendet — sichtbar im Depot.</div>
+          </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow)" style-hover="box-shadow:var(--hero-shadow)">
               <div style="width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ h.logo }}</div>
@@ -622,7 +625,7 @@ input::placeholder{color:var(--tx3)}
             </div>
           </div>
           <div style="display:flex;height:8px;border-radius:5px;overflow:hidden;gap:2px;margin-bottom:10px">
-            <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
+            <sc-for list="{{ depotWeightBar }}" as="d" hint-placeholder-count="4">
               <div style="height:100%;border-radius:3px;width:{{ d.weight }};background:{{ d.tone }}"></div>
             </sc-for>
           </div>
@@ -652,10 +655,16 @@ input::placeholder{color:var(--tx3)}
           </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <sc-for list="{{ depot }}" as="d" hint-placeholder-count="4">
-            <div class="card" style="overflow:hidden">
-              <button onClick="{{ d.toggleOpen }}" class="rowbtn" style="padding:14px 15px;transition:background 120ms ease" style-active="background:var(--surf2)">
+        <div style="display:flex;flex-direction:column;gap:18px">
+        <sc-for list="{{ depotGroups }}" as="grp" hint-placeholder-count="1">
+          <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-if value="{{ grp.showLabel }}" hint-placeholder-val="{{ false }}">
+            <span style="display:block;color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em;padding-left:2px">{{ grp.label }}</span>
+          </sc-if>
+          <sc-for list="{{ grp.items }}" as="d" hint-placeholder-count="4">
+            <div class="card" style="overflow:hidden;opacity:{{ d.cardOpacity }}">
+              <div style="display:flex;align-items:stretch">
+              <button onClick="{{ d.toggleOpen }}" class="rowbtn" style="flex:1;min-width:0;padding:14px 4px 14px 15px;transition:background 120ms ease" style-active="background:var(--surf2)">
                 <div style="display:flex;align-items:center;gap:12px">
                   <div style="width:40px;height:40px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ d.logo }}</div>
                   <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left">
@@ -686,6 +695,10 @@ input::placeholder{color:var(--tx3)}
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;transform:rotate({{ d.chevron }}deg);transition:transform .2s ease"><path d="M6 9l6 6 6-6"></path></svg>
                 </div>
               </button>
+              <button onClick="{{ d.openMenu }}" title="Optionen" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:34px;display:flex;align-items:center;justify-content:center;color:var(--tx3);transition:background 120ms ease" style-active="background:var(--surf2)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="12" cy="19" r="1.9"></circle></svg>
+              </button>
+              </div>
 
               <sc-if value="{{ d.isOpen }}" hint-placeholder-val="{{ false }}">
               <div style="padding:0 15px 15px;animation:fade .22s ease">
@@ -837,6 +850,8 @@ input::placeholder{color:var(--tx3)}
               </sc-if>
             </div>
           </sc-for>
+          </div>
+        </sc-for>
         </div>
       </div>
 
@@ -979,6 +994,33 @@ input::placeholder{color:var(--tx3)}
             </sc-for>
           </div>
           <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Direkt aus SEC-Form-4-Meldungen (offizielle US-Insider-Handelspflichten). Keine Anlageberatung.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ posMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closePosMenu }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+          <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+            <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">{{ posMenuTitle }}</span>
+            <button onClick="{{ closePosMenu }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">KATEGORIE</span>
+            <input value="{{ posMenuCategoryInput }}" onChange="{{ onPosMenuCategory }}" placeholder="z. B. Gold, Kernpositionen — optional" style="width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <span style="color:var(--tx3);font-size:11px;line-height:1.5">Frei wählbar — Positionen mit derselben Kategorie werden im Depot zusammen gruppiert. Leer lassen für keine Gruppierung.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 0 4px;border-top:1px solid var(--line);margin-top:8px">
+            <div style="flex:1">
+              <div style="color:var(--tx);font-size:14.5px;font-weight:500">Von Startseite ausblenden</div>
+              <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">Bleibt im Depot sichtbar, zählt aber nicht in der Home-Übersicht oder den Kopfzahlen oben.</div>
+            </div>
+            <button onClick="{{ posMenuToggleHide }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block;flex:none">
+              <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ posMenuHideKnobX }}"></span>
+            </button>
+          </div>
         </div>
       </sc-if>
     </sc-if>
@@ -1845,6 +1887,7 @@ class Component extends DCLogic {
     etfHoldings: {}, etfLoading: false, etfError: "",
 
     editingTxId: null, editingTxFields: null, openPosSymbol: null, posSubTab: "chart",
+    positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
     carouselIndex: 0, carouselTouched: false,
@@ -2011,6 +2054,7 @@ class Component extends DCLogic {
     this.loadIntraday();
     this.startCarousel();
     this.loadInvestPlan();
+    this.loadPositionMeta();
     const db = await this.db();
     const session = await db.getSession();
     if (session) {
@@ -2431,6 +2475,50 @@ class Component extends DCLogic {
     if (tab === "composition") this.ensureComposition(sym);
   };
 
+  // ---------- Kategorie & Ausblenden je Position ----------
+  // Wie der Investment-Plan bewusst nur lokal (localStorage), keine eigene
+  // Spalte/Tabelle nötig: Kategorie ist frei wählbar und optional, "Ausblenden"
+  // ist ein einfaches Bool je Symbol. Betrifft nur die Anzeige — die Position
+  // selbst (Transaktionen, Kurse) ist davon unberührt.
+  loadPositionMeta = () => {
+    try {
+      const raw = localStorage.getItem("belegio_position_meta");
+      if (raw) this.setState({ positionMeta: JSON.parse(raw) || {} });
+    } catch (e) { /* kein gespeicherter Zustand oder korrupt — startet leer */ }
+  };
+  savePositionMeta = meta => {
+    try { localStorage.setItem("belegio_position_meta", JSON.stringify(meta)); } catch (e) { /* z.B. privater Modus */ }
+  };
+  patchPositionMeta = (sym, patch) => {
+    this.setState(s => {
+      const cur = s.positionMeta[sym] || {};
+      const next = { ...cur, ...patch };
+      // Leere/Default-Einträge nicht mitschleppen, sonst wächst der Speicher
+      // unbegrenzt mit jeder je angefassten Position.
+      const clean = (!next.category && !next.hidden) ? undefined : next;
+      const meta = { ...s.positionMeta };
+      if (clean) meta[sym] = clean; else delete meta[sym];
+      this.savePositionMeta(meta);
+      return { positionMeta: meta };
+    });
+  };
+
+  openPosMenu = sym => () => this.setState({
+    posMenuSymbol: sym,
+    posMenuCategoryInput: (this.state.positionMeta[sym] && this.state.positionMeta[sym].category) || ""
+  });
+  closePosMenu = () => this.setState({ posMenuSymbol: null });
+  onPosMenuCategory = e => {
+    const v = e.target.value;
+    this.setState({ posMenuCategoryInput: v });
+    clearTimeout(this._catSaveTimer);
+    this._catSaveTimer = setTimeout(() => this.patchPositionMeta(this.state.posMenuSymbol, { category: v.trim() }), 500);
+  };
+  toggleHidePosition = sym => () => {
+    const hidden = !(this.state.positionMeta[sym] && this.state.positionMeta[sym].hidden);
+    this.patchPositionMeta(sym, { hidden });
+  };
+
   // ---------- Zinseszins-Rechner ----------
   openCompoundSheet = () => this.setState({ compoundSheetOpen: true });
   closeCompoundSheet = () => this.setState({ compoundSheetOpen: false });
@@ -2648,6 +2736,19 @@ class Component extends DCLogic {
     const g = val - cost;
     const used = this.state.txCount || 0;
 
+    // ---------- Ausgeblendete Positionen ----------
+    // "Ausblenden" betrifft nur die Anzeige: Home-Screen (Kopfzahlen, Chart,
+    // Positionsliste, Gewichtung, Tagesbewegung, Signale) zeigt ausgeblendete
+    // Positionen gar nicht. Die Depot-Seite zeigt sie weiterhin in der Liste
+    // (mit Badge), nur die Kopfzahlen/Gewichtung oben zählen sie nicht mit.
+    // Steuer-Report und Zinseszins-Rechner bleiben bewusst vollständig (val/cost/g).
+    const posMeta = this.state.positionMeta || {};
+    const isHidden = sym => !!(posMeta[sym] && posMeta[sym].hidden);
+    const visibleHoldings = holdings.filter(h => !isHidden(h.sym || h.abbr));
+    const visVal = visibleHoldings.reduce((a, h) => a + h.shares * h.cur, 0);
+    const visCost = visibleHoldings.reduce((a, h) => a + h.shares * h.buy, 0);
+    const visG = visVal - visCost;
+
     // ---------- Steuer-Report ----------
     // Erste, funktionierende Version: Momentaufnahme des Depots (kein
     // offizielles Wertschriftenverzeichnis, keine ICTax-Steuerwerte per
@@ -2701,7 +2802,9 @@ class Component extends DCLogic {
     const isGramMetal = GRAM_METAL_SYMS.has((f.symbol || "").trim().toUpperCase());
 
     // ---------- Chart: real invested-over-time + best-effort value-over-time, clamped to first purchase ----------
-    const txs = this.state.txs || [];
+    // Nur sichtbare (nicht ausgeblendete) Positionen — dieser Chart und der
+    // Investitionsplan direkt darunter sind reine Home-Screen-Widgets.
+    const txs = (this.state.txs || []).filter(t => !isHidden(t.symbol));
 
     // ---------- Investment-Plan: Zielbetrag pro Woche/Monat/Quartal ----------
     // "Investiert in diesem Zeitraum" zaehlt echte Kaeufe (total_amount je
@@ -2746,7 +2849,7 @@ class Component extends DCLogic {
         return best ? best.close : null;
       };
       const valueAt = d => {
-        if (d === todayStr) return val;
+        if (d === todayStr) return visVal;
         let total = 0;
         for (const s of symbols) {
           const sh = txs.filter(t => t.symbol === s && t.date <= d).reduce((a, t) => a + Number(t.shares), 0);
@@ -2806,9 +2909,9 @@ class Component extends DCLogic {
     };
     let rangePct = null, rangeAbs = null, rangeUnavailable = false;
     if (this.state.chartRange === "D") {
-      if (val) {
-        rangePct = holdings.reduce((a, h) => a + (h.dp || 0) * h.shares * h.cur, 0) / val;
-        rangeAbs = holdings.reduce((a, h) => {
+      if (visVal) {
+        rangePct = visibleHoldings.reduce((a, h) => a + (h.dp || 0) * h.shares * h.cur, 0) / visVal;
+        rangeAbs = visibleHoldings.reduce((a, h) => {
           const dp = h.dp || 0;
           const prevClose = dp ? h.cur / (1 + dp / 100) : h.cur;
           return a + (h.cur - prevClose) * h.shares;
@@ -2816,15 +2919,15 @@ class Component extends DCLogic {
       }
     } else if (this.state.chartRange === "W") {
       const weekAgoStr = dstr(new Date(Date.now() - 7 * 864e5));
-      let weekAgoValue = 0, missing = !holdings.length;
-      for (const h of holdings) {
+      let weekAgoValue = 0, missing = !visibleHoldings.length;
+      for (const h of visibleHoldings) {
         const p = priceOnOrBefore(h.sym || h.abbr, weekAgoStr);
         if (p == null) { missing = true; continue; }
         weekAgoValue += h.shares * p;
       }
       if (!missing && weekAgoValue) {
-        rangePct = (val - weekAgoValue) / weekAgoValue * 100;
-        rangeAbs = val - weekAgoValue;
+        rangePct = (visVal - weekAgoValue) / weekAgoValue * 100;
+        rangeAbs = visVal - weekAgoValue;
       } else {
         rangeUnavailable = true;
       }
@@ -2934,10 +3037,10 @@ class Component extends DCLogic {
     // Beitrag = (Kurs jetzt − Vortagesschluss) × Anteile. Der Vortagesschluss wird
     // aus dp% der Live-Quote zurückgerechnet, andere Provider liefern ihn nicht mit.
     const dayContrib = h => typeof h.dp === "number" ? (h.cur - h.cur / (1 + h.dp / 100)) * h.shares : null;
-    const dayTotal = holdings.reduce((a, h) => { const c = dayContrib(h); return c == null ? a : a + c; }, 0);
+    const dayTotal = visibleHoldings.reduce((a, h) => { const c = dayContrib(h); return c == null ? a : a + c; }, 0);
     // Anteil an der gesamten Tagesbewegung (Summe der Beträge) — die Netto-Summe
     // taugt nicht als Nenner, sonst käme bei gegenläufigen Positionen >100 % heraus.
-    const dayGross = holdings.reduce((a, h) => { const c = dayContrib(h); return c == null ? a : a + Math.abs(c); }, 0);
+    const dayGross = visibleHoldings.reduce((a, h) => { const c = dayContrib(h); return c == null ? a : a + Math.abs(c); }, 0);
     const newsBySym = {};
     for (const n of (this.state.liveNews || [])) { if (n && n.symbol && !newsBySym[n.symbol]) newsBySym[n.symbol] = n; }
     // Begründung, absteigend nach Aussagekraft: eigene Schlagzeile → Schlagzeile zu
@@ -2957,7 +3060,7 @@ class Component extends DCLogic {
       }
       return "Kein einzelner Auslöser in den News erkennbar.";
     };
-    const driverRows = holdings
+    const driverRows = visibleHoldings
       .map(h => ({ h, sym: h.sym || h.abbr, c: dayContrib(h) }))
       .filter(d => d.c != null && Math.abs(d.c) > 0.005)
       .sort((a, b) => Math.abs(b.c) - Math.abs(a.c))
@@ -2966,7 +3069,7 @@ class Component extends DCLogic {
     // ---------- Depot-Eckdaten über alle Transaktionen ----------
     // ---------- Signale (Pro) ----------
     const proActive = this.state.userPlan === "pro";
-    const signalList = holdings
+    const signalList = visibleHoldings
       .map(h => buildSignal(h.sym || h.abbr, displayName(h), hist[h.sym || h.abbr], h.cur))
       .filter(Boolean)
       .sort((a, b) => b.score - a.score);
@@ -2988,14 +3091,14 @@ class Component extends DCLogic {
     // wie gross der Anteil tatsaechlich wirkt. Die Rundung sitzt nur an den
     // beiden Enden des gesamten Rings (siehe Markup), nicht zwischen Segmenten.
     const allocationSlices = [], allocationLegend = [];
-    if (holdings.length && val) {
+    if (visibleHoldings.length && visVal) {
       const R = 40, CIRC = 2 * Math.PI * R;
-      const sorted = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
+      const sorted = visibleHoldings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
       const top = sorted.slice(0, 7);
       const otherV = sorted.slice(7).reduce((a, x) => a + x.v, 0);
       let offset = 0;
       top.forEach((x, i) => {
-        const frac = x.v / val;
+        const frac = x.v / visVal;
         const len = frac * CIRC;
         const color = BLOCK_COLORS[i % BLOCK_COLORS.length];
         allocationSlices.push({ color, dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
@@ -3003,7 +3106,7 @@ class Component extends DCLogic {
         offset += len;
       });
       if (otherV > 0.0001) {
-        const frac = otherV / val;
+        const frac = otherV / visVal;
         const len = frac * CIRC;
         allocationSlices.push({ color: "#DCDFE6", dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
         allocationLegend.push({ color: "#DCDFE6", label: "Sonstige", pct: (frac * 100).toFixed(1) + " %" });
@@ -3056,6 +3159,153 @@ class Component extends DCLogic {
       return this.state.insiderAlertsSeenAt
         ? list.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt))
         : list.length > 0;
+    });
+
+    const depotList = holdings.map(h => {
+        const sym = h.sym || h.abbr;
+        const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
+        const w = visVal ? v / visVal * 100 : 0;
+        const hidden = isHidden(sym);
+        const category = (posMeta[sym] && posMeta[sym].category) || "";
+        const isOpenPos = this.state.openPosSymbol === sym;
+        const subTab = isOpenPos ? this.state.posSubTab : "chart";
+        const showChart = isOpenPos && subTab === "chart";
+        const showComposition = isOpenPos && subTab === "composition";
+        const showTransactions = isOpenPos && subTab === "transactions";
+        const symTxs = showTransactions ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
+        const posChartRange = this.state.posChartRange || "D";
+        const posChart = showChart ? buildPositionChart(sym, h.cur, posChartRange, h.dp) : null;
+        posChartPoints[sym] = posChart ? posChart.points : null;
+        const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
+          ? posChart.points[this.state.posScrub.idx] : null;
+        const scrubDelta = scrubP && posChart.first ? (scrubP.close - posChart.first) / posChart.first * 100 : 0;
+
+        const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
+        // 52-Wochen-Spanne nur zeigen, wenn wirklich genug Historie da ist —
+        // sonst wäre der Balken irreführend.
+        const yearRows = (hist[sym] || []).filter(p => p.date >= dstr(new Date(Date.now() - 365 * 864e5)));
+        const has52 = yearRows.length >= 60;
+        const lo52 = has52 ? Math.min(h.cur, ...yearRows.map(p => p.close)) : 0;
+        const hi52 = has52 ? Math.max(h.cur, ...yearRows.map(p => p.close)) : 0;
+        const pos52 = has52 && hi52 > lo52 ? (h.cur - lo52) / (hi52 - lo52) * 100 : 50;
+
+        const spark = buildSparkline(hist[sym]);
+        const symInsider = this.state.insiderTrades[sym] || [];
+        const insiderNew = this.state.insiderAlertsSeenAt
+          ? symInsider.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt)) : symInsider.length > 0;
+
+        const tabDef = [
+          { key: "chart", label: "Kurs" },
+          { key: "composition", label: "Zusammensetzung" },
+          { key: "transactions", label: "Transaktionen · " + allSymTxs.length }
+        ];
+        return {
+          abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
+          value: f2(v),
+          gain: (d >= 0 ? "+" : "") + f2(d),
+          color: d >= 0 ? "var(--pos)" : "var(--neg)",
+          share: hidden ? "Ausgeblendet" : w.toFixed(1) + " %",
+          tone: d >= 0 ? "var(--acc2)" : "var(--neg)",
+          hidden,
+          cardOpacity: hidden ? ".55" : "1",
+          category,
+          openMenu: this.openPosMenu(sym),
+          spark, hasSpark: !!spark,
+          dayLabel: typeof h.dp === "number" ? (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %" : "kein Kurs",
+          dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
+          marketClosed: !isinLike(sym) && !isMarketOpen(sym),
+          hasInsider: symInsider.length > 0,
+          insiderCount: symInsider.length > 9 ? "9+" : String(symInsider.length),
+          insiderNew,
+          insiderBadgeBg: insiderNew ? "var(--acc-soft)" : "var(--surf2)",
+          insiderBadgeColor: insiderNew ? "var(--acc2)" : "var(--tx3)",
+          openInsider: this.openInsiderSheet(sym),
+          isOpen: isOpenPos,
+          toggleOpen: this.togglePosOpen(sym),
+          chevron: isOpenPos ? "180" : "0",
+
+          posTabs: tabDef.map(t => ({
+            key: t.key, label: t.label,
+            bg: subTab === t.key ? "var(--surf)" : "transparent",
+            tx: subTab === t.key ? "var(--tx)" : "var(--tx3)",
+            go: this.setPosSubTab(sym, t.key)
+          })),
+
+          showChart,
+          has52w: showChart && has52,
+          lo52Label: has52 ? f2(lo52) : "",
+          hi52Label: has52 ? f2(hi52) : "",
+          pos52: pos52.toFixed(1) + "%",
+
+          showComposition,
+          compositionLoading: showComposition && this.state.etfLoading,
+          compositionError: showComposition ? this.state.etfError : "",
+          compositionBlocks: showComposition ? buildCompositionBlocks(this.state.etfHoldings[sym]) : [],
+          hasComposition: showComposition && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0,
+
+          chartRangeButtons: chartRangeKeys.map(k => ({
+            label: RANGE_LABELS[k],
+            go: this.setPosChartRange(k),
+            bg: posChartRange === k ? "var(--surf)" : "transparent",
+            tx: posChartRange === k ? "var(--tx)" : "var(--tx3)"
+          })),
+          hasPosChart: !!posChart,
+          noPosChart: showChart && !posChart,
+          posChartPath: posChart ? posChart.path : "",
+          posChartPct: scrubP
+            ? (scrubDelta >= 0 ? "+" : "") + scrubDelta.toFixed(2) + " %"
+            : posChart ? (posChart.pos ? "+" : "") + posChart.pct.toFixed(2) + " %" : "",
+          posChartColor: scrubP
+            ? (scrubDelta >= 0 ? "var(--pos)" : "var(--neg)")
+            : posChart ? (posChart.pos ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
+
+          // Streichen über den Chart
+          posScrubStart: this.posScrubStart(sym),
+          posScrubMove: this.posScrubMove(sym),
+          posScrubEnd: this.posScrubEnd,
+          posScrubActive: !!scrubP,
+          posScrubVisibility: scrubP ? "visible" : "hidden",
+          posScrubWhen: scrubP ? scrubP.label : "",
+          posScrubPrice: scrubP ? f2(scrubP.close) : "",
+          posScrubValue: scrubP ? f2(scrubP.close * h.shares) : "",
+          posScrubX: scrubP ? scrubP.x.toFixed(1) : "0",
+          posScrubY: scrubP ? scrubP.y.toFixed(1) : "0",
+
+          showTransactions,
+          noTransactions: showTransactions && !symTxs.length,
+          transactions: symTxs.map(t => {
+            const editing = this.state.editingTxId === t.id;
+            const f = editing ? this.state.editingTxFields : null;
+            return {
+              id: t.id,
+              isEditing: editing, isNotEditing: !editing,
+              dateLabel: new Date(t.date).toLocaleDateString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }),
+              detail: t.shares + " × " + f2(Number(t.purchase_price)) + " · " + agoLabel(t.date),
+              total: f2(Number(t.shares) * Number(t.purchase_price)),
+              editDate: editing ? f.date : t.date,
+              editShares: editing ? f.shares : String(t.shares),
+              editPrice: editing ? f.purchase_price : String(t.purchase_price),
+              onDate: this.setTxField("date"), onShares: this.setTxField("shares"), onPrice: this.setTxField("purchase_price"),
+              edit: this.startEditTx(t), cancel: this.cancelEditTx,
+              save: this.saveEditTx(t.id), remove: this.deleteTx(t)
+            };
+          })
+        };
+    });
+
+    const usedCats = [...new Set(depotList.map(d => d.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de"));
+    const grouped = usedCats.length > 0;
+    const groupKeys = grouped ? [...usedCats, ""] : [""];
+    const depotGroups = groupKeys.map(cat => ({
+      key: cat || "none",
+      label: cat || "Ohne Kategorie",
+      showLabel: grouped,
+      items: depotList.filter(d => d.category === cat)
+    })).filter(gr => gr.items.length > 0);
+    const depotWeightBar = visibleHoldings.map(h => {
+      const v = h.shares * h.cur;
+      const w = visVal ? v / visVal * 100 : 0;
+      return { weight: w.toFixed(1) + "%", tone: (v - h.shares * h.buy) >= 0 ? "var(--acc2)" : "var(--neg)" };
     });
 
     return {
@@ -3223,19 +3473,19 @@ class Component extends DCLogic {
       chartValueFillPath: chartData ? chartData.chartValueFillPath : "",
       chartDotX: chartData ? chartData.chartDotX : "0", chartDotY: chartData ? chartData.chartDotY : "0",
 
-      totalValue: scrubPt ? f2(scrubPt.value) : f2(val),
+      totalValue: scrubPt ? f2(scrubPt.value) : f2(visVal),
       gainAbs: scrubPt
         ? "Investiert " + f2(scrubPt.invested)
         : rangeAbs != null
           ? (rangeAbs >= 0 ? "+" : "") + f2(rangeAbs)
-          : rangeUnavailable ? "Wochendaten limitiert" : (g >= 0 ? "+" : "") + f2(g),
+          : rangeUnavailable ? "Wochendaten limitiert" : (visG >= 0 ? "+" : "") + f2(visG),
       gainPct: scrubPt
         ? (scrubPt.dayPct >= 0 ? "+" : "") + scrubPt.dayPct.toFixed(2) + " %"
         : rangePct != null
           ? (rangePct >= 0 ? "+" : "") + rangePct.toFixed(2) + " %"
-          : cost ? (g >= 0 ? "+" : "") + (g / cost * 100).toFixed(1) + " %" : "0.0 %",
+          : visCost ? (visG >= 0 ? "+" : "") + (visG / visCost * 100).toFixed(1) + " %" : "0.0 %",
       // Auf dem blauen Kopfbereich braucht es hellere Grün-/Rottöne als im Rest der App.
-      gainColor: (scrubPt ? scrubPt.dayPct >= 0 : rangePct != null ? rangePct >= 0 : g >= 0)
+      gainColor: (scrubPt ? scrubPt.dayPct >= 0 : rangePct != null ? rangePct >= 0 : visG >= 0)
         ? "var(--brandPos)" : "var(--brandNeg)",
       scrubActive: !!scrubPt,
       scrubVisibility: scrubPt ? "visible" : "hidden",
@@ -3250,7 +3500,7 @@ class Component extends DCLogic {
       quota: this.state.userPlan === "pro" ? "Unbegrenzt" : (this.state.weeklyUploads || 0) + " / 15 pro Woche",
       quotaPct: this.state.userPlan === "pro" ? "100%" : Math.min(100, (this.state.weeklyUploads || 0) / 15 * 100).toFixed(0) + "%",
       months: chartData ? chartData.months : [],
-      investedTotal: f2(cost),
+      investedTotal: f2(visCost),
       isDepot: screen === "depot",
 
       // ---------- Insider-Trades (SEC Form 4) ----------
@@ -3278,6 +3528,18 @@ class Component extends DCLogic {
       // Kleiner Punkt auf der Depot-Kachel/Kurzzugriff — nur EIN Signal, kein
       // Zahlen-Overkill, damit es "nicht zu voll" bleibt.
       hasNewInsiderAlerts: insiderAlertHint,
+
+      // ---------- Kategorie & Ausblenden je Position ----------
+      posMenuOpen: !!this.state.posMenuSymbol,
+      closePosMenu: this.closePosMenu,
+      posMenuTitle: (() => {
+        const h = holdings.find(x => (x.sym || x.abbr) === this.state.posMenuSymbol);
+        return h ? displayName(h) : (this.state.posMenuSymbol || "");
+      })(),
+      posMenuCategoryInput: this.state.posMenuCategoryInput,
+      onPosMenuCategory: this.onPosMenuCategory,
+      posMenuToggleHide: this.toggleHidePosition(this.state.posMenuSymbol),
+      posMenuHideKnobX: isHidden(this.state.posMenuSymbol) ? "23px" : "3px",
 
       // ---------- Zinseszins-Rechner ----------
       compoundSheetOpen: this.state.compoundSheetOpen,
@@ -3311,6 +3573,7 @@ class Component extends DCLogic {
       compoundContributed: Math.round(compoundResult.contributed).toLocaleString("de-CH"),
       compoundGain: (compoundGainVal >= 0 ? "+" : "") + Math.round(compoundGainVal).toLocaleString("de-CH"),
       noHoldings: !holdings.length,
+      allHoldingsHidden: holdings.length > 0 && !visibleHoldings.length,
       aiSheetOpen: this.state.aiSheetOpen,
       openAiSheet: this.openAiSheet,
       closeAiSheet: this.closeAiSheet,
@@ -3336,7 +3599,7 @@ class Component extends DCLogic {
       hasAllocation: allocationSlices.length > 0,
       allocationSlices,
       allocationLegend,
-      posCountNum: String(holdings.length),
+      posCountNum: String(visibleHoldings.length),
 
       // ---------- Signale (Pro) ----------
       hasSignals: signalsShown.length > 0,
@@ -3371,132 +3634,8 @@ class Component extends DCLogic {
         sharePct: dayGross ? Math.round(Math.abs(d.c) / dayGross * 100) + " % der Tagesbewegung" : "",
         reason: reasonFor(d.h, d.sym)
       })),
-      depot: holdings.map(h => {
-        const sym = h.sym || h.abbr;
-        const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
-        const w = val ? v / val * 100 : 0;
-        const isOpenPos = this.state.openPosSymbol === sym;
-        const subTab = isOpenPos ? this.state.posSubTab : "chart";
-        const showChart = isOpenPos && subTab === "chart";
-        const showComposition = isOpenPos && subTab === "composition";
-        const showTransactions = isOpenPos && subTab === "transactions";
-        const symTxs = showTransactions ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
-        const posChartRange = this.state.posChartRange || "D";
-        const posChart = showChart ? buildPositionChart(sym, h.cur, posChartRange, h.dp) : null;
-        posChartPoints[sym] = posChart ? posChart.points : null;
-        const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
-          ? posChart.points[this.state.posScrub.idx] : null;
-        const scrubDelta = scrubP && posChart.first ? (scrubP.close - posChart.first) / posChart.first * 100 : 0;
-
-        const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
-        // 52-Wochen-Spanne nur zeigen, wenn wirklich genug Historie da ist —
-        // sonst wäre der Balken irreführend.
-        const yearRows = (hist[sym] || []).filter(p => p.date >= dstr(new Date(Date.now() - 365 * 864e5)));
-        const has52 = yearRows.length >= 60;
-        const lo52 = has52 ? Math.min(h.cur, ...yearRows.map(p => p.close)) : 0;
-        const hi52 = has52 ? Math.max(h.cur, ...yearRows.map(p => p.close)) : 0;
-        const pos52 = has52 && hi52 > lo52 ? (h.cur - lo52) / (hi52 - lo52) * 100 : 50;
-
-        const spark = buildSparkline(hist[sym]);
-        const symInsider = this.state.insiderTrades[sym] || [];
-        const insiderNew = this.state.insiderAlertsSeenAt
-          ? symInsider.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt)) : symInsider.length > 0;
-
-        const tabDef = [
-          { key: "chart", label: "Kurs" },
-          { key: "composition", label: "Zusammensetzung" },
-          { key: "transactions", label: "Transaktionen · " + allSymTxs.length }
-        ];
-        return {
-          abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
-          value: f2(v),
-          gain: (d >= 0 ? "+" : "") + f2(d),
-          color: d >= 0 ? "var(--pos)" : "var(--neg)",
-          weight: w.toFixed(1) + "%",
-          share: w.toFixed(1) + " %",
-          tone: d >= 0 ? "var(--acc2)" : "var(--neg)",
-          spark, hasSpark: !!spark,
-          dayLabel: typeof h.dp === "number" ? (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %" : "kein Kurs",
-          dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
-          marketClosed: !isinLike(sym) && !isMarketOpen(sym),
-          hasInsider: symInsider.length > 0,
-          insiderCount: symInsider.length > 9 ? "9+" : String(symInsider.length),
-          insiderNew,
-          insiderBadgeBg: insiderNew ? "var(--acc-soft)" : "var(--surf2)",
-          insiderBadgeColor: insiderNew ? "var(--acc2)" : "var(--tx3)",
-          openInsider: this.openInsiderSheet(sym),
-          isOpen: isOpenPos,
-          toggleOpen: this.togglePosOpen(sym),
-          chevron: isOpenPos ? "180" : "0",
-
-          posTabs: tabDef.map(t => ({
-            key: t.key, label: t.label,
-            bg: subTab === t.key ? "var(--surf)" : "transparent",
-            tx: subTab === t.key ? "var(--tx)" : "var(--tx3)",
-            go: this.setPosSubTab(sym, t.key)
-          })),
-
-          showChart,
-          has52w: showChart && has52,
-          lo52Label: has52 ? f2(lo52) : "",
-          hi52Label: has52 ? f2(hi52) : "",
-          pos52: pos52.toFixed(1) + "%",
-
-          showComposition,
-          compositionLoading: showComposition && this.state.etfLoading,
-          compositionError: showComposition ? this.state.etfError : "",
-          compositionBlocks: showComposition ? buildCompositionBlocks(this.state.etfHoldings[sym]) : [],
-          hasComposition: showComposition && !this.state.etfLoading && !this.state.etfError && buildCompositionBlocks(this.state.etfHoldings[sym]).length > 0,
-
-          chartRangeButtons: chartRangeKeys.map(k => ({
-            label: RANGE_LABELS[k],
-            go: this.setPosChartRange(k),
-            bg: posChartRange === k ? "var(--surf)" : "transparent",
-            tx: posChartRange === k ? "var(--tx)" : "var(--tx3)"
-          })),
-          hasPosChart: !!posChart,
-          noPosChart: showChart && !posChart,
-          posChartPath: posChart ? posChart.path : "",
-          posChartPct: scrubP
-            ? (scrubDelta >= 0 ? "+" : "") + scrubDelta.toFixed(2) + " %"
-            : posChart ? (posChart.pos ? "+" : "") + posChart.pct.toFixed(2) + " %" : "",
-          posChartColor: scrubP
-            ? (scrubDelta >= 0 ? "var(--pos)" : "var(--neg)")
-            : posChart ? (posChart.pos ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
-
-          // Streichen über den Chart
-          posScrubStart: this.posScrubStart(sym),
-          posScrubMove: this.posScrubMove(sym),
-          posScrubEnd: this.posScrubEnd,
-          posScrubActive: !!scrubP,
-          posScrubVisibility: scrubP ? "visible" : "hidden",
-          posScrubWhen: scrubP ? scrubP.label : "",
-          posScrubPrice: scrubP ? f2(scrubP.close) : "",
-          posScrubValue: scrubP ? f2(scrubP.close * h.shares) : "",
-          posScrubX: scrubP ? scrubP.x.toFixed(1) : "0",
-          posScrubY: scrubP ? scrubP.y.toFixed(1) : "0",
-
-          showTransactions,
-          noTransactions: showTransactions && !symTxs.length,
-          transactions: symTxs.map(t => {
-            const editing = this.state.editingTxId === t.id;
-            const f = editing ? this.state.editingTxFields : null;
-            return {
-              id: t.id,
-              isEditing: editing, isNotEditing: !editing,
-              dateLabel: new Date(t.date).toLocaleDateString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }),
-              detail: t.shares + " × " + f2(Number(t.purchase_price)) + " · " + agoLabel(t.date),
-              total: f2(Number(t.shares) * Number(t.purchase_price)),
-              editDate: editing ? f.date : t.date,
-              editShares: editing ? f.shares : String(t.shares),
-              editPrice: editing ? f.purchase_price : String(t.purchase_price),
-              onDate: this.setTxField("date"), onShares: this.setTxField("shares"), onPrice: this.setTxField("purchase_price"),
-              edit: this.startEditTx(t), cancel: this.cancelEditTx,
-              save: this.saveEditTx(t.id), remove: this.deleteTx(t)
-            };
-          })
-        };
-      }),
+      depotGroups,
+      depotWeightBar,
 
       // ---------- Investment-Plan ----------
       investPlanSheetOpen: this.state.investPlanSheetOpen,
@@ -3518,7 +3657,7 @@ class Component extends DCLogic {
       investPlanPct: investPlanPct.toFixed(1) + "%",
       investPlanReached: investPlanDone >= investPlanTarget,
 
-      holdings: holdings.map(h => {
+      holdings: visibleHoldings.map(h => {
         const sym = h.sym || h.abbr;
         const noLive = isinLike(sym) && !h.live;
         const d = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
