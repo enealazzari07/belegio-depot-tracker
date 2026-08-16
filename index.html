@@ -1869,11 +1869,11 @@ const buildSparkline = rows => {
 
 // ETF-Zusammensetzung: proportionale "Kästchen"-Mosaik aus den Top-Holdings,
 // alles jenseits der Top 8 wird zu "Sonstige" zusammengefasst.
-// Gleiche gedeckte Grundstimmung wie --brand (Hero/"Investment-Plan
-// einrichten"), aber heller und mit mehr Farbunterschied zwischen den
-// Werten (Blau/Teal/Indigo statt reiner Helligkeitsstufen eines Blaus) —
-// sonst sind einzelne Segmente im Donut kaum auseinanderzuhalten.
-const BLOCK_COLORS = ["#5B7FA6", "#6AA39C", "#7C88B3", "#8AA6C2", "#6C93A8", "#9490B8", "#7FB0BE", "#A8B8D4"];
+// Rein Grau-Blau, kein Gruen/Teal-Einschlag: gleiche Grundstimmung wie
+// --brand (Hero/"Investment-Plan einrichten"), aber heller und als
+// Helligkeits-Rampe von dunklem Grau-Blau bis fast Weiss-Grau-Blau — auf
+// ausdruecklichen Wunsch, nachdem eine Zwischenversion zu tealig wirkte.
+const BLOCK_COLORS = ["#37455C", "#455878", "#5A6E90", "#7086A6", "#8598B7", "#9CACC9", "#B4C1DA", "#CCD6E8"];
 const buildCompositionBlocks = data => {
   if (!data || !data.holdings || !data.holdings.length) return [];
   const top = data.holdings.slice(0, 8);
