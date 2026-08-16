@@ -88,8 +88,12 @@
      Drei grosse, weiche weisse Radial-Flecken: oben rechts (kraeftig, .68),
      oben links (schwaecher, .38, ebenso breit/weich fuer denselben
      "verflossenen" Look) und mittig (.22). Nicht mehr unten — der untere
-     Rand bleibt gleichmaessig dunkel. */
-  --brand:radial-gradient(75% 65% at 80% 12%,rgba(245,246,249,.68) 0%,rgba(245,246,249,0) 82%),radial-gradient(72% 62% at 16% 14%,rgba(245,246,249,.38) 0%,rgba(245,246,249,0) 82%),radial-gradient(60% 50% at 45% 46%,rgba(245,246,249,.22) 0%,rgba(245,246,249,0) 76%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
+     Rand bleibt gleichmaessig dunkel.
+     Mehrstufiger statt zweistufiger Verlauf je Fleck (Deckkraft nimmt in
+     kleinen Schritten ueber den ganzen Radius ab, nicht nur am Rand) — das
+     wirkt wie diffuser Dunst statt einer erkennbaren Kreisscheibe mit
+     sichtbarer Kante. */
+  --brand:radial-gradient(75% 65% at 80% 12%,rgba(245,246,249,.68) 0%,rgba(245,246,249,.5) 20%,rgba(245,246,249,.32) 40%,rgba(245,246,249,.16) 60%,rgba(245,246,249,.06) 80%,rgba(245,246,249,0) 100%),radial-gradient(72% 62% at 16% 14%,rgba(245,246,249,.38) 0%,rgba(245,246,249,.28) 20%,rgba(245,246,249,.18) 40%,rgba(245,246,249,.09) 60%,rgba(245,246,249,.03) 80%,rgba(245,246,249,0) 100%),radial-gradient(60% 50% at 45% 46%,rgba(245,246,249,.22) 0%,rgba(245,246,249,.16) 20%,rgba(245,246,249,.10) 40%,rgba(245,246,249,.05) 60%,rgba(245,246,249,.02) 80%,rgba(245,246,249,0) 100%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
