@@ -662,7 +662,7 @@ input::placeholder{color:var(--tx3)}
             <span style="display:block;color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em;padding-left:2px">{{ grp.label }}</span>
           </sc-if>
           <sc-for list="{{ grp.items }}" as="d" hint-placeholder-count="4">
-            <div class="card" style="overflow:hidden;opacity:{{ d.cardOpacity }}">
+            <div class="card" style="overflow:hidden">
               <div style="display:flex;align-items:stretch">
               <button onClick="{{ d.toggleOpen }}" class="rowbtn" style="flex:1;min-width:0;padding:14px 4px 14px 15px;transition:background 120ms ease" style-active="background:var(--surf2)">
                 <div style="display:flex;align-items:center;gap:12px">
@@ -2739,8 +2739,10 @@ class Component extends DCLogic {
     // ---------- Ausgeblendete Positionen ----------
     // "Ausblenden" betrifft nur die Anzeige: Home-Screen (Kopfzahlen, Chart,
     // Positionsliste, Gewichtung, Tagesbewegung, Signale) zeigt ausgeblendete
-    // Positionen gar nicht. Die Depot-Seite zeigt sie weiterhin in der Liste
-    // (mit Badge), nur die Kopfzahlen/Gewichtung oben zählen sie nicht mit.
+    // Positionen gar nicht. Die Depot-Seite zeigt sie weiterhin ganz normal in
+    // der Liste (kein Badge, keine Ausgrauung — der Status ist nur im
+    // 3-Punkte-Menü der Position sichtbar), nur die Kopfzahlen/Gewichtung oben
+    // zählen sie nicht mit.
     // Steuer-Report und Zinseszins-Rechner bleiben bewusst vollständig (val/cost/g).
     const posMeta = this.state.positionMeta || {};
     const isHidden = sym => !!(posMeta[sym] && posMeta[sym].hidden);
@@ -3204,10 +3206,9 @@ class Component extends DCLogic {
           value: f2(v),
           gain: (d >= 0 ? "+" : "") + f2(d),
           color: d >= 0 ? "var(--pos)" : "var(--neg)",
-          share: hidden ? "Ausgeblendet" : w.toFixed(1) + " %",
+          share: w.toFixed(1) + " %",
           tone: d >= 0 ? "var(--acc2)" : "var(--neg)",
           hidden,
-          cardOpacity: hidden ? ".55" : "1",
           category,
           openMenu: this.openPosMenu(sym),
           spark, hasSpark: !!spark,
