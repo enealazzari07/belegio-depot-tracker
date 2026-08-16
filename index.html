@@ -329,19 +329,14 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         </div>
 
-        <!-- Hintergrund-Verlauf der Box exakt derselbe 9-Stop-Verlauf wie die
-             Rand-Streifen unten (gleiche rgba-Stops, gleiche Prozent-Basis =
-             Boxhoehe). Vorher hatte die Box hier einen eigenen, viel
-             kuerzeren 2-Stop-Verlauf (30px bis reinem --bg) — dadurch war die
-             Mitte der Box schon nach 30px flach weiss, waehrend die Raender
-             (siehe unten) noch ueber die ganze Boxhoehe hinweg blau ausliefen.
-             Das ergab eine deutlich sichtbare, U-foermige Kante zwischen Mitte
-             und Rand statt eines gleichmaessigen Verlaufs — mit gleichen Stops
-             laufen Mitte und Rand jetzt bei jeder Hoehe synchron aus, keine
-             erkennbare Form mehr. Alpha 0 am Ende deckt sich farblich exakt
-             mit dem darunterliegenden --bg, da die Box sonst keinen eigenen
-             Hintergrund hat. -->
-        <div style="position:relative;margin:-26px 12px 0;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%);border-radius:26px 26px 0 0;padding:22px 0 0">
+        <!-- Background bewusst ein kurzer Verlauf statt reinem --bg: die Box
+             ueberlappt den Hero nur um 26px (negativer Top-Margin), darunter
+             stand vorher hart Weiss gegen die dunkle Hero-Unterkante — quer
+             ueber die ganze Breite eine sichtbare Kante (nur an den beiden
+             12px-Ecken gab es durch die Rand-Streifen unten ueberhaupt einen
+             Fade). Nach 30px haelt der Verlauf --bg fest (letzter Stop ohne
+             Nachfolger), der Rest der Box bleibt normal weiss. -->
+        <div style="position:relative;margin:-26px 12px 0;background:linear-gradient(180deg,var(--brand-end) 0px,var(--bg) 30px);border-radius:26px 26px 0 0;padding:22px 0 0">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
