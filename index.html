@@ -84,14 +84,21 @@
      genug Kontrast hat; von da an vertieft sich das Blau gleichmaessig bis
      zum kraeftigen Ton am unteren Rand.
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
-     eine sichtbare Kante zum Statusleisten-Streifen darüber. */
-  --brand:radial-gradient(48% 30% at 8% 52%,rgba(93,150,220,.5) 0%,rgba(93,150,220,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(80,135,215,.48) 0%,rgba(80,135,215,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(70,120,205,.55) 0%,rgba(70,120,205,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(58,108,198,.65) 0%,rgba(58,108,198,0) 72%),linear-gradient(180deg,#F5F6F9 0%,#EFF3FB 6%,#DCE8FB 14%,#BCD3F6 24%,#9CBDEE 34%,#7CA8E4 46%,#5D90D8 58%,#4478CC 70%,#3364C0 82%,#2A56BE 100%);
-  /* Startton = --bg (Box-Flaeche), nicht reines Weiss: --brand-flat ist auch
-     die Statusleisten-Farbe im Dashboard, ein hellerer Ton als die Box ergaebe
-     dort eine sichtbare Kante. */
-  --brand-flat:#F5F6F9;
+     eine sichtbare Kante zum Statusleisten-Streifen darüber.
+     Startet bewusst schon leicht blau (nicht bei reinem --bg-Weiss): die
+     iOS-Statusleiste soll auf Home als "blau" erkennbar sein und sich von den
+     uebrigen Screens (dort --bg, also neutral hell) unterscheiden — siehe
+     syncStatusBar(). Die ersten zwei fast-weissen Zwischenstufen des alten
+     Verlaufs sind dafuer weggefallen, der Rest des Verlaufs (gleiche Farben)
+     ist proportional auf 0–100% gestreckt, damit der Gesamteindruck erhalten
+     bleibt. */
+  --brand:radial-gradient(48% 30% at 8% 52%,rgba(93,150,220,.5) 0%,rgba(93,150,220,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(80,135,215,.48) 0%,rgba(80,135,215,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(70,120,205,.55) 0%,rgba(70,120,205,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(58,108,198,.65) 0%,rgba(58,108,198,0) 72%),linear-gradient(180deg,#DCE8FB 0%,#BCD3F6 12%,#9CBDEE 23%,#7CA8E4 37%,#5D90D8 51%,#4478CC 65%,#3364C0 79%,#2A56BE 100%);
+  /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
+     das ist die iOS-Statusleistenfarbe auf Home, jetzt sichtbar blau statt
+     --bg-Weiss wie auf den uebrigen Screens. */
+  --brand-flat:#DCE8FB;
   /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
-     und damit weiss — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
+     und damit hell — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
      Der Rand-Verlauf muss dort ansetzen, wo der Hero farblich aufhoert.
      Die Null-Alpha-Variante ist derselbe Ton, nicht `transparent`: sonst
      interpoliert der Browser gegen rgba(0,0,0,0) und der Fade wird grau. */
@@ -106,8 +113,8 @@
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
   /* --onBrand ist jetzt in beiden Themes Weiss (siehe oben), die aktive
      Zeitraum-Pille also in beiden Themes ein weisser Chip. --brand-flat kann
-     dafuer nicht mehr als Schriftfarbe dienen — das ist die reale, ebenfalls
-     weisse Statusleisten-Flaeche, kein Tinten-Ton. Eigener fester Ink-Wert,
+     dafuer nicht mehr als Schriftfarbe dienen — das ist die reale, hell-blaue
+     Statusleisten-Flaeche, kein Tinten-Ton. Eigener fester Ink-Wert,
      unabhaengig vom Theme, weil der Chip-Hintergrund es auch ist. */
   --chip-ink:#10131A;
   --brand-shadow:0 12px 26px -14px rgba(88,102,124,.45), 0 26px 54px -30px rgba(88,102,124,.38);
