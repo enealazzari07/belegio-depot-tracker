@@ -76,31 +76,21 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Weiss-zu-Blau-Verlauf im Home-Hero, in vielen kleinen Stufen statt eines
-     schnellen Sprungs gefolgt von einer langen fast einfarbigen Strecke —
-     sonst wirkt der Verlauf nach den ersten paar Prozent wie verschwunden.
-     Bei der Gesamtwert-Zeile (~14-20%) ist die Flaeche schon leicht blau
-     angetont statt fast weiss, damit der weisse Text (--onBrand*) dort
-     genug Kontrast hat; von da an vertieft sich das Blau gleichmaessig bis
-     zum kraeftigen Ton am unteren Rand.
+  /* Blau-Verlauf im Home-Hero. Startet direkt bei einem erkennbaren Blauton
+     (nicht fast-weiss) — die obersten paar Prozent liegen fast exakt am
+     Kopfbereich (Statusleiste + "Gesamtwert"-Zeile), ein heller Startton
+     wirkte dort wie ein weisser Fleck statt "blau". Von da an vertieft sich
+     das Blau gleichmaessig bis zum gedeckten, graeulichen Ton am unteren
+     Rand (kein sattes Royal-Blau, wirkt hochwertiger).
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
-     eine sichtbare Kante zum Statusleisten-Streifen darüber.
-     Startet bewusst schon leicht blau (nicht bei reinem --bg-Weiss): die
-     iOS-Statusleiste soll auf Home als "blau" erkennbar sein und sich von den
-     uebrigen Screens (dort --bg, also neutral hell) unterscheiden — siehe
-     syncStatusBar(). Die ersten zwei fast-weissen Zwischenstufen des alten
-     Verlaufs sind dafuer weggefallen, der Rest des Verlaufs ist proportional
-     auf 0–100% gestreckt. Farbskala bewusst gedeckter/graeulicher als ein
-     sattes Royal-Blau (weniger Saettigung Richtung unterem Rand) — wirkt
-     hochwertiger statt grell. Zusaetzliche feine diagonale Linien-Textur
-     (repeating-linear-gradient, sehr niedrige Deckkraft) sorgt fuer ein
-     leichtes Muster statt eines reinen Flaechenverlaufs, bleibt aber blass
-     genug, um die weisse Schrift (--onBrand*) nicht zu stoeren. */
-  --brand:radial-gradient(48% 30% at 8% 52%,rgba(110,130,155,.45) 0%,rgba(110,130,155,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(95,115,145,.42) 0%,rgba(95,115,145,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(85,105,135,.48) 0%,rgba(85,105,135,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(70,90,120,.58) 0%,rgba(70,90,120,0) 72%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#DCE8FB 0%,#C3D2E8 12%,#A3B8D6 23%,#7C93B8 37%,#5E7396 51%,#48597A 65%,#384960 79%,#263349 100%);
+     eine sichtbare Kante zum Statusleisten-Streifen darüber — siehe
+     syncStatusBar().
+     Bewusst kein Muster/keine Textur — nur der reine Farbverlauf. */
+  --brand:linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
-     das ist die iOS-Statusleistenfarbe auf Home, jetzt sichtbar blau statt
-     --bg-Weiss wie auf den uebrigen Screens. */
-  --brand-flat:#DCE8FB;
+     das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
+     statt einem blassen, fast weiss wirkenden Ton. */
+  --brand-flat:#A3B8D6;
   /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
      und damit hell — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
      Der Rand-Verlauf muss dort ansetzen, wo der Hero farblich aufhoert.
@@ -141,8 +131,9 @@
      Fremdkoerper), bekommt aber denselben erkennbar blauen Unterton statt
      neutralem Grau/Schwarz wie vorher, mit mehr Farbabstand zwischen den
      Stufen. Schrift ist hier durchgehend hell, daher kein Kontrastkonflikt
-     wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen. */
-  --brand:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
+     wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen.
+     Bewusst kein Muster/keine Textur, siehe Kommentar im Light Mode. */
+  --brand:linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --brand-flat:#0D1220;
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
@@ -333,7 +324,14 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         </div>
 
-        <div style="position:relative;margin:-26px 12px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
+        <!-- Background bewusst ein kurzer Verlauf statt reinem --bg: die Box
+             ueberlappt den Hero nur um 26px (negativer Top-Margin), darunter
+             stand vorher hart Weiss gegen die dunkle Hero-Unterkante — quer
+             ueber die ganze Breite eine sichtbare Kante (nur an den beiden
+             12px-Ecken gab es durch die Rand-Streifen unten ueberhaupt einen
+             Fade). Nach 30px haelt der Verlauf --bg fest (letzter Stop ohne
+             Nachfolger), der Rest der Box bleibt normal weiss. -->
+        <div style="position:relative;margin:-26px 12px 0;background:linear-gradient(180deg,var(--brand-end) 0px,var(--bg) 30px);border-radius:26px 26px 0 0;padding:22px 0 0">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
