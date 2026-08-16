@@ -1869,7 +1869,10 @@ const buildSparkline = rows => {
 
 // ETF-Zusammensetzung: proportionale "Kästchen"-Mosaik aus den Top-Holdings,
 // alles jenseits der Top 8 wird zu "Sonstige" zusammengefasst.
-const BLOCK_COLORS = ["#1E3F8F", "#2A56BE", "#3F6DCB", "#5C87DA", "#7DA3E6", "#A0C0EF", "#C3DAF6", "#E4F0FC"];
+// Dieselbe gedeckte, graeulich-dunkelblaue Farbfamilie wie --brand (Hero /
+// "Investment-Plan einrichten"-Karte) statt eines separaten satten Blaus —
+// auf ausdruecklichen Wunsch an das Gewichtung-Donut/ETF-Mosaik angeglichen.
+const BLOCK_COLORS = ["#263349", "#384960", "#48597A", "#5E7396", "#7391B8", "#8CA4C6", "#A3B8D6", "#C7D5E8"];
 const buildCompositionBlocks = data => {
   if (!data || !data.holdings || !data.holdings.length) return [];
   const top = data.holdings.slice(0, 8);
