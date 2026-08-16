@@ -89,10 +89,14 @@
      iOS-Statusleiste soll auf Home als "blau" erkennbar sein und sich von den
      uebrigen Screens (dort --bg, also neutral hell) unterscheiden — siehe
      syncStatusBar(). Die ersten zwei fast-weissen Zwischenstufen des alten
-     Verlaufs sind dafuer weggefallen, der Rest des Verlaufs (gleiche Farben)
-     ist proportional auf 0–100% gestreckt, damit der Gesamteindruck erhalten
-     bleibt. */
-  --brand:radial-gradient(48% 30% at 8% 52%,rgba(93,150,220,.5) 0%,rgba(93,150,220,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(80,135,215,.48) 0%,rgba(80,135,215,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(70,120,205,.55) 0%,rgba(70,120,205,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(58,108,198,.65) 0%,rgba(58,108,198,0) 72%),linear-gradient(180deg,#DCE8FB 0%,#BCD3F6 12%,#9CBDEE 23%,#7CA8E4 37%,#5D90D8 51%,#4478CC 65%,#3364C0 79%,#2A56BE 100%);
+     Verlaufs sind dafuer weggefallen, der Rest des Verlaufs ist proportional
+     auf 0–100% gestreckt. Farbskala bewusst gedeckter/graeulicher als ein
+     sattes Royal-Blau (weniger Saettigung Richtung unterem Rand) — wirkt
+     hochwertiger statt grell. Zusaetzliche feine diagonale Linien-Textur
+     (repeating-linear-gradient, sehr niedrige Deckkraft) sorgt fuer ein
+     leichtes Muster statt eines reinen Flaechenverlaufs, bleibt aber blass
+     genug, um die weisse Schrift (--onBrand*) nicht zu stoeren. */
+  --brand:radial-gradient(48% 30% at 8% 52%,rgba(110,130,155,.45) 0%,rgba(110,130,155,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(95,115,145,.42) 0%,rgba(95,115,145,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(85,105,135,.48) 0%,rgba(85,105,135,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(70,90,120,.58) 0%,rgba(70,90,120,0) 72%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#DCE8FB 0%,#C3D2E8 12%,#A3B8D6 23%,#7C93B8 37%,#5E7396 51%,#48597A 65%,#384960 79%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, jetzt sichtbar blau statt
      --bg-Weiss wie auf den uebrigen Screens. */
@@ -102,7 +106,7 @@
      Der Rand-Verlauf muss dort ansetzen, wo der Hero farblich aufhoert.
      Die Null-Alpha-Variante ist derselbe Ton, nicht `transparent`: sonst
      interpoliert der Browser gegen rgba(0,0,0,0) und der Fade wird grau. */
-  --brand-end:#2A56BE; --brand-end-0:rgba(42,86,190,0);
+  --brand-end:#263349; --brand-end-0:rgba(38,51,73,0);
   /* Der Kopfbereich ist kraeftig blau (siehe --brand oben), also muss die
      Schrift darauf hell sein — nicht dunkel wie fuer den frueheren, inzwischen
      verworfenen hellen Hero. onBrand* wird ausschliesslich im Home-Hero
@@ -138,7 +142,7 @@
      neutralem Grau/Schwarz wie vorher, mit mehr Farbabstand zwischen den
      Stufen. Schrift ist hier durchgehend hell, daher kein Kontrastkonflikt
      wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen. */
-  --brand:linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
+  --brand:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --brand-flat:#0D1220;
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
@@ -337,8 +341,8 @@ input::placeholder{color:var(--tx3)}
              Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
              voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
              von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. -->
-        <div style="position:absolute;left:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
-        <div style="position:absolute;right:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(42,86,190,1) 0%,rgba(42,86,190,.97) 18%,rgba(42,86,190,.88) 32%,rgba(42,86,190,.72) 46%,rgba(42,86,190,.52) 60%,rgba(42,86,190,.32) 73%,rgba(42,86,190,.15) 85%,rgba(42,86,190,.05) 93%,rgba(42,86,190,0) 100%)"></div>
+        <div style="position:absolute;left:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
+        <div style="position:absolute;right:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
 
         <div class="sect">
           <span class="lbl">Positionen</span>
