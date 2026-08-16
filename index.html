@@ -463,7 +463,7 @@ input::placeholder{color:var(--tx3)}
                   <svg viewBox="0 0 100 100" width="112" height="112" style="display:block;transform:rotate(-90deg)">
                     <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surf2)" stroke-width="15"></circle>
                     <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="15" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="15" stroke-linecap="round" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
                     </sc-for>
                   </svg>
                   <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
@@ -1869,10 +1869,11 @@ const buildSparkline = rows => {
 
 // ETF-Zusammensetzung: proportionale "Kästchen"-Mosaik aus den Top-Holdings,
 // alles jenseits der Top 8 wird zu "Sonstige" zusammengefasst.
-// Dieselbe gedeckte, graeulich-dunkelblaue Farbfamilie wie --brand (Hero /
-// "Investment-Plan einrichten"-Karte) statt eines separaten satten Blaus —
-// auf ausdruecklichen Wunsch an das Gewichtung-Donut/ETF-Mosaik angeglichen.
-const BLOCK_COLORS = ["#263349", "#384960", "#48597A", "#5E7396", "#7391B8", "#8CA4C6", "#A3B8D6", "#C7D5E8"];
+// Gleiche gedeckte Grundstimmung wie --brand (Hero/"Investment-Plan
+// einrichten"), aber heller und mit mehr Farbunterschied zwischen den
+// Werten (Blau/Teal/Indigo statt reiner Helligkeitsstufen eines Blaus) —
+// sonst sind einzelne Segmente im Donut kaum auseinanderzuhalten.
+const BLOCK_COLORS = ["#5B7FA6", "#6AA39C", "#7C88B3", "#8AA6C2", "#6C93A8", "#9490B8", "#7FB0BE", "#A8B8D4"];
 const buildCompositionBlocks = data => {
   if (!data || !data.holdings || !data.holdings.length) return [];
   const top = data.holdings.slice(0, 8);
@@ -3349,6 +3350,10 @@ class Component extends DCLogic {
     const allocationSlices = [], allocationLegend = [];
     if (visibleHoldings.length && visVal) {
       const R = 40, CIRC = 2 * Math.PI * R;
+      // Kleine Luecke zwischen den Segmenten, sonst stossen die runden Kappen
+      // (stroke-linecap:round) nahtlos aneinander und die Rundung faellt gar
+      // nicht auf.
+      const GAP = 3;
       const sorted = visibleHoldings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
       const top = sorted.slice(0, 7);
       const otherV = sorted.slice(7).reduce((a, x) => a + x.v, 0);
@@ -3356,15 +3361,17 @@ class Component extends DCLogic {
       top.forEach((x, i) => {
         const frac = x.v / visVal;
         const len = frac * CIRC;
+        const visLen = Math.max(0, len - GAP);
         const color = BLOCK_COLORS[i % BLOCK_COLORS.length];
-        allocationSlices.push({ color, dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
+        allocationSlices.push({ color, dasharray: visLen.toFixed(2) + " " + (CIRC - visLen).toFixed(2), dashoffset: (-offset).toFixed(2) });
         allocationLegend.push({ color, label: displayName(x.h), pct: (frac * 100).toFixed(1) + " %" });
         offset += len;
       });
       if (otherV > 0.0001) {
         const frac = otherV / visVal;
         const len = frac * CIRC;
-        allocationSlices.push({ color: "#DCDFE6", dasharray: len.toFixed(2) + " " + (CIRC - len).toFixed(2), dashoffset: (-offset).toFixed(2) });
+        const visLen = Math.max(0, len - GAP);
+        allocationSlices.push({ color: "#DCDFE6", dasharray: visLen.toFixed(2) + " " + (CIRC - visLen).toFixed(2), dashoffset: (-offset).toFixed(2) });
         allocationLegend.push({ color: "#DCDFE6", label: "Sonstige", pct: (frac * 100).toFixed(1) + " %" });
       }
     }
