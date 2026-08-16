@@ -329,14 +329,7 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         </div>
 
-        <!-- Background bewusst ein kurzer Verlauf statt reinem --bg: die Box
-             ueberlappt den Hero nur um 26px (negativer Top-Margin), darunter
-             stand vorher hart Weiss gegen die dunkle Hero-Unterkante — quer
-             ueber die ganze Breite eine sichtbare Kante (nur an den beiden
-             12px-Ecken gab es durch die Rand-Streifen unten ueberhaupt einen
-             Fade). Nach 30px haelt der Verlauf --bg fest (letzter Stop ohne
-             Nachfolger), der Rest der Box bleibt normal weiss. -->
-        <div style="position:relative;margin:-26px 12px 0;background:linear-gradient(180deg,var(--brand-end) 0px,var(--bg) 30px);border-radius:26px 26px 0 0;padding:22px 0 0">
+        <div style="position:relative;margin:-26px 12px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
