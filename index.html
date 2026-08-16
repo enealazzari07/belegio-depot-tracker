@@ -85,12 +85,11 @@
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber — siehe
      syncStatusBar().
-     Zwei grosse, weiche weisse Radial-Flecken sitzen oben und in der Mitte
-     (nicht mehr unten — der untere Rand bleibt gleichmaessig dunkel). Der
-     obere sitzt oben rechts, ist kraeftiger (.68 statt .28) und breiter
-     gestreckt (75% 65% Radius) als der mittlere, damit er spuerbar nach
-     links und unten ausfranst statt nur lokal zu sitzen — "verflossen". */
-  --brand:radial-gradient(75% 65% at 80% 12%,rgba(245,246,249,.68) 0%,rgba(245,246,249,0) 82%),radial-gradient(60% 50% at 45% 46%,rgba(245,246,249,.22) 0%,rgba(245,246,249,0) 76%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
+     Drei grosse, weiche weisse Radial-Flecken: oben rechts (kraeftig, .68),
+     oben links (schwaecher, .38, ebenso breit/weich fuer denselben
+     "verflossenen" Look) und mittig (.22). Nicht mehr unten — der untere
+     Rand bleibt gleichmaessig dunkel. */
+  --brand:radial-gradient(75% 65% at 80% 12%,rgba(245,246,249,.68) 0%,rgba(245,246,249,0) 82%),radial-gradient(72% 62% at 16% 14%,rgba(245,246,249,.38) 0%,rgba(245,246,249,0) 82%),radial-gradient(60% 50% at 45% 46%,rgba(245,246,249,.22) 0%,rgba(245,246,249,0) 76%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
