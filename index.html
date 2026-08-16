@@ -92,10 +92,11 @@
      Verlaufs sind dafuer weggefallen, der Rest des Verlaufs ist proportional
      auf 0–100% gestreckt. Farbskala bewusst gedeckter/graeulicher als ein
      sattes Royal-Blau (weniger Saettigung Richtung unterem Rand) — wirkt
-     hochwertiger statt grell. Keine zusaetzliche Linien-Textur mehr (frueher
-     ein repeating-linear-gradient, 135deg) — reiner Flaechenverlauf, die vier
-     radialen Blobs sorgen weiterhin fuer etwas Tiefe. */
-  --brand:radial-gradient(48% 30% at 8% 52%,rgba(110,130,155,.45) 0%,rgba(110,130,155,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(95,115,145,.42) 0%,rgba(95,115,145,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(85,105,135,.48) 0%,rgba(85,105,135,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(70,90,120,.58) 0%,rgba(70,90,120,0) 72%),linear-gradient(180deg,#DCE8FB 0%,#C3D2E8 12%,#A3B8D6 23%,#7C93B8 37%,#5E7396 51%,#48597A 65%,#384960 79%,#263349 100%);
+     hochwertiger statt grell. Zusaetzliche feine diagonale Linien-Textur
+     (repeating-linear-gradient, sehr niedrige Deckkraft) sorgt fuer ein
+     leichtes Muster statt eines reinen Flaechenverlaufs, bleibt aber blass
+     genug, um die weisse Schrift (--onBrand*) nicht zu stoeren. */
+  --brand:radial-gradient(48% 30% at 8% 52%,rgba(110,130,155,.45) 0%,rgba(110,130,155,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(95,115,145,.42) 0%,rgba(95,115,145,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(85,105,135,.48) 0%,rgba(85,105,135,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(70,90,120,.58) 0%,rgba(70,90,120,0) 72%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#DCE8FB 0%,#C3D2E8 12%,#A3B8D6 23%,#7C93B8 37%,#5E7396 51%,#48597A 65%,#384960 79%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, jetzt sichtbar blau statt
      --bg-Weiss wie auf den uebrigen Screens. */
@@ -141,7 +142,7 @@
      neutralem Grau/Schwarz wie vorher, mit mehr Farbabstand zwischen den
      Stufen. Schrift ist hier durchgehend hell, daher kein Kontrastkonflikt
      wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen. */
-  --brand:linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
+  --brand:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --brand-flat:#0D1220;
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
@@ -332,22 +333,16 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         </div>
 
-        <!-- Box ueberlappt den Hero um 26px (negativer Top-Margin, "Karte ragt
-             in den Hero"-Look). Eigener Hintergrund-Verlauf statt flach --bg:
-             faerbt vom Hero-Ton in festen 110px komplett zu --bg aus (letzter
-             Stop ohne Nachfolger = alpha 0, deckt sich farblich exakt mit dem
-             umgebenden --bg). Feste Pixel statt Prozent der Boxhoehe, damit
-             der Verlauf immer im Header-Bereich fertig ist und nicht erst am
-             Ende der (je nach Anzahl Positionen 300-600px hohen) Box — sonst
-             wirkt die ganze Liste dauerhaft leicht angegraut. -->
-        <div style="position:relative;margin:-26px 12px 0;background:linear-gradient(180deg,rgba(38,51,73,1) 0px,rgba(38,51,73,.97) 20px,rgba(38,51,73,.88) 35px,rgba(38,51,73,.72) 51px,rgba(38,51,73,.52) 66px,rgba(38,51,73,.32) 80px,rgba(38,51,73,.15) 94px,rgba(38,51,73,.05) 102px,rgba(38,51,73,0) 110px);border-radius:26px 26px 0 0;padding:22px 0 0">
-        <!-- Blauer Rand neben der Box, in den 12px-Seitenmargins. Dieselben
-             festen Pixel-Stops wie der Box-Hintergrund oben, damit Mitte und
-             Rand bei jeder Hoehe synchron ausfaden statt eines der beiden
-             frueher (Mitte flach, Rand ueber die ganze Boxhoehe) sichtbar
-             abweichend zu laufen. -->
-        <div style="position:absolute;left:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0px,rgba(38,51,73,.97) 20px,rgba(38,51,73,.88) 35px,rgba(38,51,73,.72) 51px,rgba(38,51,73,.52) 66px,rgba(38,51,73,.32) 80px,rgba(38,51,73,.15) 94px,rgba(38,51,73,.05) 102px,rgba(38,51,73,0) 110px)"></div>
-        <div style="position:absolute;right:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0px,rgba(38,51,73,.97) 20px,rgba(38,51,73,.88) 35px,rgba(38,51,73,.72) 51px,rgba(38,51,73,.52) 66px,rgba(38,51,73,.32) 80px,rgba(38,51,73,.15) 94px,rgba(38,51,73,.05) 102px,rgba(38,51,73,0) 110px)"></div>
+        <div style="position:relative;margin:-26px 12px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0">
+        <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
+             Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
+             Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
+             anderen Deckkraft als der Hero selbst — sichtbare Stufe. An der
+             Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
+             voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
+             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. -->
+        <div style="position:absolute;left:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
+        <div style="position:absolute;right:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
 
         <div class="sect">
           <span class="lbl">Positionen</span>
