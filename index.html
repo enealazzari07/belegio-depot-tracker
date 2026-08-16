@@ -5,18 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- War black-translucent + dynamisches theme-color (siehe syncStatusBar()
-     im JS), um die Flaeche hinter Uhr/Dynamic Island exakt an den Inhalt
-     darunter anzupassen. Auf iOS 26 blieb sie in der installierten App aber
-     durchgehend weiss, unabhaengig von Screen/Theme — der Trick greift dort
-     offenbar gar nicht (black-translucent ist zudem deprecated). Jetzt fest
-     "black": solide schwarze Flaeche mit hellen Uhr/Akku-Icons, robust statt
-     experimentell, aber nicht mehr pro Screen einfaerbbar. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<!-- Bleibt fuer Safari im Tab-Modus relevant (faerbt dort die Werkzeugleiste)
-     und wird von syncStatusBar() im JS weiterhin dynamisch aktualisiert; auf
-     die installierte Standalone-App (siehe status-bar-style oben) hat es
-     keinen zuverlaessigen Einfluss mehr. -->
+<!-- Nur noch fuer aeltere iOS-Versionen. Ab iOS 26 ist black-translucent
+     deprecated (Safari warnt, dass es entfernt wird) und iOS zeichnet hinter
+     Uhr und Dynamic Island seine eigene Flaeche, die sich per CSS nicht
+     wegnehmen laesst — daher der weisse Schleier. Statt dagegen anzukaempfen
+     faerben wir die Flaeche exakt wie den Inhalt darunter, siehe
+     syncStatusBar() im JS. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Wird ab dem ersten Render von syncStatusBar() uebernommen und pro Screen
+     gesetzt (Home blau, sonst Hintergrundfarbe, Splash dunkel). Der Wert hier
+     ist nur der Startwert fuers allererste Bild, bevor JS laeuft — deshalb die
+     helle Grundfarbe. Bewusst ohne media-Attribut: der Theme-Toggle der App
+     entscheidet, nicht das OS-Schema.
+     manifest.json fuehrt absichtlich kein theme_color, sonst wuerde der
+     statische Wert von dort den dynamischen hier ueberstimmen. -->
 <meta name="theme-color" content="#F5F6F9">
 <!-- iOS-27-Blur-Fix (13.08.2026, Experiment): auf iOS 27 Beta reicht das
      systemeigene Glass-Material hinter Uhr/Dynamic Island offenbar weiter in
@@ -2727,18 +2729,19 @@ class Component extends DCLogic {
   };
 
   // ---------- iOS-Statusleiste ----------
-  // War der Versuch, die Flaeche hinter Uhr/Dynamic Island in der
-  // installierten App per dynamischem theme-color exakt an den Screen
-  // darunter anzupassen. Blieb auf iOS 26 aber durchgehend weiss, egal
-  // welcher Screen/Theme aktiv war — der Trick greift dort offenbar nicht
-  // (siehe apple-mobile-web-app-status-bar-style="black" im <head>, das ist
-  // jetzt die eigentliche, robuste Loesung fuer die Standalone-App).
-  // Bleibt trotzdem stehen: im Safari-Tab-Modus (nicht installiert) faerbt
-  // theme-color nachweislich die Werkzeugleiste, dort weiterhin sinnvoll.
+  // Ab iOS 26 laesst sich die Flaeche hinter Uhr und Dynamic Island nicht mehr
+  // transparent schalten (black-translucent ist deprecated, iOS zeichnet dort
+  // sein eigenes Material). Frueher wurde das mit einem .statusbar-Div plus
+  // backdrop-filter bekaempft — das ergab nur einen zweiten Balken obendrauf.
+  // Stattdessen faerben wir jetzt die iOS-Flaeche selbst ueber theme-color,
+  // und zwar exakt in der Farbe, die direkt darunter liegt: Home ist blau,
+  // der Splash dunkel, alles andere normale Hintergrundfarbe. Dadurch faellt
+  // der Balken optisch nicht mehr auf.
   //
   // Die Farbe wird bewusst aus den CSS-Variablen gelesen statt hier als Hex
-  // dupliziert — so folgt sie automatisch dem Theme-Toggle. theme-color
-  // akzeptiert kein var(), daher der Umweg ueber getComputedStyle.
+  // dupliziert — so folgt sie automatisch dem Theme-Toggle und kann nie von
+  // der Flaeche darunter abweichen. theme-color akzeptiert kein var(), daher
+  // der Umweg ueber getComputedStyle.
   syncStatusBar(screen) {
     const root = document.querySelector("[data-theme]");
     if (!root) return;
