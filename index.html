@@ -3166,7 +3166,11 @@ class Component extends DCLogic {
     const depotList = holdings.map(h => {
         const sym = h.sym || h.abbr;
         const inv = h.shares * h.buy, v = h.shares * h.cur, d = v - inv;
-        const w = visVal ? v / visVal * 100 : 0;
+        // Gewichtung in der Positionsliste immer gegen den echten Gesamtwert
+        // (val, inkl. ausgeblendeter Positionen) — visVal (nur sichtbare)
+        // würde für eine ausgeblendete Position ihren eigenen Wert aus dem
+        // Nenner ausklammern und absurd hohe Prozentzahlen erzeugen.
+        const w = val ? v / val * 100 : 0;
         const hidden = isHidden(sym);
         const category = (posMeta[sym] && posMeta[sym].category) || "";
         const isOpenPos = this.state.openPosSymbol === sym;
