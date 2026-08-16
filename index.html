@@ -339,16 +339,17 @@ input::placeholder{color:var(--tx3)}
              Schatten mit negativem Y-Offset (schiebt den Schatten NACH OBEN
              in den Hero) — die Box liest sich dadurch als eigenstaendige,
              nach vorne gehobene Karte statt als Farbverlauf-Fehler. -->
-        <div style="position:relative;margin:-26px 12px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
+        <div style="position:relative;margin:-26px 6px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
              anderen Deckkraft als der Hero selbst — sichtbare Stufe. An der
              Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
              voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
-             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. -->
-        <div style="position:absolute;left:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
-        <div style="position:absolute;right:-12px;top:0;bottom:0;width:12px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
+             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. Breite (6px)
+             folgt dem schmaleren Seitenrand der Box. -->
+        <div style="position:absolute;left:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
+        <div style="position:absolute;right:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(38,51,73,1) 0%,rgba(38,51,73,.97) 18%,rgba(38,51,73,.88) 32%,rgba(38,51,73,.72) 46%,rgba(38,51,73,.52) 60%,rgba(38,51,73,.32) 73%,rgba(38,51,73,.15) 85%,rgba(38,51,73,.05) 93%,rgba(38,51,73,0) 100%)"></div>
 
         <div class="sect">
           <span class="lbl">Positionen</span>
@@ -390,7 +391,7 @@ input::placeholder{color:var(--tx3)}
              unteren Ecken. Aufteilung noetig, damit der blaue Seiten-Fade an der
              Positionsliste endet, unabhaengig von Positionsanzahl oder
              Ladezustand — statt eines geratenen Pixel-Werts. -->
-        <div style="margin:0 12px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
+        <div style="margin:0 6px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
 
         <sc-if value="{{ hasHomeStats }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
@@ -455,7 +456,7 @@ input::placeholder{color:var(--tx3)}
         </div>
         <!-- Ab hier ohne weisse Flaeche: die Karten stehen direkt auf dem
              Seitenhintergrund, Raender bleiben zur Box darueber ausgerichtet. -->
-        <div style="margin:0 12px;padding:20px 0 128px">
+        <div style="margin:0 6px;padding:20px 0 128px">
 
         <sc-if value="{{ hasCarousel }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:18px">
