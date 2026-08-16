@@ -218,6 +218,33 @@ input::placeholder{color:var(--tx3)}
       </div>
     </sc-if>
 
+    <!-- App-Lock (Face ID/Touch ID). Rein lokal per WebAuthn (siehe
+         enableFaceId/unlockWithFaceId) — kein Server-Roundtrip, keine neue
+         Tabelle. Supabase-Login bleibt die echte Sicherheitsgrenze; das hier
+         ist nur ein bequemer Wiedereinstiegs-Schutz, damit das Depot nicht
+         sofort sichtbar ist, wenn jemand das entsperrte Handy aufnimmt.
+         Modern-heller Screen statt eines dunklen Splash-Looks, auf
+         ausdruecklichen Wunsch. Oberste Ebene, deckt alles ab (auch Splash-
+         Nachfolger), solange locked true ist. -->
+    <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:39;background:var(--bg);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px;text-align:center">
+        <div style="width:76px;height:76px;border-radius:24px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--tx)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H6a2.5 2.5 0 0 0-2.5 2.5v2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2M16 20.5h2a2.5 2.5 0 0 0 2.5-2.5v-2M9 10v1.5a3 3 0 0 0 3 3M9 10a3 3 0 0 1 6 0v2.5M8.5 16c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path></svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="color:var(--tx);font-size:19px;font-weight:700;letter-spacing:-.02em">Belegio ist gesperrt</span>
+          <span style="color:var(--tx3);font-size:13px">Mit Face ID entsperren, um dein Depot zu sehen</span>
+        </div>
+        <sc-if value="{{ faceIdErrorMsg }}" hint-placeholder-val="{{ false }}">
+          <span style="color:var(--neg);font-size:12.5px;line-height:1.5">{{ faceIdErrorMsg }}</span>
+        </sc-if>
+        <button onClick="{{ unlockWithFaceId }}" style="all:unset;box-sizing:border-box;cursor:pointer;min-width:220px;height:52px;border-radius:16px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:9px" style-hover="opacity:.9">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H6a2.5 2.5 0 0 0-2.5 2.5v2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2M16 20.5h2a2.5 2.5 0 0 0 2.5-2.5v-2M9 10v1.5a3 3 0 0 0 3 3M9 10a3 3 0 0 1 6 0v2.5M8.5 16c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path></svg>
+          {{ faceIdUnlockLabel }}
+        </button>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
       <div style="position:absolute;inset:0;padding:132px 32px 44px;display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
         <div style="width:52px;height:52px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;margin-bottom:36px">
@@ -1669,6 +1696,18 @@ input::placeholder{color:var(--tx3)}
               <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ notifKnobX }}"></span>
             </button>
           </div>
+          <sc-if value="{{ faceIdSupported }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H6a2.5 2.5 0 0 0-2.5 2.5v2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2M16 20.5h2a2.5 2.5 0 0 0 2.5-2.5v-2M9 10v1.5a3 3 0 0 0 3 3M9 10a3 3 0 0 1 6 0v2.5M8.5 16c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path></svg>
+              <div style="flex:1">
+                <div style="color:var(--tx);font-size:14.5px;font-weight:500">Face ID zum Entsperren</div>
+                <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">{{ faceIdHint }}</div>
+              </div>
+              <button onClick="{{ toggleFaceId }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block;flex:none">
+                <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ faceIdKnobX }}"></span>
+              </button>
+            </div>
+          </sc-if>
           <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
             <button onClick="{{ p.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
               <span style="color:var(--tx2);display:flex">{{ p.icon }}</span>
@@ -1991,7 +2030,14 @@ class Component extends DCLogic {
 
     scrubIndex: null,
 
-    notifSubscribed: false, notifBusy: false, notifSupported: typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window
+    notifSubscribed: false, notifBusy: false, notifSupported: typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window,
+
+    // ---------- Face ID / App-Lock ----------
+    // faceIdEnabled kommt aus localStorage (geraetegebunden, kein Server) —
+    // muss beim ALLERERSTEN Render schon feststehen, sonst blitzt das Depot
+    // vor dem Lock-Screen kurz auf.
+    faceIdEnabled: typeof localStorage !== "undefined" && localStorage.getItem("belegio_faceid_enabled") === "1",
+    locked: false, faceIdBusy: false, faceIdError: ""
   };
 
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
@@ -2113,6 +2159,82 @@ class Component extends DCLogic {
   };
   stopPropagation = e => e.stopPropagation();
 
+  // ---------- Face ID / Touch ID App-Lock ----------
+  // Nutzt WebAuthn rein lokal: kein Server-Roundtrip, keine neue Tabelle,
+  // kein neuer Edge-Function-Call. Die eigentliche Sicherheitsgrenze bleibt
+  // der Supabase-Login — das hier ist ein bequemer Wiedereinstiegs-Schutz.
+  // Ein Zufalls-Challenge reicht (nichts wird serverseitig geprueft): dass
+  // navigator.credentials.get() ueberhaupt erfolgreich zurueckkommt, heisst
+  // schon, dass Face ID/Touch ID den Geraetebesitzer bestaetigt hat. Die
+  // Credential-ID liegt geraetegebunden in localStorage, genau wie iOS es
+  // fuer Passkeys ohnehin vorsieht.
+  faceIdRandomBytes = n => {
+    const a = new Uint8Array(n);
+    crypto.getRandomValues(a);
+    return a;
+  };
+
+  enableFaceId = async () => {
+    if (!window.PublicKeyCredential || !navigator.credentials) {
+      this.setState({ faceIdError: "Face ID/Touch ID wird auf diesem Gerät nicht unterstützt." });
+      return;
+    }
+    this.setState({ faceIdBusy: true, faceIdError: "" });
+    try {
+      const cred = await navigator.credentials.create({
+        publicKey: {
+          challenge: this.faceIdRandomBytes(32),
+          rp: { name: "Belegio" },
+          user: {
+            id: this.faceIdRandomBytes(16),
+            name: (this.state.user && this.state.user.email) || "belegio",
+            displayName: "Belegio"
+          },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+          authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+          timeout: 60000
+        }
+      });
+      if (!cred) throw new Error("Abgebrochen");
+      const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+      localStorage.setItem("belegio_faceid_cred", credId);
+      localStorage.setItem("belegio_faceid_enabled", "1");
+      this.setState({ faceIdEnabled: true, faceIdBusy: false });
+    } catch (e) {
+      this.setState({ faceIdBusy: false, faceIdError: "Einrichten fehlgeschlagen oder abgebrochen." });
+    }
+  };
+
+  disableFaceId = () => {
+    localStorage.removeItem("belegio_faceid_enabled");
+    localStorage.removeItem("belegio_faceid_cred");
+    this.setState({ faceIdEnabled: false });
+  };
+
+  toggleFaceId = () => {
+    if (this.state.faceIdBusy) return;
+    if (this.state.faceIdEnabled) this.disableFaceId();
+    else this.enableFaceId();
+  };
+
+  unlockWithFaceId = async () => {
+    if (this.state.faceIdBusy) return;
+    this.setState({ faceIdBusy: true, faceIdError: "" });
+    try {
+      const credId = localStorage.getItem("belegio_faceid_cred");
+      const allowCredentials = credId
+        ? [{ id: Uint8Array.from(atob(credId), c => c.charCodeAt(0)), type: "public-key" }]
+        : [];
+      const assertion = await navigator.credentials.get({
+        publicKey: { challenge: this.faceIdRandomBytes(32), allowCredentials, userVerification: "required", timeout: 60000 }
+      });
+      if (!assertion) throw new Error("Abgebrochen");
+      this.setState({ locked: false, faceIdBusy: false, faceIdError: "" });
+    } catch (e) {
+      this.setState({ faceIdBusy: false, faceIdError: "Entsperren fehlgeschlagen — nochmal versuchen." });
+    }
+  };
+
   // Pro-Nutzer sollen die Kauf-Seite nicht mehr sehen — stattdessen kurzer Hinweis.
   openAbo = () => {
     if (this.state.userPlan === "pro") {
@@ -2146,7 +2268,12 @@ class Component extends DCLogic {
     const db = await this.db();
     const session = await db.getSession();
     if (session) {
-      this.setState({ user: session.user, screen: "dash" });
+      // Face ID sperrt nur den Wiedereinstieg in eine bereits bestehende
+      // Session — die Credential-ID muss lokal vorhanden sein, sonst wuerde
+      // ein aktivierter, aber nie erfolgreich eingerichteter Zustand
+      // (z.B. localStorage manuell gesetzt) unbrauchbar aussperren.
+      const faceIdReady = this.state.faceIdEnabled && !!localStorage.getItem("belegio_faceid_cred");
+      this.setState({ user: session.user, screen: "dash", locked: faceIdReady });
       const holdings = await this.loadPortfolio();
       await this.loadHistory(holdings);
       await this.loadEtfCompositions(holdings);
@@ -2325,7 +2452,8 @@ class Component extends DCLogic {
     this.stopAutoSync();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false
+      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false,
+      locked: false
     });
   };
 
@@ -3451,6 +3579,20 @@ class Component extends DCLogic {
         : this.state.notifSubscribed
         ? "Ein · einmal täglich gegen 12 Uhr"
         : "Aus · Depotwert einmal täglich als Push",
+
+      // ---------- Face ID / App-Lock ----------
+      faceIdSupported: typeof window !== "undefined" && !!(window.PublicKeyCredential && navigator.credentials),
+      toggleFaceId: this.toggleFaceId,
+      faceIdKnobX: this.state.faceIdEnabled ? "23px" : "3px",
+      faceIdHint: this.state.faceIdBusy
+        ? "…"
+        : this.state.faceIdEnabled
+        ? "Ein · beim Öffnen der App entsperren"
+        : "Aus · App öffnet sich direkt",
+      locked: this.state.locked,
+      unlockWithFaceId: this.unlockWithFaceId,
+      faceIdUnlockLabel: this.state.faceIdBusy ? "…" : "Mit Face ID entsperren",
+      faceIdErrorMsg: this.state.faceIdError,
 
       logout: this.logoutUser,
       isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
