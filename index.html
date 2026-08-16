@@ -76,31 +76,25 @@
   --pos-soft:rgba(18,119,95,.10); --neg-soft:rgba(192,69,58,.10);
   --warn:#B07A15; --warn-soft:rgba(176,122,21,.12);
   --info:#2E6BE6; --info-soft:rgba(46,107,230,.10);
-  /* Weiss-zu-Blau-Verlauf im Home-Hero, in vielen kleinen Stufen statt eines
-     schnellen Sprungs gefolgt von einer langen fast einfarbigen Strecke —
-     sonst wirkt der Verlauf nach den ersten paar Prozent wie verschwunden.
-     Bei der Gesamtwert-Zeile (~14-20%) ist die Flaeche schon leicht blau
-     angetont statt fast weiss, damit der weisse Text (--onBrand*) dort
-     genug Kontrast hat; von da an vertieft sich das Blau gleichmaessig bis
-     zum kraeftigen Ton am unteren Rand.
+  /* Blau-Verlauf im Home-Hero. Startet jetzt direkt bei einem erkennbaren
+     Blauton (nicht mehr fast-weiss) — die obersten paar Prozent liegen fast
+     exakt am Kopfbereich (Statusleiste + "Gesamtwert"-Zeile), ein heller
+     Startton wirkte dort wie ein weisser Fleck statt "blau". Von da an
+     vertieft sich das Blau gleichmaessig bis zum gedeckten, graeulichen Ton
+     am unteren Rand (kein sattes Royal-Blau, wirkt hochwertiger).
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
-     eine sichtbare Kante zum Statusleisten-Streifen darüber.
-     Startet bewusst schon leicht blau (nicht bei reinem --bg-Weiss): die
-     iOS-Statusleiste soll auf Home als "blau" erkennbar sein und sich von den
-     uebrigen Screens (dort --bg, also neutral hell) unterscheiden — siehe
-     syncStatusBar(). Die ersten zwei fast-weissen Zwischenstufen des alten
-     Verlaufs sind dafuer weggefallen, der Rest des Verlaufs ist proportional
-     auf 0–100% gestreckt. Farbskala bewusst gedeckter/graeulicher als ein
-     sattes Royal-Blau (weniger Saettigung Richtung unterem Rand) — wirkt
-     hochwertiger statt grell. Zusaetzliche feine diagonale Linien-Textur
-     (repeating-linear-gradient, sehr niedrige Deckkraft) sorgt fuer ein
-     leichtes Muster statt eines reinen Flaechenverlaufs, bleibt aber blass
-     genug, um die weisse Schrift (--onBrand*) nicht zu stoeren. */
-  --brand:radial-gradient(48% 30% at 8% 52%,rgba(110,130,155,.45) 0%,rgba(110,130,155,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(95,115,145,.42) 0%,rgba(95,115,145,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(85,105,135,.48) 0%,rgba(85,105,135,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(70,90,120,.58) 0%,rgba(70,90,120,0) 72%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#DCE8FB 0%,#C3D2E8 12%,#A3B8D6 23%,#7C93B8 37%,#5E7396 51%,#48597A 65%,#384960 79%,#263349 100%);
+     eine sichtbare Kante zum Statusleisten-Streifen darüber — siehe
+     syncStatusBar().
+     Die vier farbigen Radial-Blobs sorgen fuer etwas Tiefe unten; die vier
+     weissen darueber sind unregelmaessig verteilte, unterschiedlich starke
+     Lichtflecken (Deckkraft .05 bis .10, verschiedene Groessen/Positionen) —
+     ein organisches, mal staerkeres mal schwaecheres Muster, das sich durch
+     den ganzen Verlauf zieht, statt eines gleichfoermigen Linienrasters. */
+  --brand:radial-gradient(48% 30% at 8% 52%,rgba(110,130,155,.45) 0%,rgba(110,130,155,0) 78%),radial-gradient(55% 32% at 32% 56%,rgba(95,115,145,.42) 0%,rgba(95,115,145,0) 76%),radial-gradient(62% 34% at 58% 54%,rgba(85,105,135,.48) 0%,rgba(85,105,135,0) 74%),radial-gradient(70% 36% at 84% 58%,rgba(70,90,120,.58) 0%,rgba(70,90,120,0) 72%),radial-gradient(38% 60% at 18% 20%,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 70%),radial-gradient(45% 70% at 68% 42%,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 72%),radial-gradient(50% 65% at 28% 78%,rgba(255,255,255,.09) 0%,rgba(255,255,255,0) 70%),radial-gradient(42% 55% at 82% 88%,rgba(255,255,255,.05) 0%,rgba(255,255,255,0) 68%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
-     das ist die iOS-Statusleistenfarbe auf Home, jetzt sichtbar blau statt
-     --bg-Weiss wie auf den uebrigen Screens. */
-  --brand-flat:#DCE8FB;
+     das ist die iOS-Statusleistenfarbe auf Home, jetzt deutlich als Blau
+     erkennbar statt einem blassen, fast weiss wirkenden Ton. */
+  --brand-flat:#A3B8D6;
   /* Endfarbe des Hero-Verlaufs. --brand-flat ist die START-Farbe (Statusleiste)
      und damit hell — als Grundton fuer die Flaeche UNTER dem Hero unbrauchbar.
      Der Rand-Verlauf muss dort ansetzen, wo der Hero farblich aufhoert.
@@ -141,8 +135,10 @@
      Fremdkoerper), bekommt aber denselben erkennbar blauen Unterton statt
      neutralem Grau/Schwarz wie vorher, mit mehr Farbabstand zwischen den
      Stufen. Schrift ist hier durchgehend hell, daher kein Kontrastkonflikt
-     wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen. */
-  --brand:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
+     wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen.
+     Dieselben unregelmaessigen, unterschiedlich starken Lichtflecken wie im
+     Light Mode (siehe Kommentar dort) statt eines gleichfoermigen Rasters. */
+  --brand:radial-gradient(40% 55% at 20% 22%,rgba(255,255,255,.05) 0%,rgba(255,255,255,0) 70%),radial-gradient(46% 65% at 66% 44%,rgba(255,255,255,.03) 0%,rgba(255,255,255,0) 72%),radial-gradient(48% 60% at 30% 76%,rgba(255,255,255,.045) 0%,rgba(255,255,255,0) 70%),radial-gradient(40% 52% at 82% 86%,rgba(255,255,255,.025) 0%,rgba(255,255,255,0) 68%),linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --brand-flat:#0D1220;
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
