@@ -378,6 +378,36 @@ input::placeholder{color:var(--tx3)}
              Ladezustand — statt eines geratenen Pixel-Werts. -->
         <div style="margin:0 12px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
 
+        <sc-if value="{{ hasHomeStats }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px">
+            <div class="card" style="padding:18px">
+              <span style="display:block;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:14px">Depot auf einen Blick</span>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 14px">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">GESAMTRENDITE</span>
+                  <span class="mono" style="color:{{ homeStatTotalReturnColor }};font-size:16px;font-weight:700">{{ homeStatTotalReturnPct }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">seit Kauf</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">GRÖSSTE POSITION</span>
+                  <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatBestPosName }}</span>
+                  <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ homeStatBestPosWeight }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">STÄRKSTER HEUTE</span>
+                  <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatBestTodayName }}</span>
+                  <span class="mono" style="color:{{ homeStatBestTodayColor }};font-size:10.5px;font-weight:700">{{ homeStatBestTodayPct }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">POSITIONEN</span>
+                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ homeStatPosCount }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">im Depot</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
             <div class="card" style="padding:18px">
@@ -2751,6 +2781,22 @@ class Component extends DCLogic {
     const visCost = visibleHoldings.reduce((a, h) => a + h.shares * h.buy, 0);
     const visG = visVal - visCost;
 
+    // ---------- „Depot auf einen Blick" (Home-Stats) ----------
+    // Zusatzkennzahlen für die Startseite — bewusst nur aus bereits geladenen
+    // Werten abgeleitet (keine neue Datenquelle). Wie der Rest des Home-
+    // Screens zählen ausgeblendete Positionen hier nicht mit. Gesamtrendite
+    // ist fix seit Kauf (nicht vom D/W/M/Y-Umschalter oben abhängig) — das
+    // ist der Wert, den Nutzer bei "seit dem ich gekauft habe" erwarten.
+    const totalReturnPct = visCost ? visG / visCost * 100 : 0;
+    const bestPos = visibleHoldings.length
+      ? visibleHoldings.reduce((a, b) => (b.shares * b.cur) > (a.shares * a.cur) ? b : a)
+      : null;
+    const bestPosWeight = bestPos && visVal ? (bestPos.shares * bestPos.cur) / visVal * 100 : 0;
+    const dpHoldings = visibleHoldings.filter(h => typeof h.dp === "number");
+    const bestToday = dpHoldings.length
+      ? dpHoldings.reduce((a, b) => b.dp > a.dp ? b : a)
+      : null;
+
     // ---------- Steuer-Report ----------
     // Erste, funktionierende Version: Momentaufnahme des Depots (kein
     // offizielles Wertschriftenverzeichnis, keine ICTax-Steuerwerte per
@@ -3605,6 +3651,17 @@ class Component extends DCLogic {
       allocationSlices,
       allocationLegend,
       posCountNum: String(visibleHoldings.length),
+
+      // ---------- „Depot auf einen Blick" (Home-Stats) ----------
+      hasHomeStats: visibleHoldings.length > 0,
+      homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
+      homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
+      homeStatBestPosName: bestPos ? displayName(bestPos) : "–",
+      homeStatBestPosWeight: bestPos ? bestPosWeight.toFixed(1) + " % des Depots" : "",
+      homeStatBestTodayName: bestToday ? displayName(bestToday) : "–",
+      homeStatBestTodayPct: bestToday ? (bestToday.dp >= 0 ? "+" : "") + bestToday.dp.toFixed(1) + " %" : "kein Kurs heute",
+      homeStatBestTodayColor: bestToday ? (bestToday.dp >= 0 ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
+      homeStatPosCount: String(visibleHoldings.length),
 
       // ---------- Signale (Pro) ----------
       hasSignals: signalsShown.length > 0,
