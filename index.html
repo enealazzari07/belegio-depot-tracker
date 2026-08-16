@@ -273,6 +273,12 @@ input::placeholder{color:var(--tx3)}
                   <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
                 </sc-for>
               </div>
+              <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:34px;height:34px;border-radius:11px;background:rgba(16,19,26,.06);display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <sc-if value="{{ notifBadge }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:1.5px solid var(--brand-flat);display:block"></span>
+                </sc-if>
+              </button>
             </div>
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:250px">
@@ -1032,6 +1038,40 @@ input::placeholder{color:var(--tx3)}
             </sc-for>
           </div>
           <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Direkt aus SEC-Form-4-Meldungen (offizielle US-Insider-Handelspflichten). Keine Anlageberatung.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+          <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+            <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </div>
+            <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Benachrichtigungen</span>
+            <button onClick="{{ closeNotifSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <sc-if value="{{ hasNotifItems }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <sc-for list="{{ notifItems }}" as="ni" hint-placeholder-count="3">
+                <button onClick="{{ ni.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)">
+                  <div style="width:32px;height:32px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:9px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ ni.logo }}</div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left">
+                    <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.name }} — Insider-{{ ni.codeLabel }}</span>
+                    <span style="color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.detail }}</span>
+                  </div>
+                  <span class="mono" style="flex:none;color:var(--tx3);font-size:10.5px">{{ ni.dateLabel }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noNotifItems }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:24px 0;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.55">Noch nichts Neues — hier erscheinen z. B. Insider-Käufe/-Verkäufe zu deinen Positionen.</div>
+          </sc-if>
+          <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.55">Insider-Käufe/-Verkäufe (SEC Form 4) zu deinen Positionen — mehr Benachrichtigungsarten folgen.</p>
         </div>
       </sc-if>
 
@@ -1933,7 +1973,7 @@ class Component extends DCLogic {
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
-    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null,
+    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false,
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     marketsFilter: "stocks",
@@ -2383,6 +2423,22 @@ class Component extends DCLogic {
       await db.markInsiderAlertsSeen();
     } catch (e) { /* naechstes Mal wieder versuchen */ }
   };
+
+  // ---------- Benachrichtigungen (Glocke im Home-Header) ----------
+  // Bewusst kein eigenes Notification-Backend/neue Tabelle fuer die erste
+  // Version — die Glocke zeigt die ohnehin schon geladenen Insider-Meldungen
+  // (einzige "neu seit letztem Besuch"-Quelle, die die App aktuell hat) als
+  // kleine Aktivitaets-Liste. Der Punkt auf der Glocke nutzt denselben
+  // insiderAlertHint/markInsiderSeen-Mechanismus wie das Depot-Badge, bleibt
+  // also konsistent mit dem, was dort schon als "neu" gilt. Die Glocke selbst
+  // bleibt immer sichtbar (kein Ein-/Ausblenden je nach Zustand) — sie ist
+  // der einzige Einstiegspunkt zur Liste, auch wenn gerade nichts Neues da ist.
+  openNotifSheet = () => { this.setState({ notifSheetOpen: true }); this.markInsiderSeen(); };
+  closeNotifSheet = () => this.setState({ notifSheetOpen: false });
+  // Tippen auf einen Eintrag wechselt direkt ins Insider-Sheet der jeweiligen
+  // Position — die Benachrichtigungs-Liste muss dafuer erst zu, sonst liegen
+  // zwei Sheets uebereinander.
+  openInsiderFromNotif = sym => () => this.setState({ notifSheetOpen: false, insiderSheetSymbol: sym });
 
   // ETFs vs. Einzelaktien lassen sich nicht am Symbol erkennen — deshalb best-effort
   // für jede Position versuchen, echte Holdings zu laden. Erfolg = ETF (kein
@@ -3590,6 +3646,31 @@ class Component extends DCLogic {
       // Kleiner Punkt auf der Depot-Kachel/Kurzzugriff — nur EIN Signal, kein
       // Zahlen-Overkill, damit es "nicht zu voll" bleibt.
       hasNewInsiderAlerts: insiderAlertHint,
+
+      // ---------- Benachrichtigungen (Glocke im Home-Header) ----------
+      notifSheetOpen: this.state.notifSheetOpen,
+      openNotifSheet: this.openNotifSheet,
+      closeNotifSheet: this.closeNotifSheet,
+      notifBadge: insiderAlertHint,
+      notifItems: holdings
+        .flatMap(h => {
+          const sym = h.sym || h.abbr;
+          return (this.state.insiderTrades[sym] || []).map(t => ({ h, sym, t }));
+        })
+        .sort((a, b) => b.t.transaction_date < a.t.transaction_date ? -1 : 1)
+        .slice(0, 8)
+        .map(({ h, sym, t }) => ({
+          logo: logoFor(sym), name: displayName(h),
+          isBuy: t.transaction_code === "P",
+          codeLabel: t.transaction_code === "P" ? "Kauf" : "Verkauf",
+          color: t.transaction_code === "P" ? "var(--pos)" : "var(--neg)",
+          bg: t.transaction_code === "P" ? "var(--pos-soft)" : "var(--neg-soft)",
+          dateLabel: new Date(t.transaction_date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
+          detail: t.filer_name + (t.filer_title ? " · " + t.filer_title : ""),
+          openInsider: this.openInsiderFromNotif(sym)
+        })),
+      hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0),
+      noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0),
 
       // ---------- Kategorie & Ausblenden je Position ----------
       posMenuOpen: !!this.state.posMenuSymbol,
