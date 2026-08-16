@@ -85,13 +85,13 @@
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
      eine sichtbare Kante zum Statusleisten-Streifen darüber — siehe
      syncStatusBar().
-     Drei weisse Radial-Flecken sorgen dafuer, dass es schon vor dem unteren
-     Rand streckenweise heller/weisser wird statt gleichmaessig dunkel zu
-     bleiben — asymmetrisch (rechts kraeftiger als links), das ist das
-     gewuenschte Muster. Alle drei sitzen bewusst erst ab ~44% Hoehe (unter
-     "Gesamtwert"-Zeile und Kurs-Chart), damit die weisse Schrift dort ihren
-     Kontrast behaelt. */
-  --brand:radial-gradient(45% 35% at 90% 88%,rgba(245,246,249,.5) 0%,rgba(245,246,249,0) 70%),radial-gradient(42% 30% at 72% 74%,rgba(245,246,249,.26) 0%,rgba(245,246,249,0) 68%),radial-gradient(32% 26% at 10% 82%,rgba(245,246,249,.10) 0%,rgba(245,246,249,0) 65%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
+     Zwei grosse, weiche weisse Radial-Flecken sitzen oben und in der Mitte
+     (nicht mehr unten — der untere Rand bleibt wieder gleichmaessig dunkel
+     wie zuvor). Groesserer Radius und niedrigere Deckkraft als vorher fuer
+     einen "verflossenen" statt scharf abgegrenzten Effekt. Deckkraft bewusst
+     moderat gehalten, damit die weisse Schrift der "Gesamtwert"-Zeile trotz
+     Ueberlappung noch genug Kontrast hat. */
+  --brand:radial-gradient(58% 46% at 78% 14%,rgba(245,246,249,.28) 0%,rgba(245,246,249,0) 78%),radial-gradient(60% 50% at 45% 46%,rgba(245,246,249,.22) 0%,rgba(245,246,249,0) 76%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
