@@ -342,9 +342,6 @@ input::placeholder{color:var(--tx3)}
           <sc-if value="{{ noHoldings }}" hint-placeholder-val="{{ false }}">
             <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
-          <sc-if value="{{ allHoldingsHidden }}" hint-placeholder-val="{{ false }}">
-            <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Alle Positionen ausgeblendet — sichtbar im Depot.</div>
-          </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow)" style-hover="box-shadow:var(--hero-shadow)">
               <div style="width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ h.logo }}</div>
@@ -2783,16 +2780,19 @@ class Component extends DCLogic {
 
     // ---------- „Depot auf einen Blick" (Home-Stats) ----------
     // Zusatzkennzahlen für die Startseite — bewusst nur aus bereits geladenen
-    // Werten abgeleitet (keine neue Datenquelle). Wie der Rest des Home-
-    // Screens zählen ausgeblendete Positionen hier nicht mit. Gesamtrendite
-    // ist fix seit Kauf (nicht vom D/W/M/Y-Umschalter oben abhängig) — das
-    // ist der Wert, den Nutzer bei "seit dem ich gekauft habe" erwarten.
-    const totalReturnPct = visCost ? visG / visCost * 100 : 0;
-    const bestPos = visibleHoldings.length
-      ? visibleHoldings.reduce((a, b) => (b.shares * b.cur) > (a.shares * a.cur) ? b : a)
+    // Werten abgeleitet (keine neue Datenquelle). Anders als die Kopfzahlen/
+    // Chart/Gewichtung ganz oben zählen ausgeblendete Positionen HIER mit —
+    // "ausblenden" soll nur die Hauptstatistik (Gesamtwert/Gewinn oben,
+    // Gewichtung-Chart) betreffen, nicht diese Karte und nicht die
+    // Positionsliste darüber. Gesamtrendite ist fix seit Kauf (nicht vom
+    // D/W/M/Y-Umschalter oben abhängig) — das ist der Wert, den Nutzer bei
+    // "seit dem ich gekauft habe" erwarten.
+    const totalReturnPct = cost ? g / cost * 100 : 0;
+    const bestPos = holdings.length
+      ? holdings.reduce((a, b) => (b.shares * b.cur) > (a.shares * a.cur) ? b : a)
       : null;
-    const bestPosWeight = bestPos && visVal ? (bestPos.shares * bestPos.cur) / visVal * 100 : 0;
-    const dpHoldings = visibleHoldings.filter(h => typeof h.dp === "number");
+    const bestPosWeight = bestPos && val ? (bestPos.shares * bestPos.cur) / val * 100 : 0;
+    const dpHoldings = holdings.filter(h => typeof h.dp === "number");
     const bestToday = dpHoldings.length
       ? dpHoldings.reduce((a, b) => b.dp > a.dp ? b : a)
       : null;
@@ -3624,7 +3624,6 @@ class Component extends DCLogic {
       compoundContributed: Math.round(compoundResult.contributed).toLocaleString("de-CH"),
       compoundGain: (compoundGainVal >= 0 ? "+" : "") + Math.round(compoundGainVal).toLocaleString("de-CH"),
       noHoldings: !holdings.length,
-      allHoldingsHidden: holdings.length > 0 && !visibleHoldings.length,
       aiSheetOpen: this.state.aiSheetOpen,
       openAiSheet: this.openAiSheet,
       closeAiSheet: this.closeAiSheet,
@@ -3653,7 +3652,7 @@ class Component extends DCLogic {
       posCountNum: String(visibleHoldings.length),
 
       // ---------- „Depot auf einen Blick" (Home-Stats) ----------
-      hasHomeStats: visibleHoldings.length > 0,
+      hasHomeStats: holdings.length > 0,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
       homeStatBestPosName: bestPos ? displayName(bestPos) : "–",
@@ -3661,7 +3660,7 @@ class Component extends DCLogic {
       homeStatBestTodayName: bestToday ? displayName(bestToday) : "–",
       homeStatBestTodayPct: bestToday ? (bestToday.dp >= 0 ? "+" : "") + bestToday.dp.toFixed(1) + " %" : "kein Kurs heute",
       homeStatBestTodayColor: bestToday ? (bestToday.dp >= 0 ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
-      homeStatPosCount: String(visibleHoldings.length),
+      homeStatPosCount: String(holdings.length),
 
       // ---------- Signale (Pro) ----------
       hasSignals: signalsShown.length > 0,
@@ -3719,7 +3718,7 @@ class Component extends DCLogic {
       investPlanPct: investPlanPct.toFixed(1) + "%",
       investPlanReached: investPlanDone >= investPlanTarget,
 
-      holdings: visibleHoldings.map(h => {
+      holdings: holdings.map(h => {
         const sym = h.sym || h.abbr;
         const noLive = isinLike(sym) && !h.live;
         const d = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
