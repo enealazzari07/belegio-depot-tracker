@@ -42,6 +42,8 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <title>Belegio</title>
 <script src="./support.js"></script>
+<script src="./vendor/jspdf.umd.min.js"></script>
+<script src="./vendor/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <x-dc>
@@ -93,7 +95,7 @@
      kleinen Schritten ueber den ganzen Radius ab, nicht nur am Rand) — das
      wirkt wie diffuser Dunst statt einer erkennbaren Kreisscheibe mit
      sichtbarer Kante. */
-  --brand:radial-gradient(75% 65% at 80% 12%,rgba(245,246,249,.68) 0%,rgba(245,246,249,.5) 20%,rgba(245,246,249,.32) 40%,rgba(245,246,249,.16) 60%,rgba(245,246,249,.06) 80%,rgba(245,246,249,0) 100%),radial-gradient(72% 62% at 16% 14%,rgba(245,246,249,.38) 0%,rgba(245,246,249,.28) 20%,rgba(245,246,249,.18) 40%,rgba(245,246,249,.09) 60%,rgba(245,246,249,.03) 80%,rgba(245,246,249,0) 100%),radial-gradient(60% 50% at 45% 46%,rgba(245,246,249,.22) 0%,rgba(245,246,249,.16) 20%,rgba(245,246,249,.10) 40%,rgba(245,246,249,.05) 60%,rgba(245,246,249,.02) 80%,rgba(245,246,249,0) 100%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
+  --brand:radial-gradient(75% 65% at 80% 12%,rgba(255,255,255,.72) 0%,rgba(255,255,255,.53) 20%,rgba(255,255,255,.34) 40%,rgba(255,255,255,.17) 60%,rgba(255,255,255,.06) 80%,rgba(255,255,255,0) 100%),radial-gradient(72% 62% at 16% 14%,rgba(255,255,255,.4) 0%,rgba(255,255,255,.29) 20%,rgba(255,255,255,.19) 40%,rgba(255,255,255,.09) 60%,rgba(255,255,255,.03) 80%,rgba(255,255,255,0) 100%),radial-gradient(60% 50% at 45% 46%,rgba(255,255,255,.23) 0%,rgba(255,255,255,.17) 20%,rgba(255,255,255,.10) 40%,rgba(255,255,255,.05) 60%,rgba(255,255,255,.02) 80%,rgba(255,255,255,0) 100%),linear-gradient(180deg,#A3B8D6 0%,#8CA4C6 15%,#7391B8 30%,#5E7396 45%,#48597A 60%,#384960 75%,#263349 100%);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
@@ -404,12 +406,11 @@ input::placeholder{color:var(--tx3)}
                 </svg>
               </sc-if>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none">
-                <span class="mono" style="color:var(--tx);font-size:13.5px;font-weight:700">{{ h.value }}</span>
                 <div style="display:flex;align-items:center;gap:4px">
                   <sc-if value="{{ h.marketClosed }}" hint-placeholder-val="{{ false }}">
                     <svg title="Markt geschlossen" width="9" height="9" viewBox="0 0 24 24" fill="var(--tx3)" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
                   </sc-if>
-                  <span class="mono" style="color:{{ h.color }};font-size:11px;font-weight:700">{{ h.change }}</span>
+                  <span class="mono" style="color:{{ h.color }};font-size:13.5px;font-weight:700">{{ h.change }}</span>
                 </div>
               </div>
             </div>
@@ -1492,9 +1493,13 @@ input::placeholder{color:var(--tx3)}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="flex:1;color:var(--tx);font-size:16px;font-weight:600">Steuer-Report</span>
-          <button onClick="{{ printTaxReport }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:12.5px;font-weight:700" style-hover="opacity:.9">
+          <button onClick="{{ exportTaxReportPdf }}" class="no-print" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:12.5px;font-weight:700" style-hover="opacity:.9">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"></path></svg>
+            Als PDF exportieren
+          </button>
+          <button onClick="{{ printTaxReport }}" class="no-print" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx2);font-size:12.5px;font-weight:700" style-hover="opacity:.9">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"></path></svg>
-            Drucken / PDF
+            Drucken
           </button>
         </div>
 
@@ -2248,6 +2253,53 @@ class Component extends DCLogic {
       return;
     }
     this.go("pro")();
+  };
+
+  // Text-basiertes PDF (kein Screenshot des DOM) aus den gleichen Daten wie
+  // die Bildschirmansicht (this._taxReport, waehrend render() gesetzt).
+  exportTaxReportPdf = () => {
+    const r = this._taxReport;
+    if (!r || !window.jspdf) return;
+    const doc = new window.jspdf.jsPDF();
+    const dateLabel = new Date().toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
+
+    doc.setFontSize(15); doc.setFont(undefined, "bold");
+    doc.text("Depot-Übersicht für die Steuererklärung", 14, 18);
+    doc.setFontSize(9.5); doc.setFont(undefined, "normal"); doc.setTextColor(110);
+    doc.text("Stand: " + dateLabel, 14, 24);
+    doc.text("Momentaufnahme aus Belegio, kein offizielles Wertschriftenverzeichnis und kein Ersatz", 14, 29);
+    doc.text("für die Steuerwerte deiner Bank/ICTax per 31.12. Zur Kontrolle und als Beleg-Grundlage.", 14, 33.5);
+
+    doc.setTextColor(20);
+    doc.setFontSize(9); doc.text("Einstandswert", 14, 43); doc.text("Aktueller Wert", 84, 43); doc.text("Gewinn/Verlust", 154, 43);
+    doc.setFontSize(12.5); doc.setFont(undefined, "bold");
+    doc.text(r.invested, 14, 50); doc.text(r.value, 84, 50); doc.text(r.gain, 154, 50);
+    doc.setFont(undefined, "normal");
+
+    let y = 62;
+    doc.setFontSize(11.5); doc.setFont(undefined, "bold"); doc.text("Positionen", 14, y);
+    doc.autoTable({
+      startY: y + 4,
+      styles: { fontSize: 8.5, cellPadding: 2 },
+      headStyles: { fillColor: [38, 51, 73] },
+      head: [["Titel", "ISIN", "Anzahl", "Ø Kauf", "Kurs", "Wert", "Gewinn/Verlust"]],
+      body: r.positions.map(p => [p.name, p.isin, p.sharesLabel, p.buyAvg, p.curPrice, p.curValue, p.gain]),
+      columnStyles: { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" }, 5: { halign: "right" }, 6: { halign: "right" } },
+    });
+
+    y = doc.lastAutoTable.finalY + 12;
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFontSize(11.5); doc.setFont(undefined, "bold"); doc.text("Transaktionen", 14, y);
+    doc.autoTable({
+      startY: y + 4,
+      styles: { fontSize: 8.5, cellPadding: 2 },
+      headStyles: { fillColor: [38, 51, 73] },
+      head: [["Datum", "Titel", "Anzahl", "Preis", "Betrag"]],
+      body: r.transactions.map(t => [t.dateLabel, t.name, t.sharesLabel, t.price + " " + t.currency, t.total + " " + t.currency]),
+      columnStyles: { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+    });
+
+    doc.save("Belegio-Steuer-Report-" + new Date().toISOString().slice(0, 10) + ".pdf");
   };
 
   async db() {
@@ -3031,6 +3083,9 @@ class Component extends DCLogic {
         total: f2(t.total_amount != null ? t.total_amount : Number(t.shares) * Number(t.purchase_price)),
         fees: t.fees ? f2(t.fees) : null,
       }));
+    // Fuer den PDF-Export (exportTaxReportPdf) auf der Instanz gemerkt, statt
+    // die Herleitung dort zu duplizieren.
+    this._taxReport = { positions: taxReportPositions, transactions: taxReportTransactions, invested: f2(cost), value: f2(val), gain: (g >= 0 ? "+" : "") + f2(g) };
 
     // ---------- Zinseszins-Rechner ----------
     // Startkapital: eigene Eingabe, sonst automatisch der aktuelle Depotwert.
@@ -3714,6 +3769,7 @@ class Component extends DCLogic {
       taxReportInvested: f2(cost), taxReportValue: f2(val),
       taxReportGain: (g >= 0 ? "+" : "") + f2(g), taxReportGainPositive: g >= 0,
       printTaxReport: () => window.print(),
+      exportTaxReportPdf: this.exportTaxReportPdf,
       prefs: [
         ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
         ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", this.state.userPlan === "pro" ? "taxReport" : "pro"]
@@ -3975,12 +4031,11 @@ class Component extends DCLogic {
       holdings: holdings.map(h => {
         const sym = h.sym || h.abbr;
         const noLive = isinLike(sym) && !h.live;
-        const d = h.buy ? (h.cur - h.buy) / h.buy * 100 : 0;
+        const d = typeof h.dp === "number" ? h.dp : 0;
         const spark = buildSparkline(hist[sym]);
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           sub: h.shares + " × " + f2(h.buy),
-          value: f2(h.shares * h.cur),
           change: noLive ? "kein Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
           color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
           spark, hasSpark: !!spark,
