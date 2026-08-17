@@ -207,7 +207,7 @@ input::placeholder{color:var(--tx3)}
   <div style="width:100%;max-width:480px;height:100vh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
-      <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:linear-gradient(180deg,var(--surf) 0%,var(--bg) 100%);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
+      <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:radial-gradient(70% 55% at 50% 0%,rgba(255,255,255,.95) 0%,rgba(255,255,255,.5) 35%,rgba(255,255,255,0) 65%),linear-gradient(180deg,var(--surf) 0%,var(--stage2) 100%);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
         <div style="width:150px;height:150px;transform-origin:50% 53.3%;animation:zoomIn 1.2s cubic-bezier(.72,0,.9,.06) 1.15s both">
           <svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%;display:block">
             <path d="M4 18 L9 11 L14 14 L20 6" stroke="var(--tx)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" style="animation:drawMark .95s cubic-bezier(.5,0,.3,1) .2s both"></path>
