@@ -415,6 +415,7 @@ input::placeholder{color:var(--tx3)}
                   </sc-if>
                   <span class="mono" style="color:{{ h.color }};font-size:13.5px;font-weight:700">{{ h.change }}</span>
                 </div>
+                <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ h.changeAbs }}</span>
               </div>
             </button>
           </sc-for>
@@ -4034,11 +4035,13 @@ class Component extends DCLogic {
         const sym = h.sym || h.abbr;
         const noLive = isinLike(sym) && !h.live;
         const d = typeof h.dp === "number" ? h.dp : 0;
+        const changeAbsVal = h.shares * (h.cur - h.cur / (1 + d / 100));
         const spark = buildSparkline(hist[sym]);
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           sub: h.shares + " × " + f2(h.buy),
           change: noLive ? "kein Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
+          changeAbs: noLive ? "" : (changeAbsVal >= 0 ? "+" : "") + f2(changeAbsVal) + " CHF",
           color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
           spark, hasSpark: !!spark,
           marketClosed: !noLive && !isMarketOpen(sym),
