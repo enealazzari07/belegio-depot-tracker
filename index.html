@@ -320,7 +320,10 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
             <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:6px">
-              <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
+                <span class="mono" style="color:var(--onBrand3);font-size:11px">Investiert {{ investedTotal }}</span>
+              </div>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-bottom:3px">
                 <span class="mono chip" style="background:rgba(20,42,92,.26);color:{{ gainColor }}">{{ gainPct }}</span>
                 <span class="mono" style="color:var(--onBrand3);font-size:11.5px">{{ gainAbs }}</span>
@@ -394,7 +397,7 @@ input::placeholder{color:var(--tx3)}
             <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
-            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow)" style-hover="box-shadow:var(--hero-shadow)">
+            <button onClick="{{ h.open }}" class="rowbtn" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left" style-hover="box-shadow:var(--hero-shadow)">
               <div style="width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ h.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                 <span style="color:var(--tx);font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</span>
@@ -413,7 +416,7 @@ input::placeholder{color:var(--tx3)}
                   <span class="mono" style="color:{{ h.color }};font-size:13.5px;font-weight:700">{{ h.change }}</span>
                 </div>
               </div>
-            </div>
+            </button>
           </sc-for>
         </div>
         </div>
@@ -1610,7 +1613,7 @@ input::placeholder{color:var(--tx3)}
               <button onClick="{{ ni.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)">
                 <div style="width:32px;height:32px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:9px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ ni.logo }}</div>
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left">
-                  <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.name }} — Insider-{{ ni.codeLabel }}</span>
+                  <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.headline }}</span>
                   <span style="color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.detail }}</span>
                 </div>
                 <span class="mono" style="flex:none;color:var(--tx3);font-size:10.5px">{{ ni.dateLabel }}</span>
@@ -1619,33 +1622,19 @@ input::placeholder{color:var(--tx3)}
           </div>
         </sc-if>
         <sc-if value="{{ noNotifItems }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:24px 0;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.55">Noch nichts Neues — hier erscheinen z. B. Insider-Käufe/-Verkäufe zu deinen Positionen.</div>
+          <div style="padding:24px 0;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.55">Noch nichts Neues — hier erscheinen z. B. Insider-Käufe/-Verkäufe zu deinen Positionen und zugestellte Push-Mitteilungen.</div>
         </sc-if>
-        <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.55">Insider-Käufe/-Verkäufe (SEC Form 4) zu deinen Positionen — mehr Benachrichtigungsarten folgen.</p>
+        <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.55">Insider-Käufe/-Verkäufe (SEC Form 4) und zugestellte Push-Mitteilungen — mehr Benachrichtigungsarten folgen.</p>
       </div>
     </sc-if>
 
-    <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeMenu }}" style="position:absolute;inset:0;background:transparent;z-index:8"></div>
-      <div onClick="{{ stopPropagation }}" style="position:absolute;right:16px;bottom:calc(64px + env(safe-area-inset-bottom, 0px));width:188px;background:var(--surf);border-radius:20px;box-shadow:0 16px 40px -14px rgba(0,0,0,.4);overflow:hidden;z-index:9;transform-origin:bottom right;animation:pop .18s cubic-bezier(.2,.8,.2,1) both">
-        <button onClick="{{ goAccountPage }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;height:48px;padding:0 14px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"></path></svg>
-          <span style="color:var(--tx);font-size:13.5px;font-weight:600">Account</span>
-        </button>
-        <button onClick="{{ goSettingsPage }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:11px;width:100%;height:48px;padding:0 14px" style-hover="background:var(--surf2)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>
-          <span style="color:var(--tx);font-size:13.5px;font-weight:600">Einstellungen</span>
-        </button>
-      </div>
-    </sc-if>
-
-    <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px + var(--sat-extra, 0px)) 20px 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
           <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
-          <span style="color:var(--tx);font-size:16px;font-weight:600">Account</span>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Account & Einstellungen</span>
         </div>
 
         <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);margin-bottom:18px">
@@ -1656,22 +1645,10 @@ input::placeholder{color:var(--tx3)}
           </div>
         </div>
 
-        <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line)" style-hover="border-color:var(--neg)">
+        <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:16px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px" style-hover="border-color:var(--neg)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
           <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
         </button>
-        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Belegio 1.0</p>
-      </div>
-    </sc-if>
-
-    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px + var(--sat-extra, 0px)) 20px 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
-          </button>
-          <span style="color:var(--tx);font-size:16px;font-weight:600">Einstellungen</span>
-        </div>
 
         <div style="border-radius:26px;background:var(--surf);box-shadow:var(--card-shadow);padding:16px;margin-bottom:18px">
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
@@ -2010,7 +1987,7 @@ class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
-    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0, menuOpen: false,
+    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     marketQuotes: null, marketHistory: null, moverQuotes: null, marketsLoading: false, marketsError: false,
     splash: true, dashLoading: true,
@@ -2031,7 +2008,7 @@ class Component extends DCLogic {
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
-    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false,
+    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, pushLog: [],
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     marketsFilter: "stocks",
@@ -2123,10 +2100,7 @@ class Component extends DCLogic {
     });
   };
 
-  openMenu = () => this.setState({ menuOpen: true });
-  closeMenu = () => this.setState({ menuOpen: false });
-  goAccountPage = () => { this.closeMenu(); this.go("account")(); };
-  goSettingsPage = () => { this.closeMenu(); this.go("settings")(); };
+  goSettingsPage = this.go("settings");
 
   // ---------- Täglicher Depotstand per Web Push (verschickt serverseitig per
   // Cron gegen 12 Uhr, siehe supabase/push-daily) ----------
@@ -2340,6 +2314,7 @@ class Component extends DCLogic {
       // marktgetrieben oder titelspezifisch ist.
       this.loadMarkets();
       this.loadInsiderTrades(holdings);
+      this.loadPushLog();
       this.startAutoSync();
       this.checkNotificationSubscription();
     }
@@ -2495,6 +2470,7 @@ class Component extends DCLogic {
       this.loadProfile();
       this.loadMarkets();
       this.loadInsiderTrades(holdings);
+      this.loadPushLog();
       this.startAutoSync();
       this.setState({ dashLoading: false });
     } catch (e) {
@@ -2508,7 +2484,7 @@ class Component extends DCLogic {
     this.stopAutoSync();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {}, menuOpen: false,
+      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {},
       locked: false
     });
   };
@@ -2602,6 +2578,16 @@ class Component extends DCLogic {
       const data = await api.insiderTrades(syms);
       this.setState({ insiderTrades: data || {} });
     } catch (e) { /* keine Daten — Badges bleiben einfach weg */ }
+  };
+
+  // Zugestellte Web-Push-Nachrichten (push-daily) fuer die In-App-Liste im
+  // Benachrichtigungen-Sheet — dieselbe Quelle wie die tatsaechlich aufs
+  // Geraet zugestellten Pushes, damit dort nichts verpasst wirkt.
+  loadPushLog = async () => {
+    try {
+      const db = await this.db();
+      this.setState({ pushLog: await db.listPushLog(10) });
+    } catch (e) { /* keine Daten — Liste bleibt einfach leer */ }
   };
 
   openInsiderSheet = sym => () => this.setState({ insiderSheetSymbol: sym });
@@ -2876,6 +2862,13 @@ class Component extends DCLogic {
     this.setState(s => s.openPosSymbol === sym
       ? { openPosSymbol: null, posScrub: null }
       : { openPosSymbol: sym, posScrub: null, posSubTab: "chart", editingTxId: null, editingTxFields: null });
+  };
+
+  // Von der Home-Positionsliste direkt ins Depot springen, mit genau dieser
+  // Position bereits aufgeklappt (statt nur zum allgemeinen Depot-Screen).
+  openDepotPosition = sym => () => {
+    this.setState({ screen: "depot", openPosSymbol: sym, posScrub: null, posSubTab: "chart", editingTxId: null, editingTxFields: null });
+    this.markInsiderSeen();
   };
 
   startEditTx = t => () => {
@@ -3477,7 +3470,7 @@ class Component extends DCLogic {
       return this.state.insiderAlertsSeenAt
         ? list.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt))
         : list.length > 0;
-    });
+    }) || (this.state.pushLog || []).some(p => !this.state.insiderAlertsSeenAt || new Date(p.sent_at) > new Date(this.state.insiderAlertsSeenAt));
 
     const depotList = holdings.map(h => {
         const sym = h.sym || h.abbr;
@@ -3660,16 +3653,15 @@ class Component extends DCLogic {
       faceIdErrorMsg: this.state.faceIdError,
 
       logout: this.logoutUser,
-      isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings", isAccount: screen === "account", isMenu: this.state.menuOpen,
+      isMarkets: screen === "markets", isNews: screen === "news", isSettings: screen === "settings",
       isTaxReport: screen === "taxReport", goTaxReport: this.go("taxReport"),
-      goMarkets: this.goMarkets, goSettings: this.openMenu, closeMenu: this.closeMenu, stopPropagation: this.stopPropagation,
-      goAccountPage: this.goAccountPage, goSettingsPage: this.goSettingsPage,
+      goMarkets: this.goMarkets, goSettings: this.goSettingsPage, stopPropagation: this.stopPropagation,
       tHome: screen === "dash" ? "var(--tx)" : "var(--tx3)",
       fHome: screen === "dash" ? "var(--tx)" : "none",
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
       tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
       tMarkets: screen === "markets" || screen === "stockDetail" ? "var(--tx)" : "var(--tx3)",
-      tSet: this.state.menuOpen || screen === "settings" || screen === "account" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
+      tSet: screen === "settings" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
       connLabel: {
         live: "Live-Kurse", demo: "Demo-Daten", badkey: "Key ungültig",
         limit: "Limit erreicht", error: "Keine Verbindung", empty: "Keine Kursdaten", idle: "—"
@@ -3870,25 +3862,35 @@ class Component extends DCLogic {
       openNotifSheet: this.openNotifSheet,
       closeNotifSheet: this.closeNotifSheet,
       notifBadge: insiderAlertHint,
-      notifItems: holdings
-        .flatMap(h => {
+      notifItems: [
+        ...holdings.flatMap(h => {
           const sym = h.sym || h.abbr;
-          return (this.state.insiderTrades[sym] || []).map(t => ({ h, sym, t }));
-        })
-        .sort((a, b) => b.t.transaction_date < a.t.transaction_date ? -1 : 1)
-        .slice(0, 8)
-        .map(({ h, sym, t }) => ({
-          logo: logoFor(sym), name: displayName(h),
-          isBuy: t.transaction_code === "P",
-          codeLabel: t.transaction_code === "P" ? "Kauf" : "Verkauf",
-          color: t.transaction_code === "P" ? "var(--pos)" : "var(--neg)",
-          bg: t.transaction_code === "P" ? "var(--pos-soft)" : "var(--neg-soft)",
-          dateLabel: new Date(t.transaction_date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
-          detail: t.filer_name + (t.filer_title ? " · " + t.filer_title : ""),
-          openInsider: this.openInsiderFromNotif(sym)
+          return (this.state.insiderTrades[sym] || []).map(t => ({
+            logo: logoFor(sym),
+            headline: displayName(h) + " — Insider-" + (t.transaction_code === "P" ? "Kauf" : "Verkauf"),
+            color: t.transaction_code === "P" ? "var(--pos)" : "var(--neg)",
+            date: t.transaction_date,
+            dateLabel: new Date(t.transaction_date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
+            detail: t.filer_name + (t.filer_title ? " · " + t.filer_title : ""),
+            openInsider: this.openInsiderFromNotif(sym)
+          }));
+        }),
+        // Zugestellte Web-Push-Nachrichten (push-daily) — dieselbe Liste, damit
+        // auch verpasste/nicht angetippte Pushes hier nachtraeglich sichtbar sind.
+        ...(this.state.pushLog || []).map(p => ({
+          logo: "🔔",
+          headline: p.title,
+          color: "var(--tx2)",
+          date: p.sent_at,
+          dateLabel: new Date(p.sent_at).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
+          detail: p.body,
+          openInsider: this.closeNotifSheet
         })),
-      hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0),
-      noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0),
+      ]
+        .sort((a, b) => b.date < a.date ? -1 : 1)
+        .slice(0, 8),
+      hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) || (this.state.pushLog || []).length > 0,
+      noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) && !(this.state.pushLog || []).length,
 
       // ---------- Kategorie & Ausblenden je Position ----------
       posMenuOpen: !!this.state.posMenuSymbol,
@@ -4039,7 +4041,8 @@ class Component extends DCLogic {
           change: noLive ? "kein Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
           color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
           spark, hasSpark: !!spark,
-          marketClosed: !noLive && !isMarketOpen(sym)
+          marketClosed: !noLive && !isMarketOpen(sym),
+          open: this.openDepotPosition(sym)
         };
       }),
 

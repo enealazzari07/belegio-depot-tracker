@@ -175,6 +175,19 @@ export async function hasPushSubscription(endpoint) {
   return !!data;
 }
 
+// Verlauf der zugestellten Web-Push-Nachrichten (push-daily Edge Function
+// schreibt hier bei jedem Versand rein) — Basis fuer die In-App-Liste im
+// Benachrichtigungen-Sheet, damit verpasste Pushes dort nachtraeglich sichtbar sind.
+export async function listPushLog(limit = 10) {
+  const { data, error } = await supabase
+    .from("push_log")
+    .select("mode, title, body, sent_at")
+    .order("sent_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data;
+}
+
 export async function callMarket(action, payload) {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
