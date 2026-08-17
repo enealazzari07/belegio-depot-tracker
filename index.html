@@ -207,14 +207,14 @@ input::placeholder{color:var(--tx3)}
   <div style="width:100%;max-width:480px;height:100vh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
     <sc-if value="{{ splash }}" hint-placeholder-val="{{ true }}">
-      <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:var(--tx);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
+      <div onClick="{{ skipSplash }}" style="position:absolute;inset:0;z-index:40;background:linear-gradient(180deg,var(--surf) 0%,var(--bg) 100%);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;cursor:pointer">
         <div style="width:150px;height:150px;transform-origin:50% 53.3%;animation:zoomIn 1.2s cubic-bezier(.72,0,.9,.06) 1.15s both">
           <svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%;display:block">
-            <path d="M4 18 L9 11 L14 14 L20 6" stroke="var(--bg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" style="animation:drawMark .95s cubic-bezier(.5,0,.3,1) .2s both"></path>
+            <path d="M4 18 L9 11 L14 14 L20 6" stroke="var(--tx)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" style="animation:drawMark .95s cubic-bezier(.5,0,.3,1) .2s both"></path>
           </svg>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:9px;animation:fadeOut .3s ease 1.15s both">
-          <span style="color:var(--bg);font-size:27px;font-weight:700;letter-spacing:-.04em;animation:wordUp .55s cubic-bezier(.2,.8,.3,1) .75s both">Belegio</span>
+          <span style="color:var(--tx);font-size:27px;font-weight:700;letter-spacing:-.04em;animation:wordUp .55s cubic-bezier(.2,.8,.3,1) .75s both">Belegio</span>
           <span style="color:var(--tx3);font-size:12px;letter-spacing:.16em;font-weight:600;animation:wordUp .55s cubic-bezier(.2,.8,.3,1) .95s both">DEPOT OHNE TABELLEN</span>
         </div>
       </div>
@@ -2982,8 +2982,8 @@ class Component extends DCLogic {
   // backdrop-filter bekaempft — das ergab nur einen zweiten Balken obendrauf.
   // Stattdessen faerben wir jetzt die iOS-Flaeche selbst ueber theme-color,
   // und zwar exakt in der Farbe, die direkt darunter liegt: Home ist blau,
-  // der Splash dunkel, alles andere normale Hintergrundfarbe. Dadurch faellt
-  // der Balken optisch nicht mehr auf.
+  // der Splash (wie der Rest der App) hell, alles andere normale
+  // Hintergrundfarbe. Dadurch faellt der Balken optisch nicht mehr auf.
   //
   // Die Farbe wird bewusst aus den CSS-Variablen gelesen statt hier als Hex
   // dupliziert — so folgt sie automatisch dem Theme-Toggle und kann nie von
@@ -2992,7 +2992,7 @@ class Component extends DCLogic {
   syncStatusBar(screen) {
     const root = document.querySelector("[data-theme]");
     if (!root) return;
-    const token = this.state.splash ? "--tx" : screen === "dash" ? "--brand-flat" : "--bg";
+    const token = screen === "dash" && !this.state.splash ? "--brand-flat" : "--bg";
     const color = getComputedStyle(root).getPropertyValue(token).trim();
     if (!color || color === this._statusBarColor) return;
     this._statusBarColor = color;
