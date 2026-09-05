@@ -121,6 +121,12 @@
      unabhaengig vom Theme, weil der Chip-Hintergrund es auch ist. */
   --chip-ink:#10131A;
   --brand-shadow:0 12px 26px -14px rgba(88,102,124,.45), 0 26px 54px -30px rgba(88,102,124,.38);
+  /* Home-Flaeche: der scrollende Bereich unter dem Hero ist reines Weiss, die
+     unterste Zone (hinter der schwebenden Tab-Leiste) grau-weiss. Dadurch hebt
+     sich die Leiste vom Inhalt ab, ohne einen harten Balken zu zeichnen.
+     --home-fade-0 ist derselbe Ton mit Alpha 0 (nicht `transparent`), sonst
+     interpoliert der Browser gegen rgba(0,0,0,0) und der Verlauf wird grau. */
+  --home-bg:#FFFFFF; --home-fade:#EDF0F5; --home-fade-0:rgba(237,240,245,0);
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
   --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
@@ -151,6 +157,9 @@
   --brandPos:#8FF0CE; --brandNeg:#FFB3A9;
   --chip-ink:#10131A;
   --brand-shadow:0 12px 28px -16px rgba(0,0,0,.7), 0 28px 56px -32px rgba(0,0,0,.8);
+  /* Dark-Mode-Pendant zu --home-bg/--home-fade (siehe Light Mode): Home-Flaeche
+     bleibt die Grundfarbe, die Zone hinter der Tab-Leiste wird leicht heller. */
+  --home-bg:#0A0B0F; --home-fade:#141721; --home-fade-0:rgba(20,23,33,0);
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
@@ -168,7 +177,10 @@ input{font-family:inherit}
 input::placeholder{color:var(--tx3)}
 ::-webkit-scrollbar{width:0;height:0}
 /* ---- Design-Grundbausteine ---- */
-.card{background:var(--surf);border-radius:28px;box-shadow:var(--card-shadow)}
+/* Haarlinie zusaetzlich zum Schatten: die Home-Flaeche ist reines Weiss und
+   --surf ebenfalls — ohne Kontur verschwaemme jede Karte dort zu einer
+   schattigen Flaeche ohne erkennbaren Rand. */
+.card{background:var(--surf);border:1px solid var(--line);border-radius:28px;box-shadow:var(--card-shadow)}
 .mono{font-family:'Roboto Mono',monospace}
 .lbl{color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
 .seg{display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--surf2);border:1px solid var(--line)}
@@ -282,7 +294,7 @@ input::placeholder{color:var(--tx3)}
            des blauen Bereichs soll die Box ohne erkennbare Kante in die Flaeche
            uebergehen. Ein abweichender Ton (frueher --surf3) zeichnet dort die
            Sheet-Kante nach, was hier unerwuenscht ist. -->
-      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--bg);animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--home-bg);animation:fade .3s ease">
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
@@ -375,7 +387,7 @@ input::placeholder{color:var(--tx3)}
              Schatten mit negativem Y-Offset (schiebt den Schatten NACH OBEN
              in den Hero) — die Box liest sich dadurch als eigenstaendige,
              nach vorne gehobene Karte statt als Farbverlauf-Fehler. -->
-        <div style="position:relative;margin:-26px 6px 0;background:var(--bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
+        <div style="position:relative;margin:-26px 6px 0;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
@@ -397,7 +409,7 @@ input::placeholder{color:var(--tx3)}
             <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
-            <button onClick="{{ h.open }}" class="rowbtn" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left" style-hover="box-shadow:var(--hero-shadow)">
+            <button onClick="{{ h.open }}" class="rowbtn" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:22px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);text-align:left" style-hover="box-shadow:var(--hero-shadow)">
               <div style="width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ h.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                 <span style="color:var(--tx);font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</span>
@@ -427,7 +439,7 @@ input::placeholder{color:var(--tx3)}
              unteren Ecken. Aufteilung noetig, damit der blaue Seiten-Fade an der
              Positionsliste endet, unabhaengig von Positionsanzahl oder
              Ladezustand — statt eines geratenen Pixel-Werts. -->
-        <div style="margin:0 6px;background:var(--bg);border-radius:0 0 26px 26px;padding:0 0 2px">
+        <div style="margin:0 6px;background:var(--home-bg);border-radius:0 0 26px 26px;padding:0 0 2px">
 
         <sc-if value="{{ hasHomeStats }}" hint-placeholder-val="{{ false }}">
           <div style="padding:0 20px 20px">
@@ -450,9 +462,24 @@ input::placeholder{color:var(--tx3)}
                   <span class="mono" style="color:{{ homeStatBestTodayColor }};font-size:10.5px;font-weight:700">{{ homeStatBestTodayPct }}</span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">SCHWÄCHSTER HEUTE</span>
+                  <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatWorstTodayName }}</span>
+                  <span class="mono" style="color:{{ homeStatWorstTodayColor }};font-size:10.5px;font-weight:700">{{ homeStatWorstTodayPct }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
                   <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">POSITIONEN</span>
                   <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ homeStatPosCount }}</span>
                   <span style="color:var(--tx3);font-size:10.5px">im Depot</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">REALISIERT</span>
+                  <span class="mono" style="color:{{ homeStatRealizedColor }};font-size:16px;font-weight:700">{{ homeStatRealized }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">aus Verkäufen</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">DIVIDENDENRENDITE</span>
+                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ homeStatDivYield }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">12 Monate</span>
                 </div>
               </div>
             </div>
@@ -493,6 +520,156 @@ input::placeholder{color:var(--tx3)}
         <!-- Ab hier ohne weisse Flaeche: die Karten stehen direkt auf dem
              Seitenhintergrund, Raender bleiben zur Box darueber ausgerichtet. -->
         <div style="margin:0 6px;padding:20px 0 128px">
+
+        <!-- Realisierte Gewinne (aus Verkaeufen) und Dividenden. Beides sind
+             Ertraege, die im Gesamtwert oben NICHT stecken — der zeigt nur den
+             Marktwert der aktuell gehaltenen Stuecke. Deshalb eine eigene
+             Karte statt einer weiteren Zeile in "Depot auf einen Blick". -->
+        <sc-if value="{{ hasIncomeCard }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 18px">
+            <div class="card" style="padding:18px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+                <div style="width:30px;height:30px;border-radius:11px;background:var(--pos-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Realisiert &amp; Dividenden</span>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 14px">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">REALISIERT</span>
+                  <span class="mono" style="color:{{ incomeRealizedColor }};font-size:16px;font-weight:700">{{ incomeRealized }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">aus Verkäufen</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">VERKAUFSERLÖS</span>
+                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ incomeProceeds }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">gesamt</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">DIVIDENDEN 12 MT.</span>
+                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ incomeDiv12m }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">brutto</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">RENDITE</span>
+                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ incomeDivYield }}</span>
+                  <span style="color:var(--tx3);font-size:10.5px">auf Depotwert</span>
+                </div>
+              </div>
+
+              <sc-if value="{{ hasClosedPositions }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">GESCHLOSSENE POSITIONEN</span>
+                  <sc-for list="{{ closedPositions }}" as="cp" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                        <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ cp.name }}</span>
+                        <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ cp.sharesLabel }} · {{ cp.dateLabel }}</span>
+                      </div>
+                      <span class="mono" style="color:{{ cp.color }};font-size:12.5px;font-weight:700;flex:none">{{ cp.gain }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ hasDividends }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px">
+                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">LETZTE AUSSCHÜTTUNGEN</span>
+                  <sc-for list="{{ dividendRows }}" as="dv" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                        <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dv.name }}</span>
+                        <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ dv.dateLabel }} · netto {{ dv.net }}</span>
+                      </div>
+                      <span class="mono" style="color:var(--tx);font-size:12.5px;font-weight:700;flex:none">{{ dv.gross }}</span>
+                      <button onClick="{{ dv.remove }}" aria-label="Dividende löschen" style="all:unset;box-sizing:border-box;cursor:pointer;width:26px;height:26px;border-radius:8px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx3)" style-hover="color:var(--neg)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                      </button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ incomeEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:14px 0 0;color:var(--tx3);font-size:11.5px;line-height:1.5">Noch keine Verkäufe und keine Dividenden erfasst. Verkäufe buchst du über das Menü einer Position, Ausschüttungen hier.</p>
+              </sc-if>
+
+              <button onClick="{{ openDivSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:14px;height:42px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600" style-hover="border-color:var(--line2)">Dividende erfassen</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Kursalarme. Geprueft wird serverseitig alle 15 Min. (Edge Function
+             push-daily, mode "alerts") — die Karte zeigt nur den Zustand. -->
+        <sc-if value="{{ hasAlertCard }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 18px">
+            <div class="card" style="padding:18px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+                <div style="width:30px;height:30px;border-radius:11px;background:var(--warn-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </div>
+                <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Kursalarme</span>
+                <span class="mono chip" style="background:var(--acc-soft);color:var(--acc2)">{{ alertCount }} aktiv</span>
+              </div>
+
+              <sc-if value="{{ alertEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;color:var(--tx3);font-size:11.5px;line-height:1.5">Noch kein Alarm gesetzt. Belegio prüft die Kurse serverseitig und meldet sich per Push, sobald ein Zielkurs erreicht ist — auch bei geschlossener App.</p>
+              </sc-if>
+
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ alertRows }}" as="al" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                      <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ al.name }}</span>
+                      <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ al.label }}</span>
+                    </div>
+                    <span style="color:{{ al.stateColor }};font-size:10.5px;font-weight:700;flex:none">{{ al.state }}</span>
+                    <button onClick="{{ al.toggle }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:5px 9px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:600" style-hover="background:var(--surf3)">{{ al.toggleLabel }}</button>
+                    <button onClick="{{ al.remove }}" aria-label="Alarm löschen" style="all:unset;box-sizing:border-box;cursor:pointer;width:26px;height:26px;border-radius:8px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx3)" style-hover="color:var(--neg)">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                    </button>
+                  </div>
+                </sc-for>
+              </div>
+
+              <button onClick="{{ openAlertSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:14px;height:42px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600" style-hover="border-color:var(--line2)">Kursalarm setzen</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Waehrungsaufteilung. Nur sichtbar, wenn tatsaechlich mehr als eine
+             Waehrung im Depot liegt — bei einem reinen CHF-Depot waere die
+             Karte eine Zeile mit "CHF 100 %". -->
+        <sc-if value="{{ hasMultiCurrency }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 18px">
+            <div class="card" style="padding:18px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
+                <div style="width:30px;height:30px;border-radius:11px;background:var(--info-soft);display:flex;align-items:center;justify-content:center;flex:none">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"></path></svg>
+                </div>
+                <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Währungen</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:13px">
+                <sc-for list="{{ currencyRows }}" as="cr" hint-placeholder-count="3">
+                  <div style="display:flex;flex-direction:column;gap:5px">
+                    <div style="display:flex;align-items:baseline;gap:8px">
+                      <span class="mono" style="color:var(--tx);font-size:12.5px;font-weight:700;flex:none">{{ cr.code }}</span>
+                      <span style="flex:1;min-width:0;color:var(--tx3);font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ cr.rateLabel }}</span>
+                      <span class="mono" style="color:var(--tx2);font-size:11.5px;flex:none">{{ cr.pct }}</span>
+                    </div>
+                    <div style="height:6px;border-radius:3px;background:var(--surf2);overflow:hidden">
+                      <span style="display:block;height:100%;border-radius:3px;background:var(--acc2);width:{{ cr.barWidth }}"></span>
+                    </div>
+                    <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ cr.value }} CHF</span>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="margin:14px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Alle Beträge in der App sind zum aktuellen Kurs in CHF umgerechnet — auch die Einstände. Kursgewinn und Währungseffekt werden dadurch nicht getrennt ausgewiesen.</p>
+            </div>
+          </div>
+        </sc-if>
+
 
         <sc-if value="{{ hasCarousel }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:18px">
@@ -910,10 +1087,15 @@ input::placeholder{color:var(--tx3)}
                       <sc-if value="{{ t.isNotEditing }}" hint-placeholder-val="{{ true }}">
                         <div style="display:flex;align-items:center;gap:10px">
                           <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                            <span style="color:var(--tx);font-size:12.5px;font-weight:600">{{ t.dateLabel }}</span>
+                            <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                              <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.dateLabel }}</span>
+                              <sc-if value="{{ t.isSell }}" hint-placeholder-val="{{ false }}">
+                                <span class="chip" style="background:var(--neg-soft);color:var(--neg);flex:none">Verkauf</span>
+                              </sc-if>
+                            </div>
                             <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ t.detail }}</span>
                           </div>
-                          <span style="color:var(--tx2);font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace">{{ t.total }}</span>
+                          <span style="color:{{ t.totalColor }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace">{{ t.total }}</span>
                           <button onClick="{{ t.edit }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
                           </button>
@@ -1088,6 +1270,20 @@ input::placeholder{color:var(--tx3)}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <button onClick="{{ posMenuSell }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:46px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="border-color:var(--line2)">
+              <span style="color:var(--tx);font-size:12.5px;font-weight:600">Verkaufen</span>
+              <span style="color:var(--tx3);font-size:10px">Teil oder ganz</span>
+            </button>
+            <button onClick="{{ posMenuDividend }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:46px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="border-color:var(--line2)">
+              <span style="color:var(--tx);font-size:12.5px;font-weight:600">Dividende</span>
+              <span style="color:var(--tx3);font-size:10px">erfassen</span>
+            </button>
+            <button onClick="{{ posMenuAlert }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:46px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="border-color:var(--line2)">
+              <span style="color:var(--tx);font-size:12.5px;font-weight:600">Kursalarm</span>
+              <span style="color:var(--tx3);font-size:10px">setzen</span>
+            </button>
+          </div>
           <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px">
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">KATEGORIE</span>
             <input value="{{ posMenuCategoryInput }}" onChange="{{ onPosMenuCategory }}" placeholder="z. B. Gold, Kernpositionen — optional" style="width:100%;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
@@ -1104,6 +1300,117 @@ input::placeholder{color:var(--tx3)}
           </div>
         </div>
       </sc-if>
+    </sc-if>
+
+    <!-- Dividende erfassen. Auf oberster Ebene, weil der Ausloeser sowohl auf
+         der Startseite (Karte "Realisiert & Dividenden") als auch im
+         Positionsmenu im Depot sitzt. -->
+    <sc-if value="{{ divSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeDivSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+        <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+          <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Dividende erfassen</span>
+          <button onClick="{{ closeDivSheet }}" aria-label="Schliessen" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">DATUM</span>
+            <input type="date" value="{{ divDate }}" onChange="{{ onDivDate }}" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">TICKER</span>
+            <input value="{{ divSymbol }}" onChange="{{ onDivSymbol }}" placeholder="z. B. NESN.SW" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Roboto Mono',monospace;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">BRUTTOBETRAG</span>
+            <input type="number" value="{{ divGross }}" onChange="{{ onDivGross }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Roboto Mono',monospace;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="flex:1;color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">VERRECHNUNGSSTEUER</span>
+              <button onClick="{{ divSuggestTax }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700" style-hover="background:var(--surf3)">35 % einsetzen</button>
+            </div>
+            <input type="number" value="{{ divTax }}" onChange="{{ onDivTax }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Roboto Mono',monospace;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <span style="color:var(--tx3);font-size:11px;line-height:1.5">Bei Schweizer Titeln 35 % — in der Steuererklärung rückforderbar. Bei ausländischen Titeln steht der Satz auf der Abrechnung.</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">WÄHRUNG</span>
+            <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+              <sc-for list="{{ divCurrencyOptions }}" as="c" hint-placeholder-count="4">
+                <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:8px 13px;border-radius:10px;background:{{ c.bg }};color:{{ c.tx }};font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace">{{ c.code }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-radius:13px;background:var(--surf2)">
+            <span style="color:var(--tx2);font-size:12.5px;font-weight:600">Netto</span>
+            <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ divNetLabel }}</span>
+          </div>
+
+          <sc-if value="{{ hasDivError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;color:var(--neg);font-size:12.5px;line-height:1.5">{{ divError }}</p>
+          </sc-if>
+
+          <button onClick="{{ saveDividend }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:50px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ divSaveLabel }}</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- Kursalarm. Der Abgleich laeuft serverseitig (Edge Function push-daily,
+         mode "alerts", pg_cron alle 15 Min. werktags) — daher der Hinweis auf
+         das Push-Abo: ohne Abo kaeme die Meldung nirgends an. -->
+    <sc-if value="{{ alertSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4)">
+        <div style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+          <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Kursalarm</span>
+          <button onClick="{{ closeAlertSheet }}" aria-label="Schliessen" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">TICKER</span>
+            <input value="{{ alertSymbol }}" onChange="{{ onAlertSymbol }}" placeholder="z. B. AAPL" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Roboto Mono',monospace;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">AUSLÖSEN WENN KURS</span>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ setAlertAbove }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:12px;background:{{ alertDirAboveBg }};color:{{ alertDirAboveTx }};font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+                <span>steigt über</span>
+              </button>
+              <button onClick="{{ setAlertBelow }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:12px;background:{{ alertDirBelowBg }};color:{{ alertDirBelowTx }};font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"></path></svg>
+                <span>fällt unter</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZIELKURS</span>
+            <input type="number" value="{{ alertTarget }}" onChange="{{ onAlertTarget }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Roboto Mono',monospace;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <span style="color:var(--tx3);font-size:11px;line-height:1.5">{{ alertNotifHint }}</span>
+          </div>
+
+          <sc-if value="{{ hasAlertError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;color:var(--neg);font-size:12.5px;line-height:1.5">{{ alertError }}</p>
+          </sc-if>
+
+          <button onClick="{{ saveAlert }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:50px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ alertSaveLabel }}</button>
+        </div>
+      </div>
     </sc-if>
 
     <!-- Ausserhalb von isDepot: der Ausloeser (Investment-Plan-Karte) sitzt auf
@@ -1233,7 +1540,10 @@ input::placeholder{color:var(--tx3)}
               <span style="color:var(--tx);font-size:15px;font-weight:600">Position</span>
               <span style="color:var(--tx3);font-size:11.5px;font-family:'Roboto Mono',monospace">{{ reviewIsin }}</span>
             </div>
-            <span style="padding:4px 9px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:11px;font-weight:600">Kauf</span>
+            <div class="seg" style="flex:none">
+              <button onClick="{{ setSideBuy }}" class="segb" style="background:{{ sideBuyBg }};color:{{ sideBuyTx }};padding:7px 11px">Kauf</button>
+              <button onClick="{{ setSideSell }}" class="segb" style="background:{{ sideSellBg }};color:{{ sideSellTx }};padding:7px 11px">Verkauf</button>
+            </div>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 18px;border-bottom:1px solid var(--line)">
             <span style="color:var(--tx3);font-size:12.5px;flex:none">ISIN</span>
@@ -1258,6 +1568,13 @@ input::placeholder{color:var(--tx3)}
 
         <sc-if value="{{ gramHint }}" hint-placeholder-val="{{ false }}">
           <p style="margin:0 0 14px;color:var(--tx3);font-size:11.5px;line-height:1.5">Erfassung in Gramm — der Kurs wird automatisch aus dem Feinunzen-Preis umgerechnet.</p>
+        </sc-if>
+
+        <sc-if value="{{ isSellEntry }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px;margin:0 0 14px;padding:12px 14px;border-radius:12px;background:var(--warn-soft)">
+            <span style="color:var(--tx);font-size:12.5px;font-weight:600">{{ sellHeldLabel }}</span>
+            <span style="color:var(--tx2);font-size:11.5px;line-height:1.5">Der Erlös wird gegen den gleitenden Durchschnittseinstand verrechnet — der realisierte Gewinn erscheint danach auf der Startseite und im Steuer-Report.</span>
+          </div>
         </sc-if>
 
         <sc-if value="{{ confirmError }}" hint-placeholder-val="{{ false }}">
@@ -1316,7 +1633,7 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--bg) 55%);pointer-events:none;z-index:5"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, var(--home-fade-0) 0%, var(--home-fade) 55%);pointer-events:none;z-index:5"></div>
       <div style="position:absolute;bottom:env(safe-area-inset-bottom, 0px);left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
         <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;background:var(--surf);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3)" style-hover="background:var(--surf2)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
@@ -1559,6 +1876,74 @@ input::placeholder{color:var(--tx3)}
             </div>
           </sc-if>
 
+          <sc-if value="{{ hasTaxReportRealized }}" hint-placeholder-val="{{ false }}">
+            <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:700;margin-bottom:4px">Realisierte Gewinne aus Verkäufen</span>
+            <p style="margin:0 0 10px;color:var(--tx3);font-size:11px;line-height:1.5">Für Privatanleger in der Regel steuerfreier Kapitalgewinn. Hier aufgeführt, weil die Steuerbehörde bei Prüfung auf gewerbsmässigen Wertschriftenhandel danach fragt. Verrechnet zum gleitenden Durchschnittseinstand.</p>
+            <div style="overflow-x:auto;margin-bottom:22px">
+              <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--line2)">
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Titel</th>
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">ISIN</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Verkauft</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Erlös CHF</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Gewinn CHF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ taxReportRealized }}" as="r" hint-placeholder-count="2">
+                    <tr style="border-bottom:1px solid var(--line)">
+                      <td style="padding:7px 8px;color:var(--tx)">{{ r.name }}</td>
+                      <td class="mono" style="padding:7px 8px;color:var(--tx3)">{{ r.isin }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ r.sharesLabel }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ r.proceeds }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx);font-weight:700">{{ r.gain }}</td>
+                    </tr>
+                  </sc-for>
+                  <tr>
+                    <td colspan="4" style="padding:8px;color:var(--tx2);font-weight:700">Total realisiert</td>
+                    <td class="mono" style="text-align:right;padding:8px;color:var(--tx);font-weight:700">{{ taxReportRealizedTotal }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasTaxReportDividends }}" hint-placeholder-val="{{ false }}">
+            <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:700;margin-bottom:4px">Dividenden</span>
+            <p style="margin:0 0 10px;color:var(--tx3);font-size:11px;line-height:1.5">Steuerbarer Vermögenseertrag. Die schweizerische Verrechnungssteuer (35 %) lässt sich mit der Erklärung zurückfordern.</p>
+            <div style="overflow-x:auto;margin-bottom:22px">
+              <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--line2)">
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Datum</th>
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Titel</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Brutto CHF</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">VSt. CHF</th>
+                    <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Netto CHF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ taxReportDividends }}" as="d" hint-placeholder-count="3">
+                    <tr style="border-bottom:1px solid var(--line)">
+                      <td class="mono" style="padding:7px 8px;color:var(--tx3)">{{ d.dateLabel }}</td>
+                      <td style="padding:7px 8px;color:var(--tx)">{{ d.name }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ d.gross }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx3)">{{ d.tax }}</td>
+                      <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx);font-weight:700">{{ d.net }}</td>
+                    </tr>
+                  </sc-for>
+                  <tr>
+                    <td colspan="2" style="padding:8px;color:var(--tx2);font-weight:700">Total</td>
+                    <td class="mono" style="text-align:right;padding:8px;color:var(--tx);font-weight:700">{{ taxReportDividendTotal }}</td>
+                    <td class="mono" style="text-align:right;padding:8px;color:var(--tx3);font-weight:700">{{ taxReportDividendTax }}</td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+
           <span style="display:block;color:var(--tx);font-size:13.5px;font-weight:700;margin-bottom:10px">Transaktionen</span>
           <sc-if value="{{ hasTaxReportTransactions }}" hint-placeholder-val="{{ false }}">
             <div style="overflow-x:auto">
@@ -1566,6 +1951,7 @@ input::placeholder{color:var(--tx3)}
                 <thead>
                   <tr style="border-bottom:1px solid var(--line2)">
                     <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Datum</th>
+                    <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Art</th>
                     <th style="text-align:left;padding:6px 8px;color:var(--tx3);font-weight:700">Titel</th>
                     <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Anzahl</th>
                     <th style="text-align:right;padding:6px 8px;color:var(--tx3);font-weight:700">Preis</th>
@@ -1576,6 +1962,7 @@ input::placeholder{color:var(--tx3)}
                   <sc-for list="{{ taxReportTransactions }}" as="t" hint-placeholder-count="3">
                     <tr style="border-bottom:1px solid var(--line)">
                       <td class="mono" style="padding:7px 8px;color:var(--tx3)">{{ t.dateLabel }}</td>
+                      <td style="padding:7px 8px;color:var(--tx2)">{{ t.sideLabel }}</td>
                       <td style="padding:7px 8px;color:var(--tx)">{{ t.name }}</td>
                       <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ t.sharesLabel }}</td>
                       <td class="mono" style="text-align:right;padding:7px 8px;color:var(--tx)">{{ t.price }} {{ t.currency }}</td>
@@ -1726,7 +2113,13 @@ const urlBase64ToUint8Array = base64 => {
   const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 };
-const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", total: "", currency: "CHF" });
+const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", total: "", currency: "CHF", side: "buy" });
+
+// Waehrungen, die im Erfassungsformular und in der Waehrungs-Aufteilung
+// angeboten werden. Yahoo liefert den Kurs unter "<CUR>CHF=X" — dieselbe
+// quotes()-Action wie fuer Aktien, kein zusaetzlicher Anbieter noetig.
+const CURRENCIES = ["CHF", "USD", "EUR", "GBP", "JPY", "CAD", "AUD", "SEK", "NOK", "DKK"];
+const fxSymbol = cur => String(cur || "").toUpperCase() + "CHF=X";
 
 const ISIN_RE = /^[A-Z]{2}[A-Z0-9]{9}\d$/;
 const isinLike = s => ISIN_RE.test(String(s || "").toUpperCase());
@@ -1988,6 +2381,14 @@ class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
     holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
+    // Geschlossene Positionen (alles verkauft) verschwinden aus `holdings`,
+    // ihr realisierter Gewinn muss aber weiter zaehlen — deshalb separat.
+    closedPositions: [], realizedBySymbol: {}, realizedTotal: 0,
+    dividends: [], divSheetOpen: false, divForm: null, divBusy: false, divError: "",
+    priceAlerts: [], alertSheetOpen: false, alertForm: null, alertBusy: false, alertError: "",
+    // Kurs -> CHF. CHF selbst ist per Definition 1, alles andere kommt aus
+    // Yahoo ("USDCHF=X"); fehlt ein Kurs, bleibt es bei 1:1.
+    fxRates: { CHF: 1 },
     toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     marketQuotes: null, marketHistory: null, moverQuotes: null, marketsLoading: false, marketsError: false,
@@ -2262,6 +2663,44 @@ class Component extends DCLogic {
       columnStyles: { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" }, 5: { halign: "right" }, 6: { halign: "right" } },
     });
 
+    // Realisierte Gewinne und Dividenden nur drucken, wenn es sie gibt — zwei
+    // leere Tabellen im Report sehen nach Fehler aus.
+    if (r.realized && r.realized.length) {
+      y = doc.lastAutoTable.finalY + 12;
+      if (y > 250) { doc.addPage(); y = 20; }
+      doc.setFontSize(11.5); doc.setFont(undefined, "bold"); doc.text("Realisierte Gewinne aus Verkäufen", 14, y);
+      doc.setFontSize(8); doc.setFont(undefined, "normal"); doc.setTextColor(110);
+      doc.text("Für Privatanleger in der Regel steuerfreier Kapitalgewinn; verrechnet zum gleitenden Durchschnittseinstand.", 14, y + 5);
+      doc.setTextColor(20);
+      doc.autoTable({
+        startY: y + 9,
+        styles: { fontSize: 8.5, cellPadding: 2 },
+        headStyles: { fillColor: [38, 51, 73] },
+        head: [["Titel", "ISIN", "Verkauft", "Erlös CHF", "Gewinn CHF"]],
+        body: r.realized.map(x => [x.name, x.isin, x.sharesLabel, x.proceeds, x.gain])
+          .concat([["Total realisiert", "", "", "", r.realizedTotal]]),
+        columnStyles: { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+      });
+    }
+
+    if (r.dividends && r.dividends.length) {
+      y = doc.lastAutoTable.finalY + 12;
+      if (y > 250) { doc.addPage(); y = 20; }
+      doc.setFontSize(11.5); doc.setFont(undefined, "bold"); doc.text("Dividenden", 14, y);
+      doc.setFontSize(8); doc.setFont(undefined, "normal"); doc.setTextColor(110);
+      doc.text("Steuerbarer Vermögenseertrag. Verrechnungssteuer (CH 35 %) ist mit der Erklärung rückforderbar.", 14, y + 5);
+      doc.setTextColor(20);
+      doc.autoTable({
+        startY: y + 9,
+        styles: { fontSize: 8.5, cellPadding: 2 },
+        headStyles: { fillColor: [38, 51, 73] },
+        head: [["Datum", "Titel", "Brutto CHF", "VSt. CHF", "Netto CHF"]],
+        body: r.dividends.map(d => [d.dateLabel, d.name, d.gross, d.tax, d.net])
+          .concat([["Total", "", r.dividendTotal, r.dividendTax, ""]]),
+        columnStyles: { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+      });
+    }
+
     y = doc.lastAutoTable.finalY + 12;
     if (y > 260) { doc.addPage(); y = 20; }
     doc.setFontSize(11.5); doc.setFont(undefined, "bold"); doc.text("Transaktionen", 14, y);
@@ -2269,9 +2708,9 @@ class Component extends DCLogic {
       startY: y + 4,
       styles: { fontSize: 8.5, cellPadding: 2 },
       headStyles: { fillColor: [38, 51, 73] },
-      head: [["Datum", "Titel", "Anzahl", "Preis", "Betrag"]],
-      body: r.transactions.map(t => [t.dateLabel, t.name, t.sharesLabel, t.price + " " + t.currency, t.total + " " + t.currency]),
-      columnStyles: { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+      head: [["Datum", "Art", "Titel", "Anzahl", "Preis", "Betrag"]],
+      body: r.transactions.map(t => [t.dateLabel, t.sideLabel, t.name, t.sharesLabel, t.price + " " + t.currency, t.total + " " + t.currency]),
+      columnStyles: { 3: { halign: "right" }, 4: { halign: "right" }, 5: { halign: "right" } },
     });
 
     doc.save("Belegio-Steuer-Report-" + new Date().toISOString().slice(0, 10) + ".pdf");
@@ -2316,6 +2755,8 @@ class Component extends DCLogic {
       this.loadMarkets();
       this.loadInsiderTrades(holdings);
       this.loadPushLog();
+      this.loadDividends();
+      this.loadPriceAlerts();
       this.startAutoSync();
       this.checkNotificationSubscription();
     }
@@ -2472,6 +2913,8 @@ class Component extends DCLogic {
       this.loadMarkets();
       this.loadInsiderTrades(holdings);
       this.loadPushLog();
+      this.loadDividends();
+      this.loadPriceAlerts();
       this.startAutoSync();
       this.setState({ dashLoading: false });
     } catch (e) {
@@ -2491,25 +2934,207 @@ class Component extends DCLogic {
   };
 
   // ---------- Portfolio ----------
-  loadPortfolio = async () => {
-    const db = await this.db();
-    const txs = await db.listTransactions();
+  // Baut aus den Transaktionen die aktuellen Positionen. Verkaeufe zaehlen
+  // negativ: `transactions.shares` ist per Check-Constraint immer positiv, die
+  // Richtung steckt in `side` ("buy" | "sell", Bestandszeilen ohne Wert sind
+  // Kaeufe). Der Einstandspreis ist ein GLEITENDER DURCHSCHNITT, ein Verkauf
+  // entnimmt zu genau diesem Schnitt — das entspricht der in der Schweiz
+  // ueblichen Praxis fuer Privatanleger; FIFO waere hier weder verlangt noch
+  // aus den erfassten Daten sauber ableitbar.
+  buildPositions = txs => {
+    // Chronologisch, sonst haengt der Durchschnittspreis von der
+    // Zeilenreihenfolge ab (listTransactions liefert absteigend).
+    const ordered = txs.slice().sort((a, b) =>
+      a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created_at || "") < (b.created_at || "") ? -1 : 1);
     const bySymbol = {};
-    for (const t of txs) {
+    for (const t of ordered) {
       const key = t.symbol;
       if (!bySymbol[key]) {
-        bySymbol[key] = { abbr: key, sym: key, name: t.name || key, isin: t.isin || "", shares: 0, invested: 0, currency: t.currency || "CHF" };
+        bySymbol[key] = { abbr: key, sym: key, name: t.name || key, isin: t.isin || "", shares: 0, invested: 0, realized: 0, proceeds: 0, soldShares: 0, currency: t.currency || "CHF", lastDate: t.date };
       }
-      bySymbol[key].shares += Number(t.shares);
-      bySymbol[key].invested += Number(t.shares) * Number(t.purchase_price);
+      const p = bySymbol[key];
+      if (t.name) p.name = t.name;
+      if (t.isin) p.isin = t.isin;
+      p.lastDate = t.date;
+      const qty = Number(t.shares) || 0;
+      const price = Number(t.purchase_price) || 0;
+      const fees = Number(t.fees) || 0;
+      if (t.side === "sell") {
+        // Nie mehr entnehmen als vorhanden: eine Verkaufszeile ueber dem
+        // Bestand (z.B. Kauf noch nicht erfasst) wuerde sonst einen negativen
+        // Bestand und damit unsinnige Kennzahlen erzeugen.
+        const sold = Math.min(qty, p.shares);
+        const avg = p.shares ? p.invested / p.shares : 0;
+        p.realized += sold * (price - avg) - fees;
+        p.proceeds += sold * price;
+        p.soldShares += sold;
+        p.invested -= sold * avg;
+        p.shares -= sold;
+        // Rundungsreste nach einem vollstaendigen Verkauf glattziehen, sonst
+        // bleibt eine Position mit 1e-15 Stueck in der Liste stehen.
+        if (p.shares < 1e-9) { p.shares = 0; p.invested = 0; }
+      } else {
+        p.shares += qty;
+        p.invested += qty * price;
+      }
     }
-    const holdings = Object.values(bySymbol).map(h => ({
+    return Object.values(bySymbol).map(h => ({
       ...h,
       buy: h.shares ? h.invested / h.shares : 0,
       cur: h.shares ? h.invested / h.shares : 0
     }));
-    this.setState({ holdings, txs, txCount: txs.length });
+  };
+
+  loadPortfolio = async () => {
+    const db = await this.db();
+    const txs = await db.listTransactions();
+    const all = this.buildPositions(txs);
+    const holdings = all.filter(h => h.shares > 1e-9);
+    // Vollstaendig verkauft: taucht in Liste/Chart/Gewichtung nicht mehr auf,
+    // der realisierte Gewinn bleibt aber in den Kennzahlen und im Steuer-Report.
+    const closedPositions = all.filter(h => h.shares <= 1e-9);
+    const realizedBySymbol = {};
+    for (const h of all) if (h.realized) realizedBySymbol[h.sym] = h.realized;
+    const realizedTotal = all.reduce((a, h) => a + h.realized, 0);
+    this.setState({ holdings, closedPositions, realizedBySymbol, realizedTotal, txs, txCount: txs.length });
+    this.loadFxRates(holdings);
     return holdings;
+  };
+
+  // ---------- Wechselkurse ----------
+  // Nur die tatsaechlich gebrauchten Paare, und nur, wenn ueberhaupt etwas
+  // Nicht-CHF im Depot oder bei den Dividenden liegt — bei einem reinen
+  // CHF-Depot faellt kein einziger zusaetzlicher Request an.
+  loadFxRates = async (holdingsOverride) => {
+    const holdings = holdingsOverride || this.state.holdings;
+    const currencies = [...new Set([
+      ...holdings.map(h => String(h.currency || "CHF").toUpperCase()),
+      ...(this.state.dividends || []).map(d => String(d.currency || "CHF").toUpperCase()),
+    ])].filter(c => c && c !== "CHF" && !this.state.fxRates[c]);
+    if (!currencies.length) return;
+    try {
+      const api = await this.api();
+      const q = await api.quotes(currencies.map(fxSymbol));
+      const rates = {};
+      for (const c of currencies) {
+        const r = q[fxSymbol(c)];
+        if (r && typeof r.c === "number" && r.c > 0) rates[c] = r.c;
+      }
+      if (Object.keys(rates).length) this.setState(s => ({ fxRates: { ...s.fxRates, ...rates } }));
+    } catch (e) { /* ohne Kurs bleibt es bei 1:1 — besser als gar kein Wert */ }
+  };
+
+  // ---------- Dividenden ----------
+  loadDividends = async () => {
+    try {
+      const db = await this.db();
+      const dividends = await db.listDividends();
+      this.setState({ dividends });
+      this.loadFxRates();
+    } catch (e) { /* Tabelle leer oder Ladefehler — Liste bleibt leer */ }
+  };
+
+  openDivSheet = (sym, name) => () => this.setState({
+    divSheetOpen: true, divError: "",
+    divForm: {
+      date: new Date().toISOString().slice(0, 10),
+      symbol: sym || "", name: name || "",
+      gross: "", tax: "", currency: (this.state.holdings.find(h => h.sym === sym) || {}).currency || "CHF",
+    },
+  });
+  closeDivSheet = () => this.setState({ divSheetOpen: false, divForm: null, divError: "" });
+  setDivField = k => e => {
+    const v = e.target.value;
+    this.setState(s => ({ divForm: { ...s.divForm, [k]: v } }));
+  };
+  setDivCurrency = cur => () => this.setState(s => ({ divForm: { ...s.divForm, currency: cur } }));
+
+  saveDividend = async () => {
+    const f = this.state.divForm || {};
+    const gross = parseFloat(f.gross) || 0;
+    const symbol = String(f.symbol || "").trim().toUpperCase();
+    if (!symbol) return this.setState({ divError: "Ticker wird benötigt." });
+    if (gross <= 0) return this.setState({ divError: "Bruttobetrag wird benötigt." });
+    this.setState({ divBusy: true, divError: "" });
+    try {
+      const db = await this.db();
+      await db.insertDividend({
+        date: f.date, symbol, name: f.name || symbol,
+        gross_amount: gross, withholding_tax: Math.max(0, parseFloat(f.tax) || 0),
+        currency: f.currency || "CHF",
+      });
+      await this.loadDividends();
+      this.setState({ divBusy: false, divSheetOpen: false, divForm: null, toast: true, toastMsg: "Dividende erfasst" });
+      clearTimeout(this.t2);
+      this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
+    } catch (e) {
+      this.setState({ divBusy: false, divError: e.message || "Fehler beim Speichern." });
+    }
+  };
+
+  deleteDividend = id => async () => {
+    if (!confirm("Dividende löschen?")) return;
+    const db = await this.db();
+    await db.deleteDividend(id);
+    await this.loadDividends();
+  };
+
+  // ---------- Kursalarme ----------
+  // Geprueft wird serverseitig alle 15 Min. (Edge Function `push-daily`,
+  // mode "alerts") — hier nur anlegen, anzeigen, reaktivieren, loeschen.
+  loadPriceAlerts = async () => {
+    try {
+      const db = await this.db();
+      this.setState({ priceAlerts: await db.listPriceAlerts() });
+    } catch (e) { /* Ladefehler — Liste bleibt leer */ }
+  };
+
+  openAlertSheet = (sym, name) => () => {
+    const q = this.state.quotes[sym];
+    const cur = q && typeof q.c === "number" ? toDepotPrice(sym, q.c) : null;
+    this.setState({
+      alertSheetOpen: true, alertError: "",
+      // Zielpreis im Depot-Raum (Edelmetalle in Gramm) — genau so vergleicht
+      // die Edge Function spaeter, siehe toDepotPrice dort.
+      alertForm: { symbol: sym || "", name: name || "", direction: "above", target: cur != null ? cur.toFixed(2) : "" },
+    });
+  };
+  closeAlertSheet = () => this.setState({ alertSheetOpen: false, alertForm: null, alertError: "" });
+  setAlertField = k => e => {
+    const v = e.target.value;
+    this.setState(s => ({ alertForm: { ...s.alertForm, [k]: v } }));
+  };
+  setAlertDirection = dir => () => this.setState(s => ({ alertForm: { ...s.alertForm, direction: dir } }));
+
+  saveAlert = async () => {
+    const f = this.state.alertForm || {};
+    const symbol = String(f.symbol || "").trim().toUpperCase();
+    const target = parseFloat(f.target) || 0;
+    if (!symbol) return this.setState({ alertError: "Ticker wird benötigt." });
+    if (target <= 0) return this.setState({ alertError: "Zielkurs wird benötigt." });
+    this.setState({ alertBusy: true, alertError: "" });
+    try {
+      const db = await this.db();
+      await db.insertPriceAlert({ symbol, name: f.name || symbol, direction: f.direction || "above", target_price: target });
+      await this.loadPriceAlerts();
+      this.setState({ alertBusy: false, alertForm: null, alertSheetOpen: false, toast: true, toastMsg: "Kursalarm gesetzt" });
+      clearTimeout(this.t2);
+      this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
+    } catch (e) {
+      this.setState({ alertBusy: false, alertError: e.message || "Fehler beim Speichern." });
+    }
+  };
+
+  toggleAlert = a => async () => {
+    const db = await this.db();
+    await db.setPriceAlertActive(a.id, !a.active);
+    await this.loadPriceAlerts();
+  };
+
+  deleteAlert = id => async () => {
+    const db = await this.db();
+    await db.deletePriceAlert(id);
+    await this.loadPriceAlerts();
   };
 
   loadHistory = async holdings => {
@@ -2783,6 +3408,27 @@ class Component extends DCLogic {
     posMenuCategoryInput: (this.state.positionMeta[sym] && this.state.positionMeta[sym].category) || ""
   });
   closePosMenu = () => this.setState({ posMenuSymbol: null });
+
+  // Verkauf ueber die normale Erfassungsmaske, nur mit side="sell" und
+  // vorbelegtem Symbol/Kurs/Bestand — so gibt es genau EINEN Weg, wie eine
+  // Transaktionszeile entsteht (inkl. Bestandspruefung in confirm()).
+  sellFromPosition = sym => () => {
+    if (!sym) return;
+    const h = this.state.holdings.find(x => (x.sym || x.abbr) === sym);
+    if (!h) return;
+    const q = this.state.quotes[sym];
+    const price = q && typeof q.c === "number" ? toDepotPrice(sym, q.c) : h.cur;
+    this.setState({
+      posMenuSymbol: null, openPosSymbol: null,
+      screen: "review", pendingFile: null, ocrError: false, confirmError: "",
+      extracted: {
+        ...emptyFields(), side: "sell",
+        symbol: sym, name: h.name || sym, isin: h.isin || "",
+        shares: String(h.shares), price: price != null ? String(Number(price).toFixed(4)) : "",
+        currency: h.currency || "CHF",
+      },
+    });
+  };
   onPosMenuCategory = e => {
     const v = e.target.value;
     this.setState({ posMenuCategoryInput: v });
@@ -2947,14 +3593,31 @@ class Component extends DCLogic {
       this.setState({ confirmError: missing.join(", ") + (missing.length > 1 ? " werden" : " wird") + " benötigt." });
       return;
     }
+    // Verkauf gegen den Bestand pruefen. buildPositions wuerde einen zu grossen
+    // Verkauf stillschweigend auf den Bestand kappen — besser hier melden, als
+    // eine Zeile zu speichern, die spaeter anders gerechnet wird als erfasst.
+    if (f.side === "sell") {
+      const held = (this.state.holdings.find(h => (h.sym || h.abbr) === symbol) || {}).shares || 0;
+      if (held <= 0) {
+        this.setState({ confirmError: "Für " + symbol + " liegt keine Position im Depot." });
+        return;
+      }
+      if (shares > held + 1e-9) {
+        this.setState({ confirmError: "Du hältst nur " + held.toLocaleString("de-CH", { maximumFractionDigits: 4 }) + " Stück von " + symbol + "." });
+        return;
+      }
+    }
     this.setState({ confirmError: "" });
     try {
       const db = await this.db();
+      const isSell = f.side === "sell";
       const tx = await db.insertTransaction({
         date: f.date,
         symbol, isin: f.isin || null, name: f.name || symbol,
+        // shares bleibt positiv (Check-Constraint), die Richtung steht in side.
         shares, purchase_price: price, currency: f.currency || "CHF",
         total_amount: parseFloat(f.total) || shares * price,
+        side: isSell ? "sell" : "buy",
         source: this.state.pendingFile ? "ocr" : "manual"
       });
       if (this.state.pendingFile) {
@@ -2966,7 +3629,7 @@ class Component extends DCLogic {
       if (holdings.length) this.sync();
       await this.loadReceipts();
       this.loadInsiderTrades(holdings);
-      this.setState({ screen: "dash", toast: true, toastMsg: symbol + " ins Depot gebucht", pendingFile: null, extracted: null });
+      this.setState({ screen: "dash", toast: true, toastMsg: symbol + (isSell ? " als Verkauf gebucht" : " ins Depot gebucht"), pendingFile: null, extracted: null });
       clearTimeout(this.t2);
       this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
     } catch (e) {
@@ -3008,11 +3671,28 @@ class Component extends DCLogic {
   renderVals() {
     const { theme, screen, plan, quotes: qs, conn, user } = this.state;
     this.syncStatusBar(screen);
+    // ---------- Waehrungsumrechnung ----------
+    // `purchase_price` und der Live-Kurs stehen in der Waehrung der Position
+    // (`transactions.currency`), gerechnet wird das Depot aber in CHF. Ab hier
+    // sind `buy`/`cur` deshalb IMMER CHF — dadurch stimmen alle Summen,
+    // Gewichtungen, Tageswerte und der Steuer-Report darunter automatisch,
+    // ohne jede einzelne Stelle anzufassen. Wo der Kurs selbst angezeigt oder
+    // gegen die (in Landeswaehrung gefuehrten) Historien-Reihen gerechnet
+    // wird, stehen `buyNative`/`curNative` daneben.
+    // Umgerechnet wird mit dem AKTUELLEN Kurs, auch der Einstand: sonst
+    // vermischte die ausgewiesene Rendite Kurs- und Waehrungsentwicklung.
+    // Historische FX-Reihen fuehrt die App bewusst nicht.
+    const fxOf = c => this.state.fxRates[String(c || "CHF").toUpperCase()] || 1;
     const holdings = this.state.holdings.map(h => {
       const sym = h.sym || h.abbr;
       const q = qs[sym];
-      return q ? { ...h, cur: toDepotPrice(sym, q.c), dp: q.dp, live: true } : h;
+      const live = q ? { ...h, curNative: toDepotPrice(sym, q.c), dp: q.dp, live: true } : { ...h, curNative: h.cur };
+      const fxRate = fxOf(h.currency);
+      return { ...live, fxRate, buyNative: h.buy, buy: h.buy * fxRate, cur: live.curNative * fxRate };
     });
+    // Nicht-CHF im Depot? Dann bekommt die Home-Ansicht einen Hinweis, damit
+    // klar ist, dass umgerechnet wurde und mit welchem Kurs.
+    const fxUsed = [...new Set(holdings.map(h => String(h.currency || "CHF").toUpperCase()))].filter(c => c !== "CHF");
     const val = holdings.reduce((a, h) => a + h.shares * h.cur, 0);
     const cost = holdings.reduce((a, h) => a + h.shares * h.buy, 0);
     const g = val - cost;
@@ -3051,6 +3731,60 @@ class Component extends DCLogic {
     const bestToday = dpHoldings.length
       ? dpHoldings.reduce((a, b) => b.dp > a.dp ? b : a)
       : null;
+    const worstToday = dpHoldings.length
+      ? dpHoldings.reduce((a, b) => b.dp < a.dp ? b : a)
+      : null;
+
+    // ---------- Realisierte Gewinne (aus Verkäufen) ----------
+    // buildPositions rechnet je Symbol in der Positionswaehrung ab; hier auf
+    // CHF bringen, damit die Zahl neben Gesamtwert und Gewinn stehen kann.
+    const closedPositions = this.state.closedPositions || [];
+    const allPositions = [...holdings, ...closedPositions];
+    const realizedTotal = allPositions.reduce((a, h) => a + (h.realized || 0) * fxOf(h.currency), 0);
+    const realizedProceeds = allPositions.reduce((a, h) => a + (h.proceeds || 0) * fxOf(h.currency), 0);
+    const hasRealized = allPositions.some(h => h.soldShares > 0);
+    const closedList = closedPositions
+      .filter(h => h.soldShares > 0)
+      .sort((a, b) => (a.lastDate < b.lastDate ? 1 : -1));
+
+    // ---------- Dividenden ----------
+    // Brutto = ausgeschuettet, Steuer = Verrechnungssteuer (CH 35 %, in der
+    // Steuererklaerung rueckforderbar), Netto = was wirklich ankam.
+    const dividends = (this.state.dividends || []).map(d => {
+      const rate = fxOf(d.currency);
+      const gross = Number(d.gross_amount) || 0;
+      const tax = Number(d.withholding_tax) || 0;
+      return {
+        ...d, rate,
+        grossChf: gross * rate, taxChf: tax * rate, netChf: (gross - tax) * rate,
+      };
+    });
+    const yearStart = new Date().getFullYear() + "-01-01";
+    const twelveMonthsAgo = dstr(new Date(Date.now() - 365 * 864e5));
+    const divYtd = dividends.filter(d => d.date >= yearStart).reduce((a, d) => a + d.grossChf, 0);
+    const div12m = dividends.filter(d => d.date >= twelveMonthsAgo).reduce((a, d) => a + d.grossChf, 0);
+    const divTotal = dividends.reduce((a, d) => a + d.grossChf, 0);
+    const divTaxTotal = dividends.reduce((a, d) => a + d.taxChf, 0);
+    // Rendite auf den aktuellen Depotwert bezogen (nicht auf den Einstand) —
+    // das ist die uebliche Lesart von "Dividendenrendite meines Depots".
+    const divYieldPct = val ? div12m / val * 100 : 0;
+
+    // ---------- Kursalarme ----------
+    const priceAlerts = this.state.priceAlerts || [];
+    const activeAlerts = priceAlerts.filter(a => a.active);
+    const triggeredAlerts = priceAlerts.filter(a => !a.active && a.triggered_at);
+
+    // ---------- Währungsaufteilung ----------
+    // Nur sinnvoll, wenn ueberhaupt mehr als eine Waehrung im Spiel ist.
+    const byCurrency = {};
+    for (const h of holdings) {
+      const c = String(h.currency || "CHF").toUpperCase();
+      byCurrency[c] = (byCurrency[c] || 0) + h.shares * h.cur;
+    }
+    const currencyRows = Object.entries(byCurrency)
+      .map(([code, v]) => ({ code, value: v, pct: val ? v / val * 100 : 0 }))
+      .sort((a, b) => b.value - a.value);
+    const hasMultiCurrency = currencyRows.length > 1;
 
     // ---------- Steuer-Report ----------
     // Erste, funktionierende Version: Momentaufnahme des Depots (kein
@@ -3062,7 +3796,9 @@ class Component extends DCLogic {
       return {
         name: displayName(h), isin: h.isin || "–", symbol: h.sym || h.abbr, currency: h.currency || "CHF",
         sharesLabel: shares.toLocaleString("de-CH", { maximumFractionDigits: 4 }),
-        buyAvg: f2(h.buy), curPrice: f2(h.cur), buyValue: f2(buyVal), curValue: f2(curVal),
+        // Kurse in der Waehrung der Position, Werte in CHF (Spalte "Whg."
+        // sagt, worauf sich der Kurs bezieht).
+        buyAvg: f2(h.buyNative), curPrice: f2(h.curNative), buyValue: f2(buyVal), curValue: f2(curVal),
         gain: (gain >= 0 ? "+" : "") + f2(gain), gainPositive: gain >= 0,
       };
     });
@@ -3076,10 +3812,46 @@ class Component extends DCLogic {
         price: f2(t.purchase_price), currency: t.currency || "CHF",
         total: f2(t.total_amount != null ? t.total_amount : Number(t.shares) * Number(t.purchase_price)),
         fees: t.fees ? f2(t.fees) : null,
+        sideLabel: t.side === "sell" ? "Verkauf" : "Kauf", isSell: t.side === "sell",
       }));
+
+    // Realisierte Gewinne aus Verkaeufen. Fuer Privatanleger in der Schweiz in
+    // aller Regel steuerfreier Kapitalgewinn — trotzdem im Report, weil die
+    // Steuerbehoerde bei Verdacht auf gewerbsmaessigen Wertschriftenhandel
+    // genau danach fragt und die Zahl sonst nirgends steht.
+    const taxReportRealized = allPositions
+      .filter(h => h.soldShares > 0)
+      .map(h => {
+        const r = (h.realized || 0) * fxOf(h.currency);
+        return {
+          name: displayName(h), symbol: h.sym || h.abbr, isin: h.isin || "–",
+          currency: h.currency || "CHF",
+          sharesLabel: h.soldShares.toLocaleString("de-CH", { maximumFractionDigits: 4 }),
+          proceeds: f2((h.proceeds || 0) * fxOf(h.currency)),
+          gain: (r >= 0 ? "+" : "") + f2(r), gainPositive: r >= 0,
+          stillHeld: h.shares > 1e-9,
+        };
+      })
+      .sort((a, b) => (a.name > b.name ? 1 : -1));
+
+    const taxReportDividends = dividends
+      .slice()
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .map(d => ({
+        dateLabel: new Date(d.date).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" }),
+        name: d.name || d.symbol, symbol: d.symbol, currency: d.currency || "CHF",
+        gross: f2(d.grossChf), tax: f2(d.taxChf), net: f2(d.netChf),
+      }));
+
     // Fuer den PDF-Export (exportTaxReportPdf) auf der Instanz gemerkt, statt
     // die Herleitung dort zu duplizieren.
-    this._taxReport = { positions: taxReportPositions, transactions: taxReportTransactions, invested: f2(cost), value: f2(val), gain: (g >= 0 ? "+" : "") + f2(g) };
+    this._taxReport = {
+      positions: taxReportPositions, transactions: taxReportTransactions,
+      realized: taxReportRealized, dividends: taxReportDividends,
+      invested: f2(cost), value: f2(val), gain: (g >= 0 ? "+" : "") + f2(g),
+      realizedTotal: (realizedTotal >= 0 ? "+" : "") + f2(realizedTotal),
+      dividendTotal: f2(divTotal), dividendTax: f2(divTaxTotal),
+    };
 
     // ---------- Zinseszins-Rechner ----------
     // Startkapital: eigene Eingabe, sonst automatisch der aktuelle Depotwert.
@@ -3111,6 +3883,10 @@ class Component extends DCLogic {
     // Nur sichtbare (nicht ausgeblendete) Positionen — dieser Chart und der
     // Investitionsplan direkt darunter sind reine Home-Screen-Widgets.
     const txs = (this.state.txs || []).filter(t => !isHidden(t.symbol));
+    // Aufsteigend fuer stateAt() weiter unten: der gleitende Einstandspreis
+    // haengt an der Reihenfolge, listTransactions liefert aber absteigend.
+    const txsAsc = txs.slice().sort((a, b) =>
+      a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created_at || "") < (b.created_at || "") ? -1 : 1);
 
     // ---------- Investment-Plan: Zielbetrag pro Woche/Monat/Quartal ----------
     // "Investiert in diesem Zeitraum" zaehlt echte Kaeufe (total_amount je
@@ -3129,7 +3905,9 @@ class Component extends DCLogic {
       ipPeriodStart = new Date(ipNow.getFullYear(), ipNow.getMonth(), 1);
     }
     const ipPeriodStartStr = dstr(ipPeriodStart);
-    const investPlanDone = txs.filter(t => t.date >= ipPeriodStartStr)
+    // Nur Kaeufe: ein Verkauf ist kein Beitrag zum Sparziel (und wuerde es
+    // sonst faelschlich erfuellen).
+    const investPlanDone = txs.filter(t => t.date >= ipPeriodStartStr && t.side !== "sell")
       .reduce((a, t) => a + (Number(t.total_amount) || Number(t.shares) * Number(t.purchase_price) || 0), 0);
     const investPlanRemaining = Math.max(0, investPlanTarget - investPlanDone);
     const investPlanPct = investPlanTarget > 0 ? Math.min(100, investPlanDone / investPlanTarget * 100) : 0;
@@ -3147,7 +3925,33 @@ class Component extends DCLogic {
       const dateSet = new Set([startDate, todayStr]);
       for (const s of symbols) for (const p of (hist[s] || [])) { if (p.date >= startDate && p.date <= todayStr) dateSet.add(p.date); }
       const dates = [...dateSet].sort();
-      const investedAt = d => txs.filter(t => t.date <= d).reduce((a, t) => a + Number(t.shares) * Number(t.purchase_price), 0);
+      // Bestand und Einstand zum Stichtag: dieselbe Kauf/Verkauf-Logik wie in
+      // buildPositions (gleitender Durchschnitt), nur bis zum Datum d
+      // abgespielt. Ein einfaches Aufsummieren waere seit den Verkaeufen
+      // falsch — verkaufte Stuecke muessen aus Bestand UND Einstand raus.
+      // `invested` ist damit der Einstand der zu diesem Zeitpunkt noch
+      // GEHALTENEN Stuecke; realisierte Gewinne stecken bewusst nicht im
+      // Chart, sie stehen als eigene Kennzahl auf der Startseite.
+      const stateAt = d => {
+        const acc = {};
+        for (const t of txsAsc) {
+          if (t.date > d) break;
+          const a = acc[t.symbol] || (acc[t.symbol] = { shares: 0, invested: 0, fx: fxOf(t.currency) });
+          const qty = Number(t.shares) || 0, price = Number(t.purchase_price) || 0;
+          if (t.side === "sell") {
+            const sold = Math.min(qty, a.shares);
+            const avg = a.shares ? a.invested / a.shares : 0;
+            a.invested -= sold * avg;
+            a.shares -= sold;
+            if (a.shares < 1e-9) { a.shares = 0; a.invested = 0; }
+          } else {
+            a.shares += qty;
+            a.invested += qty * price;
+          }
+        }
+        return acc;
+      };
+      const investedAt = d => Object.values(stateAt(d)).reduce((a, x) => a + x.invested * x.fx, 0);
       const priceAt = (sym, d) => {
         const arr = hist[sym]; if (!arr || !arr.length) return null;
         let best = null;
@@ -3156,12 +3960,14 @@ class Component extends DCLogic {
       };
       const valueAt = d => {
         if (d === todayStr) return visVal;
+        const acc = stateAt(d);
         let total = 0;
         for (const s of symbols) {
-          const sh = txs.filter(t => t.symbol === s && t.date <= d).reduce((a, t) => a + Number(t.shares), 0);
-          if (!sh) continue;
+          const a = acc[s];
+          if (!a || !a.shares) continue;
           const p = priceAt(s, d);
-          total += p != null ? sh * p : txs.filter(t => t.symbol === s && t.date <= d).reduce((a, t) => a + Number(t.shares) * Number(t.purchase_price), 0);
+          // Ohne Historie mit dem damaligen Durchschnittseinstand naehern.
+          total += (p != null ? a.shares * p : a.invested) * a.fx;
         }
         return total;
       };
@@ -3229,7 +4035,8 @@ class Component extends DCLogic {
       for (const h of visibleHoldings) {
         const p = priceOnOrBefore(h.sym || h.abbr, weekAgoStr);
         if (p == null) { missing = true; continue; }
-        weekAgoValue += h.shares * p;
+        // p ist ein Historien-Schluss in Landeswaehrung, visVal steht in CHF.
+        weekAgoValue += h.shares * p * h.fxRate;
       }
       if (!missing && weekAgoValue) {
         rangePct = (visVal - weekAgoValue) / weekAgoValue * 100;
@@ -3376,7 +4183,7 @@ class Component extends DCLogic {
     // ---------- Signale (Pro) ----------
     const proActive = this.state.userPlan === "pro";
     const signalList = visibleHoldings
-      .map(h => buildSignal(h.sym || h.abbr, displayName(h), hist[h.sym || h.abbr], h.cur))
+      .map(h => buildSignal(h.sym || h.abbr, displayName(h), hist[h.sym || h.abbr], h.curNative))
       .filter(Boolean)
       .sort((a, b) => b.score - a.score);
     // Gratis-Nutzer sehen, dass es Signale gibt (unscharf), Pro sieht alle.
@@ -3490,7 +4297,9 @@ class Component extends DCLogic {
         const showTransactions = isOpenPos && subTab === "transactions";
         const symTxs = showTransactions ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
         const posChartRange = this.state.posChartRange || "D";
-        const posChart = showChart ? buildPositionChart(sym, h.cur, posChartRange, h.dp) : null;
+        // Historien-/Intraday-Reihen sind in Landeswaehrung — der Positions-
+        // Chart bleibt deshalb bewusst unkonvertiert bei curNative.
+        const posChart = showChart ? buildPositionChart(sym, h.curNative, posChartRange, h.dp) : null;
         posChartPoints[sym] = posChart ? posChart.points : null;
         const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
           ? posChart.points[this.state.posScrub.idx] : null;
@@ -3501,9 +4310,9 @@ class Component extends DCLogic {
         // sonst wäre der Balken irreführend.
         const yearRows = (hist[sym] || []).filter(p => p.date >= dstr(new Date(Date.now() - 365 * 864e5)));
         const has52 = yearRows.length >= 60;
-        const lo52 = has52 ? Math.min(h.cur, ...yearRows.map(p => p.close)) : 0;
-        const hi52 = has52 ? Math.max(h.cur, ...yearRows.map(p => p.close)) : 0;
-        const pos52 = has52 && hi52 > lo52 ? (h.cur - lo52) / (hi52 - lo52) * 100 : 50;
+        const lo52 = has52 ? Math.min(h.curNative, ...yearRows.map(p => p.close)) : 0;
+        const hi52 = has52 ? Math.max(h.curNative, ...yearRows.map(p => p.close)) : 0;
+        const pos52 = has52 && hi52 > lo52 ? (h.curNative - lo52) / (hi52 - lo52) * 100 : 50;
 
         const spark = buildSparkline(hist[sym]);
         const symInsider = this.state.insiderTrades[sym] || [];
@@ -3596,7 +4405,11 @@ class Component extends DCLogic {
               isEditing: editing, isNotEditing: !editing,
               dateLabel: new Date(t.date).toLocaleDateString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }),
               detail: t.shares + " × " + f2(Number(t.purchase_price)) + " · " + agoLabel(t.date),
-              total: f2(Number(t.shares) * Number(t.purchase_price)),
+              // Verkaufszeilen mit Vorzeichen und in Rot: sonst liest sich eine
+              // Verkaufsabrechnung in der Liste wie ein weiterer Kauf.
+              isSell: t.side === "sell",
+              total: (t.side === "sell" ? "− " : "") + f2(Number(t.shares) * Number(t.purchase_price)),
+              totalColor: t.side === "sell" ? "var(--neg)" : "var(--tx2)",
               editDate: editing ? f.date : t.date,
               editShares: editing ? f.shares : String(t.shares),
               editPrice: editing ? f.purchase_price : String(t.purchase_price),
@@ -3761,6 +4574,11 @@ class Component extends DCLogic {
       taxReportTransactions, hasTaxReportTransactions: taxReportTransactions.length > 0,
       taxReportInvested: f2(cost), taxReportValue: f2(val),
       taxReportGain: (g >= 0 ? "+" : "") + f2(g), taxReportGainPositive: g >= 0,
+      taxReportRealized, hasTaxReportRealized: taxReportRealized.length > 0,
+      taxReportRealizedTotal: (realizedTotal >= 0 ? "+" : "") + f2(realizedTotal),
+      taxReportRealizedPositive: realizedTotal >= 0,
+      taxReportDividends, hasTaxReportDividends: taxReportDividends.length > 0,
+      taxReportDividendTotal: f2(divTotal), taxReportDividendTax: f2(divTaxTotal),
       printTaxReport: () => window.print(),
       exportTaxReportPdf: this.exportTaxReportPdf,
       prefs: [
@@ -3784,7 +4602,7 @@ class Component extends DCLogic {
       quotaCta: this.state.userPlan === "pro" ? "Pro aktiv" : "Pro ansehen",
       manualEntry: this.manualEntry, onFile: this.onFile,
       startParse: this.manualEntry, confirm: this.confirm,
-      confirmCta: "Ins Depot buchen",
+      confirmCta: f.side === "sell" ? "Verkauf buchen" : "Ins Depot buchen",
 
       dashLoading: this.state.dashLoading, dashReady: !this.state.dashLoading,
       // Zeitraum-Umschalter sitzt auf dem Kopfbereich. Die aktive Pille ist
@@ -3879,9 +4697,11 @@ class Component extends DCLogic {
         // Zugestellte Web-Push-Nachrichten (push-daily) — dieselbe Liste, damit
         // auch verpasste/nicht angetippte Pushes hier nachtraeglich sichtbar sind.
         ...(this.state.pushLog || []).map(p => ({
-          logo: "🔔",
+          // Kursalarme (mode "alert") sind das Einzige in dieser Liste, worauf
+          // man reagieren wuerde — deshalb eigenes Symbol statt der Glocke.
+          logo: p.mode === "alert" ? "🎯" : "🔔",
           headline: p.title,
-          color: "var(--tx2)",
+          color: p.mode === "alert" ? "var(--acc2)" : "var(--tx2)",
           date: p.sent_at,
           dateLabel: new Date(p.sent_at).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
           detail: p.body,
@@ -3904,6 +4724,17 @@ class Component extends DCLogic {
       onPosMenuCategory: this.onPosMenuCategory,
       posMenuToggleHide: this.toggleHidePosition(this.state.posMenuSymbol),
       posMenuHideKnobX: isHidden(this.state.posMenuSymbol) ? "23px" : "3px",
+      posMenuSell: this.sellFromPosition(this.state.posMenuSymbol),
+      posMenuDividend: (() => {
+        const sym = this.state.posMenuSymbol;
+        const h = holdings.find(x => (x.sym || x.abbr) === sym);
+        return () => { this.closePosMenu(); this.openDivSheet(sym, h ? displayName(h) : sym)(); };
+      })(),
+      posMenuAlert: (() => {
+        const sym = this.state.posMenuSymbol;
+        const h = holdings.find(x => (x.sym || x.abbr) === sym);
+        return () => { this.closePosMenu(); this.openAlertSheet(sym, h ? displayName(h) : sym)(); };
+      })(),
 
       // ---------- Zinseszins-Rechner ----------
       compoundSheetOpen: this.state.compoundSheetOpen,
@@ -3952,7 +4783,13 @@ class Component extends DCLogic {
       newsBannerItems: (this.state.liveNews || []).slice(0, 3).map((n, i) => {
         const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
         const mins = Math.round((Date.now() - n.datetime) / 60000);
-        return {
+        // Leeres Objekt statt null, damit die Feld-Getter unten nicht jedes Mal
+    // gegen undefined absichern muessen — die Sheets sind ohnehin nur sichtbar,
+    // wenn das Formular existiert.
+    const divForm = this.state.divForm || {};
+    const alertForm = this.state.alertForm || {};
+
+    return {
           tick: h ? h.abbr : n.symbol,
           head: n.headline,
           time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
@@ -3974,6 +4811,126 @@ class Component extends DCLogic {
       homeStatBestTodayPct: bestToday ? (bestToday.dp >= 0 ? "+" : "") + bestToday.dp.toFixed(1) + " %" : "kein Kurs heute",
       homeStatBestTodayColor: bestToday ? (bestToday.dp >= 0 ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
       homeStatPosCount: String(holdings.length),
+      homeStatWorstTodayName: worstToday ? displayName(worstToday) : "–",
+      homeStatWorstTodayPct: worstToday ? (worstToday.dp >= 0 ? "+" : "") + worstToday.dp.toFixed(1) + " %" : "kein Kurs heute",
+      homeStatWorstTodayColor: worstToday ? (worstToday.dp >= 0 ? "var(--pos)" : "var(--neg)") : "var(--tx3)",
+      homeStatDivYield: div12m > 0 ? divYieldPct.toFixed(2) + " %" : "–",
+      homeStatRealized: (realizedTotal >= 0 ? "+" : "") + f2(realizedTotal),
+      homeStatRealizedColor: realizedTotal >= 0 ? "var(--pos)" : "var(--neg)",
+
+      // ---------- Widget: Realisiert & Dividenden ----------
+      // Auch ohne Daten sichtbar, sobald ueberhaupt Positionen da sind —
+      // sonst waeren Dividenden-Erfassung und Verkauf von der Startseite aus
+      // gar nicht auffindbar.
+      hasIncomeCard: holdings.length > 0 || hasRealized || dividends.length > 0,
+      incomeEmpty: !hasRealized && dividends.length === 0,
+      incomeRealized: (realizedTotal >= 0 ? "+" : "") + f2(realizedTotal),
+      incomeRealizedColor: realizedTotal >= 0 ? "var(--pos)" : "var(--neg)",
+      incomeProceeds: f2(realizedProceeds),
+      incomeDiv12m: f2(div12m),
+      incomeDivYtd: f2(divYtd),
+      incomeDivYield: div12m > 0 ? divYieldPct.toFixed(2) + " %" : "–",
+      incomeDivTax: f2(divTaxTotal),
+      hasDividends: dividends.length > 0,
+      hasClosedPositions: closedList.length > 0,
+      closedPositions: closedList.map(h => {
+        const r = (h.realized || 0) * fxOf(h.currency);
+        return {
+          name: displayName(h), symbol: h.sym || h.abbr,
+          sharesLabel: h.soldShares.toLocaleString("de-CH", { maximumFractionDigits: 4 }) + " Stk.",
+          dateLabel: new Date(h.lastDate).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "2-digit" }),
+          gain: (r >= 0 ? "+" : "") + f2(r),
+          color: r >= 0 ? "var(--pos)" : "var(--neg)",
+        };
+      }),
+
+      // ---------- Widget: Währungsaufteilung ----------
+      hasMultiCurrency,
+      currencyRows: currencyRows.map(c => ({
+        code: c.code,
+        value: f2(c.value),
+        pct: c.pct.toFixed(1) + " %",
+        barWidth: Math.max(2, c.pct).toFixed(1) + "%",
+        rateLabel: c.code === "CHF" ? "Basiswährung" : "1 " + c.code + " = " + fxOf(c.code).toFixed(4) + " CHF",
+      })),
+      fxNote: fxUsed.length
+        ? "Umgerechnet zum aktuellen Kurs: " + fxUsed.map(c => "1 " + c + " = " + fxOf(c).toFixed(4) + " CHF").join(" · ")
+        : "",
+      hasFxNote: fxUsed.length > 0,
+
+      // ---------- Widget: Kursalarme ----------
+      hasAlertCard: holdings.length > 0 || priceAlerts.length > 0,
+      alertEmpty: priceAlerts.length === 0,
+      alertCount: String(activeAlerts.length),
+      alertTriggeredCount: String(triggeredAlerts.length),
+      hasTriggeredAlerts: triggeredAlerts.length > 0,
+      openAlertSheet: this.openAlertSheet("", ""),
+      alertRows: priceAlerts.slice(0, 6).map(a => ({
+        symbol: a.symbol,
+        name: a.name || a.symbol,
+        label: (a.direction === "above" ? "über " : "unter ") + f2(Number(a.target_price)),
+        state: a.active ? "aktiv" : a.triggered_at
+          ? "ausgelöst " + new Date(a.triggered_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })
+          : "pausiert",
+        stateColor: a.active ? "var(--acc2)" : a.triggered_at ? "var(--pos)" : "var(--tx3)",
+        toggleLabel: a.active ? "Pausieren" : "Aktivieren",
+        toggle: this.toggleAlert(a),
+        remove: this.deleteAlert(a.id),
+      })),
+
+      // ---------- Sheet: Dividende erfassen ----------
+      divSheetOpen: this.state.divSheetOpen,
+      closeDivSheet: this.closeDivSheet,
+      openDivSheet: this.openDivSheet("", ""),
+      divDate: divForm.date || "", onDivDate: this.setDivField("date"),
+      divSymbol: divForm.symbol || "", onDivSymbol: this.setDivField("symbol"),
+      divGross: divForm.gross || "", onDivGross: this.setDivField("gross"),
+      divTax: divForm.tax || "", onDivTax: this.setDivField("tax"),
+      divNetLabel: f2(Math.max(0, (parseFloat(divForm.gross) || 0) - (parseFloat(divForm.tax) || 0))),
+      divSuggestTax: () => {
+        const gross = parseFloat((this.state.divForm || {}).gross) || 0;
+        this.setState(st => ({ divForm: { ...st.divForm, tax: (gross * 0.35).toFixed(2) } }));
+      },
+      divCurrencyOptions: CURRENCIES.map(c => ({
+        code: c,
+        go: this.setDivCurrency(c),
+        bg: (divForm.currency || "CHF") === c ? "var(--acc)" : "var(--surf2)",
+        tx: (divForm.currency || "CHF") === c ? "var(--accTx)" : "var(--tx2)",
+      })),
+      saveDividend: this.saveDividend,
+      divBusy: this.state.divBusy,
+      divSaveLabel: this.state.divBusy ? "Speichern …" : "Dividende speichern",
+      divError: this.state.divError,
+      hasDivError: !!this.state.divError,
+      dividendRows: dividends.slice(0, 20).map(d => ({
+        id: d.id,
+        name: d.name || d.symbol, symbol: d.symbol,
+        dateLabel: new Date(d.date).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "2-digit" }),
+        gross: f2(d.grossChf), net: f2(d.netChf),
+        taxLabel: d.taxChf > 0 ? "− " + f2(d.taxChf) + " VSt." : "",
+        hasTax: d.taxChf > 0,
+        remove: this.deleteDividend(d.id),
+      })),
+
+      // ---------- Sheet: Kursalarm ----------
+      alertSheetOpen: this.state.alertSheetOpen,
+      closeAlertSheet: this.closeAlertSheet,
+      alertSymbol: alertForm.symbol || "", onAlertSymbol: this.setAlertField("symbol"),
+      alertTarget: alertForm.target || "", onAlertTarget: this.setAlertField("target"),
+      alertDirAboveBg: (alertForm.direction || "above") === "above" ? "var(--acc)" : "var(--surf2)",
+      alertDirAboveTx: (alertForm.direction || "above") === "above" ? "var(--accTx)" : "var(--tx2)",
+      alertDirBelowBg: alertForm.direction === "below" ? "var(--acc)" : "var(--surf2)",
+      alertDirBelowTx: alertForm.direction === "below" ? "var(--accTx)" : "var(--tx2)",
+      setAlertAbove: this.setAlertDirection("above"),
+      setAlertBelow: this.setAlertDirection("below"),
+      saveAlert: this.saveAlert,
+      alertBusy: this.state.alertBusy,
+      alertSaveLabel: this.state.alertBusy ? "Speichern …" : "Kursalarm setzen",
+      alertError: this.state.alertError,
+      hasAlertError: !!this.state.alertError,
+      alertNotifHint: this.state.notifSubscribed
+        ? "Wird serverseitig alle 15 Minuten geprüft, auch wenn die App zu ist."
+        : "Aktiviere Benachrichtigungen in den Einstellungen — ohne Push-Abo kann der Alarm nicht zugestellt werden.",
 
       // ---------- Signale (Pro) ----------
       hasSignals: signalsShown.length > 0,
@@ -4067,6 +5024,23 @@ class Component extends DCLogic {
         ? "Die ISIN scheint fehlerhaft (Prüfziffer ungültig) oder unbekannt zu sein — bitte prüfen und den Ticker manuell eintragen."
         : "Ohne echten Ticker (z. B. VWRL, AAPL) gibt es keine Live-Kurse für diese Position — die ISIN allein reicht dafür nicht.",
       gramHint: isGramMetal,
+      // Kauf/Verkauf: `shares` bleibt in beiden Faellen positiv, die Richtung
+      // steckt in transactions.side (siehe buildPositions).
+      isSellEntry: f.side === "sell",
+      setSideBuy: () => this.setState(st => ({ extracted: { ...(st.extracted || emptyFields()), side: "buy" }, confirmError: "" })),
+      setSideSell: () => this.setState(st => ({ extracted: { ...(st.extracted || emptyFields()), side: "sell" }, confirmError: "" })),
+      sideBuyBg: f.side === "sell" ? "transparent" : "var(--surf)",
+      sideBuyTx: f.side === "sell" ? "var(--tx3)" : "var(--tx)",
+      sideSellBg: f.side === "sell" ? "var(--surf)" : "transparent",
+      sideSellTx: f.side === "sell" ? "var(--tx)" : "var(--tx3)",
+      sellHeldLabel: (() => {
+        const sym = (f.symbol || "").trim().toUpperCase();
+        const held = (this.state.holdings.find(x => (x.sym || x.abbr) === sym) || {}).shares || 0;
+        if (!sym) return "Ticker eintragen, um den Bestand zu prüfen.";
+        return held > 0
+          ? "Bestand " + sym + ": " + held.toLocaleString("de-CH", { maximumFractionDigits: 4 }) + " Stück"
+          : "Keine Position " + sym + " im Depot.";
+      })(),
       fields: [
         { k: "Handelsdatum", v: f.date, onChange: this.setField("date") },
         { k: "Ticker-Symbol", v: f.symbol, onChange: this.setField("symbol") },

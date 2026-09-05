@@ -75,6 +75,74 @@ export async function deleteTransaction(id) {
   if (error) throw error;
 }
 
+// ---------- Dividenden ----------
+// Eigene Tabelle statt einer weiteren `source`-Variante in `transactions`:
+// eine Ausschuettung hat keine Stueckzahl-Veraenderung und keinen Einstandspreis,
+// dafuer eine Verrechnungssteuer — das in dieselbe Zeile zu pressen haette
+// jede Depot-Berechnung mit Sonderfaellen durchsetzt.
+export async function listDividends() {
+  const { data, error } = await supabase
+    .from("dividends")
+    .select("*")
+    .order("date", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function insertDividend(div) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const { data, error } = await supabase
+    .from("dividends")
+    .insert({ ...div, user_id: userData.user.id })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteDividend(id) {
+  const { error } = await supabase.from("dividends").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// ---------- Kursalarme ----------
+// Geprueft wird serverseitig (Edge Function `push-daily`, mode "alerts", alle
+// 15 Min. per pg_cron) — der Client legt die Zeilen nur an und zeigt sie an.
+export async function listPriceAlerts() {
+  const { data, error } = await supabase
+    .from("price_alerts")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function insertPriceAlert(alert) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const { data, error } = await supabase
+    .from("price_alerts")
+    .insert({ ...alert, user_id: userData.user.id })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// Reaktivieren setzt triggered_at zurueck — sonst zeigt die Liste weiter
+// "ausgeloest am ...", obwohl der Alarm wieder scharf ist.
+export async function setPriceAlertActive(id, active) {
+  const patch = active ? { active: true, triggered_at: null, triggered_price: null } : { active: false };
+  const { error } = await supabase.from("price_alerts").update(patch).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deletePriceAlert(id) {
+  const { error } = await supabase.from("price_alerts").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function uploadReceipt(file, transactionId) {
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr) throw userErr;

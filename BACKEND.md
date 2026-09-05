@@ -16,6 +16,8 @@ create table transactions (
   isin text,
   name text,
   shares numeric(18,6) not null check (shares > 0),
+  side text not null default 'buy'                -- buy | sell; shares bleibt IMMER positiv
+    check (side in ('buy','sell')),
   purchase_price numeric(18,4) not null check (purchase_price >= 0),
   currency text not null default 'CHF',
   fees numeric(18,4) not null default 0,
@@ -53,6 +55,33 @@ create table push_subscriptions (
   created_at timestamptz not null default now()
 );
 
+create table dividends (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  date date not null default current_date,
+  symbol text not null,
+  name text,
+  shares numeric(18,6),
+  gross_amount numeric(18,4) not null check (gross_amount >= 0),
+  withholding_tax numeric(18,4) not null default 0,  -- CH-Verrechnungssteuer, 35 %
+  currency text not null default 'CHF',
+  note text,
+  created_at timestamptz not null default now()
+);
+
+create table price_alerts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  symbol text not null,
+  name text,
+  direction text not null check (direction in ('above','below')),
+  target_price numeric(18,4) not null check (target_price > 0),  -- im DEPOT-Preisraum, s.u.
+  active boolean not null default true,
+  triggered_at timestamptz,
+  triggered_price numeric(18,4),
+  created_at timestamptz not null default now()
+);
+
 create table app_secrets (
   key text primary key,                         -- vapid_public / vapid_private / cron_secret
   value text not null                            -- RLS ohne Policies: nur service_role liest das
@@ -69,7 +98,7 @@ eigenen Ordner (`{user_id}/...`).
 | `register` | Legt Nutzer per Service-Role direkt bestätigt an (`email_confirm: true`) — keine E-Mail-Verifizierung nötig | offen (kein Login vorhanden) |
 | `market` | Proxy für Kurse/News/Suche/Historie | JWT erforderlich |
 | `ocr` | Proxy für API-Ninjas Image-to-Text | JWT erforderlich |
-| `push-daily` | Verschickt den täglichen Depotstand per Web Push | `x-cron-secret`-Header (kein User-JWT, `verify_jwt` deaktiviert) |
+| `push-daily` | Verschickt den täglichen Depotstand per Web Push (`mode` "intraday"/"close") und prüft die Kursalarme (`mode` "alerts") | `x-cron-secret`-Header (kein User-JWT, `verify_jwt` deaktiviert) |
 
 ## Marktdaten-Anbieter (`market`-Function)
 
@@ -128,13 +157,86 @@ werden clientseitig gar nicht erst angefragt — keiner der Anbieter kann damit
 etwas anfangen. Die UI zeigt für solche Positionen „kein Live-Kurs" statt
 einer irreführenden 0.0 %.
 
-Berechnung im Client (`renderVals`):
+Berechnung im Client (`buildPositions` + `renderVals`):
+
+Positionen entstehen aus den Transaktionen, chronologisch abgespielt. `shares`
+ist per Check-Constraint immer positiv — die Richtung steht in `side`
+(Bestandszeilen ohne Wert gelten als `buy`). Der Einstand ist ein **gleitender
+Durchschnitt**, ein Verkauf entnimmt zu genau diesem Schnitt (in der Schweiz
+übliche Praxis für Privatanleger; FIFO wäre aus den erfassten Daten nicht
+sauber ableitbar):
 
 ```
-investiert = Σ (shares × purchase_price)
-wert       = Σ (shares × aktueller_kurs)   // Fallback: purchase_price, wenn keine Live-Quote
+Kauf:     shares += n;  invested += n × preis
+Verkauf:  n' = min(n, shares)          // nie mehr als vorhanden — sonst neg. Bestand
+          schnitt   = invested / shares
+          realisiert += n' × (preis − schnitt) − gebuehren
+          invested  -= n' × schnitt
+          shares    -= n'
+          shares < 1e-9  =>  shares = 0, invested = 0   // Rundungsreste
+```
+
+Positionen mit `shares = 0` fallen aus Liste, Chart und Gewichtung heraus
+(`closedPositions`), ihr realisierter Gewinn bleibt aber in den Kennzahlen und
+im Steuer-Report. Der Portfolio-Chart spielt dieselbe Logik pro Stichtag ab
+(`stateAt(d)`); realisierte Gewinne stecken bewusst NICHT im Chart — er zeigt
+den Marktwert der jeweils gehaltenen Stücke.
+
+```
+investiert = Σ (shares × schnitt × fx)
+wert       = Σ (shares × aktueller_kurs × fx)   // Fallback: schnitt, wenn keine Live-Quote
 gewinn     = wert − investiert
 ```
+
+## Währungen
+
+`purchase_price` und der Live-Kurs stehen in der Währung der Position
+(`transactions.currency`), gerechnet wird das Depot aber in CHF. Der Client
+holt die nötigen Paare über dieselbe `quotes()`-Action wie Aktien — Yahoo
+führt sie als `USDCHF=X`, `EURCHF=X` usw., also kein zusätzlicher Anbieter und
+kein Request bei einem reinen CHF-Depot.
+
+Ab `renderVals` sind `buy`/`cur` einer Position **immer CHF**; die
+unkonvertierten Werte stehen als `buyNative`/`curNative` daneben und werden
+überall dort verwendet, wo gegen die (in Landeswährung geführten)
+Historien-Reihen gerechnet oder der Kurs selbst angezeigt wird
+(Positions-Chart, 52-Wochen-Band, Signale, Kursspalte im Steuer-Report).
+
+Umgerechnet wird mit dem **aktuellen** Kurs, auch der Einstand: sonst
+vermischte die ausgewiesene Rendite Kurs- und Währungsentwicklung. Historische
+FX-Reihen führt die App bewusst nicht — Kursgewinn und Währungseffekt werden
+deshalb nicht getrennt ausgewiesen (Hinweis dazu steht in der
+Währungen-Karte auf der Startseite).
+
+## Dividenden
+
+Eigene Tabelle statt einer weiteren `source`-Variante in `transactions`: eine
+Ausschüttung verändert keine Stückzahl und hat keinen Einstandspreis, dafür
+eine Verrechnungssteuer. Erfasst wird brutto + Verrechnungssteuer (Knopf "35 %
+einsetzen" für Schweizer Titel), netto ergibt sich daraus. Die Startseite
+zeigt Summe 12 Monate, YTD und die Dividendenrendite auf den aktuellen
+Depotwert; der Steuer-Report führt sie als steuerbaren Vermögensertrag mit
+rückforderbarer Verrechnungssteuer auf.
+
+## Kursalarme
+
+`price_alerts` + `push-daily` im `mode: "alerts"`, angestoßen von einem
+pg_cron-Job (`price-alert-check`, `*/15 7-21 * * 1-5` — werktags alle 15 Min.
+im Zeitfenster, das SIX und NYSE/Nasdaq abdeckt; ausserhalb bewegen sich die
+Kurse nicht).
+
+Die Function holt die Kurse **selbst bei Yahoo** statt aus `quote_cache`: der
+Cache wird nur gefüllt, wenn gerade jemand die App offen hat, ein Alarm muss
+aber auch bei geschlossener App feuern. Verglichen wird im **Depot-Preisraum**
+— Edelmetalle (`GC=F`/`SI=F`/`PL=F`/`PA=F`) also in Gramm, nicht in Feinunzen,
+genau wie der Zielpreis, den die App aus dem Positionskurs vorbelegt.
+
+Ein ausgelöster Alarm wird auf `active = false` gesetzt (mit `triggered_at` /
+`triggered_price`), damit er nicht bei jedem Lauf erneut feuert — reaktivieren
+geht in der App, das setzt `triggered_at` wieder auf null. Geprüft werden nur
+Alarme von Nutzern mit Push-Abo; ohne Abo wäre die Meldung nicht zustellbar.
+Jede Auslösung landet zusätzlich mit `mode = 'alert'` in `push_log` und damit
+in der In-App-Liste im Benachrichtigungen-Sheet.
 
 ## Beleg-Erkennung (OCR)
 
