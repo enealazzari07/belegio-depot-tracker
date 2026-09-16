@@ -4537,6 +4537,11 @@ class Component extends DCLogic {
       const w = visVal ? v / visVal * 100 : 0;
       return { weight: w.toFixed(1) + "%", tone: (v - h.shares * h.buy) >= 0 ? "var(--acc2)" : "var(--neg)" };
     });
+    // Leeres Objekt statt null, damit die Feld-Getter unten nicht jedes Mal
+    // gegen undefined absichern muessen — die Sheets sind ohnehin nur sichtbar,
+    // wenn das Formular existiert.
+    const divForm = this.state.divForm || {};
+    const alertForm = this.state.alertForm || {};
 
     return {
       theme,
@@ -4890,13 +4895,7 @@ class Component extends DCLogic {
       newsBannerItems: (this.state.liveNews || []).slice(0, 3).map((n, i) => {
         const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
         const mins = Math.round((Date.now() - n.datetime) / 60000);
-        // Leeres Objekt statt null, damit die Feld-Getter unten nicht jedes Mal
-    // gegen undefined absichern muessen — die Sheets sind ohnehin nur sichtbar,
-    // wenn das Formular existiert.
-    const divForm = this.state.divForm || {};
-    const alertForm = this.state.alertForm || {};
-
-    return {
+        return {
           tick: h ? h.abbr : n.symbol,
           head: n.headline,
           time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
