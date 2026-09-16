@@ -130,10 +130,18 @@
   --shadow:0 30px 70px -26px rgba(16,19,26,.26);
   --card-shadow:0 2px 4px -2px rgba(16,19,26,.05), 0 10px 24px -18px rgba(16,19,26,.28);
   --hero-shadow:0 8px 20px -10px rgba(16,19,26,.14), 0 28px 56px -32px rgba(16,19,26,.30);
+  /* Sheet-Panel-Hintergrund: dezentes Grau statt reinweiss, sonst ist die
+     Box gegen die (ebenfalls weisse) Home-Flaeche nicht zu erkennen. Bewusst
+     ein eigener Ton statt --surf2 — Eingabefelder/Buttons IN den Sheets
+     nutzen --surf2 fuer sich selbst und braeuchten sonst denselben Ton wie
+     ihr eigener Hintergrund. */
+  --sheet-bg:#EDF0F5;
   /* Material fuer schwebende Chrome (Tab-Leiste): durchscheinend statt
-     blickdicht, Inhalt scrollt sichtbar darunter durch. --glass-line ist der
-     helle Rand oben, der Licht auf dem Material andeutet. */
-  --glass:rgba(255,255,255,.72); --glass-line:rgba(255,255,255,.7);
+     blickdicht, Inhalt scrollt sichtbar darunter durch. Leicht grau statt
+     reinweiss getoent (Ton von --surf2) — Home-Flaeche ist selbst weiss,
+     ein weisses Material darauf waere unsichtbar. --glass-line ist ein
+     dezenter dunkler Rand statt hellem, aus demselben Grund. */
+  --glass:rgba(242,244,248,.78); --glass-line:rgba(16,19,26,.1);
 }
 [data-theme="dark"]{
   --stage:#07080B; --stage2:#0F1116;
@@ -168,6 +176,9 @@
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
   --glass:rgba(20,22,28,.68); --glass-line:rgba(255,255,255,.1);
+  /* Dark Mode hatte schon vorher genug Abstand zur Home-Flaeche (--surf ist
+     heller als --home-bg) — unveraendert lassen. */
+  --sheet-bg:var(--surf);
 }
 /* ---- Barrierefreiheit: reduzierte Bewegung/Transparenz, mehr Kontrast ----
    Reagiert auf die OS-Einstellung statt sie zu ignorieren. !important noetig,
@@ -179,7 +190,7 @@
 }
 @media (prefers-contrast: more){
   :root{--line:var(--tx3);--line2:var(--tx2)}
-  .glass-chip{background:var(--surf) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;border-width:1.5px !important}
+  .glass-chip{background:var(--surf2) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;border-width:1.5px !important}
 }
 /* Der aktive Seitenhintergrund liegt direkt hinter der iOS-Statusleiste. */
 *{box-sizing:border-box}
@@ -204,12 +215,12 @@ input::placeholder{color:var(--tx3)}
    normale Klassenregel sonst wieder tot. Fallback auf die blickdichte
    Flaeche, wenn der Browser backdrop-filter nicht kennt oder der Nutzer
    reduzierte Transparenz eingestellt hat. */
-.glass-chip{background:var(--surf) !important}
+.glass-chip{background:var(--surf2) !important}
 @supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){
   .glass-chip{background:var(--glass) !important;backdrop-filter:blur(20px) saturate(180%) !important;-webkit-backdrop-filter:blur(20px) saturate(180%) !important}
 }
 @media (prefers-reduced-transparency: reduce){
-  .glass-chip{background:var(--surf) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+  .glass-chip{background:var(--surf2) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
 }
 .mono{font-family:'Roboto Mono',monospace}
 .lbl{color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
@@ -1153,7 +1164,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ aiSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeAiSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ aiSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -1192,7 +1203,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ compoundSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeCompoundSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ compoundSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -1263,7 +1274,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ insiderSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ insiderSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -1295,7 +1306,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ posMenuOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closePosMenu }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ posMenuDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">{{ posMenuTitle }}</span>
@@ -1340,7 +1351,7 @@ input::placeholder{color:var(--tx3)}
          Positionsmenu im Depot sitzt. -->
     <sc-if value="{{ divSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeDivSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ divSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Dividende erfassen</span>
@@ -1368,7 +1379,7 @@ input::placeholder{color:var(--tx3)}
           <div style="display:flex;flex-direction:column;gap:6px">
             <div style="display:flex;align-items:center;gap:8px">
               <span style="flex:1;color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">VERRECHNUNGSSTEUER</span>
-              <button onClick="{{ divSuggestTax }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700" style-hover="background:var(--surf3)">35 % einsetzen</button>
+              <button onClick="{{ divSuggestTax }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700" style-hover="background:var(--surf)">35 % einsetzen</button>
             </div>
             <input type="number" value="{{ divTax }}" onChange="{{ onDivTax }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Roboto Mono',monospace;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
             <span style="color:var(--tx3);font-size:11px;line-height:1.5">Bei Schweizer Titeln 35 % — in der Steuererklärung rückforderbar. Bei ausländischen Titeln steht der Satz auf der Abrechnung.</span>
@@ -1402,7 +1413,7 @@ input::placeholder{color:var(--tx3)}
          das Push-Abo: ohne Abo kaeme die Meldung nirgends an. -->
     <sc-if value="{{ alertSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Kursalarm</span>
@@ -1451,7 +1462,7 @@ input::placeholder{color:var(--tx3)}
          Ebene stehen, sonst rendert er nie (war der Bug: "Erstellen geht nicht"). -->
     <sc-if value="{{ investPlanSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ investPlanSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -2017,7 +2028,7 @@ input::placeholder{color:var(--tx3)}
          sagte, weil der Eltern-Zweig dort false war (Bug, siehe Diagnose). -->
     <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--surf);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ notifSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
           <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
