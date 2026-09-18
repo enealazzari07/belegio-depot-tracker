@@ -2017,7 +2017,17 @@ input::placeholder{color:var(--tx3)}
           <div style="display:flex;flex-direction:column;gap:2px">
             <sc-for list="{{ notifItems }}" as="ni" hint-placeholder-count="3">
               <button onClick="{{ ni.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)">
-                <div style="width:32px;height:32px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:9px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ ni.logo }}</div>
+                <div style="width:32px;height:32px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:{{ ni.color }};flex:none">
+                  <sc-if value="{{ ni.isTextLogo }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size:9px;font-weight:700;font-family:'Roboto Mono',monospace">{{ ni.logo }}</span>
+                  </sc-if>
+                  <sc-if value="{{ ni.isAlertIcon }}" hint-placeholder-val="{{ false }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>
+                  </sc-if>
+                  <sc-if value="{{ ni.isBellIcon }}" hint-placeholder-val="{{ false }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                  </sc-if>
+                </div>
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left">
                   <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.headline }}</span>
                   <span style="color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.detail }}</span>
@@ -4782,7 +4792,7 @@ class Component extends DCLogic {
         ...holdings.flatMap(h => {
           const sym = h.sym || h.abbr;
           return (this.state.insiderTrades[sym] || []).map(t => ({
-            logo: logoFor(sym),
+            logo: logoFor(sym), isTextLogo: true, isAlertIcon: false, isBellIcon: false,
             headline: displayName(h) + " — Insider-" + (t.transaction_code === "P" ? "Kauf" : "Verkauf"),
             color: t.transaction_code === "P" ? "var(--pos)" : "var(--neg)",
             date: t.transaction_date,
@@ -4795,8 +4805,11 @@ class Component extends DCLogic {
         // auch verpasste/nicht angetippte Pushes hier nachtraeglich sichtbar sind.
         ...(this.state.pushLog || []).map(p => ({
           // Kursalarme (mode "alert") sind das Einzige in dieser Liste, worauf
-          // man reagieren wuerde — deshalb eigenes Symbol statt der Glocke.
-          logo: p.mode === "alert" ? "🎯" : "🔔",
+          // man reagieren wuerde — deshalb eigenes Icon statt der Glocke. Echte
+          // SVG-Icons statt Emoji: Emoji-Glyphen ignorieren font-family/-size
+          // und die App-Akzentfarbe, dadurch wirkten sie wie Fremdkoerper
+          // zwischen den sonst durchgehend gestrichelten Icons.
+          logo: "", isTextLogo: false, isAlertIcon: p.mode === "alert", isBellIcon: p.mode !== "alert",
           headline: p.title,
           color: p.mode === "alert" ? "var(--acc2)" : "var(--tx2)",
           date: p.sent_at,
