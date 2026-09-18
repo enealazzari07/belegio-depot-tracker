@@ -5,12 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- Testweise entfernt: apple-mobile-web-app-status-bar-style +
-     dynamisches theme-color-Nachfaerben (frueher syncStatusBar() im JS).
-     Beides bekaempfte den seit iOS 27 vom System selbst gemalten
-     "Liquid Glass"-Verlauf hinter Uhr/Dynamic Island, ohne ihn beeinflussen
-     zu koennen (das System malt drueber, egal was hier steht). Ziel: sehen,
-     wie iOS den Bereich ganz ohne App-Einmischung selbst darstellt. -->
+<!-- Nur noch fuer aeltere iOS-Versionen. Ab iOS 26 ist black-translucent
+     deprecated (Safari warnt, dass es entfernt wird) und iOS zeichnet hinter
+     Uhr und Dynamic Island seine eigene Flaeche, die sich per CSS nicht
+     wegnehmen laesst — daher der weisse Schleier. Statt dagegen anzukaempfen
+     faerben wir die Flaeche exakt wie den Inhalt darunter, siehe
+     syncStatusBar() im JS. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- Wird ab dem ersten Render von syncStatusBar() uebernommen und pro Screen
+     gesetzt (Home blau, sonst Hintergrundfarbe, Splash dunkel). Der Wert hier
+     ist nur der Startwert fuers allererste Bild, bevor JS laeuft — deshalb die
+     helle Grundfarbe. Bewusst ohne media-Attribut: der Theme-Toggle der App
+     entscheidet, nicht das OS-Schema.
+     manifest.json fuehrt absichtlich kein theme_color, sonst wuerde der
+     statische Wert von dort den dynamischen hier ueberstimmen. -->
 <meta name="theme-color" content="#F5F6F9">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
@@ -51,7 +59,8 @@
      das Blau gleichmaessig bis zum gedeckten, graeulichen Ton am unteren
      Rand (kein sattes Royal-Blau, wirkt hochwertiger).
      Muss senkrecht verlaufen und exakt auf --brand-flat starten, sonst entsteht
-     eine sichtbare Kante zum Statusleisten-Streifen darüber.
+     eine sichtbare Kante zum Statusleisten-Streifen darüber — siehe
+     syncStatusBar().
      Drei grosse, weiche weisse Radial-Flecken: oben rechts (kraeftig, .68),
      oben links (schwaecher, .38, ebenso breit/weich fuer denselben
      "verflossenen" Look) und mittig (.22). Nicht mehr unten — der untere
@@ -3726,8 +3735,39 @@ class Component extends DCLogic {
     }
   };
 
+  // ---------- iOS-Statusleiste ----------
+  // Ab iOS 26 laesst sich die Flaeche hinter Uhr und Dynamic Island nicht mehr
+  // transparent schalten (black-translucent ist deprecated, iOS zeichnet dort
+  // sein eigenes Material). Frueher wurde das mit einem .statusbar-Div plus
+  // backdrop-filter bekaempft — das ergab nur einen zweiten Balken obendrauf.
+  // Stattdessen faerben wir jetzt die iOS-Flaeche selbst ueber theme-color,
+  // und zwar exakt in der Farbe, die direkt darunter liegt: Home ist blau,
+  // der Splash (wie der Rest der App) hell, alles andere normale
+  // Hintergrundfarbe. Dadurch faellt der Balken optisch nicht mehr auf.
+  //
+  // Die Farbe wird bewusst aus den CSS-Variablen gelesen statt hier als Hex
+  // dupliziert — so folgt sie automatisch dem Theme-Toggle und kann nie von
+  // der Flaeche darunter abweichen. theme-color akzeptiert kein var(), daher
+  // der Umweg ueber getComputedStyle.
+  syncStatusBar(screen) {
+    const root = document.querySelector("[data-theme]");
+    if (!root) return;
+    const token = screen === "dash" && !this.state.splash ? "--brand-flat" : "--bg";
+    const color = getComputedStyle(root).getPropertyValue(token).trim();
+    if (!color || color === this._statusBarColor) return;
+    this._statusBarColor = color;
+    // Node ersetzen statt nur .content setzen: iOS uebernimmt eine reine
+    // Wertaenderung im installierten Web-App-Modus nicht zuverlaessig.
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    meta.setAttribute("content", color);
+    document.head.appendChild(meta);
+  }
+
   renderVals() {
     const { theme, screen, plan, quotes: qs, conn, user } = this.state;
+    this.syncStatusBar(screen);
     // ---------- Waehrungsumrechnung ----------
     // `purchase_price` und der Live-Kurs stehen in der Waehrung der Position
     // (`transactions.currency`), gerechnet wird das Depot aber in CHF. Ab hier
