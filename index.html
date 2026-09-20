@@ -394,47 +394,30 @@ input::placeholder{color:var(--tx3)}
               </div>
             </div>
             </sc-if>
-        <sc-if value="{{ hasMarketCountdown }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top:16px;display:flex;flex-direction:column;gap:6px">
-            <sc-for list="{{ marketCountdowns }}" as="mc" hint-placeholder-count="1">
-              <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:14px;background:var(--surf2);border:1px solid var(--line)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-                <span style="flex:1;color:var(--tx2);font-size:12px;font-weight:600">{{ mc.name }} öffnet in</span>
-                <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;letter-spacing:-.01em">{{ mc.left }}</span>
-              </div>
-            </sc-for>
-          </div>
-        </sc-if>
-        <div style="display:flex;gap:6px;justify-content:space-between;margin-top:18px;padding:0;overflow-x:auto;scrollbar-width:none">
-          <button onClick="{{ goNewsFromBanner }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2z"></path><path d="M19 9h1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-1"></path><path d="M8 9h7M8 13h7M8 16h4"></path></svg>
+        <div style="display:flex;gap:6px;justify-content:space-between;margin-top:18px;padding:0">
+          <button onClick="{{ goNewsFromBanner }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 9h6M7 13h10M7 16.5h7"></path><rect x="15" y="8" width="2.5" height="2.5" rx=".6" fill="currentColor" stroke="none"></rect></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">News</span>
           </button>
-          <button onClick="{{ goMarkets }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg>
+          <button onClick="{{ goMarkets }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Märkte</span>
           </button>
-          <button onClick="{{ openNotifSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <button onClick="{{ openNotifSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"></path><path d="M3 13h5l1 3h6l1-3h5"></path></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Meldungen</span>
           </button>
-          <button onClick="{{ openAlertSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>
+          <button onClick="{{ openAlertSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 8-2.5 8h17S18 15 18 9"></path><path d="M13.7 20.5a2 2 0 0 1-3.4 0"></path><path d="M2.5 8.5A10 10 0 0 1 5 4M21.5 8.5A10 10 0 0 0 19 4"></path></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Alarm</span>
-          </button>
-          <button onClick="{{ goDepot }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg>
-            </span>
-            <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Depot</span>
           </button>
         </div>
         </div>
@@ -1711,7 +1694,7 @@ input::placeholder{color:var(--tx3)}
           <span style="font-size:14px;font-weight:700;letter-spacing:-.01em;color:{{ tScan }}">Scannen</span>
         </button>
         <button onClick="{{ goMarkets }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tMarkets }}" width="19" height="19"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tMarkets }}" width="19" height="19"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
         </button>
         <button onClick="{{ goSettings }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tSet }}" width="19" height="19"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>
@@ -2270,26 +2253,6 @@ const marketStatus = sym => {
   if (mins >= closeMins) return "after";
   return "open";
 };
-// Minuten bis zur naechsten Oeffnung (Wochenenden uebersprungen), Feiertage ignoriert.
-const minutesToOpen = isSwiss => {
-  const tz = isSwiss ? "Europe/Zurich" : "America/New_York";
-  const openMins = isSwiss ? 9 * 60 : 9 * 60 + 30;
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false, weekday: "short" }).formatToParts(new Date());
-  const get = t => parts.find(p => p.type === t).value;
-  const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
-  const now = (parseInt(get("hour"), 10) % 24) * 60 + parseInt(get("minute"), 10);
-  for (let add = 0; add < 8; add++) {
-    const day = (wd + add) % 7;
-    if (day === 0 || day === 6) continue;
-    const diff = add * 1440 + openMins - now;
-    if (diff > 0) return diff;
-  }
-  return null;
-};
-const countdownLabel = m => {
-  const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
-  return d > 0 ? d + " Tg " + h + " Std" : h > 0 ? h + " Std " + mi + " Min" : mi + " Min";
-};
 const MARKET_STATUS_LABEL = { pre: "Vorbörslich", after: "Börse zu", weekend: "Geschlossen" };
 const isMarketOpen = sym => {
   const isSwiss = /\.SW$/i.test(String(sym || ""));
@@ -2532,7 +2495,7 @@ class Component extends DCLogic {
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
-    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, notifOpenKey: null, clockTick: 0, pushLog: [],
+    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, notifOpenKey: null, pushLog: [],
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     marketsFilter: "stocks",
@@ -2885,7 +2848,7 @@ class Component extends DCLogic {
     this.setState({ dashLoading: false });
   }
 
-  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); clearInterval(this._clockTimer); this.stopAutoSync(); }
+  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
 
   // ---------- Carousel „Was heute bewegt" ↔ „Marktnews" ----------
   // Das Wischen macht CSS scroll-snap; hier wird nur die aktive Seite für die
@@ -2931,8 +2894,6 @@ class Component extends DCLogic {
 
   startCarousel = () => {
     clearInterval(this._carouselTimer);
-    clearInterval(this._clockTimer);
-    this._clockTimer = setInterval(() => this.setState({ clockTick: Date.now() }), 30000);
     this._carouselTimer = setInterval(() => {
       if (this.state.screen !== "dash" || this.state.carouselTouched) return;
       const el = this.carouselEl();
@@ -4915,18 +4876,6 @@ class Component extends DCLogic {
       ]
         .sort((a, b) => b.date < a.date ? -1 : 1)
         .slice(0, 20),
-      ...(() => {
-        void this.state.clockTick;
-        const syms = holdings.map(h => h.sym || h.abbr).filter(x => x && !isinLike(x));
-        const list = [];
-        [[true, "SIX"], [false, "NYSE / Nasdaq"]].forEach(([swiss, name]) => {
-          if (!syms.some(x => /\.SW$/i.test(x) === swiss)) return;
-          if (marketStatus(swiss ? "X.SW" : "X") === "open") return;
-          const m = minutesToOpen(swiss);
-          if (m != null) list.push({ name, left: countdownLabel(m) });
-        });
-        return { marketCountdowns: list, hasMarketCountdown: list.length > 0 };
-      })(),
       hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) || (this.state.pushLog || []).length > 0,
       noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) && !(this.state.pushLog || []).length,
 
