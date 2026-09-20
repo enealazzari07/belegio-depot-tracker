@@ -2818,7 +2818,7 @@ class Component extends DCLogic {
     return this._db;
   }
   async ocr() {
-    if (!this._ocr) this._ocr = await import("./ocr.js");
+    if (!this._ocr) this._ocr = await import("./ocr.js?v=20260920");
     return this._ocr;
   }
   async api() {

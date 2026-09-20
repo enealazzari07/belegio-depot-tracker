@@ -110,6 +110,37 @@ function findFees(lines) {
   return found ? Math.round(sum * 100) / 100 : null;
 }
 
+
+// ISIN-Pruefsumme (Luhn ueber die in Ziffern gewandelten Buchstaben).
+function isinValid(s) {
+  const digits = [...s].map(c => (/[A-Z]/.test(c) ? String(c.charCodeAt(0) - 55) : c)).join("");
+  let sum = 0, dbl = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = +digits[i];
+    if (dbl) { d *= 2; if (d > 9) d -= 9; }
+    sum += d; dbl = !dbl;
+  }
+  return sum % 10 === 0;
+}
+
+// OCR verwechselt 0 und O (z. B. "IEOOOSHROUX9" statt "IE000SHR0UX9"). Kandidaten
+// mit O an ISIN-Stellen durchprobieren und per Pruefsumme den echten finden.
+function findIsin(text) {
+  const cands = text.match(/\b[A-Z]{2}[A-Z0-9]{9}[0-9O]\b/g) || [];
+  for (const raw of cands) {
+    const pos = [];
+    for (let i = 2; i < raw.length; i++) if (raw[i] === "O") pos.push(i);
+    if (pos.length > 9) continue;
+    for (let mask = (1 << pos.length) - 1; mask >= 0; mask--) {
+      const chars = [...raw];
+      pos.forEach((p, k) => { if (mask & (1 << k)) chars[p] = "0"; });
+      const cand = chars.join("");
+      if (isinValid(cand)) return { isin: cand, raw };
+    }
+  }
+  return { isin: "", raw: "" };
+}
+
 const MONTHS_DE = { januar: "01", februar: "02", märz: "03", maerz: "03", april: "04", mai: "05", juni: "06", juli: "07", august: "08", september: "09", oktober: "10", november: "11", dezember: "12" };
 
 function findDate(text) {
@@ -148,12 +179,11 @@ function parseFields(rawText) {
   }
   const date = findDate(text);
 
-  const isinMatch = text.match(/\b([A-Z]{2}[A-Z0-9]{9}\d)\b/);
-  const isin = isinMatch ? isinMatch[1] : "";
+  const { isin, raw: isinRaw } = findIsin(text);
   let name = "";
   if (isin) {
-    const nl = lines.find(l => l.includes(isin));
-    const before = nl ? nl.slice(0, nl.indexOf(isin)).replace(/ISIN[:\s]*$/i, "").trim() : "";
+    const nl = lines.find(l => l.includes(isinRaw));
+    const before = nl ? nl.slice(0, nl.indexOf(isinRaw)).replace(/ISIN[:\s]*$/i, "").trim() : "";
     if (before.length > 2) name = before;
   }
 
@@ -174,7 +204,7 @@ function parseFields(rawText) {
     if (vals.length >= 3) { shares = vals[0]; price = vals[1]; gross = vals[2]; }
   }
   if (gross == null) gross = valueForLabel(lines, /(?:Kurswert|Bruttobetrag|Gross\s*Amount|Brutto|Market\s*Value)[:\s]*/i, { last: true });
-  let total = valueForLabel(lines, /(?:Total\s*)?Zu\s*(?:Ihren\s*|Ihrem\s*)?(?:Lasten|Gunsten|belasten)[:\s]*/i, { last: true })
+  let total = valueForLabel(lines, /(?:Total\s*)?Zu\s*(?:[Il]hren\s*|[Il]hrem\s*)?(?:Lasten|Gunsten|belasten)[:\s]*/i, { last: true })
     ?? valueForLabel(lines, /(?:Total\s*zu\s*(?:Lasten|Gunsten)|Zu\s*(?:belasten|Lasten|Gunsten)|Belastung|Gutschrift|Gesamtbetrag|Endbetrag|Nettobetrag|Net\s*Amount|Settlement\s*Amount|Total\s*Amount|Kaufbetrag|Verkaufsbetrag|Kaufpreis|Total(?:betrag)?|Betrag|Amount)[:\s]*/i, { last: true, skipRe: FEE_TOTAL });
   const fees = findFees(lines);
 
