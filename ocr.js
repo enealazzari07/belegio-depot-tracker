@@ -101,9 +101,12 @@ function amountsIn(line) {
   const clean = line.replace(CUR_RE, " ");
   const out = [];
   for (const m of clean.matchAll(NUM_RE)) {
-    const after = clean.slice(m.index + m[0].length, m.index + m[0].length + 2);
-    const before = clean.slice(Math.max(0, m.index - 1), m.index);
-    if (/^\s*%/.test(after) || /[.\/]/.test(before) && /^[.\/]\d/.test(after)) continue;
+    const end = m.index + m[0].length;
+    const after = clean.slice(end, end + 6);
+    const prev = clean[m.index - 1], prev2 = clean[m.index - 2];
+    if (/^\s*%/.test(after)) continue;
+    if (/^[.\/]\d{2,4}(?!\d)/.test(after)) continue; // Tag/Monat eines Datums
+    if ((prev === "." || prev === "/") && /\d/.test(prev2 || "")) continue; // Jahr eines Datums
     const n = parseNumber(m[1]);
     if (n != null) out.push(n);
   }
@@ -275,10 +278,10 @@ function findTradeRow(lines) {
   const near = [];
   lines.forEach((l, i) => { if (/Anzahl|Menge|St(?:ü|ue)ck|Preis|Kurs|Quantity|Price/i.test(l)) near.push(i); });
   const starts = new Set();
-  near.forEach(i => { for (let d = -1; d <= 4; d++) if (i + d >= 0 && i + d < lines.length) starts.add(i + d); });
+  near.forEach(i => { for (let d = -1; d <= 2; d++) if (i + d >= 0 && i + d < lines.length) starts.add(i + d); });
   let best = null;
   for (const i of starts) {
-    const nums = amountsIn(lines.slice(i, i + 3).join(" ")).filter(n => n > 0 && n < 1e9);
+    const nums = amountsIn(lines.slice(i, i + 9).join(" ")).filter(n => n > 0 && n < 1e9).slice(0, 14);
     for (let x = 0; x < nums.length; x++) for (let y = x + 1; y < nums.length; y++) for (let z = y + 1; z < nums.length; z++) {
       const a = nums[x], b = nums[y], c = nums[z];
       const err = Math.abs(a * b - c) / c;
