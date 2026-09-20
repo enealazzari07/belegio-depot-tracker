@@ -129,6 +129,7 @@ function valueForLabel(lines, labelRe, { last = false, skipRe = null } = {}) {
 
 const FEE_LABEL = /(Kommission|Courtage|Brokerage|Geb(?:ü|ue)hr(?:en)?|B(?:ö|oe)rsengeb(?:ü|ue)hr(?:en)?|Fremdspesen|Spesen|Stempel(?:abgabe|steuer)?|Umsatzabgabe|Abgabe|Transaktionssteuer|Handelsplatzgeb(?:ü|ue)hr|Fees?|Commission|Charges)/i;
 const FEE_TOTAL = /(?:Total|Gesamt|Summe)\s*(?:der\s*)?(?:Geb(?:ü|ue)hr|Spesen|Kosten|Fees|Abgaben)/i;
+const NOT_A_TOTAL = /(?:Total|Gesamt|Summe)\s*(?:der\s*)?(?:Geb(?:ü|ue)hr|Spesen|Kosten|Fees|Abgaben)|Konto|IBAN|Kunde|Referenz|Valuta|belastet\s*auf|Telefon|Tel\.|Customer|Fax|MwSt|CHE-/i;
 const FEE_SKIP = /(Verrechnungssteuer|Quellensteuer|Kurswert|Gesamtbetrag|Nettobetrag|Endbetrag|Kurs\b)/i;
 
 function findFees(lines) {
@@ -161,7 +162,7 @@ function isinValid(s) {
 }
 
 // Typische OCR-Verwechslungen je Zeichen (in beide Richtungen).
-const CONFUSE = { O: "0", "0": "O", I: "1", "1": "I", L: "1", l: "1", S: "5", "5": "S", B: "8", "8": "B", Z: "2", "2": "Z", G: "6", "6": "G", Q: "0" };
+const CONFUSE = { O: "0", "0": "O", I: "1", "1": "I", L: "1", l: "1", C: "0", D: "0", S: "5", "5": "S", B: "8", "8": "B", Z: "2", "2": "Z", G: "6", "6": "G", Q: "0" };
 
 // Im Landescode stehen nur Buchstaben: Ziffern/kleines l dort zurueckwandeln.
 const LETTER_FIX = { l: "I", "1": "I", "0": "O", "5": "S", "8": "B", "6": "G", "2": "Z" };
@@ -340,8 +341,10 @@ function parseFields(rawText) {
   }
   if (gross == null) gross = valueForLabel(lines, /(?:Kurswert|Bruttobetrag|Gross\s*Amount|Brutto|Market\s*Value)[:\s]*/i, { last: true });
   let total = valueForLabel(lines, /(?:Total\s*)?Zu\s*(?:[Il]hren\s*|[Il]hrem\s*)?(?:Lasten|Gunsten|belasten)[:\s]*/i, { last: true })
-    ?? valueForLabel(lines, /(?:Total\s*zu\s*(?:Lasten|Gunsten)|Zu\s*(?:belasten|Lasten|Gunsten)|Belastung|Gutschrift|Gesamtbetrag|Endbetrag|Nettobetrag|Net\s*Amount|Settlement\s*Amount|Total\s*Amount|Kaufbetrag|Verkaufsbetrag|Kaufpreis|Total(?:betrag)?|Betrag|Amount)[:\s]*/i, { last: true, skipRe: FEE_TOTAL });
+    ?? valueForLabel(lines, /(?:Total\s*zu\s*(?:Lasten|Gunsten)|Zu\s*(?:belasten|Lasten|Gunsten)|Belastung|Gutschrift|Gesamtbetrag|Endbetrag|Nettobetrag|Net\s*Amount|Settlement\s*Amount|Total\s*Amount|Kaufbetrag|Verkaufsbetrag|Kaufpreis|Total(?:betrag)?|Betrag|Amount)[:\s]*/i, { last: true, skipRe: NOT_A_TOTAL });
   let fees = findFees(lines);
+  if (total != null && total > 1e7) total = null;
+  if (gross != null && gross > 1e7) gross = null;
 
   // Fallback: "8 × 118.40" (Stueckzahl × Kurs) ohne Schluesselwort.
   if (shares == null || price == null) {

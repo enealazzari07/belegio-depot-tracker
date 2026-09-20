@@ -1642,6 +1642,12 @@ input::placeholder{color:var(--tx3)}
         </sc-if>
 
         <p style="margin:0 0 20px;color:var(--tx3);font-size:12px;line-height:1.55">Original im Beleg-Archiv gespeichert. Felder antippen zum Korrigieren.</p>
+        <sc-if value="{{ hasOcrText }}" hint-placeholder-val="{{ false }}">
+          <details style="margin:0 0 20px">
+            <summary style="cursor:pointer;color:var(--tx2);font-size:12px;font-weight:600">Erkannten Text anzeigen</summary>
+            <pre style="margin:10px 0 0;padding:12px;border-radius:12px;background:var(--surf2);color:var(--tx2);font-size:10.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word;user-select:text;-webkit-user-select:text;max-height:260px;overflow:auto">{{ ocrText }}</pre>
+          </details>
+        </sc-if>
 
         <div style="display:flex;gap:10px">
           <button onClick="{{ goUpload }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:110px;height:52px;border-radius:14px;background:var(--surf);border:1px solid var(--line);color:var(--tx2);font-size:14.5px;font-weight:500;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">Verwerfen</button>
@@ -2494,7 +2500,7 @@ class Component extends DCLogic {
     user: null,
     authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
 
-    extracted: null, pendingFile: null, ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false,
+    extracted: null, pendingFile: null, ocrText: "", ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false,
 
     etfHoldings: {}, etfLoading: false, etfError: "",
 
@@ -2818,7 +2824,7 @@ class Component extends DCLogic {
     return this._db;
   }
   async ocr() {
-    if (!this._ocr) this._ocr = await import("./ocr.js?v=20260920d");
+    if (!this._ocr) this._ocr = await import("./ocr.js?v=20260920e");
     return this._ocr;
   }
   async api() {
@@ -3503,14 +3509,14 @@ class Component extends DCLogic {
     this.setState({ parsing: true, ocrError: false });
     try {
       const ocr = await this.ocr();
-      const { fields } = await ocr.scanReceipt(file);
+      const { fields, text: ocrText } = await ocr.scanReceipt(file);
       let isinUnresolved = false;
       if (!fields.symbol && fields.isin) {
         const r = await this.resolveIsinToTicker(fields.isin);
         if (r.symbol) { fields.symbol = r.symbol; fields.name = r.name; fields.isin = r.isin; }
         isinUnresolved = r.unresolved;
       }
-      this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file, isinUnresolved });
+      this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file, isinUnresolved, ocrText: ocrText || "" });
     } catch (err) {
       console.error(err);
       this.setState({ parsing: false, screen: "review", extracted: emptyFields(), pendingFile: file, ocrError: true });
@@ -3749,7 +3755,7 @@ class Component extends DCLogic {
   };
 
   manualEntry = () => {
-    this.setState({ screen: "review", extracted: emptyFields(), pendingFile: null, ocrError: false });
+    this.setState({ screen: "review", extracted: emptyFields(), pendingFile: null, ocrError: false, ocrText: "" });
   };
 
   setField = k => e => this.setState(s => ({ extracted: { ...s.extracted, [k]: e.target.value } }));
@@ -5206,6 +5212,7 @@ class Component extends DCLogic {
       })),
       noReceipts: !this.state.receipts || !this.state.receipts.length,
 
+      ocrText: this.state.ocrText || "", hasOcrText: !!this.state.ocrText,
       reviewHint: this.state.ocrError ? "Automatische Erkennung fehlgeschlagen — bitte prüfen" : "Felder automatisch erkannt · bitte prüfen",
       reviewLogo: logoFor(f.symbol || f.isin || "?"),
       reviewIsin: f.name && !isinLike(f.name) ? f.name : (this.state.isinUnresolved ? "ISIN nicht gefunden" : ""),
