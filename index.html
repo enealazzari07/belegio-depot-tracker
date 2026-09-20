@@ -2188,7 +2188,7 @@ const urlBase64ToUint8Array = base64 => {
   const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 };
-const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", total: "", currency: "CHF", side: "buy" });
+const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", fees: "", total: "", currency: "CHF", side: "buy" });
 
 // Waehrungen, die im Erfassungsformular und in der Waehrungs-Aufteilung
 // angeboten werden. Yahoo liefert den Kurs unter "<CUR>CHF=X" — dieselbe
@@ -3774,6 +3774,7 @@ class Component extends DCLogic {
         // shares bleibt positiv (Check-Constraint), die Richtung steht in side.
         shares, purchase_price: price, currency: f.currency || "CHF",
         total_amount: parseFloat(f.total) || shares * price,
+        fees: parseFloat(f.fees) || 0,
         side: isSell ? "sell" : "buy",
         source: this.state.pendingFile ? "ocr" : "manual"
       });
@@ -5220,7 +5221,9 @@ class Component extends DCLogic {
         { k: "Handelsdatum", v: f.date, onChange: this.setField("date") },
         { k: "Ticker-Symbol", v: f.symbol, onChange: this.setField("symbol") },
         { k: isGramMetal ? "Menge (Gramm)" : "Stückzahl", v: f.shares, onChange: this.setField("shares") },
-        { k: isGramMetal ? "Kurs pro Gramm" : "Kurs pro Stück", v: f.price, onChange: this.setField("price") }
+        { k: isGramMetal ? "Kurs pro Gramm" : "Kurs pro Stück", v: f.price, onChange: this.setField("price") },
+        { k: "Gebühren", v: f.fees, onChange: this.setField("fees") },
+        { k: f.side === "sell" ? "Erlös (Total)" : "Gesamtbetrag", v: f.total, onChange: this.setField("total") }
       ],
 
       perks: [
