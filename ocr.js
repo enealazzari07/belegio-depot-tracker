@@ -114,7 +114,11 @@ const MONTHS_DE = { januar: "01", februar: "02", märz: "03", maerz: "03", april
 
 function findDate(text) {
   // Gelabeltes Datum hat Vorrang vor irgendeiner anderen Zahl im Text (Referenznummern etc.)
-  const labeled = text.match(/(?:Handelsdatum|Datum|Valuta|Trade\s*Date|Ausf(?:ü|ue)hrungsdatum)[:\s]{1,6}(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/i);
+  // Handelsdatum vor Valuta: "Kaufauftrag vom 21.08.2026" ist der Trade, das
+  // Valutadatum (Belastung) liegt meist Tage danach.
+  const labeled = text.match(/(?:auftrag\s*vom|order\s*vom|Handelsdatum|Trade\s*Date|Ausf(?:ü|ue)hrungsdatum|Abschlussdatum)[:\s]{1,6}(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/i)
+    || text.match(/(?<!Valuta)(?:\bDatum)[:\s]{1,6}(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/i)
+    || text.match(/Valuta(?:datum)?[:\s]{1,6}(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/i);
   const dm = labeled || text.match(/\b(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})\b/);
   if (dm) {
     let [, d, m, y] = dm;
@@ -139,6 +143,12 @@ function parseFields(rawText) {
 
   const isinMatch = text.match(/\b([A-Z]{2}[A-Z0-9]{9}\d)\b/);
   const isin = isinMatch ? isinMatch[1] : "";
+  let name = "";
+  if (isin) {
+    const nl = lines.find(l => l.includes(isin));
+    const before = nl ? nl.slice(0, nl.indexOf(isin)).replace(/ISIN[:\s]*$/i, "").trim() : "";
+    if (before.length > 2) name = before;
+  }
 
   const symbolMatch = text.match(/\b(?:Symbol|Ticker|Valor)[:\s]{1,4}([A-Z][A-Z0-9.]{1,9})\b/i);
   const symbol = symbolMatch ? symbolMatch[1].toUpperCase() : "";
@@ -146,8 +156,19 @@ function parseFields(rawText) {
   const U = "(?:ü|ue|u)";
   let shares = valueForLabel(lines, new RegExp(`(?:St${U}ck(?:zahl)?|Stk\\.?|Anzahl|Quantity|Qty\\.?|Units?|Shares|Menge|Nominal)[:\\s]*`, "i"));
   let price = valueForLabel(lines, new RegExp(`(?:Ausf(?:ü|ue)hrungskurs|Ausf(?:ü|ue)hrungspreis|Trade\\s*Price|Execution\\s*Price|Unit\\s*Price|Einzelkurs|Kurs(?:\\s*pro\\s*St${U}ck)?|Preis|Price|Rate)[:\\s]*`, "i"), { skipRe: /Kurswert/i });
-  let gross = valueForLabel(lines, /(?:Kurswert|Bruttobetrag|Gross\s*Amount|Brutto|Market\s*Value)[:\s]*/i, { last: true });
-  let total = valueForLabel(lines, /(?:Total\s*zu\s*(?:Lasten|Gunsten)|Zu\s*(?:belasten|Lasten|Gunsten)|Belastung|Gutschrift|Gesamtbetrag|Endbetrag|Nettobetrag|Net\s*Amount|Settlement\s*Amount|Total\s*Amount|Kaufbetrag|Verkaufsbetrag|Kaufpreis|Total(?:betrag)?|Betrag|Amount)[:\s]*/i, { last: true, skipRe: FEE_TOTAL });
+  let gross = null;
+  // Tabellenbelege (z. B. Yuh): Kopfzeile "Anzahl | Preis | Betrag", darunter
+  // die Werte in derselben Reihenfolge — Label-Suche wuerde beim "Preis" die
+  // Stueckzahl der Nachbarspalte erwischen.
+  const tHead = lines.findIndex(l => /Anzahl|Menge|St(?:ü|ue)ck/i.test(l) && /Preis|Kurs/i.test(l) && /Betrag|Wert/i.test(l));
+  if (tHead >= 0) {
+    const vals = [];
+    for (let i = tHead + 1; i < Math.min(lines.length, tHead + 5) && vals.length < 3; i++) vals.push(...amountsIn(lines[i]));
+    if (vals.length >= 3) { shares = vals[0]; price = vals[1]; gross = vals[2]; }
+  }
+  if (gross == null) gross = valueForLabel(lines, /(?:Kurswert|Bruttobetrag|Gross\s*Amount|Brutto|Market\s*Value)[:\s]*/i, { last: true });
+  let total = valueForLabel(lines, /(?:Total\s*)?Zu\s*(?:Ihren\s*|Ihrem\s*)?(?:Lasten|Gunsten|belasten)[:\s]*/i, { last: true })
+    ?? valueForLabel(lines, /(?:Total\s*zu\s*(?:Lasten|Gunsten)|Zu\s*(?:belasten|Lasten|Gunsten)|Belastung|Gutschrift|Gesamtbetrag|Endbetrag|Nettobetrag|Net\s*Amount|Settlement\s*Amount|Total\s*Amount|Kaufbetrag|Verkaufsbetrag|Kaufpreis|Total(?:betrag)?|Betrag|Amount)[:\s]*/i, { last: true, skipRe: FEE_TOTAL });
   const fees = findFees(lines);
 
   // Fallback: "8 × 118.40" (Stueckzahl × Kurs) ohne Schluesselwort.
@@ -178,7 +199,7 @@ function parseFields(rawText) {
   const str = (n, d = 4) => n != null && Number.isFinite(n) ? String(+n.toFixed(d)) : "";
 
   return {
-    date, symbol, isin,
+    date, symbol, isin, name,
     shares: str(shares), price: str(price),
     fees: fees != null ? str(fees, 2) : "",
     total: str(total, 2),

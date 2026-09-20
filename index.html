@@ -215,15 +215,15 @@ input::placeholder{color:var(--tx3)}
 @keyframes pop{from{opacity:0;transform:scale(.94) translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes tabPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-@keyframes tabSlideL{from{transform:translateX(calc(50cqw - 134px))}to{transform:none}}
-@keyframes tabSlideR{from{transform:translateX(calc(134px - 50cqw))}to{transform:none}}
+@keyframes tabSlideL{from{transform:translate3d(calc(50cqw - 134px),0,0)}to{transform:translate3d(0,0,0)}}
+@keyframes tabSlideR{from{transform:translate3d(calc(134px - 50cqw),0,0)}to{transform:translate3d(0,0,0)}}
 @keyframes tabScanGrow{from{clip-path:inset(0 calc(50% - 24px) 0 calc(50% - 24px) round 24px)}to{clip-path:inset(-30px -30px -30px -30px round 24px)}}
 @keyframes tabLabel{from{max-width:0;margin-left:-9px;opacity:0;filter:blur(3px)}to{max-width:90px;margin-left:0;opacity:1;filter:blur(0)}}
 .tab-bar{container-type:inline-size;animation:tabPop .3s cubic-bezier(.2,.9,.3,1.15) both}
-.tab-l{animation:tabSlideL .55s cubic-bezier(.22,1,.36,1) 1s both!important}
-.tab-r{animation:tabSlideR .55s cubic-bezier(.22,1,.36,1) 1s both!important}
-.tab-scan{min-width:0!important;overflow:hidden!important;animation:tabScanGrow .55s cubic-bezier(.22,1,.36,1) 1s both!important}
-.tab-scan span{display:block;overflow:hidden;animation:tabLabel .32s cubic-bezier(.22,1,.36,1) 1.2s both}
+.tab-l{will-change:transform;animation:tabSlideL .8s cubic-bezier(.32,.72,0,1) .9s both!important}
+.tab-r{will-change:transform;animation:tabSlideR .8s cubic-bezier(.32,.72,0,1) .9s both!important}
+.tab-scan{min-width:0!important;overflow:hidden!important;will-change:clip-path;animation:tabScanGrow .8s cubic-bezier(.32,.72,0,1) .9s both!important}
+.tab-scan span{display:block;overflow:hidden;animation:tabLabel .45s cubic-bezier(.32,.72,0,1) 1.15s both}
 @media (prefers-reduced-motion: reduce){.tab-bar,.tab-l,.tab-r,.tab-scan,.tab-scan span{animation:none!important}}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes scrimIn{from{opacity:0}to{opacity:1}}
@@ -1180,7 +1180,7 @@ input::placeholder{color:var(--tx3)}
       <sc-if value="{{ aiSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeAiSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
         <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-          <div onPointerDown="{{ aiSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+          <div onPointerDown="{{ aiSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
@@ -1219,7 +1219,7 @@ input::placeholder{color:var(--tx3)}
       <sc-if value="{{ compoundSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeCompoundSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
         <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-          <div onPointerDown="{{ compoundSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+          <div onPointerDown="{{ compoundSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -1290,7 +1290,7 @@ input::placeholder{color:var(--tx3)}
       <sc-if value="{{ insiderSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
         <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-          <div onPointerDown="{{ insiderSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+          <div onPointerDown="{{ insiderSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
@@ -1322,7 +1322,7 @@ input::placeholder{color:var(--tx3)}
       <sc-if value="{{ posMenuOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closePosMenu }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
         <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-          <div onPointerDown="{{ posMenuDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+          <div onPointerDown="{{ posMenuDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">{{ posMenuTitle }}</span>
             <button onClick="{{ closePosMenu }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
@@ -1367,7 +1367,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ divSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeDivSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
       <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-        <div onPointerDown="{{ divSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+        <div onPointerDown="{{ divSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Dividende erfassen</span>
           <button onClick="{{ closeDivSheet }}" aria-label="Schliessen" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
@@ -1429,7 +1429,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ alertSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
       <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-        <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+        <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Kursalarm</span>
           <button onClick="{{ closeAlertSheet }}" aria-label="Schliessen" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
@@ -1478,7 +1478,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ investPlanSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
       <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-        <div onPointerDown="{{ investPlanSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+        <div onPointerDown="{{ investPlanSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
@@ -2044,7 +2044,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
       <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-        <div onPointerDown="{{ notifSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 16px;cursor:grab;touch-action:none"></div>
+        <div onPointerDown="{{ notifSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
           <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -2826,6 +2826,7 @@ class Component extends DCLogic {
   }
 
   async componentDidMount() {
+    window.addEventListener("keydown", this.onEscKey);
     this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
     this.loadIntraday();
     this.startCarousel();
@@ -2859,7 +2860,7 @@ class Component extends DCLogic {
     this.setState({ dashLoading: false });
   }
 
-  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
+  componentWillUnmount() { window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
 
   // ---------- Carousel „Was heute bewegt" ↔ „Marktnews" ----------
   // Das Wischen macht CSS scroll-snap; hier wird nur die aktive Seite für die
@@ -3296,6 +3297,22 @@ class Component extends DCLogic {
     const y = this.state.sheetDragY || 0;
     if (y > 120 || velocity > 700) this.springSheetTo(window.innerHeight || 900, velocity, d.closeFn);
     else this.springSheetTo(0, velocity);
+  };
+  // Scrim-Tipp/X-Button: Sheet federt nach unten weg statt hart zu verschwinden.
+  animClose = fn => () => {
+    if (this._sheetDrag) return;
+    this.springSheetTo(window.innerHeight || 900, 0, fn);
+  };
+  onEscKey = e => {
+    if (e.key !== "Escape") return;
+    const s = this.state;
+    const open = [
+      [s.aiSheetOpen, this.closeAiSheet], [s.compoundSheetOpen, this.closeCompoundSheet],
+      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet],
+      [s.divSheetOpen, this.closeDivSheet], [s.insiderSheetSymbol, this.closeInsiderSheet],
+      [s.posMenuSymbol, this.closePosMenu], [s.notifSheetOpen, this.closeNotifSheet]
+    ].find(x => x[0]);
+    if (open) this.animClose(open[1])();
   };
   springSheetTo = (target, velocity, onDone) => {
     cancelAnimationFrame(this._sheetRaf);
@@ -4823,7 +4840,7 @@ class Component extends DCLogic {
 
       // ---------- Insider-Trades (SEC Form 4) ----------
       insiderSheetOpen: !!this.state.insiderSheetSymbol,
-      closeInsiderSheet: this.closeInsiderSheet, insiderSheetDragDown: this.sheetDragDown(this.closeInsiderSheet),
+      closeInsiderSheet: this.animClose(this.closeInsiderSheet), insiderSheetDragDown: this.sheetDragDown(this.closeInsiderSheet),
       insiderSheetSymbolLabel: (() => {
         const h = holdings.find(x => (x.sym || x.abbr) === this.state.insiderSheetSymbol);
         return h ? displayName(h) : (this.state.insiderSheetSymbol || "");
@@ -4850,7 +4867,7 @@ class Component extends DCLogic {
       // ---------- Benachrichtigungen (Glocke im Home-Header) ----------
       notifSheetOpen: this.state.notifSheetOpen,
       openNotifSheet: this.openNotifSheet,
-      closeNotifSheet: this.closeNotifSheet, notifSheetDragDown: this.sheetDragDown(this.closeNotifSheet),
+      closeNotifSheet: this.animClose(this.closeNotifSheet), notifSheetDragDown: this.sheetDragDown(this.closeNotifSheet),
       notifBadge: insiderAlertHint,
       notifItems: [
         ...holdings.flatMap(h => {
@@ -4893,7 +4910,7 @@ class Component extends DCLogic {
 
       // ---------- Kategorie & Ausblenden je Position ----------
       posMenuOpen: !!this.state.posMenuSymbol,
-      closePosMenu: this.closePosMenu, posMenuDragDown: this.sheetDragDown(this.closePosMenu),
+      closePosMenu: this.animClose(this.closePosMenu), posMenuDragDown: this.sheetDragDown(this.closePosMenu),
       posMenuTitle: (() => {
         const h = holdings.find(x => (x.sym || x.abbr) === this.state.posMenuSymbol);
         return h ? displayName(h) : (this.state.posMenuSymbol || "");
@@ -4917,7 +4934,7 @@ class Component extends DCLogic {
       // ---------- Zinseszins-Rechner ----------
       compoundSheetOpen: this.state.compoundSheetOpen,
       openCompoundSheet: this.openCompoundSheet,
-      closeCompoundSheet: this.closeCompoundSheet, compoundSheetDragDown: this.sheetDragDown(this.closeCompoundSheet),
+      closeCompoundSheet: this.animClose(this.closeCompoundSheet), compoundSheetDragDown: this.sheetDragDown(this.closeCompoundSheet),
       compoundTeaser: val > 0
         ? "Bei 8 % pro Jahr: in 25 Jahren rund CHF " + Math.round(compoundTeaserCalc.finalValue).toLocaleString("de-CH")
         : "Sieh, wie dein Depot mit Zinseszins wachsen könnte",
@@ -4948,7 +4965,7 @@ class Component extends DCLogic {
       noHoldings: !holdings.length,
       aiSheetOpen: this.state.aiSheetOpen,
       openAiSheet: this.openAiSheet,
-      closeAiSheet: this.closeAiSheet, aiSheetDragDown: this.sheetDragDown(this.closeAiSheet),
+      closeAiSheet: this.animClose(this.closeAiSheet), aiSheetDragDown: this.sheetDragDown(this.closeAiSheet),
       refreshInsights: this.sync,
       refreshLabel: this.state.syncing ? "Wird aktualisiert…" : "Analyse neu erstellen",
       insights: insightsList,
@@ -5052,7 +5069,7 @@ class Component extends DCLogic {
 
       // ---------- Sheet: Dividende erfassen ----------
       divSheetOpen: this.state.divSheetOpen,
-      closeDivSheet: this.closeDivSheet, divSheetDragDown: this.sheetDragDown(this.closeDivSheet),
+      closeDivSheet: this.animClose(this.closeDivSheet), divSheetDragDown: this.sheetDragDown(this.closeDivSheet),
       openDivSheet: this.openDivSheet("", ""),
       divDate: divForm.date || "", onDivDate: this.setDivField("date"),
       divSymbol: divForm.symbol || "", onDivSymbol: this.setDivField("symbol"),
@@ -5086,7 +5103,7 @@ class Component extends DCLogic {
 
       // ---------- Sheet: Kursalarm ----------
       alertSheetOpen: this.state.alertSheetOpen,
-      closeAlertSheet: this.closeAlertSheet, alertSheetDragDown: this.sheetDragDown(this.closeAlertSheet),
+      closeAlertSheet: this.animClose(this.closeAlertSheet), alertSheetDragDown: this.sheetDragDown(this.closeAlertSheet),
       alertSymbol: alertForm.symbol || "", onAlertSymbol: this.setAlertField("symbol"),
       alertTarget: alertForm.target || "", onAlertTarget: this.setAlertField("target"),
       alertDirAboveBg: (alertForm.direction || "above") === "above" ? "var(--acc)" : "var(--surf2)",
@@ -5143,7 +5160,7 @@ class Component extends DCLogic {
       // ---------- Investment-Plan ----------
       investPlanSheetOpen: this.state.investPlanSheetOpen,
       openInvestPlanSheet: this.openInvestPlanSheet,
-      closeInvestPlanSheet: this.closeInvestPlanSheet, investPlanSheetDragDown: this.sheetDragDown(this.closeInvestPlanSheet),
+      closeInvestPlanSheet: this.animClose(this.closeInvestPlanSheet), investPlanSheetDragDown: this.sheetDragDown(this.closeInvestPlanSheet),
       investPlanAmountInput: this.state.investPlanAmountInput,
       onInvestPlanAmount: this.onInvestPlanAmount,
       investPlanIntervalOptions: ["week", "month", "quarter"].map(key => ({
