@@ -4760,7 +4760,7 @@ class Component extends DCLogic {
       splash: this.state.splash, skipSplash: this.skipSplash,
       isLogin: screen === "login", isDash: screen === "dash",
       isUpload: screen === "upload", isReview: screen === "review", isPro: screen === "pro",
-      showTabs: screen !== "login" && screen !== "pro",
+      showTabs: screen !== "login" && screen !== "pro" && !this.state.splash,
       parsing: this.state.parsing, notParsing: !this.state.parsing,
       toast: this.state.toast, toastMsg: this.state.toastMsg,
       ocrError: this.state.ocrError, confirmError: this.state.confirmError,
