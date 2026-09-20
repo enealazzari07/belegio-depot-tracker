@@ -441,7 +441,9 @@ input::placeholder{color:var(--tx3)}
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none">
                 <div style="display:flex;align-items:center;gap:4px">
                   <sc-if value="{{ h.marketClosed }}" hint-placeholder-val="{{ false }}">
-                    <svg title="Markt geschlossen" width="9" height="9" viewBox="0 0 24 24" fill="var(--tx3)" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
+                    <span style="display:flex;align-items:center;gap:4px;background:{{ h.marketPillBg }};color:var(--tx2);font-size:10px;font-weight:600;letter-spacing:.01em;padding:3px 8px 3px 6px;border-radius:999px;white-space:nowrap;backdrop-filter:blur(8px)">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>{{ h.marketLabel }}
+                    </span>
                   </sc-if>
                   <span class="mono" style="color:{{ h.color }};font-size:13.5px;font-weight:700">{{ h.change }}</span>
                 </div>
@@ -948,7 +950,9 @@ input::placeholder{color:var(--tx3)}
                     <div style="display:flex;align-items:center;gap:6px;min-width:0">
                       <span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600;background:var(--surf2);padding:2px 6px;border-radius:6px;white-space:nowrap;flex:none">{{ d.share }}</span>
                       <sc-if value="{{ d.marketClosed }}" hint-placeholder-val="{{ false }}">
-                        <svg title="Markt geschlossen" width="8" height="8" viewBox="0 0 24 24" fill="var(--tx3)" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
+                        <span style="display:flex;align-items:center;gap:3px;background:{{ d.marketPillBg }};color:var(--tx2);font-size:9.5px;font-weight:600;padding:2px 7px 2px 5px;border-radius:999px;white-space:nowrap;flex:none">
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>{{ d.marketLabel }}
+                        </span>
                       </sc-if>
                       <sc-if value="{{ d.hasInsider }}" hint-placeholder-val="{{ false }}">
                         <span style="display:flex;align-items:center;gap:2px;background:{{ d.insiderBadgeBg }};color:{{ d.insiderBadgeColor }};font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:6px;white-space:nowrap;flex:none">
@@ -2205,6 +2209,24 @@ const dstr = d => d.toISOString().slice(0, 10);
 // als US-Titel behandelt (NYSE/Nasdaq), da das die grosse Mehrheit der
 // Nicht-Schweizer Symbole in dieser App sind. Beruecksichtigt keine
 // Feiertage — nur Wochentag/Uhrzeit, bewusste Vereinfachung.
+// Status: "open" | "pre" (vor Handelsbeginn) | "after" (nach Handelsschluss) | "weekend".
+const marketStatus = sym => {
+  const isSwiss = /\.SW$/i.test(String(sym || ""));
+  const tz = isSwiss ? "Europe/Zurich" : "America/New_York";
+  const openMins = isSwiss ? 9 * 60 : 9 * 60 + 30;
+  const closeMins = isSwiss ? 17 * 60 + 30 : 16 * 60;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false, weekday: "short"
+  }).formatToParts(new Date());
+  const get = t => parts.find(p => p.type === t).value;
+  const wd = get("weekday");
+  const mins = (parseInt(get("hour"), 10) % 24) * 60 + parseInt(get("minute"), 10);
+  if (wd === "Sat" || wd === "Sun") return "weekend";
+  if (mins < openMins) return "pre";
+  if (mins >= closeMins) return "after";
+  return "open";
+};
+const MARKET_STATUS_LABEL = { pre: "Vorbörslich", after: "Börse zu", weekend: "Wochenende" };
 const isMarketOpen = sym => {
   const isSwiss = /\.SW$/i.test(String(sym || ""));
   const tz = isSwiss ? "Europe/Zurich" : "America/New_York";
@@ -4412,6 +4434,7 @@ class Component extends DCLogic {
         const pos52 = has52 && hi52 > lo52 ? (h.curNative - lo52) / (hi52 - lo52) * 100 : 50;
 
         const spark = buildSparkline(hist[sym]);
+        const dMarket = isinLike(sym) ? "open" : marketStatus(sym);
         const symInsider = this.state.insiderTrades[sym] || [];
         const insiderNew = this.state.insiderAlertsSeenAt
           ? symInsider.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt)) : symInsider.length > 0;
@@ -4432,9 +4455,11 @@ class Component extends DCLogic {
           category,
           openMenu: this.openPosMenu(sym),
           spark, hasSpark: !!spark,
-          dayLabel: typeof h.dp === "number" ? (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %" : "kein Kurs",
+          dayLabel: typeof h.dp !== "number" ? "kein Kurs" : dMarket === "weekend" ? "" : (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %",
           dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
-          marketClosed: !isinLike(sym) && !isMarketOpen(sym),
+          marketClosed: dMarket !== "open",
+          marketLabel: MARKET_STATUS_LABEL[dMarket] || "",
+          marketPillBg: dMarket === "weekend" ? "var(--surf2)" : "var(--acc-soft)",
           hasInsider: symInsider.length > 0,
           insiderCount: symInsider.length > 9 ? "9+" : String(symInsider.length),
           insiderNew,
@@ -5098,14 +5123,18 @@ class Component extends DCLogic {
         const d = typeof h.dp === "number" ? h.dp : 0;
         const changeAbsVal = h.shares * (h.cur - h.cur / (1 + d / 100));
         const spark = buildSparkline(hist[sym]);
+        const mStatus = isinLike(sym) ? "open" : marketStatus(sym);
+        const weekend = mStatus === "weekend";
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           sub: h.shares + " × " + f2(h.buy),
-          change: noLive ? "kein Kurs" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
-          changeAbs: noLive ? "" : (changeAbsVal >= 0 ? "+" : "") + f2(changeAbsVal) + " CHF",
+          change: noLive ? "kein Kurs" : weekend ? "" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
+          changeAbs: noLive || weekend ? "" : (changeAbsVal >= 0 ? "+" : "") + f2(changeAbsVal) + " CHF",
           color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
           spark, hasSpark: !!spark,
-          marketClosed: !noLive && !isMarketOpen(sym),
+          marketClosed: !noLive && mStatus !== "open",
+          marketLabel: MARKET_STATUS_LABEL[mStatus] || "",
+          marketPillBg: mStatus === "weekend" ? "var(--surf2)" : "var(--acc-soft)",
           open: this.openDepotPosition(sym)
         };
       }),
