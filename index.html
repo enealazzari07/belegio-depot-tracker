@@ -2020,7 +2020,7 @@ input::placeholder{color:var(--tx3)}
         <sc-if value="{{ hasNotifItems }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:2px">
             <sc-for list="{{ notifItems }}" as="ni" hint-placeholder-count="3">
-              <button onClick="{{ ni.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)">
+              <button onClick="{{ ni.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line)">
                 <div style="width:32px;height:32px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:{{ ni.color }};flex:none">
                   <sc-if value="{{ ni.isTextLogo }}" hint-placeholder-val="{{ true }}">
                     <span style="font-size:9px;font-weight:700;font-family:'Roboto Mono',monospace">{{ ni.logo }}</span>
@@ -2033,8 +2033,9 @@ input::placeholder{color:var(--tx3)}
                   </sc-if>
                 </div>
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left">
-                  <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.headline }}</span>
-                  <span style="color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ni.detail }}</span>
+                  <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:{{ ni.wrap }}">{{ ni.headline }}</span>
+                  <span style="color:var(--tx3);font-size:11px;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:{{ ni.wrap }}">{{ ni.detail }}</span>
+                  <span class="mono" style="display:{{ ni.timeDisplay }};color:var(--tx3);font-size:10px;margin-top:2px">{{ ni.timeFull }}</span>
                 </div>
                 <span class="mono" style="flex:none;color:var(--tx3);font-size:10.5px">{{ ni.dateLabel }}</span>
               </button>
@@ -2226,7 +2227,7 @@ const marketStatus = sym => {
   if (mins >= closeMins) return "after";
   return "open";
 };
-const MARKET_STATUS_LABEL = { pre: "Vorbörslich", after: "Börse zu", weekend: "Wochenende" };
+const MARKET_STATUS_LABEL = { pre: "Vorbörslich", after: "Börse zu", weekend: "Geschlossen" };
 const isMarketOpen = sym => {
   const isSwiss = /\.SW$/i.test(String(sym || ""));
   const tz = isSwiss ? "Europe/Zurich" : "America/New_York";
@@ -2468,7 +2469,7 @@ class Component extends DCLogic {
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
-    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, pushLog: [],
+    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, notifOpenKey: null, pushLog: [],
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     marketsFilter: "stocks",
@@ -3331,7 +3332,7 @@ class Component extends DCLogic {
   loadPushLog = async () => {
     try {
       const db = await this.db();
-      this.setState({ pushLog: await db.listPushLog(10) });
+      this.setState({ pushLog: await db.listPushLog(30) });
     } catch (e) { /* keine Daten — Liste bleibt einfach leer */ }
   };
 
@@ -4823,12 +4824,13 @@ class Component extends DCLogic {
             date: t.transaction_date,
             dateLabel: new Date(t.transaction_date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
             detail: t.filer_name + (t.filer_title ? " · " + t.filer_title : ""),
+            wrap: "nowrap", timeDisplay: "none", timeFull: "",
             openInsider: this.openInsiderFromNotif(sym)
           }));
         }),
         // Zugestellte Web-Push-Nachrichten (push-daily) — dieselbe Liste, damit
         // auch verpasste/nicht angetippte Pushes hier nachtraeglich sichtbar sind.
-        ...(this.state.pushLog || []).map(p => ({
+        ...(this.state.pushLog || []).map(p => { const open = this.state.notifOpenKey === p.sent_at; return ({
           // Kursalarme (mode "alert") sind das Einzige in dieser Liste, worauf
           // man reagieren wuerde — deshalb eigenes Icon statt der Glocke. Echte
           // SVG-Icons statt Emoji: Emoji-Glyphen ignorieren font-family/-size
@@ -4840,11 +4842,14 @@ class Component extends DCLogic {
           date: p.sent_at,
           dateLabel: new Date(p.sent_at).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }),
           detail: p.body,
-          openInsider: this.closeNotifSheet
-        })),
+          wrap: open ? "normal" : "nowrap",
+          timeDisplay: open ? "block" : "none",
+          timeFull: new Date(p.sent_at).toLocaleString("de-CH", { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }),
+          openInsider: () => this.setState({ notifOpenKey: open ? null : p.sent_at })
+        }); }),
       ]
         .sort((a, b) => b.date < a.date ? -1 : 1)
-        .slice(0, 8),
+        .slice(0, 20),
       hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) || (this.state.pushLog || []).length > 0,
       noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) && !(this.state.pushLog || []).length,
 
