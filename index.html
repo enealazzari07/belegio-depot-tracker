@@ -225,6 +225,7 @@ input::placeholder{color:var(--tx3)}
 .tab-scan{min-width:0!important;overflow:hidden!important;will-change:clip-path;animation:tabScanGrow .8s cubic-bezier(.32,.72,0,1) .9s both!important}
 .tab-scan span{display:block;overflow:hidden;animation:tabLabel .45s cubic-bezier(.32,.72,0,1) 1.15s both}
 @media (prefers-reduced-motion: reduce){.tab-bar,.tab-l,.tab-r,.tab-scan,.tab-scan span{animation:none!important}}
+.sheet-in{animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) backwards}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes scrimIn{from{opacity:0}to{opacity:1}}
 /* Steuer-Report drucken/als PDF speichern: isoliert #tax-report-print statt
@@ -1179,7 +1180,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ aiSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeAiSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ aiSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -1218,7 +1219,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ compoundSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeCompoundSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ compoundSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -1289,7 +1290,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ insiderSheetOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ insiderSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
             <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -1321,7 +1322,7 @@ input::placeholder{color:var(--tx3)}
 
       <sc-if value="{{ posMenuOpen }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closePosMenu }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-        <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ posMenuDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">{{ posMenuTitle }}</span>
@@ -1366,7 +1367,7 @@ input::placeholder{color:var(--tx3)}
          Positionsmenu im Depot sitzt. -->
     <sc-if value="{{ divSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeDivSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ divSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Dividende erfassen</span>
@@ -1428,7 +1429,7 @@ input::placeholder{color:var(--tx3)}
          das Push-Abo: ohne Abo kaeme die Meldung nirgends an. -->
     <sc-if value="{{ alertSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Kursalarm</span>
@@ -1477,7 +1478,7 @@ input::placeholder{color:var(--tx3)}
          Ebene stehen, sonst rendert er nie (war der Bug: "Erstellen geht nicht"). -->
     <sc-if value="{{ investPlanSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ investPlanSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
@@ -2043,7 +2044,7 @@ input::placeholder{color:var(--tx3)}
          sagte, weil der Eltern-Zweig dort false war (Bug, siehe Diagnose). -->
     <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
-      <div onClick="{{ stopPropagation }}" onAnimationEnd="{{ sheetAnimEnd }}" style="position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ notifSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
           <div style="width:26px;height:26px;border-radius:9px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
