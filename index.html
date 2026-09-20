@@ -414,6 +414,39 @@ input::placeholder{color:var(--tx3)}
         <div style="position:absolute;left:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
         <div style="position:absolute;right:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
 
+        <div style="display:flex;gap:6px;justify-content:space-between;padding:0 20px 20px;overflow-x:auto;scrollbar-width:none">
+          <button onClick="{{ goNewsFromBanner }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2z"></path><path d="M19 9h1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-1"></path><path d="M8 9h7M8 13h7M8 16h4"></path></svg>
+            </span>
+            <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">News</span>
+          </button>
+          <button onClick="{{ goMarkets }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg>
+            </span>
+            <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Märkte</span>
+          </button>
+          <button onClick="{{ openNotifSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </span>
+            <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Meldungen</span>
+          </button>
+          <button onClick="{{ openAlertSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>
+            </span>
+            <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Alarm</span>
+          </button>
+          <button onClick="{{ goDepot }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
+            <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg>
+            </span>
+            <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Depot</span>
+          </button>
+        </div>
+
         <div class="sect">
           <span class="lbl">Positionen</span>
           <div style="display:flex;align-items:center;gap:10px">
