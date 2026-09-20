@@ -4,24 +4,58 @@ import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "./db.js";
 
 const MAX_BYTES = 195 * 1024;
 
+// Graustufen + Kontrastspreizung: Dezimalpunkte und Kommas gehen bei starker
+// Verkleinerung/JPEG-Kompression sonst verloren (aus "2.565" wird "2565").
+// Graustufen-JPEGs sind deutlich kleiner, dadurch bleibt mehr Aufloesung
+// innerhalb der 200-KB-Grenze des OCR-Dienstes.
+function renderPrepared(bitmap, scale) {
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  const img = ctx.getImageData(0, 0, w, h);
+  const d = img.data;
+  const hist = new Uint32Array(256);
+  for (let i = 0; i < d.length; i += 4) {
+    const g = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
+    d[i] = g;
+    hist[g]++;
+  }
+  const total = w * h;
+  let acc = 0, lo = 0, hi = 255;
+  for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= total * 0.01) { lo = v; break; } }
+  acc = 0;
+  for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= total * 0.2) { hi = v; break; } }
+  if (hi - lo < 40) { lo = 0; hi = 255; }
+  const k = 255 / (hi - lo);
+  for (let i = 0; i < d.length; i += 4) {
+    const v = Math.max(0, Math.min(255, (d[i] - lo) * k)) | 0;
+    d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
 async function compressImage(file) {
   const bitmap = await createImageBitmap(file);
-  let scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  let quality = 0.85;
+  let scale = Math.min(1, 2200 / Math.max(bitmap.width, bitmap.height));
+  let quality = 0.88;
   let last = null;
-  for (let i = 0; i < 9; i++) {
-    const w = Math.max(1, Math.round(bitmap.width * scale));
-    const h = Math.max(1, Math.round(bitmap.height * scale));
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+  for (let i = 0; i < 14; i++) {
+    const canvas = renderPrepared(bitmap, scale);
     const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", quality));
     if (!blob) continue;
     last = blob;
     if (blob.size <= MAX_BYTES) return blob;
-    if (quality > 0.35) quality -= 0.15;
-    else scale *= 0.75;
+    if (quality > 0.6) quality -= 0.1;
+    else { scale *= 0.88; quality = 0.8; }
   }
   return last || file;
 }
@@ -123,22 +157,59 @@ function isinValid(s) {
   return sum % 10 === 0;
 }
 
-// OCR verwechselt 0 und O (z. B. "IEOOOSHROUX9" statt "IE000SHR0UX9"). Kandidaten
-// mit O an ISIN-Stellen durchprobieren und per Pruefsumme den echten finden.
+// Typische OCR-Verwechslungen je Zeichen (in beide Richtungen).
+const CONFUSE = { O: "0", "0": "O", I: "1", "1": "I", L: "1", l: "1", S: "5", "5": "S", B: "8", "8": "B", Z: "2", "2": "Z", G: "6", "6": "G", Q: "0" };
+
+// Im Landescode stehen nur Buchstaben: Ziffern/kleines l dort zurueckwandeln.
+const LETTER_FIX = { l: "I", "1": "I", "0": "O", "5": "S", "8": "B", "6": "G", "2": "Z" };
+
+// Alle Varianten eines 12-stelligen Kandidaten, deren Pruefsumme stimmt.
+// Landescode (2 Buchstaben) und Pruefziffer (Ziffer) haben feste Typen.
+function isinVariantsValid(raw) {
+  const up = raw.toUpperCase();
+  const opts = [...up].map((c, i) => {
+    const alts = new Set([c]);
+    if (CONFUSE[raw[i]]) alts.add(CONFUSE[raw[i]]);
+    if (CONFUSE[c]) alts.add(CONFUSE[c]);
+    if (i < 2 && LETTER_FIX[raw[i]]) alts.add(LETTER_FIX[raw[i]]);
+    return [...alts].filter(a => {
+      if (i < 2) return /[A-Z]/.test(a);
+      if (i === 11) return /[0-9]/.test(a);
+      return /[A-Z0-9]/.test(a);
+    });
+  });
+  if (opts.some(o => !o.length)) return [];
+  const out = [];
+  const walk = (i, cur) => {
+    if (out.length > 200) return;
+    if (i === 12) { if (isinValid(cur)) out.push(cur); return; }
+    for (const a of opts[i]) walk(i + 1, cur + a);
+  };
+  walk(0, "");
+  // Wenige Buchstaben-O bevorzugen (in NSINs sind Nullen viel haeufiger),
+  // dann moeglichst wenig Abweichung vom gelesenen Text.
+  const score = v => (v.match(/O/g) || []).length * 10 + [...v].filter((c, i) => c !== up[i]).length;
+  return out.sort((a, b) => score(a) - score(b));
+}
+
 function findIsin(text) {
-  const cands = text.match(/\b[A-Z]{2}[A-Z0-9]{9}[0-9O]\b/g) || [];
+  // 1) Token direkt hinter dem Label "ISIN", 2) beliebige 12-Zeichen-Tokens.
+  const cands = [];
+  for (const m of text.matchAll(/ISIN[:\s.]*([A-Za-z0-9]{12})(?![A-Za-z0-9])/gi)) cands.push(m[1]);
+  for (const m of text.matchAll(/(?<![A-Za-z0-9])([A-Z]{2}[A-Z0-9]{10})(?![A-Za-z0-9])/g)) if (!cands.includes(m[1])) cands.push(m[1]);
   for (const raw of cands) {
-    const pos = [];
-    for (let i = 2; i < raw.length; i++) if (raw[i] === "O") pos.push(i);
-    if (pos.length > 9) continue;
-    for (let mask = (1 << pos.length) - 1; mask >= 0; mask--) {
-      const chars = [...raw];
-      pos.forEach((p, k) => { if (mask & (1 << k)) chars[p] = "0"; });
-      const cand = chars.join("");
-      if (isinValid(cand)) return { isin: cand, raw };
-    }
+    const v = isinVariantsValid(raw);
+    if (v.length) return { isin: v[0], raw, valid: true };
   }
-  return { isin: "", raw: "" };
+  // Keine gueltige Pruefsumme: trotzdem den Text hinter "ISIN" uebernehmen
+  // (Nullen statt O ab Stelle 3), damit das Feld gefuellt ist und der Nutzer
+  // korrigieren kann; die App prueft danach, ob es die ISIN gibt.
+  if (cands.length) {
+    const raw = cands[0];
+    const fixed = [...raw.slice(0, 2)].map(c => LETTER_FIX[c] || c.toUpperCase()).join("") + raw.slice(2).toUpperCase().replace(/O/g, "0");
+    return { isin: fixed, raw, valid: false };
+  }
+  return { isin: "", raw: "", valid: false };
 }
 
 const MONTHS_DE = { januar: "01", februar: "02", märz: "03", maerz: "03", april: "04", mai: "05", juni: "06", juli: "07", august: "08", september: "09", oktober: "10", november: "11", dezember: "12" };
@@ -165,6 +236,36 @@ function findDate(text) {
     if (mm) return `${y}-${mm}-${d.padStart(2, "0")}`;
   }
   return "";
+}
+
+
+// Fehlt der Dezimalpunkt (OCR-Fehler: "2.565" -> 2565), stimmt Stueck x Kurs
+// nicht mehr mit dem Kurswert ueberein. Dann die Skalierung suchen, bei der
+// die Rechnung aufgeht (Stueck/Kurs meist 3 Nachkommastellen, Geldbetraege 2).
+function reconcileNumbers(n) {
+  const { shares, price, gross } = n;
+  if (!shares || !price || !gross) return n;
+  const ok = (a, b, c) => Math.abs(a * b - c) <= Math.max(0.02, c * 0.006);
+  if (ok(shares, price, gross)) return n;
+  // Sind alle drei Werte ganze Zahlen, sind ueberall die Punkte verloren:
+  // Betrag hat dann 2 Nachkommastellen, Stueck/Kurs meist 3.
+  const allInt = Number.isInteger(shares) && Number.isInteger(price) && Number.isInteger(gross);
+  const F = allInt ? [0.001, 0.01, 0.1, 1, 0.0001] : [1, 0.1, 0.01, 0.001, 0.0001];
+  const G = allInt ? [0.01] : [1, 0.1, 0.01];
+  let best = null;
+  for (const gf of G) for (const sf of F) for (const pf of F) {
+    const a = shares * sf, b = price * pf, c = gross * gf;
+    if (!ok(a, b, c)) continue;
+    const cost = allInt ? F.indexOf(sf) + F.indexOf(pf) : (gf !== 1) + (sf !== 1) + (pf !== 1);
+    if (!best || cost < best.cost) best = { sf, pf, gf, cost };
+  }
+  if (!best) return n;
+  const r = { ...n, shares: shares * best.sf, price: price * best.pf, gross: gross * best.gf };
+  if (best.gf !== 1) {
+    if (n.total != null && Number.isInteger(n.total)) r.total = n.total * best.gf;
+    if (n.fees != null && Number.isInteger(n.fees)) r.fees = n.fees * best.gf;
+  }
+  return r;
 }
 
 function parseFields(rawText) {
@@ -206,7 +307,7 @@ function parseFields(rawText) {
   if (gross == null) gross = valueForLabel(lines, /(?:Kurswert|Bruttobetrag|Gross\s*Amount|Brutto|Market\s*Value)[:\s]*/i, { last: true });
   let total = valueForLabel(lines, /(?:Total\s*)?Zu\s*(?:[Il]hren\s*|[Il]hrem\s*)?(?:Lasten|Gunsten|belasten)[:\s]*/i, { last: true })
     ?? valueForLabel(lines, /(?:Total\s*zu\s*(?:Lasten|Gunsten)|Zu\s*(?:belasten|Lasten|Gunsten)|Belastung|Gutschrift|Gesamtbetrag|Endbetrag|Nettobetrag|Net\s*Amount|Settlement\s*Amount|Total\s*Amount|Kaufbetrag|Verkaufsbetrag|Kaufpreis|Total(?:betrag)?|Betrag|Amount)[:\s]*/i, { last: true, skipRe: FEE_TOTAL });
-  const fees = findFees(lines);
+  let fees = findFees(lines);
 
   // Fallback: "8 × 118.40" (Stueckzahl × Kurs) ohne Schluesselwort.
   if (shares == null || price == null) {
@@ -229,6 +330,17 @@ function parseFields(rawText) {
   // Kein Kurswert gedruckt, aber Total und Gebuehren bekannt.
   if (gross == null && total != null && shares && price == null) {
     price = (side === "sell" ? total + f : total - f) / shares;
+  }
+
+  {
+    const r = reconcileNumbers({ shares, price, gross, total, fees });
+    shares = r.shares; price = r.price; gross = r.gross; total = r.total;
+    if (r.fees !== fees) fees = r.fees;
+    // Total muss zu Kurswert +/- Gebuehren passen; sonst aus diesen berechnen.
+    if (gross != null && total != null) {
+      const expect = side === "sell" ? gross - (fees || 0) : gross + (fees || 0);
+      if (Math.abs(total - expect) > Math.max(0.05, expect * 0.02)) total = Math.round(expect * 100) / 100;
+    }
   }
 
   const currencyMatch = text.match(/\b(CHF|EUR|USD|GBP)\b/);
