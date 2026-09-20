@@ -323,7 +323,7 @@ input::placeholder{color:var(--tx3)}
              soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
         <div>
 
-        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px) 20px 36px">
+        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 34px) 20px 48px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
                 <span style="color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
@@ -394,27 +394,18 @@ input::placeholder{color:var(--tx3)}
               </div>
             </div>
             </sc-if>
-        </div>
-
-        <!-- Box ist wieder reines --bg-Weiss statt eines Kurz-Verlaufs: die
-             Farb-Ueberblendung liess die obere Kante blaeulich/schmutzig
-             wirken statt als klare weisse Flaeche. Stattdessen jetzt ein
-             Schatten mit negativem Y-Offset (schiebt den Schatten NACH OBEN
-             in den Hero) — die Box liest sich dadurch als eigenstaendige,
-             nach vorne gehobene Karte statt als Farbverlauf-Fehler. -->
-        <div style="position:relative;margin:-26px 6px 0;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
-        <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
-             Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
-             Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
-             anderen Deckkraft als der Hero selbst — sichtbare Stufe. An der
-             Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
-             voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
-             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. Breite (6px)
-             folgt dem schmaleren Seitenrand der Box. -->
-        <div style="position:absolute;left:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
-        <div style="position:absolute;right:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
-
-        <div style="display:flex;gap:6px;justify-content:space-between;padding:0 20px 20px;overflow-x:auto;scrollbar-width:none">
+        <sc-if value="{{ hasMarketCountdown }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:6px">
+            <sc-for list="{{ marketCountdowns }}" as="mc" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:14px;background:var(--surf2);border:1px solid var(--line)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                <span style="flex:1;color:var(--tx2);font-size:12px;font-weight:600">{{ mc.name }} öffnet in</span>
+                <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700;letter-spacing:-.01em">{{ mc.left }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:6px;justify-content:space-between;margin-top:18px;padding:0;overflow-x:auto;scrollbar-width:none">
           <button onClick="{{ goNewsFromBanner }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;transition:transform 120ms ease" style-active="transform:scale(.94)">
             <span style="width:46px;height:46px;border-radius:15px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--acc2)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2z"></path><path d="M19 9h1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-1"></path><path d="M8 9h7M8 13h7M8 16h4"></path></svg>
@@ -446,6 +437,25 @@ input::placeholder{color:var(--tx3)}
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Depot</span>
           </button>
         </div>
+        </div>
+
+        <!-- Box ist wieder reines --bg-Weiss statt eines Kurz-Verlaufs: die
+             Farb-Ueberblendung liess die obere Kante blaeulich/schmutzig
+             wirken statt als klare weisse Flaeche. Stattdessen jetzt ein
+             Schatten mit negativem Y-Offset (schiebt den Schatten NACH OBEN
+             in den Hero) — die Box liest sich dadurch als eigenstaendige,
+             nach vorne gehobene Karte statt als Farbverlauf-Fehler. -->
+        <div style="position:relative;margin:-26px 6px 0;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
+        <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
+             Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
+             Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
+             anderen Deckkraft als der Hero selbst — sichtbare Stufe. An der
+             Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
+             voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
+             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. Breite (6px)
+             folgt dem schmaleren Seitenrand der Box. -->
+        <div style="position:absolute;left:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
+        <div style="position:absolute;right:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
 
         <div class="sect">
           <span class="lbl">Positionen</span>
@@ -2260,6 +2270,26 @@ const marketStatus = sym => {
   if (mins >= closeMins) return "after";
   return "open";
 };
+// Minuten bis zur naechsten Oeffnung (Wochenenden uebersprungen), Feiertage ignoriert.
+const minutesToOpen = isSwiss => {
+  const tz = isSwiss ? "Europe/Zurich" : "America/New_York";
+  const openMins = isSwiss ? 9 * 60 : 9 * 60 + 30;
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false, weekday: "short" }).formatToParts(new Date());
+  const get = t => parts.find(p => p.type === t).value;
+  const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+  const now = (parseInt(get("hour"), 10) % 24) * 60 + parseInt(get("minute"), 10);
+  for (let add = 0; add < 8; add++) {
+    const day = (wd + add) % 7;
+    if (day === 0 || day === 6) continue;
+    const diff = add * 1440 + openMins - now;
+    if (diff > 0) return diff;
+  }
+  return null;
+};
+const countdownLabel = m => {
+  const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
+  return d > 0 ? d + " Tg " + h + " Std" : h > 0 ? h + " Std " + mi + " Min" : mi + " Min";
+};
 const MARKET_STATUS_LABEL = { pre: "Vorbörslich", after: "Börse zu", weekend: "Geschlossen" };
 const isMarketOpen = sym => {
   const isSwiss = /\.SW$/i.test(String(sym || ""));
@@ -2502,7 +2532,7 @@ class Component extends DCLogic {
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
     intraday: {}, intradayDate: null, quoteProviders: {}, lastSyncAt: null,
-    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, notifOpenKey: null, pushLog: [],
+    insiderTrades: {}, insiderSheetSymbol: null, insiderAlertsSeenAt: null, notifSheetOpen: false, notifOpenKey: null, clockTick: 0, pushLog: [],
 
     marketSearchTerm: "", marketSearchResults: [], marketSearchLoading: false, marketSearchError: "",
     marketsFilter: "stocks",
@@ -2855,7 +2885,7 @@ class Component extends DCLogic {
     this.setState({ dashLoading: false });
   }
 
-  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
+  componentWillUnmount() { clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); clearInterval(this._clockTimer); this.stopAutoSync(); }
 
   // ---------- Carousel „Was heute bewegt" ↔ „Marktnews" ----------
   // Das Wischen macht CSS scroll-snap; hier wird nur die aktive Seite für die
@@ -2901,6 +2931,8 @@ class Component extends DCLogic {
 
   startCarousel = () => {
     clearInterval(this._carouselTimer);
+    clearInterval(this._clockTimer);
+    this._clockTimer = setInterval(() => this.setState({ clockTick: Date.now() }), 30000);
     this._carouselTimer = setInterval(() => {
       if (this.state.screen !== "dash" || this.state.carouselTouched) return;
       const el = this.carouselEl();
@@ -4883,6 +4915,18 @@ class Component extends DCLogic {
       ]
         .sort((a, b) => b.date < a.date ? -1 : 1)
         .slice(0, 20),
+      ...(() => {
+        void this.state.clockTick;
+        const syms = holdings.map(h => h.sym || h.abbr).filter(x => x && !isinLike(x));
+        const list = [];
+        [[true, "SIX"], [false, "NYSE / Nasdaq"]].forEach(([swiss, name]) => {
+          if (!syms.some(x => /\.SW$/i.test(x) === swiss)) return;
+          if (marketStatus(swiss ? "X.SW" : "X") === "open") return;
+          const m = minutesToOpen(swiss);
+          if (m != null) list.push({ name, left: countdownLabel(m) });
+        });
+        return { marketCountdowns: list, hasMarketCountdown: list.length > 0 };
+      })(),
       hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) || (this.state.pushLog || []).length > 0,
       noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) && !(this.state.pushLog || []).length,
 
