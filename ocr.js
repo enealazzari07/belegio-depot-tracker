@@ -138,7 +138,14 @@ function findDate(text) {
 
 function parseFields(rawText) {
   const text = String(rawText || "").replace(/\r/g, "");
-  const lines = text.split("\n").map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+  let lines = text.split("\n").map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+  // Notfall: liefert der Server jedes Wort in einer eigenen Zeile, Zeilen an
+  // typischen Beleg-Labels neu bilden.
+  if (lines.length > 12 && lines.filter(l => !l.includes(" ")).length / lines.length > 0.7) {
+    lines = lines.join(" ")
+      .split(/(?=\b(?:Total|Abgabe|Zu Ihren|Anzahl|Kommission|Courtage|Geb(?:ü|ue)hr|Kurswert|Betrag belastet|Titel|Kauf|Verkauf|Valuta)\b)/i)
+      .map(l => l.trim()).filter(Boolean);
+  }
   const date = findDate(text);
 
   const isinMatch = text.match(/\b([A-Z]{2}[A-Z0-9]{9}\d)\b/);
