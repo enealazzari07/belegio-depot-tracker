@@ -214,6 +214,14 @@ input::placeholder{color:var(--tx3)}
 @keyframes wordUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes pop{from{opacity:0;transform:scale(.94) translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes tabPop{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+@keyframes tabGrow{from{flex-grow:0.0001}to{flex-grow:1}}
+@keyframes tabLabel{from{opacity:0;transform:translateX(-8px);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
+.tab-in{animation:tabPop .28s cubic-bezier(.2,.9,.3,1.15) both!important}
+.tab-in.t2{animation-delay:.03s!important}.tab-in.t3{animation-delay:.06s!important}
+.tab-scan{min-width:0!important;overflow:hidden!important;animation:tabGrow .34s cubic-bezier(.22,1,.36,1) both!important}
+.tab-scan span{animation:tabLabel .24s cubic-bezier(.22,1,.36,1) .16s both}
+@media (prefers-reduced-motion: reduce){.tab-in,.tab-scan,.tab-scan span{animation:none!important}}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes scrimIn{from{opacity:0}to{opacity:1}}
 /* Steuer-Report drucken/als PDF speichern: isoliert #tax-report-print statt
@@ -1683,20 +1691,20 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, var(--home-fade-0) 0%, var(--home-fade) 55%);pointer-events:none;z-index:5"></div>
       <div style="position:absolute;bottom:env(safe-area-inset-bottom, 0px);left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
-        <button onClick="{{ goDash }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
+        <button onClick="{{ goDash }}" class="glass-chip tab-in" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tHome }}" fill="{{ fHome }}"><path d="M3 10.6 12 3.4l9 7.2V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>
         </button>
-        <button onClick="{{ goDepot }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
+        <button onClick="{{ goDepot }}" class="glass-chip tab-in t2" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tDepot }}" width="19" height="19"><path d="M4 19V10M10 19V5M16 19v-6M21.5 19h-19"></path></svg>
         </button>
-        <button onClick="{{ goUpload }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:48px;padding:0 14px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.96)">
+        <button onClick="{{ goUpload }}" class="glass-chip tab-scan" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1 1 0;height:48px;padding:0 14px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.96)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tScan }}"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"></path></svg>
           <span style="font-size:14px;font-weight:700;letter-spacing:-.01em;color:{{ tScan }}">Scannen</span>
         </button>
-        <button onClick="{{ goMarkets }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
+        <button onClick="{{ goMarkets }}" class="glass-chip tab-in t2" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tMarkets }}" width="19" height="19"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
         </button>
-        <button onClick="{{ goSettings }}" class="glass-chip" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
+        <button onClick="{{ goSettings }}" class="glass-chip tab-in t3" style="all:unset;box-sizing:border-box;cursor:pointer;width:48px;height:48px;border-radius:24px;border:1px solid var(--glass-line);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 20px -8px rgba(0,0,0,.3);transition:transform 120ms ease" style-hover="filter:brightness(.96)" style-active="transform:scale(.92)">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" stroke="{{ tSet }}" width="19" height="19"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>
         </button>
       </div>
