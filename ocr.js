@@ -268,6 +268,28 @@ function reconcileNumbers(n) {
   return r;
 }
 
+// Handelszeile unabhaengig vom Layout finden: drei Zahlen a, b, c mit a x b = c
+// (Stueck x Kurs = Kurswert), in der Naehe der Kopfwoerter Anzahl/Preis/Betrag.
+// Loest den Fall, dass Stueckzahl und Kurs beide die erste Zahl erwischen.
+function findTradeRow(lines) {
+  const near = [];
+  lines.forEach((l, i) => { if (/Anzahl|Menge|St(?:ü|ue)ck|Preis|Kurs|Quantity|Price/i.test(l)) near.push(i); });
+  const starts = new Set();
+  near.forEach(i => { for (let d = -1; d <= 4; d++) if (i + d >= 0 && i + d < lines.length) starts.add(i + d); });
+  let best = null;
+  for (const i of starts) {
+    const nums = amountsIn(lines.slice(i, i + 3).join(" ")).filter(n => n > 0 && n < 1e9);
+    for (let x = 0; x < nums.length; x++) for (let y = x + 1; y < nums.length; y++) for (let z = y + 1; z < nums.length; z++) {
+      const a = nums[x], b = nums[y], c = nums[z];
+      const err = Math.abs(a * b - c) / c;
+      const err2 = Math.abs(a * b - c);
+      if (err > 0.006 && err2 > 0.02) continue;
+      if (!best || err < best.err) best = { a, b, c, err };
+    }
+  }
+  return best;
+}
+
 function parseFields(rawText) {
   const text = String(rawText || "").replace(/\r/g, "");
   let lines = text.split("\n").map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
@@ -303,6 +325,15 @@ function parseFields(rawText) {
     const vals = [];
     for (let i = tHead + 1; i < Math.min(lines.length, tHead + 5) && vals.length < 3; i++) vals.push(...amountsIn(lines[i]));
     if (vals.length >= 3) { shares = vals[0]; price = vals[1]; gross = vals[2]; }
+  }
+  {
+    const okRow = (a, b, c) => a && b && c && Math.abs(a * b - c) <= Math.max(0.02, c * 0.006);
+    if (!okRow(shares, price, gross)) {
+      const t = findTradeRow(lines);
+      if (t) { shares = t.a; price = t.b; gross = t.c; }
+    }
+    // Stueckzahl und Kurs identisch = beide haben dieselbe Zahl erwischt.
+    if (shares && price && shares === price) price = gross && shares ? gross / shares : null;
   }
   if (gross == null) gross = valueForLabel(lines, /(?:Kurswert|Bruttobetrag|Gross\s*Amount|Brutto|Market\s*Value)[:\s]*/i, { last: true });
   let total = valueForLabel(lines, /(?:Total\s*)?Zu\s*(?:[Il]hren\s*|[Il]hrem\s*)?(?:Lasten|Gunsten|belasten)[:\s]*/i, { last: true })
