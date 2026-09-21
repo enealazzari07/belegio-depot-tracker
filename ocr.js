@@ -35,8 +35,14 @@ function renderPrepared(bitmap, scale) {
   for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= total * 0.2) { hi = v; break; } }
   if (hi - lo < 40) { lo = 0; hi = 255; }
   const k = 255 / (hi - lo);
+  // Helle Rest-Toene (z. B. hellgraue Tabellen-Fuellungen wie bei "Total"/
+  // "Zu Ihren Lasten") ganz auf Weiss ziehen: der OCR-Dienst uebersieht
+  // Zahlen auf diesem Grau sonst manchmal komplett, obwohl sie fuer Menschen
+  // gut lesbar sind. Nur Helles wird geklippt, dunklere Kanten (Text) bleiben
+  // wie bisher abgestuft, damit schwaechere Fotos nicht verhaerten.
   for (let i = 0; i < d.length; i += 4) {
-    const v = Math.max(0, Math.min(255, (d[i] - lo) * k)) | 0;
+    let v = Math.max(0, Math.min(255, (d[i] - lo) * k)) | 0;
+    if (v > 200) v = 255;
     d[i] = d[i + 1] = d[i + 2] = v;
   }
   ctx.putImageData(img, 0, 0);
