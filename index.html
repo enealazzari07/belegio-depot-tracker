@@ -986,10 +986,10 @@ input::placeholder{color:var(--tx3)}
               </div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
                 <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
-                  <div style="display:flex;align-items:center;gap:9px">
-                    <span style="width:10px;height:10px;border-radius:50%;background:{{ lg.color }};flex:none"></span>
-                    <span style="flex:1;color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
-                    <span class="mono" style="color:var(--tx2);font-size:11.5px;font-weight:700;background:var(--gbtn);padding:3px 8px;border-radius:999px;flex:none">{{ lg.pct }}</span>
+                  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                    <span style="width:16px;height:4px;border-radius:2px;background:{{ lg.color }};flex:none"></span>
+                    <span style="flex:0 1 auto;min-width:0;color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
+                    <span class="mono" style="flex:none;color:var(--tx3);font-size:12px;font-weight:700">{{ lg.pctShort }}</span>
                   </div>
                 </sc-for>
               </div>
@@ -4916,7 +4916,7 @@ class Component extends DCLogic {
         const visLen = Math.max(0, len - GAP);
         const color = ["#1b1b1f", "#5B5BD6", "#2AA6B5", "#F6546A", "#F2A03D", "#43CEA2", "#9C7BFF"][i % 7];
         allocationSlices.push({ color, dasharray: visLen.toFixed(2) + " " + (CIRC - visLen).toFixed(2), dashoffset: (-offset).toFixed(2) });
-        allocationLegend.push({ color, label: displayName(x.h), pct: (frac * 100).toFixed(1) + " %", flexW: (frac * 100).toFixed(2) });
+        allocationLegend.push({ color, label: displayName(x.h), pct: (frac * 100).toFixed(1) + " %", pctShort: Math.round(frac * 100) + "%", flexW: (frac * 100).toFixed(2) });
         offset += len;
       });
       if (otherV > 0.0001) {
@@ -4924,7 +4924,7 @@ class Component extends DCLogic {
         const len = frac * CIRC;
         const visLen = Math.max(0, len - GAP);
         allocationSlices.push({ color: "#DCDFE6", dasharray: visLen.toFixed(2) + " " + (CIRC - visLen).toFixed(2), dashoffset: (-offset).toFixed(2) });
-        allocationLegend.push({ color: "#DCDFE6", label: "Sonstige", pct: (frac * 100).toFixed(1) + " %", flexW: (frac * 100).toFixed(2) });
+        allocationLegend.push({ color: "#DCDFE6", label: "Sonstige", pct: (frac * 100).toFixed(1) + " %", pctShort: Math.round(frac * 100) + "%", flexW: (frac * 100).toFixed(2) });
       }
     }
 
