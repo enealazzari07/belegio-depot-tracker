@@ -1402,31 +1402,36 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
-          <span style="color:var(--tx);font-size:16px;font-weight:600">Beleg hinzufügen</span>
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Beleg hinzufügen</span>
         </div>
 
         <input id="receipt-file" type="file" accept="image/*" onChange="{{ onFile }}" style="display:none">
 
-        <label for="receipt-file" style="box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;height:268px;border-radius:22px;border:1.5px dashed var(--line2);background:var(--surf);text-align:center;padding:0 32px" style-hover="border-color:var(--acc);background:var(--surf2)">
+        <label for="receipt-file" style="box-sizing:border-box;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;height:300px;border-radius:32px;overflow:hidden;background:#141417 url(img/depot.webp) center/cover no-repeat;box-shadow:0 22px 44px -24px rgba(16,19,26,.55);text-align:center;transition:transform 140ms ease" style-active="transform:scale(.985)">
+          <div style="position:absolute;inset:0;background:linear-gradient(170deg,rgba(14,16,22,.7) 0%,rgba(14,16,22,.9) 100%);pointer-events:none"></div>
+          <span style="position:absolute;left:22px;top:22px;width:26px;height:26px;border-left:2.5px solid rgba(255,255,255,.55);border-top:2.5px solid rgba(255,255,255,.55);border-radius:8px 0 0 0"></span>
+          <span style="position:absolute;right:22px;top:22px;width:26px;height:26px;border-right:2.5px solid rgba(255,255,255,.55);border-top:2.5px solid rgba(255,255,255,.55);border-radius:0 8px 0 0"></span>
+          <span style="position:absolute;left:22px;bottom:22px;width:26px;height:26px;border-left:2.5px solid rgba(255,255,255,.55);border-bottom:2.5px solid rgba(255,255,255,.55);border-radius:0 0 0 8px"></span>
+          <span style="position:absolute;right:22px;bottom:22px;width:26px;height:26px;border-right:2.5px solid rgba(255,255,255,.55);border-bottom:2.5px solid rgba(255,255,255,.55);border-radius:0 0 8px 0"></span>
           <sc-if value="{{ parsing }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
-              <span style="width:34px;height:34px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc);animation:spin .8s linear infinite;display:block"></span>
-              <span style="color:var(--tx);font-size:14.5px;font-weight:600">Beleg wird gelesen…</span>
-              <span style="color:var(--tx3);font-size:12.5px">Datum · Ticker · Stückzahl · Kurs</span>
+            <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px">
+              <span style="width:38px;height:38px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite;display:block"></span>
+              <span style="color:#fff;font-size:16px;font-weight:700">Beleg wird gelesen…</span>
+              <span style="color:rgba(255,255,255,.65);font-size:12.5px">Datum · Titel · Stück · Kurs · Gebühren</span>
             </div>
           </sc-if>
           <sc-if value="{{ notParsing }}" hint-placeholder-val="{{ true }}">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
-              <div style="width:52px;height:52px;border-radius:16px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v13M7 8l5-5 5 5"></path></svg>
-              </div>
-              <span style="color:var(--tx);font-size:15px;font-weight:600">Foto hier auswählen</span>
-              <span style="color:var(--tx3);font-size:12.5px;line-height:1.5">Abrechnungen von Swissquote, IBKR,<br>eToro oder Neon — auch als Screenshot</span>
+            <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 30px">
+              <span style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"></path></svg>
+              </span>
+              <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-.02em">Beleg scannen</span>
+              <span style="color:rgba(255,255,255,.68);font-size:12.5px;line-height:1.5">Foto oder Screenshot deiner Abrechnung —<br>Belegio liest alles automatisch aus.</span>
             </div>
           </sc-if>
         </label>
@@ -1435,44 +1440,55 @@ input::placeholder{color:var(--tx3)}
           <p style="margin:14px 0 0;color:var(--neg);font-size:12px;line-height:1.5">Beleg konnte nicht automatisch gelesen werden — bitte Felder manuell ausfüllen.</p>
         </sc-if>
 
-        <div style="display:flex;align-items:center;gap:12px;margin:22px 0">
-          <div style="flex:1;height:1px;background:var(--line)"></div>
-          <span style="color:var(--tx3);font-size:11px">oder</span>
-          <div style="flex:1;height:1px;background:var(--line)"></div>
-        </div>
-
-        <div style="display:flex;gap:10px;margin-bottom:34px">
-          <label for="receipt-file" style="box-sizing:border-box;cursor:pointer;flex:1;height:50px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            Foto
+        <div style="display:flex;gap:10px;margin:14px 0 26px">
+          <label for="receipt-file" style="box-sizing:border-box;cursor:pointer;flex:1;height:52px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 14px 28px -16px rgba(16,19,26,.6);transition:transform 140ms ease" style-active="transform:scale(.97)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Foto wählen
           </label>
-          <button onClick="{{ manualEntry }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:50px;border-radius:13px;background:var(--surf);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:var(--line2)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+          <button onClick="{{ manualEntry }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:52px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:9px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform 140ms ease" style-active="transform:scale(.97)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
             Manuell
           </button>
         </div>
 
-        <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">ZULETZT VERARBEITET</span>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+        <div style="display:flex;gap:10px;margin-bottom:28px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:22px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+            <span class="mono" style="color:var(--tx3);font-size:11px;font-weight:700">01</span>
+            <span style="color:var(--tx);font-size:13px;font-weight:700">Foto machen</span>
+            <span style="color:var(--tx3);font-size:11px;line-height:1.4">Gerade, gut beleuchtet, ganzer Beleg</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:22px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+            <span class="mono" style="color:var(--tx3);font-size:11px;font-weight:700">02</span>
+            <span style="color:var(--tx);font-size:13px;font-weight:700">Prüfen</span>
+            <span style="color:var(--tx3);font-size:11px;line-height:1.4">ISIN, Stück, Kurs und Gebühren</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:22px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+            <span class="mono" style="color:var(--tx3);font-size:11px;font-weight:700">03</span>
+            <span style="color:var(--tx);font-size:13px;font-weight:700">Buchen</span>
+            <span style="color:var(--tx3);font-size:11px;line-height:1.4">Landet direkt im Depot</span>
+          </div>
+        </div>
+
+        <span style="display:block;color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:12px">Zuletzt verarbeitet</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
           <sc-if value="{{ noReceipts }}" hint-placeholder-val="{{ false }}">
             <p style="margin:0;color:var(--tx3);font-size:12.5px">Noch keine Belege verarbeitet.</p>
           </sc-if>
           <sc-for list="{{ receipts }}" as="r" hint-placeholder-count="3">
-            <div style="display:flex;align-items:center;gap:13px;padding:13px 14px;border-radius:20px;background:var(--surf);box-shadow:var(--card-shadow)">
-              <div style="width:34px;height:34px;border-radius:10px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
+            <div style="display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+              <div class="gbtn" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx2)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
               </div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                <span style="color:var(--tx);font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.file }}</span>
-                <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ r.meta }}</span>
+                <span style="color:var(--tx);font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.file }}</span>
+                <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.meta }}</span>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-right:4px"><path d="M20 6L9 17l-5-5"></path></svg>
             </div>
           </sc-for>
         </div>
       </div>
     </sc-if>
-
     <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 128px;animation:rise .32s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
