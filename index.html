@@ -257,7 +257,7 @@ input::placeholder{color:var(--tx3)}
 .ai-panel{animation:aiIn .52s cubic-bezier(.32,.72,0,1) both}
 @keyframes aiIn{
   from{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
-  to{top:var(--at);right:0px;bottom:0px;left:0px;border-radius:28px 28px 0 0}
+  to{top:var(--at);right:17px;bottom:calc(108px + env(safe-area-inset-bottom, 0px));left:17px;border-radius:28px}
 }
 @keyframes aiOut{
   from{opacity:1;transform:scale(1)}
@@ -2249,14 +2249,14 @@ input::placeholder{color:var(--tx3)}
     <!-- KI-Analyse: schwarzes Fenster waechst vom Button aus nach rechts und unten. -->
     <sc-if value="{{ aiPanelOpen }}" hint-placeholder-val="{{ false }}">
       <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
-        <div style="position:absolute;left:0;right:0;top:0;padding:12px 14px;display:flex;align-items:center;gap:10px">
+        <div style="position:absolute;left:0;right:0;top:0;padding:16px 17px 12px;display:flex;align-items:center;gap:10px">
           <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
           <span style="flex:1;color:#fff;font-size:13px;font-weight:700">KI-Analyse</span>
           <button onClick="{{ closeAiPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none;margin-right:-2px" style-active="transform:scale(.92)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div class="ai-body" style="position:absolute;left:0;right:0;top:66px;bottom:0;overflow-y:auto;padding:8px 20px calc(30px + env(safe-area-inset-bottom, 0px))">
+        <div class="ai-body" style="position:absolute;left:0;right:0;top:70px;bottom:0;overflow-y:auto;padding:8px 20px 24px">
           <div style="display:flex;flex-direction:column;gap:16px">
             <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
               <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
@@ -4286,7 +4286,7 @@ class Component extends DCLogic {
     let v = "--at:120px;--ar:20px;--ab:600px;--al:20px";
     if (btn && frame) {
       const r = btn.getBoundingClientRect(), f = frame.getBoundingClientRect();
-      v = "--at:" + Math.round(r.top - f.top) + "px;--ar:" + Math.round(f.right - r.right) + "px;--ab:" + Math.round(f.bottom - r.bottom) + "px;--al:" + Math.round(r.left - f.left) + "px";
+      v = "--at:" + Math.round(r.top - f.top - 4) + "px;--ar:" + Math.round(f.right - r.right - 3) + "px;--ab:" + Math.round(f.bottom - r.bottom - 3) + "px;--al:" + Math.round(r.left - f.left - 3) + "px";
     }
     this._aiVars = v;
     this._aiClosing = false;
