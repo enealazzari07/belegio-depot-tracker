@@ -251,9 +251,16 @@ function reconcileNumbers(n) {
   if (!shares || !price || !gross) return n;
   const ok = (a, b, c) => Math.abs(a * b - c) <= Math.max(0.02, c * 0.006);
   if (ok(shares, price, gross)) return n;
+  const allInt = Number.isInteger(shares) && Number.isInteger(price) && Number.isInteger(gross);
+  // Der Betrag kann zufaellig glatt sein (z. B. 22.00) und dabei bereits
+  // stimmen, waehrend nur Stueck/Kurs (ueblich 3 Nachkommastellen) den Punkt
+  // verloren haben. Das zuerst mit der ueblichen Annahme pruefen, bevor der
+  // an sich schon korrekte Betrag unten faelschlich mitskaliert wird.
+  if (allInt && ok(shares * 0.001, price * 0.001, gross)) {
+    return { ...n, shares: shares * 0.001, price: price * 0.001 };
+  }
   // Sind alle drei Werte ganze Zahlen, sind ueberall die Punkte verloren:
   // Betrag hat dann 2 Nachkommastellen, Stueck/Kurs meist 3.
-  const allInt = Number.isInteger(shares) && Number.isInteger(price) && Number.isInteger(gross);
   const F = allInt ? [0.001, 0.01, 0.1, 1, 0.0001] : [1, 0.1, 0.01, 0.001, 0.0001];
   const G = allInt ? [0.01] : [1, 0.1, 0.01];
   let best = null;
