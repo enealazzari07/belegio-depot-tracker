@@ -3693,16 +3693,24 @@ class Component extends DCLogic {
     const first = s.hist[0], last = s.hist[s.hist.length - 1];
     const v = (last.x - first.x) / Math.max(1, last.t - first.t);
     const commit = n > 1 && (Math.abs(s.dx) > W * 0.28 || Math.abs(v) > 0.55);
-    const tr = "transform .42s cubic-bezier(.32,.72,0,1), opacity .42s ease";
+    const tr = "transform .46s cubic-bezier(.32,.72,0,1), opacity .4s ease";
     cards.forEach(c => { c.style.transition = tr; });
     if (!commit) { this.layoutStack(0, 0); return; }
     const dir = s.dx >= 0 ? 1 : -1;
+    const cur0 = (this._stackIdx || 0) % n;
+    const flown = cards[cur0];
     this.layoutStack(dir * W * 1.25, 1);
     setTimeout(() => {
+      // Die weggewischte Karte bleibt unsichtbar, springt hinten in den Stapel
+      // und blendet dort weich ein — statt sichtbar "hinten aufzupoppen".
       cards.forEach(c => { c.style.transition = "none"; });
       this._stackIdx = ((this._stackIdx || 0) + 1) % n;
       this.layoutStack(0, 0);
-    }, 300);
+      if (flown) { flown.style.opacity = "0"; flown.style.transform += " scale(.92)"; }
+      void el.offsetWidth;
+      cards.forEach(c => { c.style.transition = "transform .5s cubic-bezier(.32,.72,0,1), opacity .5s ease"; });
+      this.layoutStack(0, 0);
+    }, 340);
   };
   openCardDetail = sym => e => {
     if (this._stackMoved) return;
