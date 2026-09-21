@@ -2073,6 +2073,193 @@ input::placeholder{color:var(--tx3)}
          Home-Header, nicht im Depot — verschachtelt in isDepot wurde das
          Sheet auf dem Home-Screen nie sichtbar, egal was notifSheetOpen
          sagte, weil der Eltern-Zweig dort false war (Bug, siehe Diagnose). -->
+    <!-- Karten-Detail: waechst aus der angetippten Home-Karte zur Vollansicht
+         (clip-path-Morph). Inhalt = dieselbe Detailansicht wie im Depot. -->
+    <sc-for list="{{ cardDetailItems }}" as="d" hint-placeholder-count="1">
+      <div style="position:absolute;inset:0;z-index:60;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;clip-path:{{ d.clip }};-webkit-clip-path:{{ d.clip }};transition:clip-path .58s cubic-bezier(.32,.72,0,1),-webkit-clip-path .58s cubic-bezier(.32,.72,0,1)">
+        <div style="position:relative;height:352px;background:{{ d.heroBg }};overflow:hidden">
+          <sc-if value="{{ d.noPhoto }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ d.sunX }}" cy="86" r="40" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg></sc-if>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.6) 100%);pointer-events:none"></div>
+          <button onClick="{{ closeCardDetail }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+          </button>
+          <span style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 20px);right:18px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ d.heroKind }}</span>
+          <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;flex-direction:column;gap:6px;opacity:{{ d.heroOpacity }};transform:translateY({{ d.heroShift }});transition:opacity .45s ease .18s,transform .55s cubic-bezier(.32,.72,0,1) .1s">
+            <span style="color:rgba(255,255,255,.82);font-size:13px;font-weight:600">{{ d.heroSub }}</span>
+            <span style="color:#fff;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ d.heroName }}</span>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span class="mono" style="color:#fff;font-size:15px;font-weight:700">{{ d.heroValue }}</span>
+              <span class="mono" style="padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.24);color:#fff;font-size:12px;font-weight:700">{{ d.heroDay }}</span>
+              <span style="display:flex;align-items:baseline;gap:4px;color:#fff"><span class="mono" style="font-size:13px;font-weight:700">{{ d.heroSince }}</span><span style="font-size:10px;font-weight:600;opacity:.78">seit Kauf</span></span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:20px 16px calc(40px + env(safe-area-inset-bottom, 0px));opacity:{{ d.heroOpacity }};transform:translateY({{ d.heroShift }});transition:opacity .45s ease .22s,transform .55s cubic-bezier(.32,.72,0,1) .16s">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px">
+            <sc-for list="{{ d.stats }}" as="st" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line);min-width:0">
+                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">{{ st.k }}</span>
+                <span class="mono" style="color:{{ st.c }};font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ st.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div class="card" style="padding:14px">
+              <div style="padding:0 0 0;animation:fade .22s ease">
+
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <div style="flex:1;min-width:0;display:flex;gap:3px;padding:3px;border-radius:12px;background:var(--surf2)">
+                  <sc-for list="{{ d.posTabs }}" as="pt" hint-placeholder-count="3">
+                    <button onClick="{{ pt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;text-align:center;padding:8px 4px;border-radius:9px;background:{{ pt.bg }};color:{{ pt.tx }};font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background 160ms ease,color 160ms ease,transform 140ms ease" style-active="transform:scale(.96)">{{ pt.label }}</button>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ d.hasInsider }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ d.openInsider }}" title="Insider-Trades" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;flex:none;width:38px;height:38px;border-radius:11px;background:{{ d.insiderBadgeBg }};display:flex;align-items:center;justify-content:center;color:{{ d.insiderBadgeColor }};transition:transform 140ms ease" style-active="transform:scale(.92)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
+                  </button>
+                </sc-if>
+              </div>
+
+              <sc-if value="{{ d.showChart }}" hint-placeholder-val="{{ false }}">
+              <div style="animation:fade .18s ease">
+              <sc-if value="{{ d.has52w }}" hint-placeholder-val="{{ false }}">
+                <div style="background:var(--surf2);border-radius:14px;padding:12px 13px;margin-bottom:8px">
+                  <span style="display:block;color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.1em;margin-bottom:8px">52-WOCHEN-SPANNE</span>
+                  <div style="position:relative;height:5px;border-radius:3px;background:var(--surf3);margin-bottom:6px">
+                    <span style="position:absolute;top:-3px;width:3px;height:11px;border-radius:2px;background:var(--acc2);left:{{ d.pos52 }};transform:translateX(-50%);display:block"></span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ d.lo52Label }}</span>
+                    <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ d.hi52Label }}</span>
+                  </div>
+                </div>
+              </sc-if>
+              <div style="background:var(--surf2);border-radius:14px;padding:12px 13px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                  <span style="color:{{ d.posChartColor }};font-size:13px;font-weight:700;font-family:'Roboto Mono',monospace">{{ d.posChartPct }}</span>
+                  <div style="display:flex;gap:3px;padding:3px;border-radius:8px;background:var(--surf3)">
+                    <sc-for list="{{ d.chartRangeButtons }}" as="r" hint-placeholder-count="5">
+                      <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:6px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-if value="{{ d.hasPosChart }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:baseline;gap:8px;height:16px;margin-bottom:6px;visibility:{{ d.posScrubVisibility }}">
+                    <span style="color:var(--tx3);font-size:11px;font-weight:600;font-family:'Roboto Mono',monospace">{{ d.posScrubWhen }}</span>
+                    <span style="flex:1"></span>
+                    <span style="color:var(--tx2);font-size:11px;font-family:'Roboto Mono',monospace">Kurs {{ d.posScrubPrice }}</span>
+                    <span style="color:var(--tx);font-size:11.5px;font-weight:700;font-family:'Roboto Mono',monospace">Wert {{ d.posScrubValue }}</span>
+                  </div>
+                  <div style="position:relative">
+                    <svg viewBox="0 0 280 56" preserveAspectRatio="none" style="width:100%;height:56px;display:block;overflow:visible">
+                      <path d="{{ d.posChartPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2" stroke-linecap="round"></path>
+                      <sc-if value="{{ d.posScrubActive }}" hint-placeholder-val="{{ false }}">
+                        <line x1="{{ d.posScrubX }}" y1="0" x2="{{ d.posScrubX }}" y2="56" stroke="var(--line2)" stroke-width="1.2" stroke-dasharray="3 3"></line>
+                        <circle cx="{{ d.posScrubX }}" cy="{{ d.posScrubY }}" r="4" fill="{{ d.posChartColor }}" stroke="var(--surf2)" stroke-width="2"></circle>
+                      </sc-if>
+                    </svg>
+                    <div onPointerDown="{{ d.posScrubStart }}" onPointerMove="{{ d.posScrubMove }}" onPointerUp="{{ d.posScrubEnd }}" onPointerLeave="{{ d.posScrubEnd }}" onPointerCancel="{{ d.posScrubEnd }}" style="position:absolute;inset:-6px 0;touch-action:none;cursor:pointer"></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ d.noPosChart }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Kursdaten für diesen Zeitraum verfügbar.</p>
+                </sc-if>
+              </div>
+              </div>
+              </sc-if>
+
+              <sc-if value="{{ d.showComposition }}" hint-placeholder-val="{{ false }}">
+                <div style="background:var(--surf2);border-radius:14px;padding:14px 13px;animation:fade .18s ease">
+                  <sc-if value="{{ d.compositionLoading }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;justify-content:center;height:60px">
+                      <span style="width:22px;height:22px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ d.compositionError }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:10px 0">{{ d.compositionError }}</p>
+                  </sc-if>
+                  <sc-if value="{{ d.hasComposition }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:block;color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em;margin-bottom:8px">GRÖSSTE POSITIONEN</span>
+                    <div style="display:flex;height:64px;border-radius:12px;overflow:hidden;gap:2px;margin-bottom:10px">
+                      <sc-for list="{{ d.compositionBlocks }}" as="b" hint-placeholder-count="6">
+                        <div title="{{ b.name }}" style="flex:{{ b.flexWeight }} 1 0%;min-width:26px;background:{{ b.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:2px">
+                          <span style="color:{{ b.tx }};font-size:9.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ b.label }}</span>
+                          <span style="color:{{ b.tx }};font-size:9px;opacity:.85">{{ b.pctLabel }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <sc-for list="{{ d.compositionBlocks }}" as="b" hint-placeholder-count="6">
+                        <div style="display:flex;align-items:center;gap:8px">
+                          <span style="width:9px;height:9px;border-radius:3px;background:{{ b.bg }};flex:none"></span>
+                          <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ b.name }}</span>
+                          <span style="color:var(--tx3);font-size:11.5px;font-family:'Roboto Mono',monospace;flex:none">{{ b.pctLabel }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ d.showTransactions }}" hint-placeholder-val="{{ false }}">
+                <div style="background:var(--surf2);border-radius:14px;padding:4px 13px;animation:fade .18s ease">
+                  <sc-if value="{{ d.noTransactions }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Transaktionen gefunden.</p>
+                  </sc-if>
+                  <sc-for list="{{ d.transactions }}" as="t" hint-placeholder-count="3">
+                    <div style="padding:10px 0;border-top:1px solid var(--line2)">
+                      <sc-if value="{{ t.isEditing }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                          <div style="display:flex;flex-direction:column;gap:4px">
+                            <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.08em">DATUM</span>
+                            <input type="date" value="{{ t.editDate }}" onChange="{{ t.onDate }}" style="width:100%;height:38px;border-radius:9px;background:var(--surf3);border:1px solid var(--line2);color:var(--tx);font-size:12.5px;padding:0 10px;outline:none;box-sizing:border-box">
+                          </div>
+                          <div style="display:flex;gap:8px">
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                              <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.08em">STÜCKZAHL</span>
+                              <input type="number" value="{{ t.editShares }}" onChange="{{ t.onShares }}" style="width:100%;height:38px;border-radius:9px;background:var(--surf3);border:1px solid var(--line2);color:var(--tx);font-size:12.5px;padding:0 10px;outline:none;box-sizing:border-box">
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+                              <span style="color:var(--tx3);font-size:10px;font-weight:600;letter-spacing:.08em">KURS</span>
+                              <input type="number" value="{{ t.editPrice }}" onChange="{{ t.onPrice }}" style="width:100%;height:38px;border-radius:9px;background:var(--surf3);border:1px solid var(--line2);color:var(--tx);font-size:12.5px;padding:0 10px;outline:none;box-sizing:border-box">
+                            </div>
+                          </div>
+                          <div style="display:flex;gap:8px;margin-top:2px">
+                            <button onClick="{{ t.cancel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:10px;background:var(--surf3);border:1px solid var(--line2);color:var(--tx2);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:transform 140ms ease" style-active="transform:scale(.97)">Abbrechen</button>
+                            <button onClick="{{ t.save }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:38px;border-radius:10px;background:var(--acc);color:var(--accTx);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:transform 140ms ease" style-active="transform:scale(.97)">Speichern</button>
+                          </div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ t.isNotEditing }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex;align-items:center;gap:10px">
+                          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                            <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                              <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.dateLabel }}</span>
+                              <sc-if value="{{ t.isSell }}" hint-placeholder-val="{{ false }}">
+                                <span class="chip" style="background:var(--neg-soft);color:var(--neg);flex:none">Verkauf</span>
+                              </sc-if>
+                            </div>
+                            <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ t.detail }}</span>
+                          </div>
+                          <span style="color:{{ t.totalColor }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace">{{ t.total }}</span>
+                          <button onClick="{{ t.edit }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+                          </button>
+                          <button onClick="{{ t.remove }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--neg);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path></svg>
+                          </button>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+
     <!-- Willkommen: erscheint nur direkt nach dem allerersten Registrieren. -->
     <sc-if value="{{ welcomeOpen }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top, 0px) + 64px) 28px calc(env(safe-area-inset-bottom, 0px) + 28px);overflow-y:auto">
@@ -2568,7 +2755,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", welcomeOpen: false,
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", welcomeOpen: false, cardDetailSym: null, cardDetailOpen: false,
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3446,9 +3633,28 @@ class Component extends DCLogic {
       this.layoutStack(0, 0);
     }, 300);
   };
+  openCardDetail = sym => e => {
+    if (this._stackMoved) return;
+    const card = e.currentTarget;
+    const frame = document.querySelector("[data-theme] > div");
+    if (card && frame) {
+      const r = card.getBoundingClientRect(), f = frame.getBoundingClientRect();
+      this._cardClip = "inset(" + (r.top - f.top) + "px " + (f.right - r.right) + "px " + (f.bottom - r.bottom) + "px " + (r.left - f.left) + "px round 30px)";
+    } else this._cardClip = "inset(40% 10% 40% 10% round 30px)";
+    this.setState({ cardDetailSym: sym, cardDetailOpen: false, openPosSymbol: sym, posScrub: null, posSubTab: "chart", editingTxId: null, editingTxFields: null });
+    this.markInsiderSeen();
+    requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ cardDetailOpen: true })));
+  };
+  closeCardDetail = () => {
+    if (!this.state.cardDetailSym) return;
+    this.setState({ cardDetailOpen: false });
+    clearTimeout(this._cardCloseT);
+    this._cardCloseT = setTimeout(() => this.setState({ cardDetailSym: null, openPosSymbol: null, posScrub: null }), 600);
+  };
   onEscKey = e => {
     if (e.key !== "Escape") return;
     const s = this.state;
+    if (s.cardDetailSym) { this.closeCardDetail(); return; }
     const open = [
       [s.aiSheetOpen, this.closeAiSheet], [s.compoundSheetOpen, this.closeCompoundSheet],
       [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet],
@@ -4645,6 +4851,7 @@ class Component extends DCLogic {
         ];
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
+          symKey: sym,
           value: f2(v),
           gain: (d >= 0 ? "+" : "") + f2(d),
           color: d >= 0 ? "var(--pos)" : "var(--neg)",
@@ -5171,7 +5378,7 @@ class Component extends DCLogic {
             sunX: 200 + (hash(sym) % 70),
             spark: buildSparkline(hist[sym]),
             hasSpark: !!buildSparkline(hist[sym]),
-            open: () => { if (!this._stackMoved) this.openDepotPosition(sym)(); }
+            open: e => this.openCardDetail(sym)(e)
           };
         });
         const list = all.filter(c => filter === "all" || (filter === "etf" ? c.etf : !c.etf));
@@ -5182,7 +5389,28 @@ class Component extends DCLogic {
           c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
         });
         const tabs = [{ key: "all", label: "Alle" }, { key: "stock", label: "Aktien" }, { key: "etf", label: "ETFs" }];
+        const selSym = this.state.cardDetailSym;
+        const detailItems = selSym ? depotList.filter(dd => dd.symKey === selSym).map(dd => {
+          const c = all.find(x => x.sym === selSym) || {};
+          const h = holdings.find(x => (x.sym || x.abbr) === selSym) || {};
+          const isOpen = !!this.state.cardDetailOpen;
+          return Object.assign({}, dd, {
+            clip: isOpen ? "inset(0px 0px 0px 0px round 0px)" : (this._cardClip || "inset(40% 10% 40% 10% round 30px)"),
+            heroBg: c.bg, noPhoto: c.noPhoto, sunX: c.sunX,
+            heroKind: c.kind, heroName: c.name, heroSub: c.sub, heroValue: c.value, heroDay: c.day, heroSince: c.since,
+            heroOpacity: isOpen ? "1" : "0", heroShift: isOpen ? "0px" : "18px",
+            stats: [
+              { k: "STÜCKZAHL", v: String(h.shares), c: "var(--tx)" },
+              { k: "Ø EINSTAND", v: f2(h.buy), c: "var(--tx)" },
+              { k: "KURS", v: f2(h.cur), c: "var(--tx)" },
+              { k: "WERT", v: c.value, c: "var(--tx)" },
+              { k: "GEWINN", v: dd.gain, c: dd.color },
+              { k: "ANTEIL", v: dd.share, c: "var(--tx)" }
+            ]
+          });
+        }) : [];
         return {
+          cardDetailItems: detailItems,
           homeCards: list,
           homeCardsEmpty: list.length === 0,
           homeDots: list.length > 1 ? list.map((_, i) => ({ w: i === cur ? "18px" : "6px", bg: i === cur ? "var(--tx)" : "var(--line2)" })) : [],
@@ -5195,6 +5423,7 @@ class Component extends DCLogic {
           }))
         };
       })(),
+      closeCardDetail: this.closeCardDetail,
       stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
