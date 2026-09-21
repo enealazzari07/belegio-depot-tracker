@@ -2091,9 +2091,10 @@ input::placeholder{color:var(--tx3)}
          (clip-path-Morph). Inhalt = dieselbe Detailansicht wie im Depot. -->
     <sc-for list="{{ cardDetailItems }}" as="d" hint-placeholder-count="1">
       <div id="card-detail" class="cd-panel" onScroll="{{ cdScroll }}" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);-webkit-overflow-scrolling:touch">
-        <div style="position:sticky;top:0;height:0;z-index:6">
+        <div style="position:sticky;top:0;height:calc(env(safe-area-inset-top, 0px) + 68px);margin-bottom:calc(-1 * (env(safe-area-inset-top, 0px) + 68px));z-index:6;pointer-events:none">
+          <span class="cd-spin-top" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 62px);left:50%;width:26px;height:26px;margin-left:-13px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite;opacity:0;transition:opacity .15s ease"></span>
           <span class="cd-title" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:70px;right:116px;height:42px;line-height:42px;color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.35)">{{ d.heroShort }}</span>
-          <button onClick="{{ closeCardDetail }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
+          <button onClick="{{ closeCardDetail }}" style="all:unset;box-sizing:border-box;pointer-events:auto;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
           </button>
           <span style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 20px);right:18px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ d.heroKind }}</span>
@@ -2111,7 +2112,8 @@ input::placeholder{color:var(--tx3)}
           </div>
         </div>
         <div id="cd-block" style="position:sticky;top:calc(env(safe-area-inset-top, 0px) + 68px);z-index:2;margin-top:-32px;height:calc(100% - (env(safe-area-inset-top, 0px) + 68px));background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);overflow:hidden">
-        <div id="cd-inner" style="height:100%;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:24px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
+        <span class="cd-spin-bot" style="position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom, 0px));width:24px;height:24px;margin-left:-12px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--tx);animation:spin .8s linear infinite;opacity:0;transition:opacity .15s ease;z-index:3;pointer-events:none"></span>
+        <div id="cd-inner" onScroll="{{ cdInnerScroll }}" style="height:100%;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:24px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
         <div class="cd-rise2">
           <div style="margin-bottom:22px">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
@@ -3728,8 +3730,31 @@ class Component extends DCLogic {
     inner.style.overflowY = el.scrollTop >= max - 1 ? "auto" : "hidden";
     const t = el.querySelector(".cd-htext");
     if (t) t.style.opacity = String(Math.max(0, 1 - el.scrollTop / 110));
+    // Ueber den Anfang hinaus ziehen: Lade-Symbol, beim weiten Ziehen Kurse neu laden.
+    const spin = el.querySelector(".cd-spin-top");
+    if (spin) spin.style.opacity = el.scrollTop < -6 ? String(Math.min(1, -el.scrollTop / 55)) : (this._cdRefreshing ? "1" : "0");
+    if (el.scrollTop < -70 && !this._cdRefreshing) this.refreshCardDetail();
     const ti = el.querySelector(".cd-title");
     if (ti) ti.style.opacity = String(Math.min(1, Math.max(0, (el.scrollTop - 70) / 70)));
+  };
+  cdInnerScroll = e => {
+    const inn = e.currentTarget;
+    const spin = document.querySelector(".cd-spin-bot");
+    if (!inn || !spin) return;
+    const over = inn.scrollTop - (inn.scrollHeight - inn.clientHeight);
+    spin.style.opacity = over > 6 ? String(Math.min(1, over / 45)) : "0";
+  };
+  refreshCardDetail = () => {
+    const sym = this.state.cardDetailSym;
+    if (!sym || this._cdRefreshing) return;
+    this._cdRefreshing = true;
+    const spin = document.querySelector(".cd-spin-top");
+    if (spin) spin.style.opacity = "1";
+    const range = this.state.posChartRange || "D";
+    this.setState(st => { const next = { ...st.posSeries }; delete next[sym + "|" + range]; return { posSeries: next }; });
+    Promise.resolve(this.sync([sym], { skipNews: true })).catch(() => {}).then(() => this.ensureSeries(sym, range)).finally(() => {
+      setTimeout(() => { this._cdRefreshing = false; const sp = document.querySelector(".cd-spin-top"); if (sp) sp.style.opacity = "0"; }, 700);
+    });
   };
   closeCardDetail = () => {
     if (!this.state.cardDetailSym || this._cardClosing) return;
@@ -5683,7 +5708,7 @@ class Component extends DCLogic {
           }))
         };
       })(),
-      closeCardDetail: this.closeCardDetail, cdScroll: this.cdScroll,
+      closeCardDetail: this.closeCardDetail, cdScroll: this.cdScroll, cdInnerScroll: this.cdInnerScroll,
       stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
