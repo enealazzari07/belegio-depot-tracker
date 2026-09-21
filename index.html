@@ -254,6 +254,17 @@ input::placeholder{color:var(--tx3)}
 .ticker:active .ticker-track{animation-play-state:paused}
 @keyframes tickerMove{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 @media (prefers-reduced-motion: reduce){.ticker-track{animation:none!important}.ticker{overflow-x:auto}}
+.ai-panel{animation:aiIn .52s cubic-bezier(.32,.72,0,1) both}
+@keyframes aiIn{
+  from{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
+  to{top:var(--at);right:20px;bottom:112px;left:20px;border-radius:28px}
+}
+@keyframes aiOut{
+  from{top:var(--at);right:20px;bottom:112px;left:20px;border-radius:28px}
+  to{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
+}
+.ai-body{animation:wIn .45s cubic-bezier(.22,1,.36,1) .18s backwards}
+@media (prefers-reduced-motion: reduce){.ai-panel,.ai-body{animation:none!important}}
 .sheet-in{animation:sheetMorph .5s cubic-bezier(.32,.72,0,1) backwards;transform-origin:50% 100%}
 .sheet-in>*{animation:wIn .5s cubic-bezier(.22,1,.36,1) backwards}
 .sheet-in>*:nth-child(1){animation-delay:.04s}.sheet-in>*:nth-child(2){animation-delay:.09s}
@@ -844,7 +855,7 @@ input::placeholder{color:var(--tx3)}
         </div>
 
         <div style="display:flex;gap:10px;margin-bottom:16px">
-          <button onClick="{{ openAiSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -16px rgba(16,19,26,.6);transition:transform 140ms ease" style-active="transform:scale(.97)">
+          <button onClick="{{ openAiPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -16px rgba(16,19,26,.6);transition:transform 140ms ease" style-active="transform:scale(.97)">
             <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
             <span style="color:#fff;font-size:13px;font-weight:700">KI-Analyse</span>
           </button>
@@ -2235,6 +2246,44 @@ input::placeholder{color:var(--tx3)}
       </div>
     </sc-if>
 
+    <!-- KI-Analyse: schwarzes Fenster waechst vom Button aus nach rechts und unten. -->
+    <sc-if value="{{ aiPanelOpen }}" hint-placeholder-val="{{ false }}">
+      <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
+        <div style="position:absolute;left:0;right:0;top:0;padding:12px 14px;display:flex;align-items:center;gap:10px">
+          <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
+          <span style="flex:1;color:#fff;font-size:13px;font-weight:700">KI-Analyse</span>
+          <button onClick="{{ closeAiPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none;margin-right:-2px" style-active="transform:scale(.92)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="ai-body" style="position:absolute;left:0;right:0;top:66px;bottom:0;overflow-y:auto;padding:8px 20px 22px">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex;gap:12px">
+                  <span style="width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none;background:{{ i.tone }}"></span>
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <span style="color:#fff;font-size:14.5px;font-weight:700;line-height:1.35">{{ i.t }}</span>
+                    <span style="color:rgba(255,255,255,.68);font-size:13px;line-height:1.55;text-wrap:pretty">{{ i.d }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ noInsightPreview }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0;color:rgba(255,255,255,.6);font-size:13px;text-align:center;padding:24px 0;line-height:1.55">Noch keine Analyse — sobald Positionen im Depot sind, erscheinen hier Einschätzungen.</p>
+            </sc-if>
+          </div>
+          <sc-if value="{{ hasInsightPreview }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ refreshInsights }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:20px;width:100%;height:46px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-active="transform:scale(.98)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"></path></svg>
+              {{ refreshLabel }}
+            </button>
+          </sc-if>
+          <p style="margin:14px 0 0;color:rgba(255,255,255,.45);font-size:10.5px;line-height:1.5">Automatisch generiert, keine Anlageberatung.</p>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div data-scrim="1" onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
       <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
@@ -2750,7 +2799,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", aiPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3781,6 +3830,7 @@ class Component extends DCLogic {
   onEscKey = e => {
     if (e.key !== "Escape") return;
     const s = this.state;
+    if (s.aiPanelOpen) { this.closeAiPanel(); return; }
     if (s.cardDetailSym) { this.closeCardDetail(); return; }
     const open = [
       [s.aiSheetOpen, this.closeAiSheet], [s.compoundSheetOpen, this.closeCompoundSheet],
@@ -4229,6 +4279,30 @@ class Component extends DCLogic {
 
   // ---------- KI-Analyse ----------
   openAiSheet = () => this.setState({ aiSheetOpen: true });
+  // Schwarzes Fenster waechst vom Button aus (nach rechts und unten); Icon/Titel bleiben an Ort und Stelle.
+  openAiPanel = e => {
+    const btn = e && e.currentTarget;
+    const frame = document.querySelector("[data-theme] > div");
+    let v = "--at:120px;--ar:20px;--ab:600px;--al:20px";
+    if (btn && frame) {
+      const r = btn.getBoundingClientRect(), f = frame.getBoundingClientRect();
+      v = "--at:" + Math.round(r.top - f.top) + "px;--ar:" + Math.round(f.right - r.right) + "px;--ab:" + Math.round(f.bottom - r.bottom) + "px;--al:" + Math.round(r.left - f.left) + "px";
+    }
+    this._aiVars = v;
+    this._aiClosing = false;
+    this.setState({ aiPanelOpen: true });
+  };
+  closeAiPanel = () => {
+    if (!this.state.aiPanelOpen || this._aiClosing) return;
+    this._aiClosing = true;
+    const el = document.getElementById("ai-panel");
+    const done = () => { this._aiClosing = false; this.setState({ aiPanelOpen: false }); };
+    if (!el) { done(); return; }
+    const body = el.querySelector(".ai-body");
+    if (body) { body.style.animation = "none"; body.style.transition = "opacity .14s ease"; body.style.opacity = "0"; }
+    el.style.animation = "aiOut .44s cubic-bezier(.32,.72,0,1) both";
+    setTimeout(done, 440);
+  };
   closeAiSheet = () => this.setState({ aiSheetOpen: false });
 
   setTxField = k => e => this.setState(s => ({ editingTxFields: { ...s.editingTxFields, [k]: e.target.value } }));
@@ -5830,6 +5904,8 @@ class Component extends DCLogic {
           }))
         };
       })(),
+      aiPanelOpen: this.state.aiPanelOpen, aiPanelVars: this._aiVars || "--at:120px;--ar:20px;--ab:600px;--al:20px",
+      openAiPanel: this.openAiPanel, closeAiPanel: this.closeAiPanel,
       closeCardDetail: this.closeCardDetail, cdScroll: this.cdScroll, cdInnerScroll: this.cdInnerScroll,
       stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
