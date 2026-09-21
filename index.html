@@ -625,30 +625,19 @@ input::placeholder{color:var(--tx3)}
 
               <sc-if value="{{ hasTopNews }}" hint-placeholder-val="{{ false }}">
                 <div style="flex:0 0 100%;min-width:0;scroll-snap-align:start;padding:0 20px;box-sizing:border-box">
-                  <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;min-width:0;min-height:{{ carouselHeight }};padding:18px;border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;flex-direction:column">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
-                      <div class="gbtn" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a1 1 0 0 1 1 1v13H5a1 1 0 0 1-1-1zM16 9h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3M7 9h6M7 13h6"></path></svg>
-                      </div>
-                      <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Marktnews</span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+                  <div onClick="{{ goNewsFromBanner }}" style="cursor:pointer;position:relative;min-height:236px;border-radius:28px;overflow:hidden;background:{{ bannerBg }};box-shadow:var(--card-shadow)" style-active="transform:scale(.985)">
+                    <div style="position:absolute;left:0;right:0;bottom:0;height:78%;pointer-events:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);-webkit-mask-image:linear-gradient(to top,#000 40%,rgba(0,0,0,.55) 65%,transparent 100%);mask-image:linear-gradient(to top,#000 40%,rgba(0,0,0,.55) 65%,transparent 100%)"></div>
+                    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(10,12,20,.8) 0%,rgba(10,12,20,.5) 38%,rgba(10,12,20,.12) 70%,rgba(10,12,20,0) 100%)"></div>
+                    <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;gap:8px">
+                      <span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700">Marktnews</span>
+                      <span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700">{{ bannerTick }}</span>
+                      <span style="flex:1"></span>
+                      <span style="color:rgba(255,255,255,.9);font-size:11px;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.35)">{{ bannerTime }}</span>
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:13px">
-                      <sc-for list="{{ newsBannerItems }}" as="n" hint-placeholder-count="3">
-                        <div style="display:flex;gap:11px">
-                          <div style="width:3px;border-radius:2px;flex:none;background:var(--info);opacity:.45"></div>
-                          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-                            <div style="display:flex;align-items:center;gap:8px">
-                              <span class="mono" style="color:var(--tx2);font-size:10.5px;font-weight:700;letter-spacing:.06em">{{ n.tick }}</span>
-                              <span style="color:var(--tx3);font-size:11px">{{ n.time }}</span>
-                            </div>
-                            <span style="color:var(--tx);font-size:13px;font-weight:600;line-height:1.45;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
-                          </div>
-                        </div>
-                      </sc-for>
+                    <div style="position:absolute;left:18px;right:18px;bottom:16px;display:flex;flex-direction:column;gap:8px">
+                      <span style="color:#fff;font-size:18px;font-weight:700;letter-spacing:-.01em;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{{ bannerHead }}</span>
+                      <span style="color:rgba(255,255,255,.78);font-size:11.5px;font-weight:600">Alle Nachrichten ansehen ›</span>
                     </div>
-                    <div style="flex:1;min-height:8px"></div>
-                    <p style="margin:12px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Alle Nachrichten zu deinen Titeln ansehen</p>
                   </div>
                 </div>
               </sc-if>
@@ -2745,7 +2734,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3065,7 +3054,7 @@ class Component extends DCLogic {
     return this._ocr;
   }
   async api() {
-    if (!this._api) this._api = await import("./market.js?v=20260921");
+    if (!this._api) this._api = await import("./market.js?v=20260921b");
     return this._api;
   }
 
@@ -3556,6 +3545,15 @@ class Component extends DCLogic {
     if (this._sheetDrag) return;
     this.springSheetTo(window.innerHeight || 900, 0, fn);
   };
+  loadNewsImages = async syms => {
+    const list = [...new Set((syms || []).filter(Boolean))].slice(0, 8);
+    if (!list.length) return;
+    try {
+      const api = await this.api();
+      const images = await api.newsImages(list);
+      if (images && Object.keys(images).length) this.setState(st => ({ newsImages: { ...st.newsImages, ...images } }));
+    } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
+  };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
   onNewsSearch = e => this.setState({ newsSearch: e.target.value });
   openNews = url => () => { if (url) { try { window.open(url, "_blank", "noopener"); } catch (_) {} } };
@@ -3928,6 +3926,7 @@ class Component extends DCLogic {
         lastSyncAt: Object.keys(q).length ? Date.now() : s.lastSyncAt
       }));
       if (Object.keys(q).length) this.recordIntraday(q);
+      if (news && news.length) this.loadNewsImages(news.map(n => n.symbol));
     } catch (e) {
       const map = { "bad-key": "badkey", "rate-limit": "limit", "no-key": "demo" };
       this.setState({ conn: map[e.message] || "error", syncing: false });
@@ -5355,7 +5354,8 @@ class Component extends DCLogic {
             head: n.headline,
             source: n.source || "",
             body: (n.summary || "").slice(0, 160),
-            bg: cardBg(n.symbol || "?", label),
+            img: (this.state.newsImages || {})[n.url] || "",
+            bg: ((this.state.newsImages || {})[n.url] ? "url(" + (this.state.newsImages || {})[n.url] + ") center/cover no-repeat, " : "") + cardBg(n.symbol || "?", label),
             open: this.openNews(n.url)
           };
         });
@@ -5668,6 +5668,21 @@ class Component extends DCLogic {
       goDepot: this.goDepotPage,
       goNewsFromBanner: this.go("news"),
       hasTopNews: !!(this.state.liveNews && this.state.liveNews.length),
+      ...(() => {
+        const ln = this.state.liveNews || [];
+        const imgs = this.state.newsImages || {};
+        const top = ln.find(n => imgs[n.url]) || ln[0];
+        if (!top) return { bannerBg: "", bannerTick: "", bannerTime: "", bannerHead: "" };
+        const h = holdings.find(x => (x.sym || x.abbr) === top.symbol);
+        const mins = Math.max(0, Math.round((Date.now() - top.datetime) / 60000));
+        const label = h ? displayName(h) + " " + (h.name || "") : String(top.symbol || "");
+        return {
+          bannerBg: (imgs[top.url] ? "url(" + imgs[top.url] + ") center/cover no-repeat, " : "") + cardBg(top.symbol || "?", label),
+          bannerTick: h ? h.abbr : top.symbol,
+          bannerTime: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
+          bannerHead: top.headline
+        };
+      })(),
       newsBannerItems: (this.state.liveNews || []).slice(0, 3).map((n, i) => {
         const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
         const mins = Math.round((Date.now() - n.datetime) / 60000);
