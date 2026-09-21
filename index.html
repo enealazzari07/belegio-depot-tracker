@@ -479,7 +479,10 @@ input::placeholder{color:var(--tx3)}
         </div>
 
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 20px 14px">
-          <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Positionen</span>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Positionen</span>
+            <span style="color:var(--tx3);font-size:12px">Heute</span>
+          </div>
           <a href="#depot" onClick="{{ goDepot }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:var(--surf);color:var(--tx2);border:1px solid var(--line);white-space:nowrap;transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">Depot öffnen</a>
         </div>
 
@@ -973,12 +976,9 @@ input::placeholder{color:var(--tx3)}
             </div>
             <div style="position:relative;width:100%;aspect-ratio:340/200">
               <svg viewBox="0 0 340 200" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
-                <g transform="rotate(-90 170 98)">
-                  <circle cx="170" cy="98" r="42" fill="none" stroke="var(--gbtn)" stroke-width="22"></circle>
-                  <sc-for list="{{ allocRing }}" as="sl" hint-placeholder-count="6">
-                    <circle cx="170" cy="98" r="42" fill="none" stroke="{{ sl.color }}" stroke-width="22" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
-                  </sc-for>
-                </g>
+                <sc-for list="{{ allocRing }}" as="sl" hint-placeholder-count="6">
+                  <path d="{{ sl.d }}" fill="{{ sl.color }}" fill-rule="evenodd"></path>
+                </sc-for>
                 <sc-for list="{{ allocCallouts }}" as="co" hint-placeholder-count="6">
                   <path d="{{ co.path }}" fill="none" stroke="var(--tx3)" stroke-width="1" stroke-linejoin="round" opacity=".7" vector-effect="non-scaling-stroke"></path>
                   <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="3" fill="{{ co.color }}" stroke="var(--bg)" stroke-width="1.5"></circle>
@@ -2414,6 +2414,18 @@ const smoothPathXY = xy => {
     out += " C" + (xy[i][0] + h).toFixed(1) + " " + (xy[i][1] + mm[i] * h).toFixed(1) + " " + (xy[i + 1][0] - h).toFixed(1) + " " + (xy[i + 1][1] - mm[i + 1] * h).toFixed(1) + " " + xy[i + 1][0].toFixed(1) + " " + xy[i + 1][1].toFixed(1);
   }
   return out;
+};
+// Ringsegment mit ueberall gleich breiter Luecke (Kanten parallel versetzt, nicht Keil-foermig).
+const ringSlice = (cx, cy, ri, ro, a0, a1, gap) => {
+  const P = (r, a) => (cx + r * Math.sin(a)).toFixed(2) + " " + (cy - r * Math.cos(a)).toFixed(2);
+  if (a1 - a0 > 2 * Math.PI - 0.01) {
+    return "M" + cx + " " + (cy - ro) + " A" + ro + " " + ro + " 0 1 1 " + cx + " " + (cy + ro) + " A" + ro + " " + ro + " 0 1 1 " + cx + " " + (cy - ro) + " Z M" + cx + " " + (cy - ri) + " A" + ri + " " + ri + " 0 1 0 " + cx + " " + (cy + ri) + " A" + ri + " " + ri + " 0 1 0 " + cx + " " + (cy - ri) + " Z";
+  }
+  const dO = Math.asin(Math.min(1, gap / 2 / ro)), dI = Math.asin(Math.min(1, gap / 2 / ri));
+  let o0 = a0 + dO, o1 = a1 - dO, i0 = a0 + dI, i1 = a1 - dI;
+  if (o1 <= o0 || i1 <= i0) { o0 = a0; o1 = a1; i0 = a0; i1 = a1; }
+  const large = (o1 - o0) > Math.PI ? 1 : 0, largeI = (i1 - i0) > Math.PI ? 1 : 0;
+  return "M" + P(ro, o0) + " A" + ro + " " + ro + " 0 " + large + " 1 " + P(ro, o1) + " L" + P(ri, i1) + " A" + ri + " " + ri + " 0 " + largeI + " 0 " + P(ri, i0) + " Z";
 };
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
@@ -4943,7 +4955,7 @@ class Component extends DCLogic {
       items.forEach(it => {
         const frac = it.v / visVal;
         const vis = Math.max(0, frac * CIRC - 2.5);
-        allocRing.push({ color: it.color, dasharray: vis.toFixed(2) + " " + (CIRC - vis).toFixed(2), dashoffset: (-acc * CIRC).toFixed(2) });
+        allocRing.push({ color: it.color, d: ringSlice(cx, cy, 31, 53, acc * 2 * Math.PI, (acc + frac) * 2 * Math.PI, 3) });
         raw.push({ it, frac, mid: (acc + frac / 2) * 2 * Math.PI });
         acc += frac;
       });
