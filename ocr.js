@@ -127,7 +127,7 @@ function valueForLabel(lines, labelRe, { last = false, skipRe = null } = {}) {
   return null;
 }
 
-const FEE_LABEL = /(Kommission|Courtage|Brokerage|Geb(?:ü|ue)hr(?:en)?|B(?:ö|oe)rsengeb(?:ü|ue)hr(?:en)?|Fremdspesen|Spesen|Stempel(?:abgabe|steuer)?|Umsatzabgabe|Abgabe|Transaktionssteuer|Handelsplatzgeb(?:ü|ue)hr|Fees?|Commission|Charges)/i;
+const FEE_LABEL = /(Kommission|Courtage|Brokerage|Geb(?:ü|ue)hr(?:en)?|B(?:ö|oe)rsengeb(?:ü|ue)hr(?:en)?|Fremdspesen|Spesen|Stempel(?:abgabe|steuer)?|Umsatzabgabe|Abgabe(?:n)?|Transaktionssteuer|Handelsplatzgeb(?:ü|ue)hr|Steuer(?:n)?|Fees?|Commission|Charges)/i;
 const FEE_TOTAL = /(?:Total|Gesamt|Summe)\s*(?:der\s*)?(?:Geb(?:ü|ue)hr|Spesen|Kosten|Fees|Abgaben)/i;
 const NOT_A_TOTAL = /(?:Total|Gesamt|Summe)\s*(?:der\s*)?(?:Geb(?:ü|ue)hr|Spesen|Kosten|Fees|Abgaben)|Konto|IBAN|Kunde|Referenz|Valuta|belastet\s*auf|Telefon|Tel\.|Customer|Fax|MwSt|CHE-/i;
 const FEE_SKIP = /(Verrechnungssteuer|Quellensteuer|Kurswert|Gesamtbetrag|Nettobetrag|Endbetrag|Kurs\b)/i;
@@ -319,7 +319,9 @@ function parseFields(rawText) {
 
   const U = "(?:ü|ue|u)";
   let shares = valueForLabel(lines, new RegExp(`(?:St${U}ck(?:zahl)?|Stk\\.?|Anzahl|Quantity|Qty\\.?|Units?|Shares|Menge|Nominal)[:\\s]*`, "i"));
-  let price = valueForLabel(lines, new RegExp(`(?:Ausf(?:ü|ue)hrungskurs|Ausf(?:ü|ue)hrungspreis|Trade\\s*Price|Execution\\s*Price|Unit\\s*Price|Einzelkurs|Kurs(?:\\s*pro\\s*St${U}ck)?|Preis|Price|Rate)[:\\s]*`, "i"), { skipRe: /Kurswert/i });
+  // \b vor Kurs/Preis: sonst matcht das Label innerhalb von "Wechselkurs" oder
+  // "Kaufpreis" (Gesamtbetrag) und liefert den falschen Wert als Stueckkurs.
+  let price = valueForLabel(lines, new RegExp(`(?:Ausf(?:ü|ue)hrungskurs|Ausf(?:ü|ue)hrungspreis|Trade\\s*Price|Execution\\s*Price|Unit\\s*Price|Einzelkurs|St${U}ckpreis|\\bKurs(?:\\s*(?:pro|je)\\s*(?:St${U}ck|Aktie|Titel))?\\b|\\bPreis(?:\\s*(?:pro|je)\\s*(?:St${U}ck|Aktie|Titel))?\\b|\\bPrice\\b|\\bRate\\b)[:\\s]*`, "i"), { skipRe: /Kurswert|Wechselkurs/i });
   let gross = null;
   // Tabellenbelege (z. B. Yuh): Kopfzeile "Anzahl | Preis | Betrag", darunter
   // die Werte in derselben Reihenfolge — Label-Suche wuerde beim "Preis" die
