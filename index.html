@@ -2898,7 +2898,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", hqImages: (() => { try { return JSON.parse(localStorage.getItem("belegio_hq_v1") || "{}"); } catch (_) { return {}; } })(), aiPanelOpen: false, zzPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", hqImages: (() => { try { return JSON.parse(localStorage.getItem("belegio_hq_v2") || "{}"); } catch (_) { return {}; } })(), aiPanelOpen: false, zzPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3729,17 +3729,20 @@ class Component extends DCLogic {
     const seen = this.state.hqImages || {};
     const items = (this.state.holdings || [])
       .map(h => ({ key: h.sym || h.abbr, name: h.name || "" }))
-      .filter(i => i.key && i.name && !isinLike(i.key) && !(this.state.etfHoldings && this.state.etfHoldings[i.key]) && !(i.key in seen) && !/invesco|ivz|emerging|xtrackers|dws|etf|ishares|vanguard|spdr/i.test(i.name))
-      .slice(0, 8);
+      .filter(i => i.key && i.name && !isinLike(i.key) && !(this.state.etfHoldings && this.state.etfHoldings[i.key]) && !(i.key in seen) && !/invesco|\bivz\b|emerging|xtrackers|\bdws\b|\betfs?\b|ishares|vanguard|spdr|\bucits\b/i.test(i.name));
     if (!items.length) return;
-    try {
-      const api = await this.api();
-      const found = await api.hqImages(items);
-      const next = { ...seen };
-      items.forEach(i => { next[i.key] = found[i.key] || null; });
-      try { localStorage.setItem("belegio_hq_v1", JSON.stringify(next)); } catch (_) {}
-      this.setState({ hqImages: next });
-    } catch (e) { /* ohne Foto bleibt der Farbverlauf */ }
+    // In 6er-Paketen (Server-Limit), Ergebnisse sofort uebernehmen.
+    for (let i = 0; i < items.length; i += 6) {
+      const chunk = items.slice(i, i + 6);
+      try {
+        const api = await this.api();
+        const found = await api.hqImages(chunk);
+        const next = { ...(this.state.hqImages || {}) };
+        chunk.forEach(c => { next[c.key] = found[c.key] || null; });
+        try { localStorage.setItem("belegio_hq_v2", JSON.stringify(next)); } catch (_) {}
+        this.setState({ hqImages: next });
+      } catch (e) { /* ohne Foto bleibt das Standardbild */ }
+    }
   };
   loadNewsImages = async syms => {
     const list = [...new Set((syms || []).filter(Boolean))].slice(0, 8);
@@ -5992,8 +5995,8 @@ class Component extends DCLogic {
           const v = h.shares * h.cur;
           const label = displayName(h) + " " + (h.name || "");
           const hq = (this.state.hqImages || {})[sym] || null;
-          const photo = /invesco|ivz/i.test(label) ? "img/invesco.webp" : /emerging|xtrackers|xtr\b|dws/i.test(label) ? "img/emerging.webp" : (hq && hq.url) || "";
-          const credit = hq && !/invesco|ivz|emerging|xtrackers|dws/i.test(label) ? "Foto: " + hq.credit + " · " + hq.license + " · Wikimedia Commons" : "";
+          const photo = /invesco|ivz/i.test(label) ? "img/invesco.webp" : /emerging|xtrackers|xtr\b|dws/i.test(label) ? "img/emerging.webp" : (hq && hq.url) || (etf ? "" : "img/depot.webp");
+          const credit = hq && hq.url && !/invesco|ivz|emerging|xtrackers|dws/i.test(label) ? "Foto: " + hq.credit + " · " + hq.license + " · Wikimedia Commons" + (hq.kind === "city" && hq.city ? " (" + hq.city + ")" : "") : "";
           return {
             etf,
             sym,
