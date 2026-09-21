@@ -979,6 +979,40 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin-top:6px">Nach Sitzland der Firma; bei ETFs über ihre grössten Positionen (geschätzt).</span>
           </div>
         </sc-if>
+        <sc-if value="{{ insHas }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:26px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Insider-Handel</span>
+              <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
+            </div>
+            <span style="display:block;color:var(--tx3);font-size:12px;margin-bottom:14px">Was Firmeninsider bei deinen Titeln kaufen und verkaufen · letzte 90 Tage</span>
+            <div style="position:relative">
+              <div style="display:flex;flex-direction:column;gap:8px;{{ geoWrapStyle }}">
+                <sc-for list="{{ insRows }}" as="ir" hint-placeholder-count="4">
+                  <button onClick="{{ ir.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:9px;padding:14px 16px;border-radius:24px;background:var(--surf);box-shadow:var(--card-shadow)" style-active="transform:scale(.985)">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                      <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ir.name }}</span>
+                      <span style="flex:none;padding:3px 9px;border-radius:999px;background:{{ ir.netBg }};color:{{ ir.netColor }};font-size:11px;font-weight:700">{{ ir.netLabel }}</span>
+                    </div>
+                    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--surf2)">
+                      <span style="width:{{ ir.buyW }};background:var(--pos);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                      <span style="width:{{ ir.sellW }};background:var(--neg);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;color:var(--tx3);font-size:11px;font-weight:600"><span>Käufe {{ ir.buyLabel }}</span><span>Verkäufe {{ ir.sellLabel }}</span></div>
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ geoLocked }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+                  <span style="color:#fff;font-size:12px;font-weight:700">Insider-Handel mit Pro</span>
+                  <span style="padding:6px 12px;border-radius:999px;background:#fff;color:#1b1b1f;font-size:11px;font-weight:700">Freischalten</span>
+                </button>
+              </sc-if>
+            </div>
+            <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin-top:6px">Aus SEC-Form-4-Meldungen (nur US-Titel). Tippen für Einzelheiten. Keine Anlageberatung.</span>
+          </div>
+        </sc-if>
 
         </sc-if>
 
@@ -6251,6 +6285,29 @@ class Component extends DCLogic {
       allocationLegend,
       allocRing, allocCallouts,
       depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc",
+      ...(() => {
+        const cut = Date.now() - 90 * 864e5, it = this.state.insiderTrades || {};
+        const rows = [];
+        Object.keys(it).forEach(sym => {
+          let buy = 0, sell = 0;
+          (it[sym] || []).forEach(t => {
+            if (new Date(t.transaction_date).getTime() < cut) return;
+            const v = t.price_per_share != null ? Number(t.shares) * Number(t.price_per_share) : 0;
+            if (t.transaction_code === "P") buy += v; else if (t.transaction_code === "S") sell += v;
+          });
+          if (buy + sell > 0) rows.push({ sym, buy, sell });
+        });
+        rows.sort((a, b) => (b.buy + b.sell) - (a.buy + a.sell));
+        const cmp = n => n >= 1e6 ? (n / 1e6).toFixed(1) + " Mio" : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(Math.round(n));
+        const list = rows.slice(0, 8).map(r => {
+          const h = holdings.find(x => (x.sym || x.abbr) === r.sym), tot = r.buy + r.sell, net = r.buy - r.sell;
+          return { name: h ? displayName(h) : r.sym, open: this.openInsiderSheet(r.sym),
+            buyW: (r.buy / tot * 100).toFixed(1) + "%", sellW: (r.sell / tot * 100).toFixed(1) + "%",
+            buyLabel: "$" + cmp(r.buy), sellLabel: "$" + cmp(r.sell),
+            netLabel: net >= 0 ? "Netto Kauf" : "Netto Verkauf", netColor: net >= 0 ? "var(--pos)" : "var(--neg)", netBg: net >= 0 ? "var(--pos-soft)" : "var(--neg-soft)" };
+        });
+        return { insHas: list.length > 0, insRows: list };
+      })(),
       depotDiv: this.state.depotTab === "div",
       ...(() => {
         const now = new Date(), YR = 365 * 864e5;
