@@ -539,7 +539,7 @@ input::placeholder{color:var(--tx3)}
                 <button onClick="{{ f.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ f.bg }};color:{{ f.tx }};border:1px solid {{ f.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ f.label }}</button>
               </sc-for>
             </div>
-            <div id="home-stack" onPointerDown="{{ stackDown }}" onPointerMove="{{ stackMove }}" onPointerUp="{{ stackUp }}" onPointerCancel="{{ stackUp }}" style="position:relative;height:300px;margin:6px 34px 0;touch-action:pan-y;-webkit-user-select:none;user-select:none">
+            <div id="home-stack" onPointerDown="{{ stackDown }}" onPointerMove="{{ stackMove }}" onPointerUp="{{ stackUp }}" onPointerCancel="{{ stackUp }}" style="position:relative;height:300px;margin:6px {{ homeStackMargin }} 0 20px;touch-action:pan-y;-webkit-user-select:none;user-select:none">
               <sc-for list="{{ homeCards }}" as="c" hint-placeholder-count="3">
                 <div data-hc="1" onClick="{{ c.open }}" style="{{ c.stackStyle }}">
                   <div style="position:relative;height:100%;border-radius:30px;overflow:hidden;background:{{ c.bg }};box-shadow:0 22px 44px -22px {{ c.shadow }}">
@@ -2528,7 +2528,7 @@ const displayName = h => {
 
 // Position der Karten im Stapel: Slot 0 vorne, 1 rechts dahinter, 2 links
 // dahinter, 3+ verborgen. p = Fortschritt zum naechsten Slot (0..1).
-const STACK_TX = [0, 26, -26, -26], STACK_SC = [1, 0.91, 0.91, 0.84], STACK_OP = [1, 1, 1, 0];
+const STACK_TX = [0, 22, 44, 44], STACK_SC = [1, 0.93, 0.86, 0.8], STACK_OP = [1, 1, 1, 0];
 const stackSlot = (k, p) => {
   const a = Math.min(k, 3), b = Math.min(Math.max(k - 1, 0), 3);
   const l = (arr) => arr[a] + (arr[b] - arr[a]) * p;
@@ -3651,6 +3651,7 @@ class Component extends DCLogic {
       const r = stackSlot(k, p);
       c.style.transform = "translate3d(" + (k === 0 ? dx : r.tx) + "px,0,0) rotate(" + (k === 0 ? (dx / W * 9).toFixed(2) : 0) + "deg) scale(" + r.sc.toFixed(3) + ")";
       c.style.opacity = k === 0 ? String(prog != null && prog >= 1 ? 0 : 1 - Math.min(0.35, p * 0.4)) : String(r.op);
+      c.style.transformOrigin = k === 0 ? "50% 60%" : "0% 50%";
       c.style.zIndex = String(n - k);
       c.style.pointerEvents = k === 0 ? "auto" : "none";
     });
@@ -5680,7 +5681,7 @@ class Component extends DCLogic {
         list.forEach((c, i) => {
           const k = (i - cur + list.length) % list.length;
           const r = stackSlot(k, 0);
-          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
+          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform-origin:" + (k === 0 ? "50% 60%" : "0% 50%") + ";transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
         });
         const tabs = [{ key: "all", label: "Alle" }, { key: "stock", label: "Aktien" }, { key: "etf", label: "ETFs" }];
         const selSym = this.state.cardDetailSym;
@@ -5706,6 +5707,7 @@ class Component extends DCLogic {
           cardDetailItems: detailItems,
           homeCards: list,
           homeCardsEmpty: list.length === 0,
+          homeStackMargin: list.length <= 1 ? "20px" : list.length === 2 ? "42px" : "64px",
           homeDots: list.length > 1 ? list.map((_, i) => ({ w: i === cur ? "18px" : "6px", bg: i === cur ? "var(--tx)" : "var(--line2)" })) : [],
           homeFilters: tabs.map(t => ({
             label: t.label,
