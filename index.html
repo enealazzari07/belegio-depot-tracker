@@ -3117,7 +3117,7 @@ class Component extends DCLogic {
           [document.getElementById("nb-layer"), ...document.querySelectorAll(".nb-fade")].filter(Boolean).forEach(e => { e.style.opacity = "1"; });
         }, 80);
       }, 360);
-    }, 7000);
+    }, 8500);
     clearInterval(this._carouselTimer);
     this._carouselTimer = setInterval(() => {
       if (this.state.screen !== "dash" || this.state.carouselTouched) return;
