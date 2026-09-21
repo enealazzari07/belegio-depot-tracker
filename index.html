@@ -225,6 +225,10 @@ input::placeholder{color:var(--tx3)}
 .tab-scan{min-width:0!important;overflow:hidden!important;will-change:clip-path;animation:tabScanGrow .8s cubic-bezier(.32,.72,0,1) .9s both!important}
 .tab-scan span{display:block;overflow:hidden;animation:tabLabel .45s cubic-bezier(.32,.72,0,1) 1.15s both}
 @media (prefers-reduced-motion: reduce){.tab-bar,.tab-l,.tab-r,.tab-scan,.tab-scan span{animation:none!important}}
+.hc-inner{transition:opacity .2s ease}
+#home-cards::-webkit-scrollbar{display:none}
+@keyframes wIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.w-in{animation:wIn .5s cubic-bezier(.22,1,.36,1) both}
 .sheet-in{animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) backwards}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes scrimIn{from{opacity:0}to{opacity:1}}
@@ -500,45 +504,68 @@ input::placeholder{color:var(--tx3)}
         <div style="margin:0 6px;background:var(--home-bg);border-radius:0 0 26px 26px;padding:0 0 2px">
 
         <sc-if value="{{ hasHomeStats }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 20px 20px">
-            <div class="card" style="padding:18px">
-              <span style="display:block;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:14px">Depot auf einen Blick</span>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 14px">
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">GESAMTRENDITE</span>
-                  <span class="mono" style="color:{{ homeStatTotalReturnColor }};font-size:16px;font-weight:700">{{ homeStatTotalReturnPct }}</span>
-                  <span style="color:var(--tx3);font-size:10.5px">seit Kauf</span>
+          <div style="padding:0 0 22px">
+            <div style="padding:0 20px;display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Depot auf einen Blick</span>
+              <span class="mono" style="color:{{ homeStatTotalReturnColor }};font-size:12px;font-weight:700">{{ homeStatTotalReturnPct }}</span>
+            </div>
+            <div style="padding:0 20px;margin-top:3px;color:var(--tx3);font-size:12px">{{ homeStatPosCount }} Positionen · seit Kauf</div>
+            <div style="display:flex;gap:8px;padding:14px 20px 16px;overflow-x:auto;scrollbar-width:none">
+              <sc-for list="{{ homeFilters }}" as="f" hint-placeholder-count="3">
+                <button onClick="{{ f.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ f.bg }};color:{{ f.tx }};border:1px solid {{ f.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ f.label }}</button>
+              </sc-for>
+            </div>
+            <div id="home-cards" onScroll="{{ homeCardsScroll }}" style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 12% 22px;-webkit-overflow-scrolling:touch">
+              <sc-for list="{{ homeCards }}" as="c" hint-placeholder-count="3">
+                <div data-hc="1" onClick="{{ c.open }}" style="flex:none;width:76%;scroll-snap-align:center;cursor:pointer">
+                  <div class="hc-inner" style="position:relative;height:296px;border-radius:30px;overflow:hidden;background:{{ c.bg }};box-shadow:0 20px 40px -20px {{ c.shadow }};will-change:transform">
+                    <svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ c.sunX }}" cy="78" r="34" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg>
+                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,.5) 100%);pointer-events:none"></div>
+                    <div style="position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between">
+                      <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ c.kind }}</span>
+                      <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;overflow:hidden">{{ c.logo }}</span>
+                    </div>
+                    <sc-if value="{{ c.hasSpark }}" hint-placeholder-val="{{ false }}">
+                      <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="position:absolute;left:22px;right:22px;top:92px;width:calc(100% - 44px);height:58px;overflow:visible;pointer-events:none">
+                        <path d="{{ c.spark }}" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      </svg>
+                    </sc-if>
+                    <div style="position:absolute;left:18px;right:18px;bottom:76px;display:flex;flex-direction:column;gap:5px">
+                      <span style="color:rgba(255,255,255,.78);font-size:12px;font-weight:600">{{ c.sub }}</span>
+                      <span style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.name }}</span>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <span class="mono" style="color:#fff;font-size:13px;font-weight:700">{{ c.value }}</span>
+                        <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;font-size:11px;font-weight:700">{{ c.day }}</span>
+                      </div>
+                    </div>
+                    <div style="position:absolute;left:14px;right:14px;bottom:14px;height:52px;border-radius:26px;background:rgba(24,24,28,.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;padding:0 7px 0 20px;gap:10px">
+                      <span style="flex:1;color:#fff;font-size:14px;font-weight:600;text-align:center;padding-left:36px">Details</span>
+                      <span style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#17171b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">GRÖSSTE POSITION</span>
-                  <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatBestPosName }}</span>
-                  <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ homeStatBestPosWeight }}</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">STÄRKSTER HEUTE</span>
-                  <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatBestTodayName }}</span>
-                  <span class="mono" style="color:{{ homeStatBestTodayColor }};font-size:10.5px;font-weight:700">{{ homeStatBestTodayPct }}</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">SCHWÄCHSTER HEUTE</span>
-                  <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatWorstTodayName }}</span>
-                  <span class="mono" style="color:{{ homeStatWorstTodayColor }};font-size:10.5px;font-weight:700">{{ homeStatWorstTodayPct }}</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">POSITIONEN</span>
-                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ homeStatPosCount }}</span>
-                  <span style="color:var(--tx3);font-size:10.5px">im Depot</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">REALISIERT</span>
-                  <span class="mono" style="color:{{ homeStatRealizedColor }};font-size:16px;font-weight:700">{{ homeStatRealized }}</span>
-                  <span style="color:var(--tx3);font-size:10.5px">aus Verkäufen</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">DIVIDENDENRENDITE</span>
-                  <span class="mono" style="color:var(--tx);font-size:16px;font-weight:700">{{ homeStatDivYield }}</span>
-                  <span style="color:var(--tx3);font-size:10.5px">12 Monate</span>
-                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ homeCardsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="margin:0 20px;padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:20px;background:var(--surf);border:1px dashed var(--line2)">Keine Positionen in dieser Kategorie.</div>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 20px">
+              <div style="display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line)">
+                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">STÄRKSTER HEUTE</span>
+                <span style="color:var(--tx);font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatBestTodayName }}</span>
+                <span class="mono" style="color:{{ homeStatBestTodayColor }};font-size:11px;font-weight:700">{{ homeStatBestTodayPct }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line)">
+                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">SCHWÄCHSTER</span>
+                <span style="color:var(--tx);font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatWorstTodayName }}</span>
+                <span class="mono" style="color:{{ homeStatWorstTodayColor }};font-size:11px;font-weight:700">{{ homeStatWorstTodayPct }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line)">
+                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">DIVIDENDE</span>
+                <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700">{{ homeStatDivYield }}</span>
+                <span style="color:var(--tx3);font-size:10.5px">12 Monate</span>
               </div>
             </div>
           </div>
@@ -2048,6 +2075,33 @@ input::placeholder{color:var(--tx3)}
          Home-Header, nicht im Depot — verschachtelt in isDepot wurde das
          Sheet auf dem Home-Screen nie sichtbar, egal was notifSheetOpen
          sagte, weil der Eltern-Zweig dort false war (Bug, siehe Diagnose). -->
+    <!-- Willkommen: erscheint nur direkt nach dem allerersten Registrieren. -->
+    <sc-if value="{{ welcomeOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top, 0px) + 64px) 28px calc(env(safe-area-inset-bottom, 0px) + 28px);overflow-y:auto">
+        <div class="w-in" style="animation-delay:.05s;width:64px;height:64px;border-radius:20px;background:linear-gradient(160deg,#8E9EFF,#5B5BD6 60%,#2D2A6E);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -16px rgba(91,91,214,.7)">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"></path></svg>
+        </div>
+        <span class="w-in" style="animation-delay:.12s;margin-top:28px;color:var(--tx);font-size:34px;font-weight:700;letter-spacing:-.035em;line-height:1.05">Willkommen<br>bei Belegio</span>
+        <span class="w-in" style="animation-delay:.18s;margin-top:12px;color:var(--tx3);font-size:15px;line-height:1.5">{{ welcomeName }}, dein Depot ist bereit. So legst du los:</span>
+        <div style="margin-top:34px;display:flex;flex-direction:column;gap:20px">
+          <div class="w-in" style="animation-delay:.26s;display:flex;gap:14px;align-items:flex-start">
+            <span style="width:42px;height:42px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"></path></svg></span>
+            <div style="display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Beleg scannen</span><span style="color:var(--tx3);font-size:13px;line-height:1.45">Foto deiner Kaufabrechnung machen — Titel, Stückzahl, Kurs und Gebühren werden automatisch erkannt.</span></div>
+          </div>
+          <div class="w-in" style="animation-delay:.34s;display:flex;gap:14px;align-items:flex-start">
+            <span style="width:42px;height:42px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9h9"></path><path d="M20.4 15.5A9 9 0 1 1 8.5 3.6"></path></svg></span>
+            <div style="display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Depot im Blick</span><span style="color:var(--tx3);font-size:13px;line-height:1.45">Live-Kurse, Entwicklung und Gewichtung deiner Aktien und ETFs auf einen Blick.</span></div>
+          </div>
+          <div class="w-in" style="animation-delay:.42s;display:flex;gap:14px;align-items:flex-start">
+            <span style="width:42px;height:42px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 8-2.5 8h17S18 15 18 9"></path><path d="M13.7 20.5a2 2 0 0 1-3.4 0"></path></svg></span>
+            <div style="display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Kursalarme &amp; Meldungen</span><span style="color:var(--tx3);font-size:13px;line-height:1.45">Zielkurse setzen und per Push informiert werden — auch bei geschlossener App.</span></div>
+          </div>
+        </div>
+        <div style="flex:1;min-height:28px"></div>
+        <button onClick="{{ closeWelcome }}" class="w-in" style="animation-delay:.5s;all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:56px;border-radius:18px;background:#1b1b1f;color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" style-active="transform:scale(.98)">Los geht's</button>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
       <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
@@ -2495,7 +2549,7 @@ class Component extends DCLogic {
     toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     marketQuotes: null, marketHistory: null, moverQuotes: null, marketsLoading: false, marketsError: false,
-    splash: true, dashLoading: true,
+    splash: false, dashLoading: true,
 
     user: null,
     authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
@@ -2508,7 +2562,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false,
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", welcomeOpen: false,
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -2834,7 +2888,6 @@ class Component extends DCLogic {
 
   async componentDidMount() {
     window.addEventListener("keydown", this.onEscKey);
-    this.t3 = setTimeout(() => this.setState({ splash: false }), 2520);
     this.loadIntraday();
     this.startCarousel();
     this.loadInvestPlan();
@@ -3007,7 +3060,7 @@ class Component extends DCLogic {
         this.setState({ authLoading: false, authMode: "login", authPassword: "", authError: "Konto erstellt — bitte bestätige deine E-Mail-Adresse und melde dich dann an." });
         return;
       }
-      this.setState({ authLoading: false, user: session.user, screen: "dash", authPassword: "", dashLoading: true });
+      this.setState({ authLoading: false, user: session.user, screen: "dash", authPassword: "", dashLoading: true, welcomeOpen: authMode === "register" });
       const holdings = await this.loadPortfolio();
       await this.loadHistory(holdings);
       await this.loadEtfCompositions(holdings);
@@ -3309,6 +3362,27 @@ class Component extends DCLogic {
   animClose = fn => () => {
     if (this._sheetDrag) return;
     this.springSheetTo(window.innerHeight || 900, 0, fn);
+  };
+  setHomeFilter = k => () => {
+    this.setState({ homeFilter: k });
+    setTimeout(() => {
+      const el = document.getElementById("home-cards");
+      if (el) { el.scrollLeft = 0; this.homeCardsScroll({ currentTarget: el }); }
+    }, 30);
+  };
+  // Wischen: Karte in der Mitte gross, Nachbarn kleiner und leicht transparent.
+  homeCardsScroll = e => {
+    const el = e.currentTarget;
+    if (!el) return;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    el.querySelectorAll("[data-hc]").forEach(card => {
+      const mid = card.offsetLeft + card.offsetWidth / 2;
+      const t = Math.min(1, Math.abs(center - mid) / card.offsetWidth);
+      const inner = card.firstElementChild;
+      if (!inner) return;
+      inner.style.transform = "scale(" + (1 - 0.09 * t).toFixed(3) + ")";
+      inner.style.opacity = (1 - 0.35 * t).toFixed(3);
+    });
   };
   onEscKey = e => {
     if (e.key !== "Escape") return;
@@ -4912,6 +4986,9 @@ class Component extends DCLogic {
       ]
         .sort((a, b) => b.date < a.date ? -1 : 1)
         .slice(0, 20),
+      welcomeOpen: this.state.welcomeOpen,
+      closeWelcome: () => this.setState({ welcomeOpen: false }),
+      welcomeName: (() => { const e = (this.state.user && this.state.user.email) || ""; const n = e.split("@")[0].replace(/[._-]+/g, " ").trim(); return n ? n.charAt(0).toUpperCase() + n.slice(1) : "Hallo"; })(),
       hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) || (this.state.pushLog || []).length > 0,
       noNotifItems: !holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) && !(this.state.pushLog || []).length,
 
@@ -4999,6 +5076,50 @@ class Component extends DCLogic {
 
       // ---------- „Depot auf einen Blick" (Home-Stats) ----------
       hasHomeStats: holdings.length > 0,
+      ...(() => {
+        const PAL = [["#8E9EFF", "#5B5BD6", "#2D2A6E"], ["#FDA085", "#F6546A", "#7B2D5B"], ["#7DE2D1", "#2AA6B5", "#1E4E79"], ["#FFB36B", "#E8547C", "#5E2A6B"], ["#9ad0ff", "#3d7bf0", "#1c2f78"], ["#c3a6ff", "#8a5cf0", "#3b2379"], ["#6fe0a8", "#1f9d8a", "#124a5c"], ["#ff9db1", "#e4507a", "#5b2a63"]];
+        const hash = str => [...String(str)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+        const isEtfSym = sym => isinLike(sym) || !!(this.state.etfHoldings && this.state.etfHoldings[sym]);
+        const filter = this.state.homeFilter || "all";
+        const all = holdings.map(h => {
+          const sym = h.sym || h.abbr;
+          const etf = isEtfSym(sym);
+          const pal = PAL[hash(sym) % PAL.length];
+          const dp = typeof h.dp === "number" ? h.dp : null;
+          const st = isinLike(sym) ? "open" : marketStatus(sym);
+          const v = h.shares * h.cur;
+          return {
+            etf,
+            sym,
+            kind: etf ? "ETF" : "Aktie",
+            logo: logoFor(sym),
+            name: displayName(h),
+            sub: h.shares + " Stk. · Ø " + f2(h.buy),
+            value: f2(v) + " CHF",
+            day: dp == null ? "kein Kurs" : st === "weekend" ? "Geschlossen" : (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
+            bg: "linear-gradient(160deg," + pal[0] + " 0%," + pal[1] + " 55%," + pal[2] + " 100%)",
+            shadow: pal[1] + "99",
+            sunX: 200 + (hash(sym) % 70),
+            spark: buildSparkline(hist[sym]),
+            hasSpark: !!buildSparkline(hist[sym]),
+            open: this.openDepotPosition(sym)
+          };
+        });
+        const list = all.filter(c => filter === "all" || (filter === "etf" ? c.etf : !c.etf));
+        const tabs = [{ key: "all", label: "Alle" }, { key: "stock", label: "Aktien" }, { key: "etf", label: "ETFs" }];
+        return {
+          homeCards: list,
+          homeCardsEmpty: list.length === 0,
+          homeFilters: tabs.map(t => ({
+            label: t.label,
+            bg: filter === t.key ? "#1b1b1f" : "var(--surf)",
+            tx: filter === t.key ? "#fff" : "var(--tx2)",
+            border: filter === t.key ? "#1b1b1f" : "var(--line)",
+            go: this.setHomeFilter(t.key)
+          }))
+        };
+      })(),
+      homeCardsScroll: this.homeCardsScroll,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
       homeStatBestPosName: bestPos ? displayName(bestPos) : "–",
