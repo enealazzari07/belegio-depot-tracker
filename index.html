@@ -517,9 +517,8 @@ input::placeholder{color:var(--tx3)}
           <div style="padding:0 0 22px">
             <div style="padding:0 20px;display:flex;align-items:baseline;justify-content:space-between;gap:10px">
               <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Depot auf einen Blick</span>
-              <span class="mono" style="color:{{ homeStatTotalReturnColor }};font-size:12px;font-weight:700">{{ homeStatTotalReturnPct }}</span>
             </div>
-            <div style="padding:0 20px;margin-top:3px;color:var(--tx3);font-size:12px">{{ homeStatPosCount }} Positionen · seit Kauf</div>
+            <div style="padding:0 20px;margin-top:3px;color:var(--tx3);font-size:12px">{{ homeStatPosCount }} Positionen</div>
             <div style="display:flex;gap:8px;padding:14px 20px 16px;overflow-x:auto;scrollbar-width:none">
               <sc-for list="{{ homeFilters }}" as="f" hint-placeholder-count="3">
                 <button onClick="{{ f.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ f.bg }};color:{{ f.tx }};border:1px solid {{ f.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ f.label }}</button>
@@ -546,6 +545,7 @@ input::placeholder{color:var(--tx3)}
                       <div style="display:flex;align-items:center;gap:8px">
                         <span class="mono" style="color:#fff;font-size:13px;font-weight:700">{{ c.value }}</span>
                         <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;font-size:11px;font-weight:700">{{ c.day }}</span>
+                        <span style="display:flex;align-items:baseline;gap:4px;color:#fff"><span class="mono" style="font-size:12px;font-weight:700">{{ c.since }}</span><span style="font-size:9.5px;font-weight:600;opacity:.75">seit Kauf</span></span>
                       </div>
                     </div>
                     <div style="position:absolute;left:14px;right:14px;bottom:14px;height:52px;border-radius:26px;background:rgba(24,24,28,.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;padding:0 7px 0 20px;gap:10px">
@@ -5160,6 +5160,7 @@ class Component extends DCLogic {
             name: displayName(h),
             sub: h.shares + " Stk. · Ø " + f2(h.buy),
             value: f2(v) + " CHF",
+            since: h.buy ? ((h.cur / h.buy - 1) * 100 >= 0 ? "+" : "") + ((h.cur / h.buy - 1) * 100).toFixed(1) + " %" : "–",
             day: dp == null ? "kein Kurs" : st === "weekend" ? "Geschlossen" : (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
             photo,
             noPhoto: !photo,
