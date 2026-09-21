@@ -276,6 +276,10 @@ input::placeholder{color:var(--tx3)}
 @media (prefers-reduced-motion: reduce){.zz-panel{animation:none!important}}
 .ai-body{animation:wIn .45s cubic-bezier(.22,1,.36,1) .18s backwards}
 @media (prefers-reduced-motion: reduce){.ai-panel,.ai-body{animation:none!important}}
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="hidden"]){border-radius:999px !important}
+select{border-radius:999px !important}
+textarea{border-radius:22px !important}
+input[type="date"]{-webkit-appearance:none;appearance:none}
 .sheet-in{animation:sheetMorph .5s cubic-bezier(.32,.72,0,1) backwards;transform-origin:50% 100%}
 .sheet-in>*{animation:wIn .5s cubic-bezier(.22,1,.36,1) backwards}
 .sheet-in>*:nth-child(1){animation-delay:.04s}.sheet-in>*:nth-child(2){animation-delay:.09s}
@@ -361,7 +365,24 @@ input::placeholder{color:var(--tx3)}
           </div>
           <div style="display:flex;flex-direction:column;gap:7px">
             <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
-            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:16px;background:var(--surf2);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="background:var(--surf3)">
+            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:16px;background:var(--surf2);color:var(--tx);font-size:15px;padding:0 20px;outline:none" style-focus="background:var(--surf3)">
+            <sc-if value="{{ pwShow }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px;animation:wIn .35s cubic-bezier(.22,1,.36,1) both">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="flex:1;display:flex;align-items:flex-end;gap:5px;height:9px">
+                    <sc-for list="{{ pwSegs }}" as="sg" hint-placeholder-count="4">
+                      <span style="flex:1;height:{{ sg.h }};border-radius:4px;background:{{ sg.bg }};transition:height .5s cubic-bezier(.34,1.56,.64,1) {{ sg.delay }},background .4s ease {{ sg.delay }}"></span>
+                    </sc-for>
+                  </div>
+                  <span style="min-width:74px;text-align:right;font-size:12px;font-weight:700;color:{{ pwColor }};transition:color .4s ease">{{ pwLabel }}</span>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <sc-for list="{{ pwChecks }}" as="ck" hint-placeholder-count="4">
+                    <span style="padding:4px 10px;border-radius:999px;font-size:10.5px;font-weight:700;background:{{ ck.bg }};color:{{ ck.tx }};transition:background .35s ease,color .35s ease,transform .35s cubic-bezier(.34,1.56,.64,1);transform:scale({{ ck.scale }})">{{ ck.label }}</span>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
           </div>
         </div>
 
@@ -841,7 +862,6 @@ input::placeholder{color:var(--tx3)}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="flex:1;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Depot</span>
-          <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:6px;padding:9px 15px;border-radius:999px;background:{{ depotProBg }};color:{{ depotProTx }};font-size:12px;font-weight:700;transition:transform 140ms ease" style-active="transform:scale(.96)">{{ depotProLabel }}</button>
         </div>
 
 
@@ -1617,10 +1637,10 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;background:radial-gradient(120% 60% at 20% 0%,#1d3a44 0%,#141922 46%,#0e1015 100%);animation:rise .32s ease;-webkit-overflow-scrolling:touch">
+      <div style="position:absolute;inset:0;overflow-y:auto;background:linear-gradient(180deg,#ffffff 0px,rgba(255,255,255,.92) 40px,rgba(255,255,255,.55) 150px,rgba(255,255,255,0) 330px) no-repeat local,radial-gradient(120% 60% at 20% 0%,#1d3a44 0%,#141922 46%,#0e1015 100%);animation:rise .32s ease;-webkit-overflow-scrolling:touch">
         <div style="padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(190px + env(safe-area-inset-bottom, 0px))">
           <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
-            <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
+            <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#141922" style-active="transform:scale(.92)">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
@@ -3235,12 +3255,6 @@ class Component extends DCLogic {
 
   // Pro-Nutzer sollen die Kauf-Seite nicht mehr sehen — stattdessen kurzer Hinweis.
   openAbo = () => {
-    if (this.state.userPlan === "pro") {
-      clearTimeout(this.t2);
-      this.setState({ toast: true, toastMsg: "Du hast bereits Pro" });
-      this.t2 = setTimeout(() => this.setState({ toast: false }), 2200);
-      return;
-    }
     this.go("pro")();
   };
 
@@ -5749,6 +5763,26 @@ class Component extends DCLogic {
       syncLabel: this.state.syncing ? "Synchronisiert…" : "Kurse aktualisieren",
 
       // ---------- Auth ----------
+      ...(() => {
+        const pw = String(this.state.authPassword || "");
+        const has = { len: pw.length >= 8, mix: /[a-z]/.test(pw) && /[A-Z]/.test(pw), num: /\d/.test(pw), sym: /[^A-Za-z0-9]/.test(pw) };
+        let score = (pw.length >= 8 ? 1 : 0) + (pw.length >= 12 ? 1 : 0) + (has.mix ? 1 : 0) + (has.num ? 1 : 0) + (has.sym ? 1 : 0);
+        if (/^(.)\1+$/.test(pw) || /(password|passwort|123456|qwerty|abc123|letmein|welcome)/i.test(pw)) score = Math.min(score, 1);
+        score = Math.max(0, Math.min(4, score > 4 ? 4 : score));
+        if (pw.length < 6) score = 0;
+        const COL = ["#e5484d", "#f5a524", "#d9c23a", "#46b98a", "#18a878"];
+        const LAB = ["Zu kurz", "Schwach", "Mittel", "Stark", "Sehr stark"];
+        const lvl = pw.length < 6 ? 0 : Math.max(1, score);
+        const col = pw ? COL[lvl] : "var(--tx3)";
+        return {
+          pwShow: this.state.authMode === "register" && pw.length > 0,
+          pwLabel: LAB[lvl], pwColor: col,
+          pwSegs: [0, 1, 2, 3].map(i => ({ h: i < lvl ? "9px" : "4px", bg: i < lvl ? COL[lvl] : "var(--line2)", delay: (i * 70) + "ms" })),
+          pwChecks: [
+            { label: "8+ Zeichen", ok: has.len }, { label: "Gross + klein", ok: has.mix }, { label: "Zahl", ok: has.num }, { label: "Sonderzeichen", ok: has.sym }
+          ].map(c => ({ label: (c.ok ? "✓ " : "") + c.label, bg: c.ok ? "var(--pos-soft)" : "var(--surf2)", tx: c.ok ? "var(--pos)" : "var(--tx3)", scale: c.ok ? "1" : ".96" }))
+        };
+      })(),
       authTitle: this.state.authMode === "register" ? "Konto\nerstellen" : "Willkommen\nzurück",
       authEmail: this.state.authEmail, onAuthEmail: this.onAuthEmail,
       authPassword: this.state.authPassword, onAuthPassword: this.onAuthPassword,
@@ -5874,7 +5908,7 @@ class Component extends DCLogic {
       printTaxReport: () => window.print(),
       exportTaxReportPdf: this.exportTaxReportPdf,
       prefs: [
-        ["Abo", this.state.userPlan === "pro" ? "Pro" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
+        ["Abo", this.state.userPlan === "pro" ? "Pro aktiv ✓" : "Gratis", "M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z", "pro"],
         ["Steuer-Report", "2026", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6", this.state.userPlan === "pro" ? "taxReport" : "pro"]
       ].map(([label, hint, d, to]) => ({
         label, hint,
