@@ -338,6 +338,10 @@ function parseFields(rawText) {
     const vals = [];
     for (let i = tHead + 1; i < Math.min(lines.length, tHead + 5) && vals.length < 3; i++) vals.push(...amountsIn(lines[i]));
     if (vals.length >= 3) { shares = vals[0]; price = vals[1]; gross = vals[2]; }
+    // Betrag-Spalte von der OCR nicht gelesen (nur "CHF" ohne Zahl dahinter):
+    // Anzahl/Preis trotzdem uebernehmen, Betrag ergibt sich weiter unten aus
+    // Anzahl x Preis.
+    else if (vals.length === 2) { shares = vals[0]; price = vals[1]; }
   }
   {
     const okRow = (a, b, c) => a && b && c && Math.abs(a * b - c) <= Math.max(0.02, c * 0.006);
