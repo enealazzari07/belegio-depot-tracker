@@ -369,11 +369,6 @@ input::placeholder{color:var(--tx3)}
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
                 <span style="color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
               </div>
-              <div style="display:flex;gap:3px;padding:4px;border-radius:13px;background:rgba(16,19,26,.06)">
-                <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
-                  <button onClick="{{ r.go }}" class="segb" style="background:{{ r.bg }};color:{{ r.tx }}">{{ r.label }}</button>
-                </sc-for>
-              </div>
               <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:34px;height:34px;border-radius:11px;background:rgba(16,19,26,.06);display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                 <sc-if value="{{ notifBadge }}" hint-placeholder-val="{{ false }}">
@@ -401,29 +396,34 @@ input::placeholder{color:var(--tx3)}
               <span class="mono" style="color:var(--onBrand2);font-size:11px;font-weight:600">{{ scrubDateLabel }}</span>
             </div>
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
-            <div style="position:relative">
-              <svg viewBox="0 0 320 112" preserveAspectRatio="none" style="width:100%;height:118px;display:block;overflow:visible">
-                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--onBrand)" stop-opacity=".22"></stop><stop offset="1" style="stop-color:var(--onBrand)" stop-opacity="0"></stop></linearGradient></defs>
-                <path d="{{ chartInvestedPath }}" fill="none" stroke="var(--onBrand-dash)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round"></path>
+            <div style="position:relative;height:176px;margin:0 -4px">
+              <svg viewBox="0 0 320 170" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible">
+                <defs><linearGradient id="vfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:{{ gainColor }}" stop-opacity=".30"></stop><stop offset="1" style="stop-color:{{ gainColor }}" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="{{ chartInvestedPath }}" fill="none" stroke="var(--onBrand-dash)" stroke-width="1.8" stroke-dasharray="4 5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
                 <path d="{{ chartValueFillPath }}" fill="url(#vfill)"></path>
-                <path d="{{ chartValuePath }}" fill="none" stroke="var(--onBrand)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
-                <circle cx="{{ chartDotX }}" cy="{{ chartDotY }}" r="4.2" fill="var(--onBrand)"></circle>
+                <path d="{{ chartValuePath }}" fill="none" stroke="{{ gainColor }}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
                 <sc-if value="{{ scrubActive }}" hint-placeholder-val="{{ false }}">
-                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="112" stroke="var(--onBrand3)" stroke-width="1.3" stroke-dasharray="3 3"></line>
-                  <circle cx="{{ chartScrubX }}" cy="{{ chartScrubY }}" r="5.5" fill="var(--brand-flat)" stroke="var(--onBrand)" stroke-width="2.5"></circle>
+                  <line x1="{{ chartScrubX }}" y1="0" x2="{{ chartScrubX }}" y2="170" stroke="var(--onBrand3)" stroke-width="1.2" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"></line>
                 </sc-if>
               </svg>
-              <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:-8px 0;touch-action:none;cursor:pointer"></div>
-              <div style="display:flex;justify-content:space-between;padding:10px 0 0">
-                <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
-                  <span class="mono" style="color:var(--onBrand3);font-size:10px;font-weight:600">{{ m.l }}</span>
-                </sc-for>
-              </div>
+              <span style="position:absolute;left:{{ chartDotX }};top:{{ chartDotY }};width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:{{ gainColor }};opacity:.2;pointer-events:none"></span>
+              <span style="position:absolute;left:{{ chartDotX }};top:{{ chartDotY }};width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:{{ gainColor }};border:2px solid var(--brand-flat);box-sizing:content-box;pointer-events:none"></span>
+              <div onPointerDown="{{ scrubStart }}" onPointerMove="{{ scrubMove }}" onPointerUp="{{ scrubEnd }}" onPointerLeave="{{ scrubEnd }}" onPointerCancel="{{ scrubEnd }}" style="position:absolute;inset:0;touch-action:none;cursor:pointer"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:2px 2px 0">
+              <sc-for list="{{ months }}" as="m" hint-placeholder-count="4">
+                <span class="mono" style="color:var(--onBrand3);font-size:10.5px;font-weight:600">{{ m.l }}</span>
+              </sc-for>
             </div>
             </sc-if>
             <sc-if value="{{ noChart }}" hint-placeholder-val="{{ false }}">
               <div style="height:100px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--onBrand2);font-size:12px;padding:0 16px">{{ chartEmptyMsg }}</div>
             </sc-if>
+            <div style="display:flex;gap:6px;margin-top:16px;padding:4px;border-radius:999px;background:rgba(16,19,26,.06)">
+              <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
+                <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;text-align:center;padding:9px 0;border-radius:999px;background:{{ r.bg }};color:{{ r.tx }};font-size:12px;font-weight:700;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ r.label }}</button>
+              </sc-for>
+            </div>
             <div style="display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--onBrand-line)">
               <div style="display:flex;align-items:center;gap:7px">
                 <span style="width:14px;height:2.5px;border-radius:2px;background:var(--onBrand);display:block"></span>
@@ -2527,6 +2527,26 @@ const stackSlot = (k, p) => {
   const l = (arr) => arr[a] + (arr[b] - arr[a]) * p;
   return { tx: l(STACK_TX), sc: l(STACK_SC), op: l(STACK_OP) };
 };
+// Weiche Kurve (monotone kubische Bezier, kein Ueberschwingen).
+const smoothPathXY = xy => {
+  const n = xy.length;
+  if (n < 2) return "";
+  const dxs = [], sl = [], mm = [];
+  for (let i = 0; i < n - 1; i++) { dxs[i] = (xy[i + 1][0] - xy[i][0]) || 1e-6; sl[i] = (xy[i + 1][1] - xy[i][1]) / dxs[i]; }
+  mm[0] = sl[0]; mm[n - 1] = sl[n - 2];
+  for (let i = 1; i < n - 1; i++) mm[i] = sl[i - 1] * sl[i] <= 0 ? 0 : (sl[i - 1] + sl[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (sl[i] === 0) { mm[i] = 0; mm[i + 1] = 0; continue; }
+    const a = mm[i] / sl[i], b = mm[i + 1] / sl[i], q = a * a + b * b;
+    if (q > 9) { const t = 3 / Math.sqrt(q); mm[i] = t * a * sl[i]; mm[i + 1] = t * b * sl[i]; }
+  }
+  let out = "M" + xy[0][0].toFixed(1) + " " + xy[0][1].toFixed(1);
+  for (let i = 0; i < n - 1; i++) {
+    const h = dxs[i] / 3;
+    out += " C" + (xy[i][0] + h).toFixed(1) + " " + (xy[i][1] + mm[i] * h).toFixed(1) + " " + (xy[i + 1][0] - h).toFixed(1) + " " + (xy[i + 1][1] - mm[i + 1] * h).toFixed(1) + " " + xy[i + 1][0].toFixed(1) + " " + xy[i + 1][1].toFixed(1);
+  }
+  return out;
+};
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
@@ -3145,6 +3165,7 @@ class Component extends DCLogic {
       this.checkNotificationSubscription();
     }
     this.setState({ dashLoading: false });
+    this.ensureHomeSeries(this.state.chartRange || "M");
   }
 
   componentWillUnmount() { window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
@@ -3301,6 +3322,7 @@ class Component extends DCLogic {
       this.loadPriceAlerts();
       this.startAutoSync();
       this.setState({ dashLoading: false });
+    this.ensureHomeSeries(this.state.chartRange || "M");
     } catch (e) {
       this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
     }
@@ -3536,7 +3558,15 @@ class Component extends DCLogic {
     } catch (e) { /* Rate-Limit/Fehler — Chart faellt auf Naeherung ueber den Einstandspreis zurueck */ }
   };
 
-  setChartRange = key => () => this.setState({ chartRange: key, scrubIndex: null });
+  setChartRange = key => () => {
+    this.setState({ chartRange: key, scrubIndex: null });
+    this.ensureHomeSeries(key);
+  };
+  ensureHomeSeries = range => {
+    if (!["D", "W", "M"].includes(range)) return;
+    const hs = (this.state.holdings || []).map(h => h.sym || h.abbr);
+    [...new Set(hs)].forEach(sym => this.ensureSeries(sym, range));
+  };
 
   // ---------- Chart-Scrubbing (manuell durch die Timeline ziehen) ----------
   scrubAt = e => {
@@ -4574,38 +4604,79 @@ class Component extends DCLogic {
         }
         return total;
       };
-      const points = dates.map(d => ({ date: d, invested: investedAt(d), value: valueAt(d) }));
+      let points = dates.map(d => ({ date: d, invested: investedAt(d), value: valueAt(d) }));
+      // Feine Verlaeufe (5-Min/30-Min/1-Std-Kerzen) aus den Einzelpositionen
+      // zusammenrechnen, sobald sie geladen sind.
+      const rk0 = this.state.chartRange;
+      if (rk0 === "D" || rk0 === "W" || rk0 === "M") {
+        const serMap = this.state.posSeries || {};
+        const marketHs = visibleHoldings.filter(h => !isinLike(h.sym || h.abbr));
+        const usable = marketHs.filter(h => { const sr = serMap[(h.sym || h.abbr) + "|" + rk0]; return sr && sr.points && sr.points.length >= 2 && h.curNative; });
+        if (usable.length && usable.length >= Math.ceil(marketHs.length * 0.6)) {
+          const tsSet = new Set();
+          usable.forEach(h => serMap[(h.sym || h.abbr) + "|" + rk0].points.forEach(q => tsSet.add(q.t)));
+          let tl = [...tsSet].sort((a, b) => a - b);
+          const stride = Math.max(1, Math.floor(tl.length / 140));
+          tl = tl.filter((_, i) => i % stride === 0 || i === tl.length - 1);
+          const restVal = visibleHoldings.filter(h => !usable.includes(h)).reduce((a, h) => a + h.shares * h.cur, 0);
+          const curs = usable.map(h => ({ h, sr: serMap[(h.sym || h.abbr) + "|" + rk0], i: -1 }));
+          const out = [];
+          for (const t of tl) {
+            let val = restVal;
+            for (const c of curs) {
+              while (c.i + 1 < c.sr.points.length && c.sr.points[c.i + 1].t <= t) c.i++;
+              const pr = c.i >= 0 ? c.sr.points[c.i].c : (c.sr.prev != null ? c.sr.prev : c.sr.points[0].c);
+              val += c.h.shares * c.h.cur * (pr / c.h.curNative);
+            }
+            const ds = dstr(new Date(t));
+            out.push({ date: ds, t, invested: investedAt(ds), value: val });
+          }
+          if (rk0 === "D") {
+            let base = restVal;
+            for (const c of curs) base += c.h.shares * c.h.cur * ((c.sr.prev != null ? c.sr.prev : c.sr.points[0].c) / c.h.curNative);
+            out.unshift({ date: out[0].date, t: out[0].t - 1, invested: out[0].invested, value: base });
+          }
+          out[out.length - 1].value = visVal;
+          if (out.length >= 2) points = out;
+        }
+      }
       if (points.length >= 2) {
         const vals = points.flatMap(p => [p.invested, p.value]);
         const vMin = Math.min(...vals), vMax = Math.max(...vals);
         const range = (vMax - vMin) || 1;
         const n = points.length;
-        const X = i => n > 1 ? (i / (n - 1)) * 320 : 0;
-        const Y = v => 92 - ((v - vMin) / range) * 80;
+        const CW = 320, CH = 170, cTop = 16, cBot = 140;
+        const X = i => n > 1 ? (i / (n - 1)) * CW : 0;
+        const Y = v => cBot - ((v - vMin) / range) * (cBot - cTop);
         const toPath = key => points.map((p, i) => (i === 0 ? "M" : "L") + X(i).toFixed(1) + " " + Y(p[key]).toFixed(1)).join(" ");
-        const valuePath = toPath("value");
+        const cStep = Math.max(1, Math.floor(n / 110));
+        const cIdx = [];
+        for (let i = 0; i < n; i += cStep) cIdx.push(i);
+        if (cIdx[cIdx.length - 1] !== n - 1) cIdx.push(n - 1);
+        const valuePath = smoothPathXY(cIdx.map(i => [X(i), Y(points[i].value)]));
         const lastX = X(n - 1), lastY = Y(points[n - 1].value);
-        const dateFmt = this.state.chartRange === "Y" || this.state.chartRange === "MAX"
-          ? d => new Date(d).toLocaleDateString("de-CH", { month: "short", year: "2-digit" })
-          : d => new Date(d).toLocaleDateString("de-CH", { day: "2-digit", month: "short" });
-        // 4 Beschriftungen — bei 6 laufen sie auf schmalen Displays über den Rand.
-        const axisCount = Math.min(4, n);
-        const axisLabels = Array.from({ length: axisCount }, (_, i) => {
-          const idx = axisCount > 1 ? Math.round((i / (axisCount - 1)) * (n - 1)) : 0;
-          return { l: dateFmt(points[idx].date) };
-        });
+        const rkA = this.state.chartRange;
+        const fmtAxis = pt => {
+          const dt = new Date(pt.t || Date.parse(pt.date));
+          if (rkA === "D") return dt.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" });
+          if (rkA === "W") return dt.toLocaleDateString("de-CH", { weekday: "short", day: "2-digit" });
+          if (rkA === "M") return dt.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" });
+          if (rkA === "Y") return dt.toLocaleDateString("de-CH", { month: "short", year: "2-digit" });
+          return dt.toLocaleDateString("de-CH", { year: "numeric" });
+        };
+        const axisLabels = [0, 1, 2, 3].map(k => ({ l: fmtAxis(points[Math.round(k * (n - 1) / 3)]) }));
         const pxPoints = points.map((p, i) => {
           const prevValue = i > 0 ? points[i - 1].value : p.value;
           const dayPct = prevValue ? (p.value - prevValue) / prevValue * 100 : 0;
-          return { date: p.date, invested: p.invested, value: p.value, x: X(i), y: Y(p.value), dayPct };
+          return { date: p.date, t: p.t, invested: p.invested, value: p.value, x: X(i), y: Y(p.value), dayPct, xp: (X(i) / CW * 100).toFixed(2) + "%", yp: (Y(p.value) / CH * 100).toFixed(2) + "%" };
         });
         this._chartPoints = pxPoints;
         chartData = {
           hasChart: true,
           chartInvestedPath: toPath("invested"),
           chartValuePath: valuePath,
-          chartValueFillPath: valuePath + ` L ${lastX.toFixed(1)} 112 L 0 112 Z`,
-          chartDotX: lastX.toFixed(1), chartDotY: lastY.toFixed(1),
+          chartValueFillPath: valuePath + ` L ${lastX.toFixed(1)} 170 L 0 170 Z`,
+          chartDotX: (lastX / 320 * 100).toFixed(2) + "%", chartDotY: (lastY / 170 * 100).toFixed(2) + "%",
           months: axisLabels,
           points: pxPoints
         };
@@ -5301,15 +5372,15 @@ class Component extends DCLogic {
       // so bleibt sie in beiden Themes lesbar, ohne feste Farbwerte.
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
-        bg: this.state.chartRange === key ? "var(--acc)" : "transparent",
-        tx: this.state.chartRange === key ? "var(--accTx)" : "var(--tx2)"
+        bg: this.state.chartRange === key ? "#1b1b1f" : "transparent",
+        tx: this.state.chartRange === key ? "#fff" : "var(--tx3)"
       })),
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
       chartInvestedPath: chartData ? chartData.chartInvestedPath : "",
       chartValuePath: chartData ? chartData.chartValuePath : "",
       chartValueFillPath: chartData ? chartData.chartValueFillPath : "",
-      chartDotX: chartData ? chartData.chartDotX : "0", chartDotY: chartData ? chartData.chartDotY : "0",
+      chartDotX: scrubPt ? scrubPt.xp : chartData ? chartData.chartDotX : "0%", chartDotY: scrubPt ? scrubPt.yp : chartData ? chartData.chartDotY : "0%",
 
       totalValue: scrubPt ? f2(scrubPt.value) : f2(visVal),
       gainAbs: scrubPt
@@ -5327,7 +5398,11 @@ class Component extends DCLogic {
         ? "var(--brandPos)" : "var(--brandNeg)",
       scrubActive: !!scrubPt,
       scrubVisibility: scrubPt ? "visible" : "hidden",
-      scrubDateLabel: scrubPt ? new Date(scrubPt.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }) : "",
+      scrubDateLabel: scrubPt
+        ? (scrubPt.t && ["D", "W", "M"].includes(this.state.chartRange)
+          ? new Date(scrubPt.t).toLocaleString("de-CH", this.state.chartRange === "D" ? { hour: "2-digit", minute: "2-digit" } : { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
+          : new Date(scrubPt.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short", year: "numeric" }))
+        : "",
       chartScrubX: scrubPt ? scrubPt.x.toFixed(1) : "0", chartScrubY: scrubPt ? scrubPt.y.toFixed(1) : "0",
       scrubStart: this.scrubStart, scrubMove: this.scrubMove, scrubEnd: this.scrubEnd,
       posCount: holdings.length + " Titel",
