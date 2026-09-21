@@ -224,12 +224,22 @@ input::placeholder{color:var(--tx3)}
 .tab-r{will-change:transform;animation:tabSlideR .8s cubic-bezier(.32,.72,0,1) .9s both!important}
 .tab-scan{min-width:0!important;overflow:hidden!important;will-change:clip-path;animation:tabScanGrow .8s cubic-bezier(.32,.72,0,1) .9s both!important}
 .tab-scan span{display:block;overflow:hidden;animation:tabLabel .45s cubic-bezier(.32,.72,0,1) 1.15s both}
+@media (prefers-reduced-motion: reduce){.sheet-in,.sheet-in>*{animation:none!important}}
 @media (prefers-reduced-motion: reduce){.tab-bar,.tab-l,.tab-r,.tab-scan,.tab-scan span{animation:none!important}}
 .hc-inner{transition:opacity .2s ease}
 #home-cards::-webkit-scrollbar{display:none}
 @keyframes wIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .w-in{animation:wIn .5s cubic-bezier(.22,1,.36,1) both}
-.sheet-in{animation:sheetUp .28s cubic-bezier(.2,.8,.2,1) backwards}
+.sheet-in{animation:sheetMorph .5s cubic-bezier(.32,.72,0,1) backwards;transform-origin:50% 100%}
+.sheet-in>*{animation:wIn .5s cubic-bezier(.22,1,.36,1) backwards}
+.sheet-in>*:nth-child(1){animation-delay:.04s}.sheet-in>*:nth-child(2){animation-delay:.09s}
+.sheet-in>*:nth-child(3){animation-delay:.14s}.sheet-in>*:nth-child(4){animation-delay:.19s}
+.sheet-in>*:nth-child(n+5){animation-delay:.24s}
+@keyframes sheetMorph{
+  0%{opacity:0;transform:translateY(46px) scale(.9);filter:blur(10px);border-radius:34px}
+  55%{opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:none;filter:blur(0)}
+}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes scrimIn{from{opacity:0}to{opacity:1}}
 /* Steuer-Report drucken/als PDF speichern: isoliert #tax-report-print statt
@@ -515,12 +525,12 @@ input::placeholder{color:var(--tx3)}
                 <button onClick="{{ f.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ f.bg }};color:{{ f.tx }};border:1px solid {{ f.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ f.label }}</button>
               </sc-for>
             </div>
-            <div id="home-cards" onScroll="{{ homeCardsScroll }}" style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 12% 22px;-webkit-overflow-scrolling:touch">
+            <div id="home-stack" onPointerDown="{{ stackDown }}" onPointerMove="{{ stackMove }}" onPointerUp="{{ stackUp }}" onPointerCancel="{{ stackUp }}" style="position:relative;height:300px;margin:6px 34px 0;touch-action:pan-y;-webkit-user-select:none;user-select:none">
               <sc-for list="{{ homeCards }}" as="c" hint-placeholder-count="3">
-                <div data-hc="1" onClick="{{ c.open }}" style="flex:none;width:76%;scroll-snap-align:center;cursor:pointer">
-                  <div class="hc-inner" style="position:relative;height:296px;border-radius:30px;overflow:hidden;background:{{ c.bg }};box-shadow:0 20px 40px -20px {{ c.shadow }};will-change:transform">
-                    <svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ c.sunX }}" cy="78" r="34" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg>
-                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,.5) 100%);pointer-events:none"></div>
+                <div data-hc="1" onClick="{{ c.open }}" style="{{ c.stackStyle }}">
+                  <div style="position:relative;height:100%;border-radius:30px;overflow:hidden;background:{{ c.bg }};box-shadow:0 22px 44px -22px {{ c.shadow }}">
+                    <sc-if value="{{ c.noPhoto }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ c.sunX }}" cy="78" r="34" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg></sc-if>
+                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,.52) 100%);pointer-events:none"></div>
                     <div style="position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between">
                       <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ c.kind }}</span>
                       <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;overflow:hidden">{{ c.logo }}</span>
@@ -531,7 +541,7 @@ input::placeholder{color:var(--tx3)}
                       </svg>
                     </sc-if>
                     <div style="position:absolute;left:18px;right:18px;bottom:76px;display:flex;flex-direction:column;gap:5px">
-                      <span style="color:rgba(255,255,255,.78);font-size:12px;font-weight:600">{{ c.sub }}</span>
+                      <span style="color:rgba(255,255,255,.8);font-size:12px;font-weight:600">{{ c.sub }}</span>
                       <span style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.name }}</span>
                       <div style="display:flex;align-items:center;gap:8px">
                         <span class="mono" style="color:#fff;font-size:13px;font-weight:700">{{ c.value }}</span>
@@ -551,22 +561,10 @@ input::placeholder{color:var(--tx3)}
             <sc-if value="{{ homeCardsEmpty }}" hint-placeholder-val="{{ false }}">
               <div style="margin:0 20px;padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:20px;background:var(--surf);border:1px dashed var(--line2)">Keine Positionen in dieser Kategorie.</div>
             </sc-if>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 20px">
-              <div style="display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line)">
-                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">STÄRKSTER HEUTE</span>
-                <span style="color:var(--tx);font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatBestTodayName }}</span>
-                <span class="mono" style="color:{{ homeStatBestTodayColor }};font-size:11px;font-weight:700">{{ homeStatBestTodayPct }}</span>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line)">
-                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">SCHWÄCHSTER</span>
-                <span style="color:var(--tx);font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ homeStatWorstTodayName }}</span>
-                <span class="mono" style="color:{{ homeStatWorstTodayColor }};font-size:11px;font-weight:700">{{ homeStatWorstTodayPct }}</span>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line)">
-                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">DIVIDENDE</span>
-                <span class="mono" style="color:var(--tx);font-size:13px;font-weight:700">{{ homeStatDivYield }}</span>
-                <span style="color:var(--tx3);font-size:10.5px">12 Monate</span>
-              </div>
+            <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;min-height:6px">
+              <sc-for list="{{ homeDots }}" as="dt" hint-placeholder-count="3">
+                <span data-dot="1" style="width:{{ dt.w }};height:6px;border-radius:3px;background:{{ dt.bg }};transition:width .25s ease,background .25s ease"></span>
+              </sc-for>
             </div>
           </div>
         </sc-if>
@@ -1206,7 +1204,7 @@ input::placeholder{color:var(--tx3)}
       </div>
 
       <sc-if value="{{ aiSheetOpen }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closeAiSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ closeAiSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
         <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ aiSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
@@ -1245,7 +1243,7 @@ input::placeholder{color:var(--tx3)}
       </sc-if>
 
       <sc-if value="{{ compoundSheetOpen }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closeCompoundSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ closeCompoundSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
         <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ compoundSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
@@ -1316,7 +1314,7 @@ input::placeholder{color:var(--tx3)}
       </sc-if>
 
       <sc-if value="{{ insiderSheetOpen }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ closeInsiderSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
         <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ insiderSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
@@ -1348,7 +1346,7 @@ input::placeholder{color:var(--tx3)}
       </sc-if>
 
       <sc-if value="{{ posMenuOpen }}" hint-placeholder-val="{{ false }}">
-        <div onClick="{{ closePosMenu }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+        <div onClick="{{ closePosMenu }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
         <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
           <div onPointerDown="{{ posMenuDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
@@ -1393,7 +1391,7 @@ input::placeholder{color:var(--tx3)}
          der Startseite (Karte "Realisiert & Dividenden") als auch im
          Positionsmenu im Depot sitzt. -->
     <sc-if value="{{ divSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeDivSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ closeDivSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
       <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ divSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
@@ -1455,7 +1453,7 @@ input::placeholder{color:var(--tx3)}
          mode "alerts", pg_cron alle 15 Min. werktags) — daher der Hinweis auf
          das Push-Abo: ohne Abo kaeme die Meldung nirgends an. -->
     <sc-if value="{{ alertSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
       <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
@@ -1504,7 +1502,7 @@ input::placeholder{color:var(--tx3)}
          dem Dashboard, nicht im Depot — der Sheet muss deshalb auf oberster
          Ebene stehen, sonst rendert er nie (war der Bug: "Erstellen geht nicht"). -->
     <sc-if value="{{ investPlanSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ closeInvestPlanSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
       <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ investPlanSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
@@ -2103,7 +2101,7 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ notifSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;animation:scrimIn .2s ease"></div>
+      <div onClick="{{ closeNotifSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:40;animation:scrimIn .35s ease"></div>
       <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:82%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:41;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
         <div onPointerDown="{{ notifSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
@@ -2300,6 +2298,14 @@ const displayName = h => {
   return "Unbekannte Position";
 };
 
+// Position der Karten im Stapel: Slot 0 vorne, 1 rechts dahinter, 2 links
+// dahinter, 3+ verborgen. p = Fortschritt zum naechsten Slot (0..1).
+const STACK_TX = [0, 26, -26, -26], STACK_SC = [1, 0.91, 0.91, 0.84], STACK_OP = [1, 1, 1, 0];
+const stackSlot = (k, p) => {
+  const a = Math.min(k, 3), b = Math.min(Math.max(k - 1, 0), 3);
+  const l = (arr) => arr[a] + (arr[b] - arr[a]) * p;
+  return { tx: l(STACK_TX), sc: l(STACK_SC), op: l(STACK_OP) };
+};
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
@@ -3364,25 +3370,81 @@ class Component extends DCLogic {
     this.springSheetTo(window.innerHeight || 900, 0, fn);
   };
   setHomeFilter = k => () => {
+    this._stackIdx = 0;
     this.setState({ homeFilter: k });
     setTimeout(() => {
-      const el = document.getElementById("home-cards");
-      if (el) { el.scrollLeft = 0; this.homeCardsScroll({ currentTarget: el }); }
+      this.layoutStack(0, 0);
     }, 30);
   };
-  // Wischen: Karte in der Mitte gross, Nachbarn kleiner und leicht transparent.
-  homeCardsScroll = e => {
-    const el = e.currentTarget;
+  // Gestapelte Karten: vorne die aktive, dahinter links/rechts ragende Nachbarn.
+  // Wischen zieht die vorderste 1:1 mit, beim Loslassen fliegt sie weg (weit oder
+  // schnell genug) oder federt zurueck; die naechste rueckt nach.
+  layoutStack = (dx = 0, prog = null) => {
+    const el = document.getElementById("home-stack");
     if (!el) return;
-    const center = el.scrollLeft + el.clientWidth / 2;
-    el.querySelectorAll("[data-hc]").forEach(card => {
-      const mid = card.offsetLeft + card.offsetWidth / 2;
-      const t = Math.min(1, Math.abs(center - mid) / card.offsetWidth);
-      const inner = card.firstElementChild;
-      if (!inner) return;
-      inner.style.transform = "scale(" + (1 - 0.09 * t).toFixed(3) + ")";
-      inner.style.opacity = (1 - 0.35 * t).toFixed(3);
+    const cards = [...el.querySelectorAll("[data-hc]")];
+    const n = cards.length;
+    if (!n) return;
+    const W = el.clientWidth || 300;
+    const cur = (this._stackIdx || 0) % n;
+    const p = prog != null ? prog : Math.min(1, Math.abs(dx) / (W * 0.6));
+    cards.forEach((c, i) => {
+      const k = (i - cur + n) % n;
+      const r = stackSlot(k, p);
+      c.style.transform = "translate3d(" + (k === 0 ? dx : r.tx) + "px,0,0) rotate(" + (k === 0 ? (dx / W * 9).toFixed(2) : 0) + "deg) scale(" + r.sc.toFixed(3) + ")";
+      c.style.opacity = k === 0 ? String(prog != null && prog >= 1 ? 0 : 1 - Math.min(0.35, p * 0.4)) : String(r.op);
+      c.style.zIndex = String(n - k);
+      c.style.pointerEvents = k === 0 ? "auto" : "none";
     });
+    el.parentElement.querySelectorAll("[data-dot]").forEach((d, i) => {
+      d.style.width = i === cur ? "18px" : "6px";
+      d.style.background = i === cur ? "var(--tx)" : "var(--line2)";
+    });
+  };
+  stackDown = e => {
+    this._st = { x: e.clientX, y: e.clientY, dir: null, dx: 0, hist: [{ t: performance.now(), x: e.clientX }] };
+    this._stackMoved = false;
+  };
+  stackMove = e => {
+    const s = this._st;
+    if (!s) return;
+    const dx = e.clientX - s.x, dy = e.clientY - s.y;
+    if (s.dir === null) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      s.dir = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      if (s.dir === "x") { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {} }
+    }
+    if (s.dir !== "x") return;
+    this._stackMoved = true;
+    s.dx = dx;
+    s.hist.push({ t: performance.now(), x: e.clientX });
+    if (s.hist.length > 5) s.hist.shift();
+    const el = e.currentTarget;
+    el.querySelectorAll("[data-hc]").forEach(c => { c.style.transition = "none"; });
+    this.layoutStack(dx);
+  };
+  stackUp = e => {
+    const s = this._st;
+    this._st = null;
+    if (!s || s.dir !== "x") return;
+    const el = document.getElementById("home-stack");
+    if (!el) return;
+    const cards = [...el.querySelectorAll("[data-hc]")];
+    const n = cards.length;
+    const W = el.clientWidth || 300;
+    const first = s.hist[0], last = s.hist[s.hist.length - 1];
+    const v = (last.x - first.x) / Math.max(1, last.t - first.t);
+    const commit = n > 1 && (Math.abs(s.dx) > W * 0.28 || Math.abs(v) > 0.55);
+    const tr = "transform .42s cubic-bezier(.32,.72,0,1), opacity .42s ease";
+    cards.forEach(c => { c.style.transition = tr; });
+    if (!commit) { this.layoutStack(0, 0); return; }
+    const dir = s.dx >= 0 ? 1 : -1;
+    this.layoutStack(dir * W * 1.25, 1);
+    setTimeout(() => {
+      cards.forEach(c => { c.style.transition = "none"; });
+      this._stackIdx = ((this._stackIdx || 0) + 1) % n;
+      this.layoutStack(0, 0);
+    }, 300);
   };
   onEscKey = e => {
     if (e.key !== "Escape") return;
@@ -5088,6 +5150,8 @@ class Component extends DCLogic {
           const dp = typeof h.dp === "number" ? h.dp : null;
           const st = isinLike(sym) ? "open" : marketStatus(sym);
           const v = h.shares * h.cur;
+          const label = displayName(h) + " " + (h.name || "");
+          const photo = /invesco|ivz/i.test(label) ? "img/invesco.webp" : /xtrackers|xtr\b|dws/i.test(label) ? "img/xtrackers.webp" : "";
           return {
             etf,
             sym,
@@ -5097,19 +5161,30 @@ class Component extends DCLogic {
             sub: h.shares + " Stk. · Ø " + f2(h.buy),
             value: f2(v) + " CHF",
             day: dp == null ? "kein Kurs" : st === "weekend" ? "Geschlossen" : (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
-            bg: "linear-gradient(160deg," + pal[0] + " 0%," + pal[1] + " 55%," + pal[2] + " 100%)",
+            photo,
+            noPhoto: !photo,
+            bg: photo
+              ? "linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.35)),url(" + photo + ") center/cover no-repeat"
+              : "linear-gradient(160deg," + pal[0] + " 0%," + pal[1] + " 55%," + pal[2] + " 100%)",
             shadow: pal[1] + "99",
             sunX: 200 + (hash(sym) % 70),
             spark: buildSparkline(hist[sym]),
             hasSpark: !!buildSparkline(hist[sym]),
-            open: this.openDepotPosition(sym)
+            open: () => { if (!this._stackMoved) this.openDepotPosition(sym)(); }
           };
         });
         const list = all.filter(c => filter === "all" || (filter === "etf" ? c.etf : !c.etf));
+        const cur = list.length ? (this._stackIdx || 0) % list.length : 0;
+        list.forEach((c, i) => {
+          const k = (i - cur + list.length) % list.length;
+          const r = stackSlot(k, 0);
+          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
+        });
         const tabs = [{ key: "all", label: "Alle" }, { key: "stock", label: "Aktien" }, { key: "etf", label: "ETFs" }];
         return {
           homeCards: list,
           homeCardsEmpty: list.length === 0,
+          homeDots: list.length > 1 ? list.map((_, i) => ({ w: i === cur ? "18px" : "6px", bg: i === cur ? "var(--tx)" : "var(--line2)" })) : [],
           homeFilters: tabs.map(t => ({
             label: t.label,
             bg: filter === t.key ? "#1b1b1f" : "var(--surf)",
@@ -5119,7 +5194,7 @@ class Component extends DCLogic {
           }))
         };
       })(),
-      homeCardsScroll: this.homeCardsScroll,
+      stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
       homeStatBestPosName: bestPos ? displayName(bestPos) : "–",
