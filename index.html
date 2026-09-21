@@ -1875,9 +1875,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </sc-for>
         </div>
 
-        <div style="padding:0 20px;display:flex;gap:8px;margin-bottom:14px">
-          <input value="{{ marketSearchTerm }}" onChange="{{ onMarketSearchTerm }}" placeholder="Ticker oder Name suchen, z. B. Apple" style="flex:1;min-width:0;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
-          <button onClick="{{ runMarketSearch }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 18px;height:44px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ marketSearchLabel }}</button>
+        <div style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input value="{{ marketSearchTerm }}" onInput="{{ onMarketSearchTerm }}" onKeyDown="{{ onMarketSearchKeyDown }}" placeholder="Ticker oder Name suchen, z. B. Apple" style="all:unset;flex:1;min-width:0;color:var(--tx);font-size:14px">
         </div>
         <sc-if value="{{ marketSearchError }}" hint-placeholder-val="{{ false }}">
           <p style="margin:0 0 14px;padding:0 20px;color:var(--tx3);font-size:12.5px">{{ marketSearchError }}</p>
@@ -3203,6 +3203,7 @@ class Component extends DCLogic {
   // ---------- Märkte-Suche & Aktien-Detail — läuft serverseitig nur über Yahoo
   // (unlimitiert), nie über die auf Schweizer Titel limitierte EODHD-Quelle. ----------
   onMarketSearchTerm = e => this.setState({ marketSearchTerm: e.target.value });
+  onMarketSearchKeyDown = e => { if (e.key === "Enter") this.runMarketSearch(); };
 
   runMarketSearch = async () => {
     const term = this.state.marketSearchTerm.trim();
@@ -6004,8 +6005,7 @@ class Component extends DCLogic {
       noMarkets: !this.state.marketsLoading && !this.state.marketsError && !this.state.marketQuotes,
 
       marketSearchTerm: this.state.marketSearchTerm, onMarketSearchTerm: this.onMarketSearchTerm,
-      runMarketSearch: this.runMarketSearch,
-      marketSearchLabel: this.state.marketSearchLoading ? "…" : "Suchen",
+      onMarketSearchKeyDown: this.onMarketSearchKeyDown,
       marketSearchLoading: this.state.marketSearchLoading,
       marketSearchError: this.state.marketSearchError,
       hasMarketSearchResults: this.state.marketSearchResults.length > 0,
