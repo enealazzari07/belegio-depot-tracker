@@ -67,3 +67,17 @@ export async function newsImages(symbols) {
   if (!res.ok) throw new Error(body.error || "newsimg-error");
   return body.images || {};
 }
+
+// Firmensitz-Fotos (Wikimedia Commons, nur CC0/Public Domain/CC BY) inkl. Namensnennung.
+export async function hqImages(items) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/hqimg`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({ items }),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error || "hqimg-error");
+  return body.images || {};
+}

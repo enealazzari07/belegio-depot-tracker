@@ -528,10 +528,11 @@ input::placeholder{color:var(--tx3)}
                 <span class="mono" style="color:#fff;font-size:13px;font-weight:700;letter-spacing:-.01em">{{ h.value }}</span>
                 <div style="display:flex;align-items:center;gap:5px">
                   <sc-if value="{{ h.marketClosed }}" hint-placeholder-val="{{ false }}">
-                    <span style="display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.14);color:rgba(255,255,255,.78);font-size:9.5px;font-weight:600;padding:2px 7px 2px 5px;border-radius:999px;white-space:nowrap">
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" style="flex:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>{{ h.marketLabel }}
+                    <span title="{{ h.marketLabel }}" style="display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.14);color:rgba(255,255,255,.78);flex:none">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>
                     </span>
                   </sc-if>
+                  <span class="mono" style="display:{{ h.changeDisplay }};color:rgba(255,255,255,.62);font-size:10.5px;font-weight:600;white-space:nowrap">{{ h.changeAbs }}</span>
                   <span class="mono" style="display:{{ h.changeDisplay }};padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ h.colorDark }};font-size:11px;font-weight:700">{{ h.change }}</span>
                 </div>
               </div>
@@ -2021,6 +2022,7 @@ input::placeholder{color:var(--tx3)}
         <div class="cd-hero" style="position:relative;height:352px;background:{{ d.heroBg }};overflow:hidden">
           <sc-if value="{{ d.noPhoto }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ d.sunX }}" cy="86" r="40" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg></sc-if>
           <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.6) 100%);pointer-events:none"></div>
+          <span style="position:absolute;right:14px;bottom:38px;max-width:75%;text-align:right;color:rgba(255,255,255,.6);font-size:8.5px;line-height:1.3;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,.5)">{{ d.heroCredit }}</span>
           <div style="position:absolute;left:20px;right:20px;bottom:52px;display:flex;flex-direction:column;gap:6px;" class="cd-rise cd-htext">
             <span style="color:rgba(255,255,255,.82);font-size:13px;font-weight:600">{{ d.heroSub }}</span>
             <span style="color:#fff;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ d.heroName }}</span>
@@ -2880,7 +2882,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", aiPanelOpen: false, zzPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", hqImages: (() => { try { return JSON.parse(localStorage.getItem("belegio_hq_v1") || "{}"); } catch (_) { return {}; } })(), aiPanelOpen: false, zzPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3200,7 +3202,7 @@ class Component extends DCLogic {
     return this._ocr;
   }
   async api() {
-    if (!this._api) this._api = await import("./market.js?v=20260921b");
+    if (!this._api) this._api = await import("./market.js?v=20260921c");
     return this._api;
   }
 
@@ -3237,6 +3239,7 @@ class Component extends DCLogic {
     }
     this.setState({ dashLoading: false });
     this.ensureHomeSeries(this.state.chartRange || "M");
+    this.loadHqImages();
   }
 
   componentWillUnmount() { window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
@@ -3407,6 +3410,7 @@ class Component extends DCLogic {
       this.startAutoSync();
       this.setState({ dashLoading: false });
     this.ensureHomeSeries(this.state.chartRange || "M");
+    this.loadHqImages();
     } catch (e) {
       this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
     }
@@ -3703,6 +3707,23 @@ class Component extends DCLogic {
   animClose = fn => () => {
     if (this._sheetDrag) return;
     this.springSheetTo(window.innerHeight || 900, 0, fn);
+  };
+  // Firmensitz-Fotos automatisch zu Einzelaktien holen (einmal je Titel, lokal gemerkt).
+  loadHqImages = async () => {
+    const seen = this.state.hqImages || {};
+    const items = (this.state.holdings || [])
+      .map(h => ({ key: h.sym || h.abbr, name: h.name || "" }))
+      .filter(i => i.key && i.name && !isinLike(i.key) && !(this.state.etfHoldings && this.state.etfHoldings[i.key]) && !(i.key in seen) && !/invesco|ivz|emerging|xtrackers|dws|etf|ishares|vanguard|spdr/i.test(i.name))
+      .slice(0, 8);
+    if (!items.length) return;
+    try {
+      const api = await this.api();
+      const found = await api.hqImages(items);
+      const next = { ...seen };
+      items.forEach(i => { next[i.key] = found[i.key] || null; });
+      try { localStorage.setItem("belegio_hq_v1", JSON.stringify(next)); } catch (_) {}
+      this.setState({ hqImages: next });
+    } catch (e) { /* ohne Foto bleibt der Farbverlauf */ }
   };
   loadNewsImages = async syms => {
     const list = [...new Set((syms || []).filter(Boolean))].slice(0, 8);
@@ -5952,7 +5973,9 @@ class Component extends DCLogic {
           const st = isinLike(sym) ? "open" : marketStatus(sym);
           const v = h.shares * h.cur;
           const label = displayName(h) + " " + (h.name || "");
-          const photo = /invesco|ivz/i.test(label) ? "img/invesco.webp" : /emerging|xtrackers|xtr\b|dws/i.test(label) ? "img/emerging.webp" : "";
+          const hq = (this.state.hqImages || {})[sym] || null;
+          const photo = /invesco|ivz/i.test(label) ? "img/invesco.webp" : /emerging|xtrackers|xtr\b|dws/i.test(label) ? "img/emerging.webp" : (hq && hq.url) || "";
+          const credit = hq && !/invesco|ivz|emerging|xtrackers|dws/i.test(label) ? "Foto: " + hq.credit + " · " + hq.license + " · Wikimedia Commons" : "";
           return {
             etf,
             sym,
@@ -5963,7 +5986,7 @@ class Component extends DCLogic {
             value: f2(v) + " CHF",
             since: h.buy ? ((h.cur / h.buy - 1) * 100 >= 0 ? "+" : "") + ((h.cur / h.buy - 1) * 100).toFixed(1) + " %" : "–",
             day: dp == null ? "kein Kurs" : st === "weekend" ? "Geschlossen" : (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
-            photo,
+            photo, credit,
             noPhoto: !photo,
             bg: photo
               ? "linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.35)),url(" + photo + ") center/cover no-repeat"
@@ -5991,6 +6014,7 @@ class Component extends DCLogic {
             clipVars: this._cardVars || "--chh:296px;--ct:30%;--cr:12%;--cb:30%;--cl:12%",
             heroBg: c.bg, noPhoto: c.noPhoto, sunX: c.sunX,
             heroShort: (() => { let o = ""; for (const w of String(c.name || "").split(" ")) { if ((o + " " + w).trim().length > 16) break; o = (o + " " + w).trim(); } return o || String(c.name || "").slice(0, 16); })(),
+            heroCredit: c.credit || "",
             heroKind: c.kind, heroName: c.name, heroSub: c.sub, heroValue: c.value, heroDay: c.day, heroSince: c.since,
             gainLine: dd.gain + " CHF",
             gainOnDark: String(dd.gain).startsWith("-") ? "#ff8c8c" : "#7be3a5",
