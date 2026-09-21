@@ -985,21 +985,21 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Handel</span>
               <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
             </div>
-            <span style="display:block;color:var(--tx3);font-size:12px;margin-bottom:14px">Wer bei deinen Titeln kauft und verkauft · letzte 90 Tage</span>
+            <span style="display:block;color:var(--tx3);font-size:12px;margin-bottom:14px">Die klarsten Käufe und Verkäufe bei deinen Titeln · letzte 90 Tage</span>
             <div style="position:relative">
               <div style="display:flex;flex-direction:column;gap:8px;{{ geoWrapStyle }}">
-                <sc-if value="{{ insEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.55;border-radius:24px;background:var(--surf);box-shadow:var(--card-shadow)">Keine Käufe oder Verkäufe von Firmeninsidern in den letzten 90 Tagen — oder deine Titel sind keine US-Aktien.</div></sc-if>
+                <sc-if value="{{ insEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;line-height:1.55;border-radius:24px;background:#34363d">Keine Käufe oder Verkäufe von Firmeninsidern in den letzten 90 Tagen — oder deine Titel sind keine US-Aktien.</div></sc-if>
                 <sc-for list="{{ insRows }}" as="ir" hint-placeholder-count="4">
-                  <button onClick="{{ ir.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:9px;padding:14px 16px;border-radius:24px;background:var(--surf);box-shadow:var(--card-shadow)" style-active="transform:scale(.985)">
+                  <button onClick="{{ ir.open }}" class="rowbtn" style="display:flex;flex-direction:column;gap:9px;padding:15px 16px;border-radius:24px;position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);border:none;box-shadow:0 14px 28px -20px rgba(16,19,26,.45);text-align:left" style-active="transform:scale(.985)">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                      <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ir.name }}</span>
+                      <span style="color:#fff;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ir.name }}</span>
                       <span style="flex:none;padding:3px 9px;border-radius:999px;background:{{ ir.netBg }};color:{{ ir.netColor }};font-size:11px;font-weight:700">{{ ir.netLabel }}</span>
                     </div>
-                    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--surf2)">
+                    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.14)">
                       <span style="width:{{ ir.buyW }};background:var(--pos);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
                       <span style="width:{{ ir.sellW }};background:var(--neg);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;color:var(--tx3);font-size:11px;font-weight:600"><span>Käufe {{ ir.buyLabel }}</span><span>Verkäufe {{ ir.sellLabel }}</span></div>
+                    <div style="display:flex;justify-content:space-between;color:rgba(255,255,255,.6);font-size:11px;font-weight:600"><span>Käufe {{ ir.buyLabel }}</span><span>Verkäufe {{ ir.sellLabel }}</span></div>
                   </button>
                 </sc-for>
               </div>
@@ -6309,9 +6309,14 @@ class Component extends DCLogic {
           });
           if (buy + sell > 0) rows.push({ sym, buy, sell });
         });
-        rows.sort((a, b) => (b.buy + b.sell) - (a.buy + a.sell));
+        const byNet = rows.slice().sort((a, b) => (b.buy - b.sell) - (a.buy - a.sell));
+        const buys = byNet.filter(r => r.buy - r.sell > 0), sells = byNet.filter(r => r.buy - r.sell <= 0).reverse();
+        let nb = Math.min(2, buys.length), ns = Math.min(2, sells.length);
+        if (nb < 2) ns = Math.min(sells.length, 4 - nb);
+        if (ns < 2) nb = Math.min(buys.length, 4 - ns);
+        rows.length = 0; rows.push(...buys.slice(0, nb), ...sells.slice(0, ns));
         const cmp = n => n >= 1e6 ? (n / 1e6).toFixed(1) + " Mio" : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(Math.round(n));
-        const list = rows.slice(0, 8).map(r => {
+        const list = rows.map(r => {
           const h = holdings.find(x => (x.sym || x.abbr) === r.sym), tot = r.buy + r.sell, net = r.buy - r.sell;
           const cn = divCandidates(holdings, this.state.etfHoldings).find(c => c.sym === r.sym);
           return { name: h ? displayName(h) : (cn ? cn.name : r.sym), open: this.openInsiderSheet(r.sym),
