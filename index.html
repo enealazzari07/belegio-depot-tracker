@@ -844,11 +844,6 @@ input::placeholder{color:var(--tx3)}
           <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:6px;padding:9px 15px;border-radius:999px;background:{{ depotProBg }};color:{{ depotProTx }};font-size:12px;font-weight:700;transition:transform 140ms ease" style-active="transform:scale(.96)">{{ depotProLabel }}</button>
         </div>
 
-        <div style="display:flex;gap:8px;margin-bottom:16px">
-          <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-            <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:10px 18px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};border:1px solid {{ dt.border }};font-size:13px;font-weight:600;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background 200ms ease,color 200ms ease,transform 140ms ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
-          </sc-for>
-        </div>
 
         <div style="position:relative;border-radius:32px;overflow:hidden;background:#141417 url(img/depot.webp) center/cover no-repeat;box-shadow:0 22px 44px -24px rgba(16,19,26,.5);margin-bottom:14px">
           <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(14,16,22,.66) 0%,rgba(14,16,22,.88) 100%);pointer-events:none"></div>
@@ -871,7 +866,6 @@ input::placeholder{color:var(--tx3)}
           </div>
         </div>
 
-        <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;gap:10px;margin-bottom:16px">
           <button onClick="{{ openAiPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -16px rgba(16,19,26,.6);transition:transform 140ms ease" style-active="transform:scale(.97)">
             <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
@@ -883,7 +877,11 @@ input::placeholder{color:var(--tx3)}
           </button>
         </div>
 
-        </sc-if>
+        <div style="display:flex;gap:8px;margin-bottom:18px">
+          <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
+            <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:10px 18px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};border:1px solid {{ dt.border }};font-size:13px;font-weight:600;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background 200ms ease,color 200ms ease,transform 140ms ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+          </sc-for>
+        </div>
 
         <sc-if value="{{ depotAlloc }}" hint-placeholder-val="{{ false }}">
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
