@@ -907,7 +907,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <sc-if value="{{ hasAllocation }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:26px">
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
-              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Aufteilung</span>
+              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Analyse</span>
               <span style="color:var(--tx3);font-size:12px;font-weight:600">nach Wert</span>
             </div>
             <div style="position:relative;width:100%;aspect-ratio:340/200">
@@ -6146,7 +6146,7 @@ class Component extends DCLogic {
       allocationLegend,
       allocRing, allocCallouts,
       depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc",
-      depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Aufteilung" }].map(t => ({
+      depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
         bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "var(--gbtn)",
         tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)",
