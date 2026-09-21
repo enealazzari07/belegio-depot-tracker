@@ -115,7 +115,7 @@
      reinweiss getoent (Ton von --surf2) — Home-Flaeche ist selbst weiss,
      ein weisses Material darauf waere unsichtbar. --glass-line ist ein
      dezenter dunkler Rand statt hellem, aus demselben Grund. */
-  --glass:rgba(242,244,248,.78); --glass-line:rgba(16,19,26,.1);
+  --glass:rgba(242,244,248,.78); --glass-line:rgba(16,19,26,.1); --gbtn:rgba(16,19,26,.06); --gbtn-line:rgba(16,19,26,.05);
 }
 [data-theme="dark"]{
   --stage:#07080B; --stage2:#0F1116;
@@ -149,7 +149,7 @@
   --shadow:0 30px 80px -20px rgba(0,0,0,.8);
   --card-shadow:0 2px 4px -2px rgba(0,0,0,.4), 0 12px 28px -20px rgba(0,0,0,.7);
   --hero-shadow:0 8px 22px -12px rgba(0,0,0,.6), 0 30px 60px -34px rgba(0,0,0,.9);
-  --glass:rgba(20,22,28,.68); --glass-line:rgba(255,255,255,.1);
+  --glass:rgba(20,22,28,.68); --glass-line:rgba(255,255,255,.1); --gbtn:rgba(255,255,255,.1); --gbtn-line:rgba(255,255,255,.08);
   /* Dark Mode hatte schon vorher genug Abstand zur Home-Flaeche (--surf ist
      heller als --home-bg) — unveraendert lassen. */
   --sheet-bg:var(--surf);
@@ -245,6 +245,8 @@ input::placeholder{color:var(--tx3)}
 @keyframes heroOut{from{height:352px}to{height:var(--chh)}}
 .cd-hero{animation:heroIn .55s cubic-bezier(.32,.72,0,1) both}
 @media (prefers-reduced-motion: reduce){.cd-panel,.cd-hero,.cd-rise,.cd-rise2{animation:none!important}}
+.gbtn{border-radius:50% !important;background:var(--gbtn) !important;border:1px solid var(--gbtn-line) !important;box-shadow:none !important;backdrop-filter:blur(14px) saturate(160%) !important;-webkit-backdrop-filter:blur(14px) saturate(160%) !important;transition:transform 140ms ease !important}
+.gbtn:active{transform:scale(.92)}
 .sheet-in{animation:sheetMorph .5s cubic-bezier(.32,.72,0,1) backwards;transform-origin:50% 100%}
 .sheet-in>*{animation:wIn .5s cubic-bezier(.22,1,.36,1) backwards}
 .sheet-in>*:nth-child(1){animation-delay:.04s}.sheet-in>*:nth-child(2){animation-delay:.09s}
@@ -369,7 +371,7 @@ input::placeholder{color:var(--tx3)}
               <div style="display:flex;align-items:center;gap:7px;min-width:0">
                 <span style="color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Gesamtwert</span>
               </div>
-              <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:34px;height:34px;border-radius:11px;background:rgba(16,19,26,.06);display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
+              <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                 <sc-if value="{{ notifBadge }}" hint-placeholder-val="{{ false }}">
                   <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:1.5px solid var(--brand-flat);display:block"></span>
@@ -437,25 +439,25 @@ input::placeholder{color:var(--tx3)}
             </sc-if>
         <div style="display:flex;gap:6px;justify-content:space-between;margin-top:18px;padding:0">
           <button onClick="{{ goNewsFromBanner }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--tx)">
+            <span class="gbtn" style="width:58px;height:58px;display:flex;align-items:center;justify-content:center;color:var(--tx)">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M7 9h6M7 13h10M7 16.5h7"></path><rect x="15" y="8" width="2.5" height="2.5" rx=".6" fill="currentColor" stroke="none"></rect></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">News</span>
           </button>
           <button onClick="{{ goMarkets }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--tx)">
+            <span class="gbtn" style="width:58px;height:58px;display:flex;align-items:center;justify-content:center;color:var(--tx)">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Märkte</span>
           </button>
           <button onClick="{{ openNotifSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--tx)">
+            <span class="gbtn" style="width:58px;height:58px;display:flex;align-items:center;justify-content:center;color:var(--tx)">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"></path><path d="M3 13h5l1 3h6l1-3h5"></path></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Meldungen</span>
           </button>
           <button onClick="{{ openAlertSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform 120ms ease" style-active="transform:scale(.94)">
-            <span style="width:100%;height:52px;border-radius:17px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);display:flex;align-items:center;justify-content:center;color:var(--tx)">
+            <span class="gbtn" style="width:58px;height:58px;display:flex;align-items:center;justify-content:center;color:var(--tx)">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 8-2.5 8h17S18 15 18 9"></path><path d="M13.7 20.5a2 2 0 0 1-3.4 0"></path><path d="M2.5 8.5A10 10 0 0 1 5 4M21.5 8.5A10 10 0 0 0 19 4"></path></svg>
             </span>
             <span style="color:var(--tx2);font-size:11px;font-weight:600;letter-spacing:.01em">Alarm</span>
@@ -962,7 +964,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isDepot }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="color:var(--tx);font-size:16px;font-weight:600">Depot · {{ posCount }}</span>
@@ -1067,7 +1069,7 @@ input::placeholder{color:var(--tx3)}
                   </sc-for>
                 </div>
                 <sc-if value="{{ d.hasInsider }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ d.openInsider }}" title="Insider-Trades" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;flex:none;width:38px;height:38px;border-radius:11px;background:{{ d.insiderBadgeBg }};display:flex;align-items:center;justify-content:center;color:{{ d.insiderBadgeColor }};transition:transform 140ms ease" style-active="transform:scale(.92)">
+                  <button onClick="{{ d.openInsider }}" title="Insider-Trades" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;flex:none;width:38px;height:38px;border-radius:50%;background:{{ d.insiderBadgeBg }};display:flex;align-items:center;justify-content:center;color:{{ d.insiderBadgeColor }};transition:transform 140ms ease" style-active="transform:scale(.92)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
                   </button>
                 </sc-if>
@@ -1195,10 +1197,10 @@ input::placeholder{color:var(--tx3)}
                             <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ t.detail }}</span>
                           </div>
                           <span style="color:{{ t.totalColor }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace">{{ t.total }}</span>
-                          <button onClick="{{ t.edit }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
+                          <button onClick="{{ t.edit }}" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
                           </button>
-                          <button onClick="{{ t.remove }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--neg);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
+                          <button onClick="{{ t.remove }}" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--neg);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path></svg>
                           </button>
                         </div>
@@ -1226,7 +1228,7 @@ input::placeholder{color:var(--tx3)}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
             </div>
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">KI-Analyse</span>
-            <button onClick="{{ closeAiSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <button onClick="{{ closeAiSheet }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
@@ -1265,7 +1267,7 @@ input::placeholder{color:var(--tx3)}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             </div>
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Zinseszins-Rechner</span>
-            <button onClick="{{ closeCompoundSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <button onClick="{{ closeCompoundSheet }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
@@ -1336,7 +1338,7 @@ input::placeholder{color:var(--tx3)}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
             </div>
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Insider-Trades · {{ insiderSheetSymbolLabel }}</span>
-            <button onClick="{{ closeInsiderSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <button onClick="{{ closeInsiderSheet }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
@@ -1365,7 +1367,7 @@ input::placeholder{color:var(--tx3)}
           <div onPointerDown="{{ posMenuDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
             <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">{{ posMenuTitle }}</span>
-            <button onClick="{{ closePosMenu }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <button onClick="{{ closePosMenu }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
@@ -1410,7 +1412,7 @@ input::placeholder{color:var(--tx3)}
         <div onPointerDown="{{ divSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Dividende erfassen</span>
-          <button onClick="{{ closeDivSheet }}" aria-label="Schliessen" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+          <button onClick="{{ closeDivSheet }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -1472,7 +1474,7 @@ input::placeholder{color:var(--tx3)}
         <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Kursalarm</span>
-          <button onClick="{{ closeAlertSheet }}" aria-label="Schliessen" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+          <button onClick="{{ closeAlertSheet }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -1524,7 +1526,7 @@ input::placeholder{color:var(--tx3)}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
           </div>
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Investment-Plan</span>
-          <button onClick="{{ closeInvestPlanSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+          <button onClick="{{ closeInvestPlanSheet }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -1549,7 +1551,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="color:var(--tx);font-size:16px;font-weight:600">Beleg hinzufügen</span>
@@ -1621,7 +1623,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 128px;animation:rise .32s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goUpload }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goUpload }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="color:var(--tx);font-size:16px;font-weight:600">Erkannte Daten</span>
@@ -1698,7 +1700,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 128px;animation:rise .32s ease">
         <div style="display:flex;justify-content:flex-end;margin-bottom:34px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -1887,7 +1889,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="color:var(--tx);font-size:16px;font-weight:600">News · zu deinen Titeln</span>
@@ -1915,7 +1917,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isTaxReport }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
         <div class="no-print" style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="flex:1;color:var(--tx);font-size:16px;font-weight:600">Steuer-Report</span>
@@ -2183,7 +2185,7 @@ input::placeholder{color:var(--tx3)}
                   </sc-for>
                 </div>
                 <sc-if value="{{ d.hasInsider }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ d.openInsider }}" title="Insider-Trades" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;flex:none;width:38px;height:38px;border-radius:11px;background:{{ d.insiderBadgeBg }};display:flex;align-items:center;justify-content:center;color:{{ d.insiderBadgeColor }};transition:transform 140ms ease" style-active="transform:scale(.92)">
+                  <button onClick="{{ d.openInsider }}" title="Insider-Trades" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;flex:none;width:38px;height:38px;border-radius:50%;background:{{ d.insiderBadgeBg }};display:flex;align-items:center;justify-content:center;color:{{ d.insiderBadgeColor }};transition:transform 140ms ease" style-active="transform:scale(.92)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>
                   </button>
                 </sc-if>
@@ -2280,10 +2282,10 @@ input::placeholder{color:var(--tx3)}
                             <span style="color:var(--tx3);font-size:11px;font-family:'Roboto Mono',monospace">{{ t.detail }}</span>
                           </div>
                           <span style="color:{{ t.totalColor }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace">{{ t.total }}</span>
-                          <button onClick="{{ t.edit }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
+                          <button onClick="{{ t.edit }}" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
                           </button>
-                          <button onClick="{{ t.remove }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf3);display:flex;align-items:center;justify-content:center;color:var(--neg);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
+                          <button onClick="{{ t.remove }}" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--neg);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path></svg>
                           </button>
                         </div>
@@ -2337,7 +2339,7 @@ input::placeholder{color:var(--tx3)}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           </div>
           <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Benachrichtigungen</span>
-          <button onClick="{{ closeNotifSheet }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+          <button onClick="{{ closeNotifSheet }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
@@ -2376,7 +2378,7 @@ input::placeholder{color:var(--tx3)}
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="color:var(--tx);font-size:16px;font-weight:600">Account & Einstellungen</span>
