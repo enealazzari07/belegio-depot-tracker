@@ -988,6 +988,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <span style="display:block;color:var(--tx3);font-size:12px;margin-bottom:14px">Wer bei deinen Titeln kauft und verkauft · letzte 90 Tage</span>
             <div style="position:relative">
               <div style="display:flex;flex-direction:column;gap:8px;{{ geoWrapStyle }}">
+                <sc-if value="{{ insEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.55;border-radius:24px;background:var(--surf);box-shadow:var(--card-shadow)">Keine Käufe oder Verkäufe von Firmeninsidern in den letzten 90 Tagen — oder deine Titel sind keine US-Aktien.</div></sc-if>
                 <sc-for list="{{ insRows }}" as="ir" hint-placeholder-count="4">
                   <button onClick="{{ ir.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:9px;padding:14px 16px;border-radius:24px;background:var(--surf);box-shadow:var(--card-shadow)" style-active="transform:scale(.985)">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -4003,7 +4004,18 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => { this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); };
+  setDepotTab = k => () => { this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
+  loadInsiderExtra = async () => {
+    const have = this.state.insiderTrades || {};
+    const need = divCandidates(this.state.holdings, this.state.etfHoldings).map(c => c.sym).filter(x => !(x in have) && !this._insTried?.[x]);
+    if (!need.length) return;
+    this._insTried = { ...(this._insTried || {}), ...Object.fromEntries(need.map(x => [x, 1])) };
+    try {
+      const api = await this.api();
+      const data = await api.insiderTrades(need);
+      this.setState(st => ({ insiderTrades: { ...(data || {}), ...st.insiderTrades } }));
+    } catch (e) { /* keine Daten */ }
+  };
   loadDivCal = async () => {
     const cands = divCandidates(this.state.holdings, this.state.etfHoldings);
     const need = cands.map(c => c.sym).filter(s => !(s in this.state.divData));
@@ -6301,12 +6313,13 @@ class Component extends DCLogic {
         const cmp = n => n >= 1e6 ? (n / 1e6).toFixed(1) + " Mio" : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(Math.round(n));
         const list = rows.slice(0, 8).map(r => {
           const h = holdings.find(x => (x.sym || x.abbr) === r.sym), tot = r.buy + r.sell, net = r.buy - r.sell;
-          return { name: h ? displayName(h) : r.sym, open: this.openInsiderSheet(r.sym),
+          const cn = divCandidates(holdings, this.state.etfHoldings).find(c => c.sym === r.sym);
+          return { name: h ? displayName(h) : (cn ? cn.name : r.sym), open: this.openInsiderSheet(r.sym),
             buyW: (r.buy / tot * 100).toFixed(1) + "%", sellW: (r.sell / tot * 100).toFixed(1) + "%",
             buyLabel: "$" + cmp(r.buy), sellLabel: "$" + cmp(r.sell),
             netLabel: net >= 0 ? "Netto Kauf" : "Netto Verkauf", netColor: net >= 0 ? "var(--pos)" : "var(--neg)", netBg: net >= 0 ? "var(--pos-soft)" : "var(--neg-soft)" };
         });
-        return { insHas: list.length > 0, insRows: list };
+        return { insHas: true, insRows: list, insEmpty: !list.length };
       })(),
       depotDiv: this.state.depotTab === "div",
       ...(() => {
