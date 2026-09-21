@@ -234,12 +234,12 @@ input::placeholder{color:var(--tx3)}
 .cd-rise{animation:wIn .5s cubic-bezier(.22,1,.36,1) .12s backwards}
 .cd-rise2{animation:wIn .5s cubic-bezier(.22,1,.36,1) .3s backwards}
 @keyframes cardIn{
-  from{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:30px}
+  from{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:var(--crad,30px)}
   to{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
 }
 @keyframes cardOut{
   from{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
-  to{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:30px}
+  to{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:var(--crad,30px)}
 }
 @keyframes cdFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes cdFadeOut{0%,55%{opacity:1}100%{opacity:0}}
@@ -493,7 +493,7 @@ input::placeholder{color:var(--tx3)}
             <div style="padding:24px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:18px;background:var(--surf);border:1px dashed var(--line2);line-height:1.55">Noch keine Positionen — scanne deinen ersten Beleg.</div>
           </sc-if>
           <sc-for list="{{ holdings }}" as="h" hint-placeholder-count="4">
-            <button onClick="{{ h.open }}" class="rowbtn" style="display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);text-align:left;transition:transform 140ms ease,box-shadow 140ms ease" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.985)">
+            <button onClick="{{ h.open }}" data-rowcard="1" class="rowbtn" style="display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);text-align:left;transition:transform 140ms ease,box-shadow 140ms ease" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.985)">
               <div class="gbtn" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ h.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
                 <span style="color:var(--tx);font-size:14.5px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</span>
@@ -1017,9 +1017,9 @@ input::placeholder{color:var(--tx3)}
             <span style="display:block;color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.1em;padding-left:2px">{{ grp.label }}</span>
           </sc-if>
           <sc-for list="{{ grp.items }}" as="d" hint-placeholder-count="4">
-            <div class="card" style="overflow:hidden">
+            <div class="card" data-rowcard="1" style="overflow:hidden">
               <div style="display:flex;align-items:stretch">
-              <button onClick="{{ d.toggleOpen }}" class="rowbtn" style="flex:1;min-width:0;padding:14px 4px 14px 15px;transition:background 120ms ease" style-active="background:var(--surf2)">
+              <button onClick="{{ d.openDetail }}" class="rowbtn" style="flex:1;min-width:0;padding:14px 4px 14px 15px;transition:background 120ms ease" style-active="background:var(--surf2)">
                 <div style="display:flex;align-items:center;gap:12px">
                   <div style="width:40px;height:40px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ d.logo }}</div>
                   <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left">
@@ -3723,12 +3723,20 @@ class Component extends DCLogic {
   };
   openCardDetail = sym => e => {
     if (this._stackMoved) return;
-    const card = e.currentTarget;
+    const t = e && e.currentTarget;
+    const card = t && t.closest ? (t.closest("[data-hc],[data-rowcard]") || t) : t;
     const frame = document.querySelector("[data-theme] > div");
-    let v = "--chh:296px;--ct:30%;--cr:12%;--cb:30%;--cl:12%";
+    let v = "--chh:296px;--crad:30px;--ct:30%;--cr:12%;--cb:30%;--cl:12%";
+    this._cardClone = null;
     if (card && frame) {
       const r = card.getBoundingClientRect(), f = frame.getBoundingClientRect();
-      v = "--chh:" + Math.round(r.height) + "px;--ct:" + Math.max(0, r.top - f.top) + "px;--cr:" + Math.max(0, f.right - r.right) + "px;--cb:" + Math.max(0, f.bottom - r.bottom) + "px;--cl:" + Math.max(0, r.left - f.left) + "px";
+      const src = card.matches("[data-hc]") ? card.firstElementChild : card;
+      let rad = 30;
+      try { rad = parseFloat(getComputedStyle(src).borderTopLeftRadius) || 30; } catch (_) {}
+      v = "--chh:" + Math.round(r.height) + "px;--crad:" + rad + "px;--ct:" + Math.max(0, r.top - f.top) + "px;--cr:" + Math.max(0, f.right - r.right) + "px;--cb:" + Math.max(0, f.bottom - r.bottom) + "px;--cl:" + Math.max(0, r.left - f.left) + "px";
+      // Abbild der Quelle: beim Schliessen blendet es im schrumpfenden Bild ein, damit am
+      // Ende nichts "aufpoppt" (die echte Karte darunter sieht dann identisch aus).
+      try { this._cardClone = src.cloneNode(true); } catch (_) {}
     }
     this._cardVars = v;
     clearTimeout(this._cardCloseT);
@@ -3786,11 +3794,8 @@ class Component extends DCLogic {
     if (inn) inn.scrollTop = 0;
     el.style.overflow = "hidden";
     el.querySelectorAll(".cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .12s ease"; n.style.opacity = "0"; });
-    // Name/Wert im Bild bleiben sichtbar und schrumpfen mit dem Bild in die Karte.
-    el.querySelectorAll(".cd-rise").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .2s ease"; n.style.opacity = "1"; });
-    el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both, cdFadeOut .46s ease both";
-    // Nur das Bild schrumpft in die Karte: weisser Block und Kopfleiste blenden sofort aus,
-    // das Bild folgt exakt der schrumpfenden Flaeche (statt separat in der Hoehe zu animieren).
+    el.querySelectorAll(".cd-rise").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .2s ease"; n.style.opacity = "0"; });
+    el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both";
     const blk = document.getElementById("cd-block");
     if (blk) { blk.style.transition = "opacity .12s ease"; blk.style.opacity = "0"; }
     el.style.background = "transparent";
@@ -3798,6 +3803,15 @@ class Component extends DCLogic {
     if (hero) { hero.style.animation = "none"; hero.style.position = "absolute"; hero.style.inset = "0"; hero.style.height = "auto"; }
     const hdr = el.querySelector("[data-cd-head]");
     if (hdr) { hdr.style.transition = "opacity .12s ease"; hdr.style.opacity = "0"; }
+    // Abbild der Quell-Karte im Bild einblenden (Text/Pillen/Button der Karte kommen so
+    // gemeinsam mit dem Bild herein).
+    const clone = this._cardClone;
+    if (hero && clone) {
+      clone.style.cssText += ";position:absolute;left:0;top:0;right:0;bottom:0;width:100%;height:100%;margin:0;transform:none;box-shadow:none;pointer-events:none;opacity:0;transition:opacity .3s ease .06s";
+      hero.appendChild(clone);
+      void clone.offsetWidth;
+      clone.style.opacity = "1";
+    }
     this._cardCloseT = setTimeout(done, 450);
   };
   onEscKey = e => {
@@ -5169,6 +5183,7 @@ class Component extends DCLogic {
           openInsider: this.openInsiderSheet(sym),
           isOpen: isOpenPos,
           toggleOpen: this.togglePosOpen(sym),
+          openDetail: e => this.openCardDetail(sym)(e),
           chevron: isOpenPos ? "180" : "0",
 
           posTabs: tabDef.map(t => ({
@@ -5943,7 +5958,7 @@ class Component extends DCLogic {
           marketClosed: !noLive && mStatus !== "open",
           marketLabel: MARKET_STATUS_LABEL[mStatus] || "",
           marketPillBg: mStatus === "weekend" ? "var(--surf2)" : "var(--acc-soft)",
-          open: this.openDepotPosition(sym)
+          open: e => this.openCardDetail(sym)(e)
         };
       }),
 
