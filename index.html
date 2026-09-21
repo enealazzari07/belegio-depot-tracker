@@ -366,15 +366,15 @@ input::placeholder{color:var(--tx3)}
              soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
         <div>
 
-        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 44px) 20px 40px">
+        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 26px) 20px 36px">
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:250px">
                 <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--onBrand-line);border-top-color:var(--onBrand);animation:spin .8s linear infinite;display:block"></span>
               </div>
             </sc-if>
             <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:6px">
-              <div style="display:flex;flex-direction:column;gap:6px;min-width:0;padding-bottom:2px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:2px">
+              <div style="display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:4px">
                 <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
                 <span class="mono" style="color:var(--onBrand3);font-size:11px">Investiert {{ investedTotal }}</span>
               </div>
@@ -391,7 +391,7 @@ input::placeholder{color:var(--tx3)}
                 </div>
               </div>
             </div>
-            <div style="height:16px;margin-bottom:8px;text-align:right;visibility:{{ scrubVisibility }}">
+            <div style="height:14px;margin-bottom:2px;text-align:left;visibility:{{ scrubVisibility }}">
               <span class="mono" style="color:var(--onBrand2);font-size:11px;font-weight:600">{{ scrubDateLabel }}</span>
             </div>
             <sc-if value="{{ hasChart }}" hint-placeholder-val="{{ false }}">
