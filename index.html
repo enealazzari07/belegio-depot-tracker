@@ -4435,20 +4435,30 @@ class Component extends DCLogic {
     e.target.value = "";
     if (!file) return;
     this.setState({ parsing: true, ocrError: false });
+    let fields, ocrText;
     try {
       const ocr = await this.ocr();
-      const { fields, text: ocrText } = await ocr.scanReceipt(file);
-      let isinUnresolved = false;
+      ({ fields, text: ocrText } = await ocr.scanReceipt(file));
+    } catch (err) {
+      console.error(err);
+      this.setState({ parsing: false, screen: "review", extracted: emptyFields(), pendingFile: file, ocrError: true });
+      return;
+    }
+    // ISIN-Aufloesung laeuft in eigenem Try: schlaegt nur dieser (unwichtigere)
+    // Schritt fehl, sollen die bereits erkannten Felder + der Beleg-Text trotzdem
+    // angezeigt werden, statt alles wegzuwerfen und "fehlgeschlagen" zu melden.
+    let isinUnresolved = false;
+    try {
       if (!fields.symbol && fields.isin) {
         const r = await this.resolveIsinToTicker(fields.isin);
         if (r.symbol) { fields.symbol = r.symbol; fields.name = r.name; fields.isin = r.isin; }
         isinUnresolved = r.unresolved;
       }
-      this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file, isinUnresolved, ocrText: ocrText || "" });
     } catch (err) {
       console.error(err);
-      this.setState({ parsing: false, screen: "review", extracted: emptyFields(), pendingFile: file, ocrError: true });
+      isinUnresolved = true;
     }
+    this.setState({ parsing: false, screen: "review", extracted: fields, pendingFile: file, isinUnresolved, ocrText: ocrText || "" });
   };
 
   resolveIsinField = async () => {
