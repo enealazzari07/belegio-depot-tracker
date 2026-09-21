@@ -4618,25 +4618,37 @@ class Component extends DCLogic {
           let tl = [...tsSet].sort((a, b) => a - b);
           const stride = Math.max(1, Math.floor(tl.length / 140));
           tl = tl.filter((_, i) => i % stride === 0 || i === tl.length - 1);
-          const restVal = visibleHoldings.filter(h => !usable.includes(h)).reduce((a, h) => a + h.shares * h.cur, 0);
-          const curs = usable.map(h => ({ h, sr: serMap[(h.sym || h.abbr) + "|" + rk0], i: -1 }));
+          // Stueckzahl je Zeitpunkt aus den Transaktionen (vor dem Kauf zaehlt
+          // eine Position nicht mit) — sonst startet die Linie fiktiv "oben".
+          const stCache = {};
+          const sharesAtDate = ds => stCache[ds] || (stCache[ds] = stateAt(ds));
+          const rest = visibleHoldings.filter(h => !usable.includes(h));
+          const curs = usable.map(h => ({ h, sym: h.sym || h.abbr, sr: serMap[(h.sym || h.abbr) + "|" + rk0], i: -1 }));
+          const firstTs = Date.parse(firstDate + "T00:00:00");
+          tl = tl.filter(t => t >= firstTs);
           const out = [];
           for (const t of tl) {
-            let val = restVal;
+            const ds = dstr(new Date(t));
+            const acc = sharesAtDate(ds);
+            let val = 0;
+            for (const h of rest) { const a2 = acc[h.sym || h.abbr]; if (a2 && a2.shares) val += a2.shares * h.cur; }
             for (const c of curs) {
               while (c.i + 1 < c.sr.points.length && c.sr.points[c.i + 1].t <= t) c.i++;
               const pr = c.i >= 0 ? c.sr.points[c.i].c : (c.sr.prev != null ? c.sr.prev : c.sr.points[0].c);
-              val += c.h.shares * c.h.cur * (pr / c.h.curNative);
+              const a2 = acc[c.sym];
+              if (a2 && a2.shares) val += a2.shares * c.h.cur * (pr / c.h.curNative);
             }
-            const ds = dstr(new Date(t));
             out.push({ date: ds, t, invested: investedAt(ds), value: val });
           }
-          if (rk0 === "D") {
-            let base = restVal;
-            for (const c of curs) base += c.h.shares * c.h.cur * ((c.sr.prev != null ? c.sr.prev : c.sr.points[0].c) / c.h.curNative);
-            out.unshift({ date: out[0].date, t: out[0].t - 1, invested: out[0].invested, value: base });
+          if (rk0 === "D" && out.length) {
+            // Vortagesschluss als Startpunkt, nur mit Stuecken, die schon gestern gehalten wurden.
+            const accY = sharesAtDate(dstr(new Date(out[0].t - 864e5)));
+            let base = 0;
+            for (const h of rest) { const a2 = accY[h.sym || h.abbr]; if (a2 && a2.shares) base += a2.shares * h.cur; }
+            for (const c of curs) { const a2 = accY[c.sym]; if (a2 && a2.shares) base += a2.shares * c.h.cur * ((c.sr.prev != null ? c.sr.prev : c.sr.points[0].c) / c.h.curNative); }
+            if (base > 0) out.unshift({ date: out[0].date, t: out[0].t - 1, invested: out[0].invested, value: base });
           }
-          out[out.length - 1].value = visVal;
+          if (out.length) out[out.length - 1].value = visVal;
           if (out.length >= 2) points = out;
         }
       }
