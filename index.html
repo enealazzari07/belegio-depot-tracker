@@ -2090,15 +2090,17 @@ input::placeholder{color:var(--tx3)}
     <!-- Karten-Detail: waechst aus der angetippten Home-Karte zur Vollansicht
          (clip-path-Morph). Inhalt = dieselbe Detailansicht wie im Depot. -->
     <sc-for list="{{ cardDetailItems }}" as="d" hint-placeholder-count="1">
-      <div id="card-detail" class="cd-panel" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);-webkit-overflow-scrolling:touch">
-        <div class="cd-hero" style="position:relative;height:352px;background:{{ d.heroBg }};overflow:hidden">
-          <sc-if value="{{ d.noPhoto }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ d.sunX }}" cy="86" r="40" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg></sc-if>
-          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.6) 100%);pointer-events:none"></div>
+      <div id="card-detail" class="cd-panel" onScroll="{{ cdScroll }}" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);-webkit-overflow-scrolling:touch">
+        <div style="position:sticky;top:0;height:0;z-index:6">
           <button onClick="{{ closeCardDetail }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
           </button>
           <span style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 20px);right:18px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ d.heroKind }}</span>
-          <div style="position:absolute;left:20px;right:20px;bottom:52px;display:flex;flex-direction:column;gap:6px;" class="cd-rise">
+        </div>
+        <div class="cd-hero" style="position:relative;height:352px;background:{{ d.heroBg }};overflow:hidden">
+          <sc-if value="{{ d.noPhoto }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ d.sunX }}" cy="86" r="40" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg></sc-if>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.6) 100%);pointer-events:none"></div>
+          <div style="position:absolute;left:20px;right:20px;bottom:52px;display:flex;flex-direction:column;gap:6px;" class="cd-rise cd-htext">
             <span style="color:rgba(255,255,255,.82);font-size:13px;font-weight:600">{{ d.heroSub }}</span>
             <span style="color:#fff;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ d.heroName }}</span>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2107,7 +2109,8 @@ input::placeholder{color:var(--tx3)}
             </div>
           </div>
         </div>
-        <div style="position:relative;z-index:2;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:24px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
+        <div id="cd-block" style="position:sticky;top:calc(env(safe-area-inset-top, 0px) + 68px);z-index:2;margin-top:-32px;height:calc(100% - (env(safe-area-inset-top, 0px) + 68px));background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);overflow:hidden">
+        <div id="cd-inner" style="height:100%;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:24px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
         <div class="cd-rise2">
           <div style="margin-bottom:22px">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
@@ -2289,6 +2292,7 @@ input::placeholder{color:var(--tx3)}
 
               </div>
           </div>
+        </div>
         </div>
         </div>
       </div>
@@ -3712,6 +3716,18 @@ class Component extends DCLogic {
     this.markInsiderSeen();
     this.ensureSeries(sym, this.state.posChartRange || "D");
   };
+  // Erst scrollt der weisse Block nach oben (Bild rutscht darunter) — sobald er
+  // unter der Kopfleiste (Zurueck-Button/Tag) sitzt, bleibt er stehen und nur
+  // sein Inhalt scrollt weiter.
+  cdScroll = e => {
+    const el = e.currentTarget;
+    const inner = document.getElementById("cd-inner");
+    if (!el || !inner) return;
+    const max = el.scrollHeight - el.clientHeight;
+    inner.style.overflowY = el.scrollTop >= max - 1 ? "auto" : "hidden";
+    const t = el.querySelector(".cd-htext");
+    if (t) t.style.opacity = String(Math.max(0, 1 - el.scrollTop / 110));
+  };
   closeCardDetail = () => {
     if (!this.state.cardDetailSym || this._cardClosing) return;
     this._cardClosing = true;
@@ -3721,6 +3737,8 @@ class Component extends DCLogic {
     // Erst nach oben (Bild), Infos ausblenden — sonst zeigt die schrumpfende
     // Flaeche Kacheln statt des Bildes.
     el.scrollTop = 0;
+    const inn = document.getElementById("cd-inner");
+    if (inn) inn.scrollTop = 0;
     el.style.overflow = "hidden";
     el.querySelectorAll(".cd-rise, .cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .16s ease"; n.style.opacity = "0"; });
     el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both";
@@ -5661,7 +5679,7 @@ class Component extends DCLogic {
           }))
         };
       })(),
-      closeCardDetail: this.closeCardDetail,
+      closeCardDetail: this.closeCardDetail, cdScroll: this.cdScroll,
       stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
