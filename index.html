@@ -259,10 +259,15 @@ input::placeholder{color:var(--tx3)}
   from{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
   to{top:var(--at);right:17px;bottom:calc(62px + env(safe-area-inset-bottom, 0px));left:17px;border-radius:28px}
 }
-@keyframes aiOut{
-  from{opacity:1;transform:scale(1)}
-  to{opacity:0;transform:scale(.97)}
+@keyframes aiCol{
+  from{top:var(--at);right:17px;bottom:calc(62px + env(safe-area-inset-bottom, 0px));left:17px;border-radius:28px}
+  to{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
 }
+@keyframes zzCol{
+  from{top:var(--at);right:17px;bottom:var(--zb);left:17px;border-radius:28px}
+  to{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
+}
+@keyframes panelTail{0%,78%{opacity:1}100%{opacity:0}}
 .zz-panel{animation:zzIn .52s cubic-bezier(.32,.72,0,1) both}
 @keyframes zzIn{
   from{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
@@ -4379,9 +4384,8 @@ class Component extends DCLogic {
     const done = () => { this._zzClosing = false; this.setState({ zzPanelOpen: false }); };
     if (!el) { done(); return; }
     el.querySelectorAll(".ai-body").forEach(b => { b.style.animation = "none"; b.style.transition = "opacity .14s ease"; b.style.opacity = "0"; });
-    el.style.transformOrigin = "50% 0%";
-    el.style.animation = "aiOut .26s cubic-bezier(.4,0,.2,1) both";
-    setTimeout(done, 260);
+    el.style.animation = "zzCol .5s cubic-bezier(.6,0,.25,1) both, panelTail .5s linear both";
+    setTimeout(done, 510);
   };
   openAiPanel = e => {
     const btn = e && e.currentTarget;
@@ -4403,9 +4407,8 @@ class Component extends DCLogic {
     if (!el) { done(); return; }
     const body = el.querySelector(".ai-body");
     if (body) { body.style.animation = "none"; body.style.transition = "opacity .14s ease"; body.style.opacity = "0"; }
-    el.style.transformOrigin = "50% 0%";
-    el.style.animation = "aiOut .26s cubic-bezier(.4,0,.2,1) both";
-    setTimeout(done, 260);
+    el.style.animation = "aiCol .5s cubic-bezier(.6,0,.25,1) both, panelTail .5s linear both";
+    setTimeout(done, 510);
   };
   closeAiSheet = () => this.setState({ aiSheetOpen: false });
 
