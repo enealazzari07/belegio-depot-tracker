@@ -249,6 +249,11 @@ input::placeholder{color:var(--tx3)}
 @media (prefers-reduced-motion: reduce){.cd-panel,.cd-hero,.cd-rise,.cd-rise2{animation:none!important}}
 .gbtn{border-radius:50% !important;background:var(--gbtn) !important;border:1px solid var(--gbtn-line) !important;box-shadow:none !important;backdrop-filter:blur(14px) saturate(160%) !important;-webkit-backdrop-filter:blur(14px) saturate(160%) !important;transition:transform 140ms ease !important}
 .gbtn:active{transform:scale(.92)}
+.ticker{overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%)}
+.ticker-track{display:inline-flex;align-items:center;width:max-content;animation:tickerMove 40s linear infinite;will-change:transform}
+.ticker:active .ticker-track{animation-play-state:paused}
+@keyframes tickerMove{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+@media (prefers-reduced-motion: reduce){.ticker-track{animation:none!important}.ticker{overflow-x:auto}}
 .sheet-in{animation:sheetMorph .5s cubic-bezier(.32,.72,0,1) backwards;transform-origin:50% 100%}
 .sheet-in>*{animation:wIn .5s cubic-bezier(.22,1,.36,1) backwards}
 .sheet-in>*:nth-child(1){animation-delay:.04s}.sheet-in>*:nth-child(2){animation-delay:.09s}
@@ -1569,7 +1574,29 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 16px) 0 128px;animation:fade .3s ease">
+        <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
+          <div class="ticker" style="margin:0 0 16px">
+            <div class="ticker-track" style="animation-duration:{{ tickerDuration }}">
+              <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
+              <div style="flex:none;display:flex;align-items:center;gap:9px;margin-right:12px;padding:8px 14px 8px 16px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line)">
+                <span style="color:var(--tx);font-size:12.5px;font-weight:700">{{ idx.label }}</span>
+                <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:600">{{ idx.price }}</span>
+                <span class="mono" style="color:{{ idx.color }};font-size:12px;font-weight:700">{{ idx.change }}</span>
+                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:38px;height:16px;display:block;flex:none"><path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></svg>
+              </div>
+              </sc-for>
+              <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
+              <div style="flex:none;display:flex;align-items:center;gap:9px;margin-right:12px;padding:8px 14px 8px 16px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line)">
+                <span style="color:var(--tx);font-size:12.5px;font-weight:700">{{ idx.label }}</span>
+                <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:600">{{ idx.price }}</span>
+                <span class="mono" style="color:{{ idx.color }};font-size:12px;font-weight:700">{{ idx.change }}</span>
+                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:38px;height:16px;display:block;flex:none"><path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path></svg>
+              </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
         <div style="padding:0 20px;margin-bottom:18px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
         </div>
@@ -5204,6 +5231,7 @@ class Component extends DCLogic {
       }) : [],
       noNews: !this.state.liveNews || !this.state.liveNews.length,
       marketIndices: marketIndexList,
+      tickerDuration: Math.max(24, marketIndexList.length * 9) + "s",
       hasMarketStrip: marketIndexList.length > 0,
       marketTabs: MARKET_TABS.map(t => ({
         key: t.key, label: t.label,
