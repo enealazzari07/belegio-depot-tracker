@@ -2528,17 +2528,12 @@ const displayName = h => {
 
 // Position der Karten im Stapel: Slot 0 vorne, 1 rechts dahinter, 2 links
 // dahinter, 3+ verborgen. p = Fortschritt zum naechsten Slot (0..1).
-const STACK_TABLES = {
-  // 1-2 Karten: Nachbar ragt rechts heraus, vorne linksbuendig.
-  few: { tx: [0, 22, 22, 22], sc: [1, 0.93, 0.93, 0.9], op: [1, 1, 1, 0], origin: "0% 50%" },
-  // 3+ Karten: links UND rechts ragt je eine Karte heraus.
-  many: { tx: [0, 30, -30, -30], sc: [1, 0.9, 0.9, 0.82], op: [1, 1, 1, 0], origin: "50% 50%" }
-};
-const stackSlot = (k, p, n) => {
-  const T = n >= 3 ? STACK_TABLES.many : STACK_TABLES.few;
-  const a = Math.min(k, 3), b = Math.min(Math.max(k - 1, 0), 3);
-  const l = arr => arr[a] + (arr[b] - arr[a]) * p;
-  return { tx: l(T.tx), sc: l(T.sc), op: l(T.op), origin: T.origin };
+// Signierte Position einer Karte relativ zur aktiven: 0 = vorne, 1 = rechts,
+// -1 = links (nur ab 3 Karten; sonst laufen alle weiteren nach rechts).
+const stackRel = (i, cur, n) => {
+  let r = ((i - cur) % n + n) % n;
+  if (n >= 3 && r > n / 2) r -= n;
+  return r;
 };
 // Weiche Kurve (monotone kubische Bezier, kein Ueberschwingen).
 const smoothPathXY = xy => {
@@ -3640,26 +3635,27 @@ class Component extends DCLogic {
       this.layoutStack(0, 0);
     }, 30);
   };
-  // Gestapelte Karten: vorne die aktive, dahinter links/rechts ragende Nachbarn.
-  // Wischen zieht die vorderste 1:1 mit, beim Loslassen fliegt sie weg (weit oder
-  // schnell genug) oder federt zurueck; die naechste rueckt nach.
-  layoutStack = (dx = 0, prog = null) => {
+  // Karten-Karussell: vorne die aktive Karte, rechts (und ab 3 Karten auch links)
+  // ragt jeweils die Nachbarkarte heraus. Alle Karten folgen dem Finger 1:1; beim
+  // Loslassen rastet die naechste ein (kein Springen, weil die Positionen nach dem
+  // Einrasten exakt den neuen Ruhepositionen entsprechen).
+  layoutStack = (dx = 0) => {
     const el = document.getElementById("home-stack");
     if (!el) return;
     const cards = [...el.querySelectorAll("[data-hc]")];
     const n = cards.length;
     if (!n) return;
-    const W = el.clientWidth || 300;
+    const step = (el.clientWidth || 300) + 12;
     const cur = (this._stackIdx || 0) % n;
-    const p = prog != null ? prog : Math.min(1, Math.abs(dx) / (W * 0.6));
     cards.forEach((c, i) => {
-      const k = (i - cur + n) % n;
-      const r = stackSlot(k, p, n);
-      c.style.transform = "translate3d(" + (k === 0 ? dx : r.tx) + "px,0,0) rotate(" + (k === 0 ? (dx / W * 9).toFixed(2) : 0) + "deg) scale(" + r.sc.toFixed(3) + ")";
-      c.style.opacity = k === 0 ? String(prog != null && prog >= 1 ? 0 : 1 - Math.min(0.35, p * 0.4)) : String(r.op);
-      c.style.transformOrigin = k === 0 ? "50% 60%" : r.origin;
-      c.style.zIndex = String(n - k);
-      c.style.pointerEvents = k === 0 ? "auto" : "none";
+      const r = stackRel(i, cur, n);
+      const pos = r * step + dx;
+      const rp = pos / step, ar = Math.abs(rp);
+      c.style.transform = "translate3d(" + pos.toFixed(1) + "px,0,0) scale(" + (1 - 0.06 * Math.min(1, ar)).toFixed(3) + ")";
+      c.style.transformOrigin = rp > 0.001 ? "0% 50%" : rp < -0.001 ? "100% 50%" : "50% 50%";
+      c.style.opacity = String(ar <= 1.02 ? 1 : Math.max(0, 1 - (ar - 1.02) * 2));
+      c.style.zIndex = String(n - Math.round(ar));
+      c.style.pointerEvents = ar < 0.5 ? "auto" : "none";
     });
     el.parentElement.querySelectorAll("[data-dot]").forEach((d, i) => {
       d.style.width = i === cur ? "18px" : "6px";
@@ -3673,7 +3669,8 @@ class Component extends DCLogic {
   stackMove = e => {
     const s = this._st;
     if (!s) return;
-    const dx = e.clientX - s.x, dy = e.clientY - s.y;
+    let dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
     if (s.dir === null) {
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
       s.dir = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
@@ -3681,11 +3678,15 @@ class Component extends DCLogic {
     }
     if (s.dir !== "x") return;
     this._stackMoved = true;
+    const el = e.currentTarget;
+    const cards = el.querySelectorAll("[data-hc]");
+    const n = cards.length;
+    // Ohne Nachbar in Zugrichtung (1 Karte; bei 2 Karten nach rechts): Gummiband.
+    if (n <= 1 || (n === 2 && dx > 0)) dx *= 0.25;
     s.dx = dx;
     s.hist.push({ t: performance.now(), x: e.clientX });
     if (s.hist.length > 5) s.hist.shift();
-    const el = e.currentTarget;
-    el.querySelectorAll("[data-hc]").forEach(c => { c.style.transition = "none"; });
+    cards.forEach(c => { c.style.transition = "none"; });
     this.layoutStack(dx);
   };
   stackUp = e => {
@@ -3696,28 +3697,20 @@ class Component extends DCLogic {
     if (!el) return;
     const cards = [...el.querySelectorAll("[data-hc]")];
     const n = cards.length;
-    const W = el.clientWidth || 300;
+    const step = (el.clientWidth || 300) + 12;
     const first = s.hist[0], last = s.hist[s.hist.length - 1];
     const v = (last.x - first.x) / Math.max(1, last.t - first.t);
-    const commit = n > 1 && (Math.abs(s.dx) > W * 0.28 || Math.abs(v) > 0.55);
-    const tr = "transform .46s cubic-bezier(.32,.72,0,1), opacity .4s ease";
-    cards.forEach(c => { c.style.transition = tr; });
-    if (!commit) { this.layoutStack(0, 0); return; }
-    const dir = s.dx >= 0 ? 1 : -1;
-    const cur0 = (this._stackIdx || 0) % n;
-    const flown = cards[cur0];
-    this.layoutStack(dir * W * 1.25, 1);
+    const dirNext = s.dx < 0;
+    const canGo = n > 1 && (dirNext || n >= 3);
+    const commit = canGo && (Math.abs(s.dx) > step * 0.28 || Math.abs(v) > 0.5) && (v === 0 || (v < 0) === dirNext || Math.abs(s.dx) > step * 0.28);
+    cards.forEach(c => { c.style.transition = "transform .42s cubic-bezier(.32,.72,0,1), opacity .3s ease"; });
+    if (!commit) { this.layoutStack(0); return; }
+    this.layoutStack(dirNext ? -step : step);
     setTimeout(() => {
-      // Die weggewischte Karte bleibt unsichtbar, springt hinten in den Stapel
-      // und blendet dort weich ein — statt sichtbar "hinten aufzupoppen".
       cards.forEach(c => { c.style.transition = "none"; });
-      this._stackIdx = ((this._stackIdx || 0) + 1) % n;
-      this.layoutStack(0, 0);
-      if (flown) { flown.style.opacity = "0"; flown.style.transform += " scale(.92)"; }
-      void el.offsetWidth;
-      cards.forEach(c => { c.style.transition = "transform .5s cubic-bezier(.32,.72,0,1), opacity .5s ease"; });
-      this.layoutStack(0, 0);
-    }, 340);
+      this._stackIdx = ((this._stackIdx || 0) + (dirNext ? 1 : -1) + n) % n;
+      this.layoutStack(0);
+    }, 430);
   };
   openCardDetail = sym => e => {
     if (this._stackMoved) return;
@@ -5685,9 +5678,8 @@ class Component extends DCLogic {
         const list = all.filter(c => filter === "all" || (filter === "etf" ? c.etf : !c.etf));
         const cur = list.length ? (this._stackIdx || 0) % list.length : 0;
         list.forEach((c, i) => {
-          const k = (i - cur + list.length) % list.length;
-          const r = stackSlot(k, 0, list.length);
-          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform-origin:" + (k === 0 ? "50% 60%" : r.origin) + ";transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
+          const r = stackRel(i, cur, list.length), ar = Math.abs(r);
+          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform:translate3d(calc(" + r + " * (100% + 12px)),0,0) scale(" + (ar >= 1 ? 0.94 : 1) + ");transform-origin:" + (r > 0 ? "0% 50%" : r < 0 ? "100% 50%" : "50% 50%") + ";opacity:" + (ar <= 1 ? 1 : 0) + ";z-index:" + (list.length - ar) + ";pointer-events:" + (r === 0 ? "auto" : "none");
         });
         const tabs = [{ key: "all", label: "Alle" }, { key: "stock", label: "Aktien" }, { key: "etf", label: "ETFs" }];
         const selSym = this.state.cardDetailSym;
