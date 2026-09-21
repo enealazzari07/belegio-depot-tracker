@@ -230,8 +230,8 @@ input::placeholder{color:var(--tx3)}
 #home-cards::-webkit-scrollbar{display:none}
 @keyframes wIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .w-in{animation:wIn .5s cubic-bezier(.22,1,.36,1) both}
-.cd-panel{animation:cardIn .55s cubic-bezier(.32,.72,0,1) both;overflow-x:hidden;overflow-y:auto}
-.cd-rise{animation:wIn .5s cubic-bezier(.22,1,.36,1) .22s backwards}
+.cd-panel{animation:cardIn .55s cubic-bezier(.32,.72,0,1) both,cdFadeIn .22s ease both;overflow-x:hidden;overflow-y:auto}
+.cd-rise{animation:wIn .5s cubic-bezier(.22,1,.36,1) .12s backwards}
 .cd-rise2{animation:wIn .5s cubic-bezier(.22,1,.36,1) .3s backwards}
 @keyframes cardIn{
   from{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:30px}
@@ -241,6 +241,8 @@ input::placeholder{color:var(--tx3)}
   from{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
   to{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:30px}
 }
+@keyframes cdFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes cdFadeOut{0%,55%{opacity:1}100%{opacity:0}}
 @keyframes heroIn{from{height:var(--chh)}to{height:352px}}
 @keyframes heroOut{from{height:352px}to{height:var(--chh)}}
 .cd-hero{animation:heroIn .55s cubic-bezier(.32,.72,0,1) both}
@@ -3786,7 +3788,7 @@ class Component extends DCLogic {
     if (inn) inn.scrollTop = 0;
     el.style.overflow = "hidden";
     el.querySelectorAll(".cd-rise, .cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .16s ease"; n.style.opacity = "0"; });
-    el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both";
+    el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both, cdFadeOut .46s ease both";
     // Nur das Bild schrumpft in die Karte: weisser Block und Kopfleiste blenden sofort aus,
     // das Bild folgt exakt der schrumpfenden Flaeche (statt separat in der Hoehe zu animieren).
     const blk = document.getElementById("cd-block");
