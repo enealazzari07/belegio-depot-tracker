@@ -971,28 +971,29 @@ input::placeholder{color:var(--tx3)}
               <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Aufteilung</span>
               <span style="color:var(--tx3);font-size:12px;font-weight:600">nach Wert</span>
             </div>
-            <div style="display:flex;align-items:center;gap:20px">
-              <div style="position:relative;flex:none;width:132px;height:132px">
-                <svg viewBox="0 0 100 100" width="132" height="132" style="display:block;transform:rotate(-90deg);overflow:visible">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--gbtn)" stroke-width="9"></circle>
-                  <sc-for list="{{ allocationSlices }}" as="sl" hint-placeholder-count="6">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="{{ sl.color }}" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+            <div style="position:relative;width:100%;aspect-ratio:340/200">
+              <svg viewBox="0 0 340 200" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                <g transform="rotate(-90 170 98)">
+                  <circle cx="170" cy="98" r="42" fill="none" stroke="var(--gbtn)" stroke-width="22"></circle>
+                  <sc-for list="{{ allocRing }}" as="sl" hint-placeholder-count="6">
+                    <circle cx="170" cy="98" r="42" fill="none" stroke="{{ sl.color }}" stroke-width="22" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
                   </sc-for>
-                </svg>
-                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;gap:2px">
-                  <span class="mono" style="color:var(--tx);font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ posCountNum }}</span>
-                  <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.12em">TITEL</span>
-                </div>
-              </div>
-              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px">
-                <sc-for list="{{ allocationLegend }}" as="lg" hint-placeholder-count="6">
-                  <div style="display:flex;align-items:center;gap:10px;min-width:0">
-                    <span style="width:16px;height:4px;border-radius:2px;background:{{ lg.color }};flex:none"></span>
-                    <span style="flex:0 1 auto;min-width:0;color:var(--tx);font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.label }}</span>
-                    <span class="mono" style="flex:none;color:var(--tx3);font-size:12px;font-weight:700">{{ lg.pctShort }}</span>
-                  </div>
+                </g>
+                <sc-for list="{{ allocCallouts }}" as="co" hint-placeholder-count="6">
+                  <path d="{{ co.path }}" fill="none" stroke="var(--tx3)" stroke-width="1" stroke-linejoin="round" opacity=".7" vector-effect="non-scaling-stroke"></path>
+                  <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="3" fill="{{ co.color }}" stroke="var(--bg)" stroke-width="1.5"></circle>
                 </sc-for>
+              </svg>
+              <div style="position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none">
+                <span class="mono" style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ posCountNum }}</span>
+                <span style="color:var(--tx3);font-size:8.5px;font-weight:700;letter-spacing:.12em">TITEL</span>
               </div>
+              <sc-for list="{{ allocCallouts }}" as="co" hint-placeholder-count="6">
+                <div style="position:absolute;{{ co.posStyle }};display:flex;flex-direction:column;gap:1px;line-height:1.15;white-space:nowrap">
+                  <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.name }}</span>
+                  <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:700">{{ co.pct }}</span>
+                </div>
+              </sc-for>
             </div>
           </div>
         </sc-if>
@@ -4928,6 +4929,49 @@ class Component extends DCLogic {
       }
     }
 
+    // Aufteilung als flaches Kreisdiagramm mit Beschriftungslinien (links/rechts).
+    const allocRing = [], allocCallouts = [];
+    if (visibleHoldings.length && visVal) {
+      const cx = 170, cy = 98, R = 42, CIRC = 2 * Math.PI * R;
+      const PAL = ["#1b1b1f", "#5B5BD6", "#2AA6B5", "#F6546A", "#F2A03D", "#43CEA2", "#9C7BFF"];
+      const sorted2 = visibleHoldings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
+      const items = sorted2.slice(0, 7).map((x, i) => ({ v: x.v, color: PAL[i % 7], label: displayName(x.h) }));
+      const otherV2 = sorted2.slice(7).reduce((a, x) => a + x.v, 0);
+      if (otherV2 > 0.0001) items.push({ v: otherV2, color: "#C9CDD6", label: "Sonstige" });
+      let acc = 0;
+      const raw = [];
+      items.forEach(it => {
+        const frac = it.v / visVal;
+        const vis = Math.max(0, frac * CIRC - 2.5);
+        allocRing.push({ color: it.color, dasharray: vis.toFixed(2) + " " + (CIRC - vis).toFixed(2), dashoffset: (-acc * CIRC).toFixed(2) });
+        raw.push({ it, frac, mid: (acc + frac / 2) * 2 * Math.PI });
+        acc += frac;
+      });
+      [1, -1].forEach(side => {
+        const arr = raw.filter(r => (Math.sin(r.mid) >= 0 ? 1 : -1) === side)
+          .map(r => ({ ...r, y0: cy - (R + 22) * Math.cos(r.mid) }))
+          .sort((a, b) => a.y0 - b.y0);
+        let last = -1e9;
+        arr.forEach(r => { r.y = Math.max(r.y0, last + 36); last = r.y; });
+        for (let i = arr.length - 1; i >= 0; i--) { const maxY = 186 - (arr.length - 1 - i) * 36; if (arr[i].y > maxY) arr[i].y = maxY; }
+        arr.forEach(r => {
+          const sn = Math.sin(r.mid), cs = Math.cos(r.mid);
+          const p1x = cx + (R + 12) * sn, p1y = cy - (R + 12) * cs;
+          const ex = cx + side * 76, xe = cx + side * 86;
+          const nm = r.it.label.length > 12 ? r.it.label.slice(0, 11).trim() + "…" : r.it.label;
+          allocCallouts.push({
+            color: r.it.color, dot: { x: p1x.toFixed(1), y: p1y.toFixed(1) },
+            dotX: p1x.toFixed(1), dotY: p1y.toFixed(1),
+            path: "M" + p1x.toFixed(1) + " " + p1y.toFixed(1) + " L" + (cx + side * 62).toFixed(1) + " " + r.y.toFixed(1) + " L" + xe.toFixed(1) + " " + r.y.toFixed(1),
+            posStyle: side === 1
+              ? "left:" + ((xe + 6) / 340 * 100).toFixed(2) + "%;top:" + ((r.y - 15) / 200 * 100).toFixed(2) + "%;text-align:left"
+              : "right:" + ((340 - (xe - 6)) / 340 * 100).toFixed(2) + "%;top:" + ((r.y - 15) / 200 * 100).toFixed(2) + "%;text-align:right",
+            name: nm, pct: Math.round(r.frac * 100) + "%"
+          });
+        });
+      });
+    }
+
     const insightsList = holdings.length ? (() => {
       const top = holdings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v)[0];
       const worst = holdings.map(h => ({ h, d: h.buy ? (h.cur - h.buy) / h.buy : 0 })).sort((a, b) => a.d - b.d)[0];
@@ -5539,6 +5583,7 @@ class Component extends DCLogic {
       hasAllocation: allocationSlices.length > 0,
       allocationSlices,
       allocationLegend,
+      allocRing, allocCallouts,
       posCountNum: String(visibleHoldings.length),
 
       // ---------- „Depot auf einen Blick" (Home-Stats) ----------
