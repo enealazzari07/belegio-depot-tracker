@@ -982,6 +982,65 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
         </sc-if>
 
+        <sc-if value="{{ depotDiv }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:26px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Dividendenkalender</span>
+              <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
+            </div>
+            <span style="display:block;color:var(--tx3);font-size:12px;margin-bottom:14px">Die {{ divCount }} grössten Titel aus Depot und ETFs</span>
+            <div style="position:relative">
+              <div style="{{ geoWrapStyle }}">
+                <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);padding:16px 14px 14px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                    <button onClick="{{ divPrev }}" class="gbtn" style="all:unset;cursor:pointer;width:38px;height:38px;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg></button>
+                    <span style="color:var(--tx);font-size:15px;font-weight:700">{{ divMonthLabel }}</span>
+                    <button onClick="{{ divNext }}" class="gbtn" style="all:unset;cursor:pointer;width:38px;height:38px;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+                    <span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">MO</span><span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">DI</span><span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">MI</span><span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">DO</span><span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">FR</span><span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">SA</span><span style="text-align:center;color:var(--tx3);font-size:10px;font-weight:700">SO</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+                    <sc-for list="{{ divCells }}" as="dc" hint-placeholder-count="35">
+                      <button onClick="{{ dc.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;height:46px;border-radius:16px;background:{{ dc.bg }};color:{{ dc.tx }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;font-weight:600;transition:background 180ms ease,color 180ms ease" style-active="transform:scale(.94)">
+                        <span>{{ dc.label }}</span>
+                        <span style="display:flex;gap:3px;height:5px">
+                          <sc-for list="{{ dc.dots }}" as="dt2" hint-placeholder-count="2"><span style="width:5px;height:5px;border-radius:50%;background:{{ dt2.color }}"></span></sc-for>
+                        </span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-if value="{{ divHasTotal }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 4px 0"><span style="color:var(--tx3);font-size:12px;font-weight:600">Erwartet im Monat (eigene Stücke)</span><span class="mono" style="color:var(--tx);font-size:14px;font-weight:700">{{ divTotal }}</span></div>
+                </sc-if>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+                  <sc-for list="{{ divRows }}" as="dr" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:13px;padding:12px 16px 12px 12px;border-radius:24px;background:var(--surf);box-shadow:var(--card-shadow)">
+                      <div style="width:46px;height:50px;border-radius:16px;background:{{ dr.color }};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none"><span style="font-size:17px;font-weight:700;line-height:1">{{ dr.day }}</span><span style="font-size:9px;font-weight:700;letter-spacing:.08em;margin-top:2px;opacity:.85">{{ dr.mon }}</span></div>
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                        <span style="color:var(--tx);font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ dr.name }}</span>
+                        <span style="color:var(--tx3);font-size:11px">{{ dr.sub }}</span>
+                      </div>
+                      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none"><span class="mono" style="color:var(--tx);font-size:13.5px;font-weight:700">{{ dr.amt }}</span><span style="color:var(--tx3);font-size:10.5px">{{ dr.per }}</span></div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ divNoRows }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:22px;background:var(--surf)">Keine Dividenden in diesem Zeitraum.</div></sc-if>
+                  <sc-if value="{{ divLoadingNow }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px">Lade Dividenden…</div></sc-if>
+                </div>
+                <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin-top:10px">Ex-Dividenden-Termine. Kommende Termine sind Prognosen auf Basis des Vorjahres; ETF-Titel zeigen den Betrag pro Aktie.</span>
+              </div>
+              <sc-if value="{{ geoLocked }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;left:50%;top:190px;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+                  <span style="color:#fff;font-size:12px;font-weight:700">Kalender mit Pro</span>
+                  <span style="padding:6px 12px;border-radius:999px;background:#fff;color:#1b1b1f;font-size:11px;font-weight:700">Freischalten</span>
+                </button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
         <span style="display:block;color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:12px">Positionen</span>
 
@@ -2636,6 +2695,29 @@ const urlBase64ToUint8Array = base64 => {
   const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 };
+// Die groessten (max. 10) Dividendenkandidaten: Einzelaktien direkt, ETFs ueber ihre Top-Positionen.
+const divCandidates = (holdings, etf) => {
+  const m = {};
+  (holdings || []).forEach(h => {
+    const sym = h.sym || h.abbr;
+    const v = (h.shares || 0) * (h.cur || 0);
+    const comp = etf && etf[sym];
+    if (comp && comp.holdings && comp.holdings.length) {
+      const ws = comp.holdings.map(x => x.weight || 0);
+      const scale = ws.reduce((a, b) => a + b, 0) > 1.5 ? 100 : 1;
+      comp.holdings.forEach(x => {
+        if (!x.symbol) return;
+        const e = m[x.symbol] || (m[x.symbol] = { sym: x.symbol, name: x.name || x.symbol, value: 0, shares: 0, viaEtf: true });
+        e.value += v * (x.weight || 0) / scale;
+      });
+    } else if (sym && !isinLike(sym)) {
+      const e = m[sym] || (m[sym] = { sym, name: h.name || sym, value: 0, shares: 0, viaEtf: false });
+      e.value += v; e.shares += h.shares || 0; e.viaEtf = false;
+    }
+  });
+  return Object.values(m).sort((a, b) => b.value - a.value).slice(0, 10);
+};
+const MONTHS_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 const emptyFields = () => ({ date: new Date().toISOString().slice(0, 10), symbol: "", isin: "", shares: "", price: "", fees: "", total: "", currency: "CHF", side: "buy" });
 
 // Waehrungen, die im Erfassungsformular und in der Waehrungs-Aufteilung
@@ -3037,7 +3119,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", depotTab: "general", hqImages: (() => { try { return JSON.parse(localStorage.getItem("belegio_hq_v2") || "{}"); } catch (_) { return {}; } })(), aiPanelOpen: false, zzPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", depotTab: "general", divData: {}, divLoading: false, divMonth: 0, divSel: "", hqImages: (() => { try { return JSON.parse(localStorage.getItem("belegio_hq_v2") || "{}"); } catch (_) { return {}; } })(), aiPanelOpen: false, zzPanelOpen: false, bannerIdx: 0, newsImages: {}, newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3351,7 +3433,7 @@ class Component extends DCLogic {
     return this._ocr;
   }
   async api() {
-    if (!this._api) this._api = await import("./market.js?v=20260921c");
+    if (!this._api) this._api = await import("./market.js?v=20260921d");
     return this._api;
   }
 
@@ -3887,7 +3969,20 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => this.setState({ depotTab: k });
+  setDepotTab = k => () => { this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); };
+  loadDivCal = async () => {
+    const cands = divCandidates(this.state.holdings, this.state.etfHoldings);
+    const need = cands.map(c => c.sym).filter(s => !(s in this.state.divData));
+    if (!need.length || this.state.divLoading) return;
+    this.setState({ divLoading: true });
+    try {
+      const api = await this.api();
+      const data = await api.divCal(need);
+      this.setState(s => ({ divLoading: false, divData: { ...s.divData, ...Object.fromEntries(need.map(k => [k, data[k] || { divs: [] }])) } }));
+    } catch (e) { this.setState({ divLoading: false }); }
+  };
+  divShift = d => () => this.setState(s => ({ divMonth: (s.divMonth || 0) + d, divSel: "" }));
+  divPick = k => () => this.setState(s => ({ divSel: s.divSel === k ? "" : k }));
   onNewsSearch = e => this.setState({ newsSearch: e.target.value });
   openNews = url => () => { if (url) { try { window.open(url, "_blank", "noopener"); } catch (_) {} } };
   setHomeFilter = k => () => {
@@ -6156,7 +6251,48 @@ class Component extends DCLogic {
       allocationLegend,
       allocRing, allocCallouts,
       depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc",
-      depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }].map(t => ({
+      depotDiv: this.state.depotTab === "div",
+      ...(() => {
+        const now = new Date(), YR = 365 * 864e5;
+        const base = new Date(now.getFullYear(), now.getMonth() + (this.state.divMonth || 0), 1);
+        const y = base.getFullYear(), mo = base.getMonth();
+        const cands = divCandidates(visibleHoldings, this.state.etfHoldings);
+        const PAL = ["#5B5BD6", "#2AA6B5", "#F6546A", "#F2A03D", "#43CEA2", "#9C7BFF", "#4C8DF6", "#E56AB3", "#8AA33C", "#7A7F8C"];
+        const evs = [];
+        cands.forEach((c, ci) => {
+          const d = this.state.divData[c.sym];
+          if (!d || !d.divs) return;
+          d.divs.forEach(x => {
+            [{ t: x.t, est: false }, { t: x.t + YR, est: true }].forEach(k => {
+              const dt = new Date(k.t);
+              if (k.est && k.t <= now.getTime()) return;
+              if (!k.est && k.t > now.getTime()) return;
+              if (dt.getFullYear() !== y || dt.getMonth() !== mo) return;
+              evs.push({ day: dt.getDate(), est: k.est, c, color: PAL[ci % PAL.length], a: x.a, cur: d.currency || "" });
+            });
+          });
+        });
+        const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+        const sel = this.state.divSel, isCur = now.getFullYear() === y && now.getMonth() === mo;
+        const cells = [];
+        for (let i = 0; i < first; i++) cells.push({ label: "", dots: [], bg: "transparent", tx: "var(--tx)", go: () => {} });
+        for (let dd = 1; dd <= days; dd++) {
+          const de = evs.filter(e => e.day === dd);
+          const on = sel === String(dd), today = isCur && now.getDate() === dd;
+          cells.push({ label: String(dd), dots: de.slice(0, 3).map(e => ({ color: on ? "#fff" : e.color })), go: this.divPick(String(dd)),
+            bg: on ? "#1b1b1f" : (today ? "var(--gbtn)" : "transparent"), tx: on ? "#fff" : "var(--tx)" });
+        }
+        const rows = evs.filter(e => !sel || String(e.day) === sel).sort((a, b) => a.day - b.day).map(e => {
+          const tot = e.c.shares ? e.a * e.c.shares : null;
+          return { day: String(e.day), mon: MONTHS_DE[mo].slice(0, 3).toUpperCase(), name: e.c.name, color: e.color,
+            sub: (e.est ? "Ex-Datum · Prognose" : "Ex-Datum · ausgezahlt") + (e.c.viaEtf ? " · im ETF" : ""),
+            amt: (e.cur ? e.cur + " " : "") + (tot != null ? f2(tot) : f2(e.a)), per: tot != null ? f2(e.a) + " pro Stück" : "pro Stück" };
+        });
+        const total = evs.reduce((a, e) => a + (e.c.shares ? e.a * e.c.shares : 0), 0);
+        return { divMonthLabel: MONTHS_DE[mo] + " " + y, divPrev: this.divShift(-1), divNext: this.divShift(1), divCells: cells, divRows: rows, divNoRows: !rows.length && !this.state.divLoading,
+          divLoadingNow: this.state.divLoading, divTotal: total > 0 ? "≈ " + f2(total) : "", divHasTotal: total > 0, divCount: cands.length };
+      })(),
+      depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
         bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "var(--gbtn)",
         tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)",

@@ -81,3 +81,17 @@ export async function hqImages(items) {
   if (!res.ok) throw new Error(body.error || "hqimg-error");
   return body.images || {};
 }
+
+// Dividendenhistorie mehrerer Symbole: { <symbol>: { currency, price, divs: [{ t, a }] } }
+export async function divCal(symbols) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/divcal`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({ symbols }),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error || "divcal-error");
+  return body;
+}
