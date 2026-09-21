@@ -1567,47 +1567,68 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 24px 128px;animation:rise .32s ease">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:34px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-          </button>
+      <div style="position:absolute;inset:0;overflow-y:auto;background:radial-gradient(120% 60% at 20% 0%,#1d3a44 0%,#141922 46%,#0e1015 100%);animation:rise .32s ease;-webkit-overflow-scrolling:touch">
+        <div style="padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(190px + env(safe-area-inset-bottom, 0px))">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+            <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <div style="position:relative;height:210px;border-radius:30px;overflow:hidden;background:#0d0f16 url(img/depot.webp) center/cover no-repeat;box-shadow:0 30px 60px -30px rgba(0,0,0,.7);margin-bottom:26px">
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(14,26,34,.55) 0%,rgba(10,12,18,.85) 100%)"></div>
+            <div style="position:absolute;left:18px;top:18px;padding:12px 14px;border-radius:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:3px">
+              <span style="color:rgba(255,255,255,.62);font-size:9.5px;font-weight:700;letter-spacing:.1em">DEPOTWERT</span>
+              <span class="mono" style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-.03em">12'480.50</span>
+              <span class="mono" style="color:#7be3a5;font-size:11px;font-weight:700">+4.2 % seit Kauf</span>
+            </div>
+            <div style="position:absolute;right:18px;top:34px;display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)">
+              <span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path></svg></span>
+              <span style="color:#fff;font-size:11.5px;font-weight:700">Kursalarm erreicht</span>
+            </div>
+            <div style="position:absolute;left:18px;right:18px;bottom:16px;display:flex;align-items:center;gap:8px">
+              <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:10.5px;font-weight:700">Steuer-Report</span>
+              <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:10.5px;font-weight:700">KI-Analyse</span>
+              <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:10.5px;font-weight:700">X-Ray</span>
+            </div>
+          </div>
+
+          <h2 style="margin:0 0 6px;color:#fff;font-size:30px;font-weight:700;letter-spacing:-.035em;line-height:1.12;text-align:center">Schalte Belegio<br>Pro frei</h2>
+          <p style="margin:0 0 22px;color:rgba(255,255,255,.6);font-size:13.5px;line-height:1.5;text-align:center">Alle Werkzeuge für dein Depot — ohne Limit.</p>
+
+          <div style="display:flex;padding:5px;border-radius:999px;background:rgba(255,255,255,.1);margin:0 auto 28px;max-width:340px">
+            <button onClick="{{ pickMonthly }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;text-align:center;padding:13px 0;border-radius:999px;background:{{ proMonthlyBg }};color:{{ proMonthlyTx }};font-size:15px;font-weight:700;transition:background 220ms ease,color 220ms ease">Monatlich</button>
+            <button onClick="{{ pickLifetime }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;text-align:center;padding:13px 0;border-radius:999px;background:{{ proLifeBg }};color:{{ proLifeTx }};font-size:15px;font-weight:700;transition:background 220ms ease,color 220ms ease">Lifetime</button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:22px;padding:0 4px">
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Unbegrenzt Belege &amp; Transaktionen</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Kein Limit von 15 Belegen pro Monat — Scan mit automatischer Erkennung von ISIN, Stück, Kurs und Gebühren.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Steuer-Report als PDF</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Übersicht für die Schweizer Steuererklärung: Einstand, Wert, Gewinn, Dividenden und Gebühren.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">KI-Analyse</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Klumpenrisiko, Diversifikation und verständliche Einschätzungen zu deinem Depot.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">ETF-Zusammensetzung</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Sieh, welche Aktien in deinen ETFs stecken — Top-Positionen mit Gewichtung.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Live-Kurse &amp; Kursalarme</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Kurse im Minutentakt, Push-Meldungen bei Zielkurs — auch bei geschlossener App.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Insider-Trades &amp; Gebühren-Bericht</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">SEC-Meldungen von Firmeninsidern zu deinen Titeln und ein Bericht, wie viel du an Gebühren gezahlt hast.</span></div></div>
+            <div style="height:1px;background:rgba(255,255,255,.12);margin:2px 0"></div>
+            <span style="color:rgba(255,255,255,.5);font-size:10.5px;font-weight:700;letter-spacing:.14em">IN ARBEIT</span>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:rgba(255,255,255,.85);font-size:16px;font-weight:700;letter-spacing:-.01em">Mehrere Depots &amp; Watchlists</span><span style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.5">Bis zu 5 Depots und 5 Watchlists getrennt verwalten.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:rgba(255,255,255,.85);font-size:16px;font-weight:700;letter-spacing:-.01em">Performance-Vergleiche</span><span style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.5">Dein Depot gegen SMI, S&amp;P 500 und andere Benchmarks.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:rgba(255,255,255,.85);font-size:16px;font-weight:700;letter-spacing:-.01em">X-Ray: Länder &amp; Sektoren</span><span style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.5">Länder-, Sektor- und Aktiengewichtung über alle Positionen hinweg, auch innerhalb deiner ETFs.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:rgba(255,255,255,.85);font-size:16px;font-weight:700;letter-spacing:-.01em">Dividendenkalender &amp; Prognose</span><span style="color:rgba(255,255,255,.45);font-size:13px;line-height:1.5">Kommende Ausschüttungen und erwartete Dividenden pro Jahr.</span></div></div>
+          </div>
         </div>
 
-        <h2 style="margin:0 0 10px;color:var(--tx);font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1.2">Unbegrenzt<br>hochladen</h2>
-        <p style="margin:0 0 30px;color:var(--tx2);font-size:14px;line-height:1.55">Steuer-Report für die Schweizer Erklärung, Depot-Analyse und beliebig viele Belege.</p>
-
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
-          <sc-for list="{{ perks }}" as="p" hint-placeholder-count="4">
-            <div style="display:flex;align-items:center;gap:11px">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 6L9 17l-5-5"></path></svg>
-              <span style="color:var(--tx);font-size:13.5px">{{ p.t }}</span>
+        <div style="position:sticky;bottom:0;left:0;right:0;margin-top:-170px;padding:60px 20px calc(18px + env(safe-area-inset-bottom, 0px));background:linear-gradient(to top,#0e1015 0%,#0e1015 66%,rgba(14,16,21,0) 100%);pointer-events:none">
+          <div style="pointer-events:auto;display:flex;flex-direction:column;gap:10px;max-width:400px;margin:0 auto">
+            <div style="display:flex;align-items:baseline;justify-content:center;gap:8px">
+              <span class="mono" style="color:#fff;font-size:26px;font-weight:700;letter-spacing:-.03em">{{ proPriceLine }}</span>
+              <span style="color:rgba(255,255,255,.55);font-size:12.5px">{{ proPriceSub }}</span>
             </div>
-          </sc-for>
+            <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:56px;border-radius:999px;background:#fff;color:#0e1015;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -16px rgba(0,0,0,.6);transition:transform 140ms ease" style-active="transform:scale(.98)">{{ proCta }}</button>
+            <span style="text-align:center;color:rgba(255,255,255,.4);font-size:11px">15 Uploads pro Monat bleiben gratis.</span>
+          </div>
         </div>
-
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">
-          <button onClick="{{ pickMonthly }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:16px;background:var(--surf);border:1.5px solid {{ monthlyBorder }}">
-            <div style="display:flex;flex-direction:column;gap:3px;text-align:left">
-              <span style="color:var(--tx);font-size:14.5px;font-weight:600">Pro monatlich</span>
-              <span style="color:var(--tx3);font-size:12px">jederzeit kündbar</span>
-            </div>
-            <span style="color:var(--tx);font-size:17px;font-weight:700;font-family:'Roboto Mono',monospace">2.50 €</span>
-          </button>
-          <button onClick="{{ pickLifetime }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:16px;background:var(--surf);border:1.5px solid {{ lifetimeBorder }}">
-            <div style="display:flex;flex-direction:column;gap:3px;text-align:left">
-              <span style="color:var(--tx);font-size:14.5px;font-weight:600">Lifetime-Pass</span>
-              <span style="color:var(--tx3);font-size:12px">einmalig, kein Abo</span>
-            </div>
-            <span style="color:var(--tx);font-size:17px;font-weight:700;font-family:'Roboto Mono',monospace">12 €</span>
-          </button>
-        </div>
-
-        <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:54px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ proCta }}</button>
-        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11.5px">15 Uploads pro Monat bleiben gratis.</p>
       </div>
     </sc-if>
-
     <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;bottom:0;left:0;right:0;height:150px;background:linear-gradient(to bottom, var(--home-fade-0) 0%, var(--home-fade) 55%);pointer-events:none;z-index:5"></div>
       <div class="tab-bar" style="position:absolute;bottom:env(safe-area-inset-bottom, 0px);left:16px;right:16px;display:flex;align-items:center;gap:7px;z-index:6">
@@ -6333,6 +6354,10 @@ class Component extends DCLogic {
 
       monthlyBorder: plan === "monthly" ? "var(--acc)" : "var(--line)",
       lifetimeBorder: plan === "lifetime" ? "var(--acc)" : "var(--line)",
+      proMonthlyBg: plan === "monthly" ? "#101216" : "transparent", proMonthlyTx: plan === "monthly" ? "#fff" : "rgba(255,255,255,.75)",
+      proLifeBg: plan === "lifetime" ? "#101216" : "transparent", proLifeTx: plan === "lifetime" ? "#fff" : "rgba(255,255,255,.75)",
+      proPriceLine: plan === "monthly" ? "2.50 €" : "12 €",
+      proPriceSub: plan === "monthly" ? "pro Monat · jederzeit kündbar" : "einmalig · kein Abo",
       pickMonthly: () => this.set("plan", "monthly"),
       pickLifetime: () => this.set("plan", "lifetime"),
       proCta: plan === "monthly" ? "Für 2.50 € / Monat starten" : "Lifetime für 12 € kaufen"
