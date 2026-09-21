@@ -1731,30 +1731,73 @@ input::placeholder{color:var(--tx3)}
     </sc-if>
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;padding:0 20px;margin-bottom:16px">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
-          <span style="color:var(--tx);font-size:16px;font-weight:600">News · zu deinen Titeln</span>
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <sc-if value="{{ noNews }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:0;color:var(--tx3);font-size:12.5px">Keine News — sobald du Positionen im Depot hast, erscheinen hier Nachrichten dazu.</p>
-          </sc-if>
-          <sc-for list="{{ news }}" as="n" hint-placeholder-count="4">
-            <div style="border-radius:26px;background:var(--surf);box-shadow:var(--card-shadow);padding:16px" style-hover="box-shadow:var(--hero-shadow)">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
-                <span style="padding:3px 8px;border-radius:7px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700;font-family:'Roboto Mono',monospace">{{ n.tick }}</span>
-                <span style="font-size:11.5px;font-weight:700;font-family:'Roboto Mono',monospace;color:{{ n.color }}">{{ n.move }}</span>
-                <span style="flex:1"></span>
-                <span style="color:var(--tx3);font-size:11px">{{ n.time }}</span>
-              </div>
-              <span style="display:block;color:var(--tx);font-size:14.5px;font-weight:600;line-height:1.4;text-wrap:pretty;margin-bottom:6px">{{ n.head }}</span>
-              <span style="display:block;color:var(--tx2);font-size:12.5px;line-height:1.5;text-wrap:pretty">{{ n.body }}</span>
-            </div>
+
+        <div style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input value="{{ newsSearchValue }}" onInput="{{ onNewsSearch }}" placeholder="News durchsuchen…" style="all:unset;flex:1;min-width:0;color:var(--tx);font-size:14px">
+        </div>
+
+        <div style="display:flex;gap:8px;padding:0 20px 18px;overflow-x:auto;scrollbar-width:none">
+          <sc-for list="{{ newsChips }}" as="c" hint-placeholder-count="4">
+            <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};border:1px solid {{ c.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ c.label }}</button>
           </sc-for>
         </div>
+
+        <sc-if value="{{ noNews }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px;line-height:1.55">Keine News — sobald du Positionen im Depot hast, erscheinen hier Nachrichten dazu.</p>
+        </sc-if>
+        <sc-if value="{{ newsEmptyFiltered }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">Keine Treffer.</p>
+        </sc-if>
+
+        <sc-if value="{{ news.length }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 20px;margin-bottom:12px">
+            <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Top-News</span>
+          </div>
+          <div style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 20px 22px;scroll-padding:0 20px">
+            <sc-for list="{{ newsFeatured }}" as="n" hint-placeholder-count="3">
+              <button onClick="{{ n.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:84%;max-width:340px;height:210px;position:relative;border-radius:28px;overflow:hidden;background:{{ n.bg }};scroll-snap-align:start;text-align:left" style-active="transform:scale(.985)">
+                <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.62) 100%)"></div>
+                <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                  <span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700">{{ n.tick }}</span>
+                  <span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:600">{{ n.time }}</span>
+                </div>
+                <span style="position:absolute;left:16px;right:16px;bottom:16px;color:#fff;font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasNewsRest }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px">
+            <span style="display:block;color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:6px">Aktuell</span>
+            <span style="display:block;color:var(--tx3);font-size:12px;margin-bottom:14px">zu deinen Titeln</span>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ newsRest }}" as="n" hint-placeholder-count="4">
+                <button onClick="{{ n.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:14px;align-items:stretch;text-align:left;width:100%" style-active="opacity:.7">
+                  <div style="flex:none;width:92px;height:92px;border-radius:22px;background:{{ n.bg }};display:flex;align-items:flex-end;padding:8px">
+                    <span style="padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.24);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:10px;font-weight:700">{{ n.tick }}</span>
+                  </div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:6px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span class="mono" style="color:{{ n.color }};font-size:11px;font-weight:700">{{ n.move }}</span>
+                      <span style="color:var(--tx3);font-size:11px">· {{ n.time }}</span>
+                    </div>
+                    <span style="color:var(--tx);font-size:14px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">{{ n.head }}</span>
+                    <span style="color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ n.source }}</span>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -2427,6 +2470,15 @@ const ringSlice = (cx, cy, ri, ro, a0, a1, gap) => {
   const large = (o1 - o0) > Math.PI ? 1 : 0, largeI = (i1 - i0) > Math.PI ? 1 : 0;
   return "M" + P(ro, o0) + " A" + ro + " " + ro + " 0 " + large + " 1 " + P(ro, o1) + " L" + P(ri, i1) + " A" + ri + " " + ri + " 0 " + largeI + " 0 " + P(ri, i0) + " Z";
 };
+// Kartenhintergrund je Symbol: Foto (Invesco/Emerging) oder fester Farbverlauf.
+const CARD_PAL = [["#8E9EFF", "#5B5BD6", "#2D2A6E"], ["#FDA085", "#F6546A", "#7B2D5B"], ["#7DE2D1", "#2AA6B5", "#1E4E79"], ["#FFB36B", "#E8547C", "#5E2A6B"], ["#9ad0ff", "#3d7bf0", "#1c2f78"], ["#c3a6ff", "#8a5cf0", "#3b2379"], ["#6fe0a8", "#1f9d8a", "#124a5c"], ["#ff9db1", "#e4507a", "#5b2a63"]];
+const hashStr = str => [...String(str)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+const cardBg = (sym, label) => {
+  const photo = /invesco|ivz/i.test(label || "") ? "img/invesco.webp" : /emerging|xtrackers|xtr\b|dws/i.test(label || "") ? "img/emerging.webp" : "";
+  if (photo) return "linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.4)),url(" + photo + ") center/cover no-repeat";
+  const pal = CARD_PAL[hashStr(sym) % CARD_PAL.length];
+  return "linear-gradient(160deg," + pal[0] + " 0%," + pal[1] + " 55%," + pal[2] + " 100%)";
+};
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
@@ -2689,7 +2741,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", welcomeOpen: false, cardDetailSym: null, posSeries: {},
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", newsFilter: "all", newsSearch: "", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3500,6 +3552,9 @@ class Component extends DCLogic {
     if (this._sheetDrag) return;
     this.springSheetTo(window.innerHeight || 900, 0, fn);
   };
+  setNewsFilter = k => () => this.setState({ newsFilter: k });
+  onNewsSearch = e => this.setState({ newsSearch: e.target.value });
+  openNews = url => () => { if (url) { try { window.open(url, "_blank", "noopener"); } catch (_) {} } };
   setHomeFilter = k => () => {
     this._stackIdx = 0;
     this.setState({ homeFilter: k });
@@ -5281,19 +5336,46 @@ class Component extends DCLogic {
       userInitials: user && user.email ? user.email.slice(0, 2).toUpperCase() : "–",
 
       marketsLoading: this.state.marketsLoading, marketsError: this.state.marketsError,
-      news: this.state.liveNews ? this.state.liveNews.map(n => {
-        const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
-        const dp = h && typeof h.dp === "number" ? h.dp : 0;
-        const mins = Math.round((Date.now() - n.datetime) / 60000);
+      ...(() => {
+        const all = (this.state.liveNews || []).map(n => {
+          const h = holdings.find(x => (x.sym || x.abbr) === n.symbol);
+          const dp = h && typeof h.dp === "number" ? h.dp : 0;
+          const mins = Math.max(0, Math.round((Date.now() - n.datetime) / 60000));
+          const tick = h ? h.abbr : n.symbol;
+          const label = h ? displayName(h) + " " + (h.name || "") : String(n.symbol || "");
+          return {
+            sym: n.symbol, tick,
+            move: (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
+            color: dp >= 0 ? "var(--pos)" : "var(--neg)",
+            time: mins < 60 ? mins + " Min" : mins < 1440 ? Math.round(mins / 60) + " Std" : Math.round(mins / 1440) + " Tg",
+            head: n.headline,
+            source: n.source || "",
+            body: (n.summary || "").slice(0, 160),
+            bg: cardBg(n.symbol || "?", label),
+            open: this.openNews(n.url)
+          };
+        });
+        const term = String(this.state.newsSearch || "").trim().toLowerCase();
+        const filter = this.state.newsFilter || "all";
+        const list = all.filter(n => (filter === "all" || n.sym === filter) && (!term || (n.head + " " + n.tick + " " + n.source).toLowerCase().includes(term)));
+        const syms = [...new Set(all.map(n => n.sym))].slice(0, 8);
+        const chips = [{ key: "all", label: "Alle" }, ...syms.map(sy => { const n0 = all.find(x => x.sym === sy); return { key: sy, label: n0 ? n0.tick : sy }; })];
         return {
-          tick: h ? h.abbr : n.symbol,
-          move: (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
-          color: dp >= 0 ? "var(--pos)" : "var(--neg)",
-          time: mins < 60 ? "vor " + mins + " Min" : mins < 1440 ? "vor " + Math.round(mins / 60) + " Std" : "vor " + Math.round(mins / 1440) + " Tg",
-          head: n.headline,
-          body: (n.summary || n.source || "").slice(0, 180)
+          news: list,
+          newsFeatured: list.slice(0, 5),
+          newsRest: list.slice(5),
+          hasNewsRest: list.length > 5,
+          newsChips: chips.map(c => ({
+            label: c.label,
+            bg: filter === c.key ? "#1b1b1f" : "var(--gbtn)",
+            tx: filter === c.key ? "#fff" : "var(--tx2)",
+            border: filter === c.key ? "#1b1b1f" : "var(--gbtn-line)",
+            go: this.setNewsFilter(c.key)
+          })),
+          newsSearchValue: this.state.newsSearch || "", onNewsSearch: this.onNewsSearch,
+          newsEmptyFiltered: all.length > 0 && list.length === 0
         };
-      }) : [],
+      })(),
       noNews: !this.state.liveNews || !this.state.liveNews.length,
       marketIndices: marketIndexList,
       tickerDuration: Math.max(24, marketIndexList.length * 9) + "s",
