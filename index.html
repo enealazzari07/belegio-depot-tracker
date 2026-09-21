@@ -2109,6 +2109,41 @@ input::placeholder{color:var(--tx3)}
         </div>
         <div style="position:relative;z-index:2;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:24px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
         <div class="cd-rise2">
+          <div style="margin-bottom:22px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+              <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span class="mono" style="color:var(--tx);font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.05">{{ d.cdMain }}</span>
+                <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ d.cdWhen }}</span>
+              </div>
+              <span class="mono" style="flex:none;padding:5px 11px;border-radius:999px;background:var(--surf2);color:{{ d.posChartColor }};font-size:13px;font-weight:700">{{ d.posChartPct }}</span>
+            </div>
+            <sc-if value="{{ d.hasCd }}" hint-placeholder-val="{{ false }}">
+              <div style="position:relative;height:176px;margin:8px -4px 0">
+                <svg viewBox="0 0 320 170" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible">
+                  <defs><linearGradient id="cdg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:{{ d.posChartColor }}" stop-opacity=".30"></stop><stop offset="1" style="stop-color:{{ d.posChartColor }}" stop-opacity="0"></stop></linearGradient></defs>
+                  <path d="{{ d.cdArea }}" fill="url(#cdg)"></path>
+                  <path d="{{ d.cdPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                  <sc-if value="{{ d.posScrubActive }}" hint-placeholder-val="{{ false }}">
+                    <line x1="{{ d.cdScrubX }}" y1="0" x2="{{ d.cdScrubX }}" y2="170" stroke="var(--line2)" stroke-width="1.2" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"></line>
+                  </sc-if>
+                </svg>
+                <span style="position:absolute;left:{{ d.cdDotX }};top:{{ d.cdDotY }};width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:{{ d.posChartColor }};opacity:.18;pointer-events:none"></span>
+                <span style="position:absolute;left:{{ d.cdDotX }};top:{{ d.cdDotY }};width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:{{ d.posChartColor }};border:2px solid var(--bg);box-sizing:content-box;pointer-events:none"></span>
+                <div onPointerDown="{{ d.posScrubStart }}" onPointerMove="{{ d.posScrubMove }}" onPointerUp="{{ d.posScrubEnd }}" onPointerLeave="{{ d.posScrubEnd }}" onPointerCancel="{{ d.posScrubEnd }}" style="position:absolute;inset:0;touch-action:none;cursor:pointer"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:0 2px;margin-top:2px">
+                <sc-for list="{{ d.cdAxis }}" as="ax" hint-placeholder-count="4">
+                  <span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600">{{ ax.l }}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ d.hasCd }}" hint-placeholder-val="{{ false }}"></sc-if>
+            <div style="display:flex;gap:6px;margin-top:16px;padding:4px;border-radius:999px;background:var(--surf2)">
+              <sc-for list="{{ d.cdRanges }}" as="rg" hint-placeholder-count="5">
+                <button onClick="{{ rg.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;text-align:center;padding:9px 0;border-radius:999px;background:{{ rg.bg }};color:{{ rg.tx }};font-size:12px;font-weight:700;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ rg.label }}</button>
+              </sc-for>
+            </div>
+          </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-radius:28px;background:linear-gradient(160deg,#26262c,#141417);box-shadow:0 22px 40px -22px rgba(10,12,20,.7);margin-bottom:12px">
             <div style="display:flex;flex-direction:column;gap:5px;min-width:0">
               <span style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;letter-spacing:.06em">AKTUELLER WERT</span>
@@ -2162,37 +2197,6 @@ input::placeholder{color:var(--tx3)}
                   </div>
                 </div>
               </sc-if>
-              <div style="background:var(--surf2);border-radius:14px;padding:12px 13px">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-                  <span style="color:{{ d.posChartColor }};font-size:13px;font-weight:700;font-family:'Roboto Mono',monospace">{{ d.posChartPct }}</span>
-                  <div style="display:flex;gap:3px;padding:3px;border-radius:8px;background:var(--surf3)">
-                    <sc-for list="{{ d.chartRangeButtons }}" as="r" hint-placeholder-count="5">
-                      <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:6px;background:{{ r.bg }};color:{{ r.tx }};font-size:10.5px;font-weight:600">{{ r.label }}</button>
-                    </sc-for>
-                  </div>
-                </div>
-                <sc-if value="{{ d.hasPosChart }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex;align-items:baseline;gap:8px;height:16px;margin-bottom:6px;visibility:{{ d.posScrubVisibility }}">
-                    <span style="color:var(--tx3);font-size:11px;font-weight:600;font-family:'Roboto Mono',monospace">{{ d.posScrubWhen }}</span>
-                    <span style="flex:1"></span>
-                    <span style="color:var(--tx2);font-size:11px;font-family:'Roboto Mono',monospace">Kurs {{ d.posScrubPrice }}</span>
-                    <span style="color:var(--tx);font-size:11.5px;font-weight:700;font-family:'Roboto Mono',monospace">Wert {{ d.posScrubValue }}</span>
-                  </div>
-                  <div style="position:relative">
-                    <svg viewBox="0 0 280 56" preserveAspectRatio="none" style="width:100%;height:56px;display:block;overflow:visible">
-                      <path d="{{ d.posChartPath }}" fill="none" stroke="{{ d.posChartColor }}" stroke-width="2" stroke-linecap="round"></path>
-                      <sc-if value="{{ d.posScrubActive }}" hint-placeholder-val="{{ false }}">
-                        <line x1="{{ d.posScrubX }}" y1="0" x2="{{ d.posScrubX }}" y2="56" stroke="var(--line2)" stroke-width="1.2" stroke-dasharray="3 3"></line>
-                        <circle cx="{{ d.posScrubX }}" cy="{{ d.posScrubY }}" r="4" fill="{{ d.posChartColor }}" stroke="var(--surf2)" stroke-width="2"></circle>
-                      </sc-if>
-                    </svg>
-                    <div onPointerDown="{{ d.posScrubStart }}" onPointerMove="{{ d.posScrubMove }}" onPointerUp="{{ d.posScrubEnd }}" onPointerLeave="{{ d.posScrubEnd }}" onPointerCancel="{{ d.posScrubEnd }}" style="position:absolute;inset:-6px 0;touch-action:none;cursor:pointer"></div>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ d.noPosChart }}" hint-placeholder-val="{{ false }}">
-                  <p style="margin:0;color:var(--tx3);font-size:11.5px;text-align:center;padding:16px 0">Keine Kursdaten für diesen Zeitraum verfügbar.</p>
-                </sc-if>
-              </div>
               </div>
               </sc-if>
 
@@ -2785,7 +2789,7 @@ class Component extends DCLogic {
     positionMeta: {}, posMenuSymbol: null, posMenuCategoryInput: "",
 
     posChartRange: "D", posScrub: null,
-    carouselIndex: 0, carouselTouched: false, homeFilter: "all", welcomeOpen: false, cardDetailSym: null,
+    carouselIndex: 0, carouselTouched: false, homeFilter: "all", welcomeOpen: false, cardDetailSym: null, posSeries: {},
     aiSheetOpen: false, compoundSheetOpen: false,
     compoundStartInput: "", compoundMonthlyInput: "0", compoundRate: 8, compoundYears: 25,
     investPlanSheetOpen: false, investPlanAmountInput: "", investPlanInterval: "month",
@@ -3105,7 +3109,7 @@ class Component extends DCLogic {
     return this._ocr;
   }
   async api() {
-    if (!this._api) this._api = await import("./market.js");
+    if (!this._api) this._api = await import("./market.js?v=20260921");
     return this._api;
   }
 
@@ -3676,6 +3680,7 @@ class Component extends DCLogic {
     clearTimeout(this._cardCloseT);
     this.setState({ cardDetailSym: sym, openPosSymbol: sym, posScrub: null, posSubTab: "chart", editingTxId: null, editingTxFields: null });
     this.markInsiderSeen();
+    this.ensureSeries(sym, this.state.posChartRange || "D");
   };
   closeCardDetail = () => {
     if (!this.state.cardDetailSym || this._cardClosing) return;
@@ -4091,6 +4096,7 @@ class Component extends DCLogic {
   openDepotPosition = sym => () => {
     this.setState({ screen: "depot", openPosSymbol: sym, posScrub: null, posSubTab: "chart", editingTxId: null, editingTxFields: null });
     this.markInsiderSeen();
+    this.ensureSeries(sym, this.state.posChartRange || "D");
   };
 
   startEditTx = t => () => {
@@ -4100,7 +4106,28 @@ class Component extends DCLogic {
   cancelEditTx = () => this.setState({ editingTxId: null, editingTxFields: null });
 
   // ---------- Kursverlauf je Position (Tag/Woche/Monat/Jahr/Max) ----------
-  setPosChartRange = key => () => this.setState({ posChartRange: key, posScrub: null });
+  setPosChartRange = key => () => {
+    this.setState({ posChartRange: key, posScrub: null });
+    const sym = this.state.cardDetailSym || this.state.openPosSymbol;
+    if (sym) this.ensureSeries(sym, key);
+  };
+  // Feine Intraday-/Kurzzeit-Reihen (viele Punkte statt Vortagesschluss + 1-2 Samples).
+  ensureSeries = async (sym, range) => {
+    const map = { D: "1d", W: "5d", M: "1mo" };
+    if (!map[range] || !sym || isinLike(sym)) return;
+    const key = sym + "|" + range;
+    const have = (this.state.posSeries || {})[key];
+    if (have && Date.now() - have.t < 4 * 60 * 1000) return;
+    this._serBusy = this._serBusy || {};
+    if (this._serBusy[key]) return;
+    this._serBusy[key] = true;
+    try {
+      const api = await this.api();
+      const r = await api.intradaySeries(sym, map[range]);
+      this.setState(st => ({ posSeries: { ...st.posSeries, [key]: { t: Date.now(), points: r.points || [], prev: r.prev } } }));
+    } catch (e) { /* bleibt bei der groben Linie */ }
+    this._serBusy[key] = false;
+  };
 
   // Streichen über den Positions-Chart: gleiche Mechanik wie beim Depot-Chart,
   // nur pro Symbol — die Punkte legt renderVals in _posChartPoints[sym] ab.
@@ -4627,7 +4654,16 @@ class Component extends DCLogic {
     const todaySamples = this.state.intradayDate === todayStr ? this.state.intraday : {};
     const buildPositionChart = (sym, cur, range, dp) => {
       let pts;
-      if (range !== "D") {
+      const ser = (this.state.posSeries || {})[sym + "|" + range];
+      if ((range === "D" || range === "W" || range === "M") && ser && ser.points && ser.points.length >= 2) {
+        let arr = ser.points.map(q => ({ date: dstr(new Date(q.t)), close: q.c, t: q.t }));
+        if (range === "D") {
+          const prevC = ser.prev != null ? ser.prev : (typeof dp === "number" ? cur / (1 + dp / 100) : null);
+          if (prevC != null) arr = [{ date: arr[0].date, close: prevC, t: arr[0].t - 1 }, ...arr];
+        }
+        if (Math.abs(arr[arr.length - 1].close - cur) / (cur || 1) > 0.0004) arr.push({ date: todayStr, close: cur, t: Date.now() });
+        pts = arr;
+      } else if (range !== "D") {
         const arr = (hist[sym] || []).slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
         const days = RANGE_DAYS[range] ?? 30;
         const cutoff = days === Infinity ? null : dstr(new Date(Date.now() - days * 864e5));
@@ -4669,14 +4705,64 @@ class Component extends DCLogic {
           if (i === n - 1) return "Jetzt";
           return p.t ? new Date(p.t).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" }) + " Uhr" : "im Tagesverlauf";
         }
+        if (p.t && (range === "W" || range === "M")) return new Date(p.t).toLocaleString("de-CH", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
         const opts = { day: "2-digit", month: "short" };
         if (range === "Y" || range === "MAX") opts.year = "numeric";
         return new Date(p.date).toLocaleDateString("de-CH", opts);
       };
       const points = pts.map((p, i) => ({
-        date: p.date, close: p.close, label: labelFor(p, i), x: X(i), y: Y(p.close)
+        date: p.date, t: p.t || Date.parse(p.date), close: p.close, label: labelFor(p, i), x: X(i), y: Y(p.close)
       }));
       return { path, pct, pos: pct >= 0, points, first };
+    };
+
+    // Weiche Kurve (monotone kubische Bezier, kein Ueberschwingen) fuer den Detail-Chart.
+    const smoothPath = xy => {
+      const n = xy.length;
+      if (n < 2) return "";
+      const dxs = [], sl = [], mm = [];
+      for (let i = 0; i < n - 1; i++) { dxs[i] = (xy[i + 1][0] - xy[i][0]) || 1e-6; sl[i] = (xy[i + 1][1] - xy[i][1]) / dxs[i]; }
+      mm[0] = sl[0]; mm[n - 1] = sl[n - 2];
+      for (let i = 1; i < n - 1; i++) mm[i] = sl[i - 1] * sl[i] <= 0 ? 0 : (sl[i - 1] + sl[i]) / 2;
+      for (let i = 0; i < n - 1; i++) {
+        if (sl[i] === 0) { mm[i] = 0; mm[i + 1] = 0; continue; }
+        const a = mm[i] / sl[i], b = mm[i + 1] / sl[i], q = a * a + b * b;
+        if (q > 9) { const t = 3 / Math.sqrt(q); mm[i] = t * a * sl[i]; mm[i + 1] = t * b * sl[i]; }
+      }
+      let dstr2 = "M" + xy[0][0].toFixed(1) + " " + xy[0][1].toFixed(1);
+      for (let i = 0; i < n - 1; i++) {
+        const h = dxs[i] / 3;
+        dstr2 += " C" + (xy[i][0] + h).toFixed(1) + " " + (xy[i][1] + mm[i] * h).toFixed(1) + " " + (xy[i + 1][0] - h).toFixed(1) + " " + (xy[i + 1][1] - mm[i + 1] * h).toFixed(1) + " " + xy[i + 1][0].toFixed(1) + " " + xy[i + 1][1].toFixed(1);
+      }
+      return dstr2;
+    };
+    const detailChart = (pc, range, scrubIdx) => {
+      if (!pc || pc.points.length < 2) return null;
+      const pts = pc.points, n = pts.length;
+      const vals = pts.map(q => q.close);
+      const mn = Math.min(...vals), mx = Math.max(...vals), span = (mx - mn) || 1;
+      const W = 320, H = 170, top = 16, bot = 140;
+      const X = i => i / (n - 1) * W, Y = v => bot - (v - mn) / span * (bot - top);
+      const step = Math.max(1, Math.floor(n / 110));
+      const idx = [];
+      for (let i = 0; i < n; i += step) idx.push(i);
+      if (idx[idx.length - 1] !== n - 1) idx.push(n - 1);
+      const path = smoothPath(idx.map(i => [X(i), Y(vals[i])]));
+      const si = scrubIdx != null ? Math.min(n - 1, Math.max(0, scrubIdx)) : n - 1;
+      const fmtAxis = q => {
+        const dt = new Date(q.t || Date.parse(q.date));
+        if (range === "D") return dt.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" });
+        if (range === "W") return dt.toLocaleDateString("de-CH", { weekday: "short", day: "2-digit" });
+        if (range === "M") return dt.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" });
+        if (range === "Y") return dt.toLocaleDateString("de-CH", { month: "short", year: "2-digit" });
+        return dt.toLocaleDateString("de-CH", { year: "numeric" });
+      };
+      const axis = [0, 1, 2, 3].map(k => ({ l: fmtAxis(pts[Math.round(k * (n - 1) / 3)]) }));
+      return {
+        path, area: path + " L" + W + " " + H + " L0 " + H + " Z",
+        dotX: (X(si) / W * 100).toFixed(2) + "%", dotY: (Y(vals[si]) / H * 100).toFixed(2) + "%",
+        scrubX: X(si).toFixed(1), axis
+      };
     };
 
     // ---------- Chart für die Aktien-Detailansicht (Märkte-Suche) ----------
@@ -4875,7 +4961,9 @@ class Component extends DCLogic {
         const posChartRange = this.state.posChartRange || "D";
         // Historien-/Intraday-Reihen sind in Landeswaehrung — der Positions-
         // Chart bleibt deshalb bewusst unkonvertiert bei curNative.
-        const posChart = showChart ? buildPositionChart(sym, h.curNative, posChartRange, h.dp) : null;
+        const cdOn = this.state.cardDetailSym === sym;
+        const posChart = (showChart || cdOn) ? buildPositionChart(sym, h.curNative, posChartRange, h.dp) : null;
+        const cd = cdOn ? detailChart(posChart, posChartRange, this.state.posScrub && this.state.posScrub.sym === sym ? this.state.posScrub.idx : null) : null;
         posChartPoints[sym] = posChart ? posChart.points : null;
         const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
           ? posChart.points[this.state.posScrub.idx] : null;
@@ -4954,6 +5042,19 @@ class Component extends DCLogic {
             tx: posChartRange === k ? "var(--tx)" : "var(--tx3)"
           })),
           hasPosChart: !!posChart,
+          hasCd: !!cd,
+          cdPath: cd ? cd.path : "", cdArea: cd ? cd.area : "",
+          cdDotX: cd ? cd.dotX : "100%", cdDotY: cd ? cd.dotY : "50%",
+          cdScrubX: cd ? cd.scrubX : "0",
+          cdAxis: cd ? cd.axis : [],
+          cdMain: (scrubP ? f2(scrubP.close) : f2(h.curNative)) + " " + (h.currency || ""),
+          cdWhen: scrubP ? scrubP.label : (posChartRange === "D" ? "Heute" : posChartRange === "W" ? "Letzte Woche" : posChartRange === "M" ? "Letzter Monat" : posChartRange === "Y" ? "Letztes Jahr" : "Gesamter Verlauf"),
+          cdRanges: chartRangeKeys.map(k => ({
+            label: { D: "1T", W: "1W", M: "1M", Y: "1J", MAX: "Max" }[k],
+            go: this.setPosChartRange(k),
+            bg: posChartRange === k ? "#1b1b1f" : "transparent",
+            tx: posChartRange === k ? "#fff" : "var(--tx3)"
+          })),
           noPosChart: showChart && !posChart,
           posChartPath: posChart ? posChart.path : "",
           posChartPct: scrubP

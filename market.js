@@ -1,6 +1,6 @@
 // Marktdaten-Fassade: ruft die Supabase Edge Function "market" auf.
 // Provider-Keys liegen serverseitig — der Client sieht sie nie.
-import { callMarket } from "./db.js";
+import { callMarket, supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "./db.js";
 
 export async function quotes(symbols) {
   return callMarket("quotes", { symbols });
@@ -38,4 +38,18 @@ export async function stockDetail(symbol) {
 // Symbole (z. B. .SW) einfach ein leeres Array statt eines Fehlers.
 export async function insiderTrades(symbols) {
   return callMarket("insiderTrades", { symbols });
+}
+
+// Feine Kursverlaeufe (Yahoo): "1d" = 5-Min-Kerzen, "5d" = 30 Min, "1mo" = 1 Std.
+export async function intradaySeries(symbol, range) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/intraday`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({ symbol, range }),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error || "intraday-error");
+  return body;
 }
