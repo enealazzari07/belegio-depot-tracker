@@ -1,85 +1,45 @@
-// Beleg-Erkennung: Bild client-seitig auf <200KB komprimieren, dann Text via
-// Edge Function (API-Ninjas Image-to-Text) lesen und Felder heraus-parsen.
-import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "./db.js";
+// Beleg-Erkennung: laeuft komplett lokal im Browser ueber Tesseract.js (WASM) --
+// kein Bild, kein Text verlaesst das Geraet, kein externer Dienst/API-Key noetig.
+import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 
-const MAX_BYTES = 195 * 1024;
+const MAX_DIM = 2500;
 
-// Graustufen + Kontrastspreizung: Dezimalpunkte und Kommas gehen bei starker
-// Verkleinerung/JPEG-Kompression sonst verloren (aus "2.565" wird "2565").
-// Graustufen-JPEGs sind deutlich kleiner, dadurch bleibt mehr Aufloesung
-// innerhalb der 200-KB-Grenze des OCR-Dienstes.
-function renderPrepared(bitmap, scale) {
-  const w = Math.max(1, Math.round(bitmap.width * scale));
-  const h = Math.max(1, Math.round(bitmap.height * scale));
+// Nur verkleinern, wenn das Foto sehr gross ist (Speicher/Tempo auf Mobilgeraeten) --
+// Tesseract kommt mit dem Originalbild (Farbe, keine Kontrast-Tricks) gut zurecht.
+async function prepareImage(file) {
+  const bitmap = await createImageBitmap(file);
+  if (Math.max(bitmap.width, bitmap.height) <= MAX_DIM) return file;
+  const scale = MAX_DIM / Math.max(bitmap.width, bitmap.height);
+  const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, w, h);
-  ctx.drawImage(bitmap, 0, 0, w, h);
-  const img = ctx.getImageData(0, 0, w, h);
-  const d = img.data;
-  const hist = new Uint32Array(256);
-  for (let i = 0; i < d.length; i += 4) {
-    const g = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
-    d[i] = g;
-    hist[g]++;
-  }
-  const total = w * h;
-  let acc = 0, lo = 0, hi = 255;
-  for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= total * 0.01) { lo = v; break; } }
-  acc = 0;
-  for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= total * 0.2) { hi = v; break; } }
-  if (hi - lo < 40) { lo = 0; hi = 255; }
-  const k = 255 / (hi - lo);
-  // Helle Rest-Toene (z. B. hellgraue Tabellen-Fuellungen wie bei "Total"/
-  // "Zu Ihren Lasten") ganz auf Weiss ziehen: der OCR-Dienst uebersieht
-  // Zahlen auf diesem Grau sonst manchmal komplett, obwohl sie fuer Menschen
-  // gut lesbar sind. Nur Helles wird geklippt, dunklere Kanten (Text) bleiben
-  // wie bisher abgestuft, damit schwaechere Fotos nicht verhaerten.
-  for (let i = 0; i < d.length; i += 4) {
-    let v = Math.max(0, Math.min(255, (d[i] - lo) * k)) | 0;
-    if (v > 200) v = 255;
-    d[i] = d[i + 1] = d[i + 2] = v;
-  }
-  ctx.putImageData(img, 0, 0);
-  return canvas;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+  const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.92));
+  return blob || file;
 }
 
-async function compressImage(file) {
-  const bitmap = await createImageBitmap(file);
-  let scale = Math.min(1, 2200 / Math.max(bitmap.width, bitmap.height));
-  let quality = 0.88;
-  let last = null;
-  for (let i = 0; i < 14; i++) {
-    const canvas = renderPrepared(bitmap, scale);
-    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", quality));
-    if (!blob) continue;
-    last = blob;
-    if (blob.size <= MAX_BYTES) return blob;
-    if (quality > 0.6) quality -= 0.1;
-    else { scale *= 0.88; quality = 0.8; }
+// Worker + Sprachmodell bleiben nach dem ersten Scan im Speicher (Ladezeit
+// von ein paar Sekunden faellt dann nur beim allerersten Beleg an).
+let workerPromise = null;
+function getWorker() {
+  if (!workerPromise) {
+    workerPromise = Tesseract.createWorker("deu", 1, {
+      workerPath: new URL("./vendor/tesseract/worker.min.js", import.meta.url).href,
+      corePath: new URL("./vendor/tesseract/tesseract-core-simd-lstm.wasm.js", import.meta.url).href,
+      langPath: new URL("./vendor/tesseract/lang-data", import.meta.url).href,
+      gzip: true,
+      logger: () => {},
+    });
   }
-  return last || file;
+  return workerPromise;
 }
 
 export async function scanReceipt(file) {
-  const blob = await compressImage(file);
-  const { data: sessionData } = await supabase.auth.getSession();
-  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
-  const form = new FormData();
-  form.append("image", blob, "receipt.jpg");
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/ocr`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
-    body: form,
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error || "ocr-error");
-  const text = body.text || "";
+  const blob = await prepareImage(file);
+  const worker = await getWorker();
+  const { data } = await worker.recognize(blob);
+  const text = data.text || "";
   return { text, fields: parseFields(text) };
 }
 

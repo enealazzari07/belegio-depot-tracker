@@ -97,7 +97,7 @@ eigenen Ordner (`{user_id}/...`).
 | --- | --- | --- |
 | `register` | Legt Nutzer per Service-Role direkt bestätigt an (`email_confirm: true`) — keine E-Mail-Verifizierung nötig | offen (kein Login vorhanden) |
 | `market` | Proxy für Kurse/News/Suche/Historie | JWT erforderlich |
-| `ocr` | Proxy für API-Ninjas Image-to-Text | JWT erforderlich |
+| `ocr` | *(ungenutzt, Client scannt seit 2026-09 lokal via Tesseract.js — siehe „Beleg-Erkennung" unten; Function bleibt deployed, wird aber nicht mehr aufgerufen)* | JWT erforderlich |
 | `push-daily` | Verschickt den täglichen Depotstand per Web Push (`mode` "intraday"/"close") und prüft die Kursalarme (`mode` "alerts") | `x-cron-secret`-Header (kein User-JWT, `verify_jwt` deaktiviert) |
 
 ## Marktdaten-Anbieter (`market`-Function)
@@ -240,10 +240,12 @@ in der In-App-Liste im Benachrichtigungen-Sheet.
 
 ## Beleg-Erkennung (OCR)
 
-Kein Vision-LLM — reine Texterkennung (API Ninjas Image-to-Text) plus
-Regex-Parsing (`ocr.js`). Ablauf: Bild client-seitig auf <200 KB komprimieren
-→ `ocr`-Function → Text zurück → Regex extrahiert Datum/ISIN/Ticker/Stückzahl/
-Kurs/Betrag/Währung. Wird nur eine ISIN gefunden (kein Ticker), versucht
+Kein Vision-LLM, kein externer Dienst — Tesseract.js (WASM) läuft komplett
+lokal im Browser (`ocr.js` + `vendor/tesseract/*`, deutsches Sprachmodell
+vendored, kein CDN-Nachladen), dahinter Regex-Parsing. Bild und Text
+verlassen das Gerät nie. Ablauf: Foto ggf. auf max. 2500 px verkleinert
+→ Tesseract erkennt Text lokal → Regex extrahiert Datum/ISIN/Ticker/
+Stückzahl/Kurs/Betrag/Währung. Wird nur eine ISIN gefunden (kein Ticker), versucht
 `onFile` einmal `market.search(isin)` — funktioniert nur, wenn der Anbieter
 ISIN-Suche unterstützt (bei Alpha Vantage in der Praxis selten). Alle Felder
 sind im Prüf-Screen editierbar, bevor die `transactions`-Zeile entsteht.
