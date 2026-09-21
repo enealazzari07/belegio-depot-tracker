@@ -539,7 +539,7 @@ input::placeholder{color:var(--tx3)}
                 <button onClick="{{ f.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ f.bg }};color:{{ f.tx }};border:1px solid {{ f.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ f.label }}</button>
               </sc-for>
             </div>
-            <div id="home-stack" onPointerDown="{{ stackDown }}" onPointerMove="{{ stackMove }}" onPointerUp="{{ stackUp }}" onPointerCancel="{{ stackUp }}" style="position:relative;height:300px;margin:6px {{ homeStackMargin }} 0 20px;touch-action:pan-y;-webkit-user-select:none;user-select:none">
+            <div id="home-stack" onPointerDown="{{ stackDown }}" onPointerMove="{{ stackMove }}" onPointerUp="{{ stackUp }}" onPointerCancel="{{ stackUp }}" style="position:relative;height:300px;margin:{{ homeStackMargin }};touch-action:pan-y;-webkit-user-select:none;user-select:none">
               <sc-for list="{{ homeCards }}" as="c" hint-placeholder-count="3">
                 <div data-hc="1" onClick="{{ c.open }}" style="{{ c.stackStyle }}">
                   <div style="position:relative;height:100%;border-radius:30px;overflow:hidden;background:{{ c.bg }};box-shadow:0 22px 44px -22px {{ c.shadow }}">
@@ -2528,31 +2528,17 @@ const displayName = h => {
 
 // Position der Karten im Stapel: Slot 0 vorne, 1 rechts dahinter, 2 links
 // dahinter, 3+ verborgen. p = Fortschritt zum naechsten Slot (0..1).
-const STACK_TX = [0, 22, 44, 44], STACK_SC = [1, 0.93, 0.86, 0.8], STACK_OP = [1, 1, 1, 0];
-const stackSlot = (k, p) => {
-  const a = Math.min(k, 3), b = Math.min(Math.max(k - 1, 0), 3);
-  const l = (arr) => arr[a] + (arr[b] - arr[a]) * p;
-  return { tx: l(STACK_TX), sc: l(STACK_SC), op: l(STACK_OP) };
+const STACK_TABLES = {
+  // 1-2 Karten: Nachbar ragt rechts heraus, vorne linksbuendig.
+  few: { tx: [0, 22, 22, 22], sc: [1, 0.93, 0.93, 0.9], op: [1, 1, 1, 0], origin: "0% 50%" },
+  // 3+ Karten: links UND rechts ragt je eine Karte heraus.
+  many: { tx: [0, 30, -30, -30], sc: [1, 0.9, 0.9, 0.82], op: [1, 1, 1, 0], origin: "50% 50%" }
 };
-// Weiche Kurve (monotone kubische Bezier, kein Ueberschwingen).
-const smoothPathXY = xy => {
-  const n = xy.length;
-  if (n < 2) return "";
-  const dxs = [], sl = [], mm = [];
-  for (let i = 0; i < n - 1; i++) { dxs[i] = (xy[i + 1][0] - xy[i][0]) || 1e-6; sl[i] = (xy[i + 1][1] - xy[i][1]) / dxs[i]; }
-  mm[0] = sl[0]; mm[n - 1] = sl[n - 2];
-  for (let i = 1; i < n - 1; i++) mm[i] = sl[i - 1] * sl[i] <= 0 ? 0 : (sl[i - 1] + sl[i]) / 2;
-  for (let i = 0; i < n - 1; i++) {
-    if (sl[i] === 0) { mm[i] = 0; mm[i + 1] = 0; continue; }
-    const a = mm[i] / sl[i], b = mm[i + 1] / sl[i], q = a * a + b * b;
-    if (q > 9) { const t = 3 / Math.sqrt(q); mm[i] = t * a * sl[i]; mm[i + 1] = t * b * sl[i]; }
-  }
-  let out = "M" + xy[0][0].toFixed(1) + " " + xy[0][1].toFixed(1);
-  for (let i = 0; i < n - 1; i++) {
-    const h = dxs[i] / 3;
-    out += " C" + (xy[i][0] + h).toFixed(1) + " " + (xy[i][1] + mm[i] * h).toFixed(1) + " " + (xy[i + 1][0] - h).toFixed(1) + " " + (xy[i + 1][1] - mm[i + 1] * h).toFixed(1) + " " + xy[i + 1][0].toFixed(1) + " " + xy[i + 1][1].toFixed(1);
-  }
-  return out;
+const stackSlot = (k, p, n) => {
+  const T = n >= 3 ? STACK_TABLES.many : STACK_TABLES.few;
+  const a = Math.min(k, 3), b = Math.min(Math.max(k - 1, 0), 3);
+  const l = arr => arr[a] + (arr[b] - arr[a]) * p;
+  return { tx: l(T.tx), sc: l(T.sc), op: l(T.op), origin: T.origin };
 };
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
@@ -3648,10 +3634,10 @@ class Component extends DCLogic {
     const p = prog != null ? prog : Math.min(1, Math.abs(dx) / (W * 0.6));
     cards.forEach((c, i) => {
       const k = (i - cur + n) % n;
-      const r = stackSlot(k, p);
+      const r = stackSlot(k, p, n);
       c.style.transform = "translate3d(" + (k === 0 ? dx : r.tx) + "px,0,0) rotate(" + (k === 0 ? (dx / W * 9).toFixed(2) : 0) + "deg) scale(" + r.sc.toFixed(3) + ")";
       c.style.opacity = k === 0 ? String(prog != null && prog >= 1 ? 0 : 1 - Math.min(0.35, p * 0.4)) : String(r.op);
-      c.style.transformOrigin = k === 0 ? "50% 60%" : "0% 50%";
+      c.style.transformOrigin = k === 0 ? "50% 60%" : r.origin;
       c.style.zIndex = String(n - k);
       c.style.pointerEvents = k === 0 ? "auto" : "none";
     });
@@ -5680,8 +5666,8 @@ class Component extends DCLogic {
         const cur = list.length ? (this._stackIdx || 0) % list.length : 0;
         list.forEach((c, i) => {
           const k = (i - cur + list.length) % list.length;
-          const r = stackSlot(k, 0);
-          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform-origin:" + (k === 0 ? "50% 60%" : "0% 50%") + ";transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
+          const r = stackSlot(k, 0, list.length);
+          c.stackStyle = "position:absolute;left:0;right:0;top:0;height:296px;cursor:pointer;will-change:transform;transform-origin:" + (k === 0 ? "50% 60%" : r.origin) + ";transform:translate3d(" + r.tx + "px,0,0) scale(" + r.sc + ");opacity:" + r.op + ";z-index:" + (list.length - k) + ";pointer-events:" + (k === 0 ? "auto" : "none");
         });
         const tabs = [{ key: "all", label: "Alle" }, { key: "stock", label: "Aktien" }, { key: "etf", label: "ETFs" }];
         const selSym = this.state.cardDetailSym;
@@ -5707,7 +5693,7 @@ class Component extends DCLogic {
           cardDetailItems: detailItems,
           homeCards: list,
           homeCardsEmpty: list.length === 0,
-          homeStackMargin: list.length <= 1 ? "20px" : list.length === 2 ? "42px" : "64px",
+          homeStackMargin: list.length <= 1 ? "6px 20px 0" : list.length === 2 ? "6px 42px 0 20px" : "6px 34px 0",
           homeDots: list.length > 1 ? list.map((_, i) => ({ w: i === cur ? "18px" : "6px", bg: i === cur ? "var(--tx)" : "var(--line2)" })) : [],
           homeFilters: tabs.map(t => ({
             label: t.label,
