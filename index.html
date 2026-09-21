@@ -2091,7 +2091,7 @@ input::placeholder{color:var(--tx3)}
          (clip-path-Morph). Inhalt = dieselbe Detailansicht wie im Depot. -->
     <sc-for list="{{ cardDetailItems }}" as="d" hint-placeholder-count="1">
       <div id="card-detail" class="cd-panel" onScroll="{{ cdScroll }}" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);-webkit-overflow-scrolling:touch">
-        <div style="position:sticky;top:0;height:calc(env(safe-area-inset-top, 0px) + 68px);margin-bottom:calc(-1 * (env(safe-area-inset-top, 0px) + 68px));z-index:6;pointer-events:none">
+        <div data-cd-head="1" style="position:sticky;top:0;height:calc(env(safe-area-inset-top, 0px) + 68px);margin-bottom:calc(-1 * (env(safe-area-inset-top, 0px) + 68px));z-index:6;pointer-events:none">
           <span class="cd-spin-top" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 22px);left:50%;width:26px;height:26px;margin-left:-13px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite;opacity:0;transition:opacity .15s ease"></span>
           <span class="cd-title" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:70px;right:116px;height:42px;line-height:42px;color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.35)">{{ d.heroShort }}</span>
           <button onClick="{{ closeCardDetail }}" style="all:unset;box-sizing:border-box;pointer-events:auto;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
@@ -3787,8 +3787,15 @@ class Component extends DCLogic {
     el.style.overflow = "hidden";
     el.querySelectorAll(".cd-rise, .cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .16s ease"; n.style.opacity = "0"; });
     el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both";
+    // Nur das Bild schrumpft in die Karte: weisser Block und Kopfleiste blenden sofort aus,
+    // das Bild folgt exakt der schrumpfenden Flaeche (statt separat in der Hoehe zu animieren).
+    const blk = document.getElementById("cd-block");
+    if (blk) { blk.style.transition = "opacity .12s ease"; blk.style.opacity = "0"; }
+    el.style.background = "transparent";
     const hero = el.querySelector(".cd-hero");
-    if (hero) hero.style.animation = "heroOut .46s cubic-bezier(.32,.72,0,1) both";
+    if (hero) { hero.style.animation = "none"; hero.style.position = "absolute"; hero.style.inset = "0"; hero.style.height = "auto"; }
+    const hdr = el.querySelector("[data-cd-head]");
+    if (hdr) { hdr.style.transition = "opacity .12s ease"; hdr.style.opacity = "0"; }
     this._cardCloseT = setTimeout(done, 450);
   };
   onEscKey = e => {
