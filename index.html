@@ -920,9 +920,9 @@ input::placeholder{color:var(--tx3)}
               <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
             </div>
             <div style="position:relative">
-              <div style="position:relative;width:100%;aspect-ratio:360/190;{{ geoWrapStyle }}">
-                <svg viewBox="0 0 360 190" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
-                  <path d="{{ geoDots }}" fill="none" stroke="var(--tx3)" stroke-opacity=".38" stroke-width="2.1" stroke-linecap="round"></path>
+              <div style="position:relative;width:100%;aspect-ratio:400/190;{{ geoWrapStyle }}">
+                <svg viewBox="0 0 400 190" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                  <path d="{{ geoDots }}" fill="none" stroke="var(--tx3)" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"></path>
                   <sc-for list="{{ geoRings }}" as="rg" hint-placeholder-count="5">
                     <circle cx="{{ rg.cx }}" cy="{{ rg.cy }}" r="{{ rg.r }}" fill="{{ rg.color }}" opacity=".22"></circle>
                   </sc-for>
@@ -2731,7 +2731,7 @@ const worldDotsPath = () => {
   const out = [];
   WORLD_DOTS_ENC.split(";").forEach(row => {
     const [r, cols] = row.split(":");
-    cols.split(".").forEach(c => { out.push("M" + (+c * 3 + 1.5) + " " + (26 + +r * 3 + 1.5) + "h.01"); });
+    cols.split(".").forEach(c => { out.push("M" + (80 + (+c * 3 + 1.5) * 0.6667).toFixed(1) + " " + (49 + (+r * 3 + 1.5) * 0.6667).toFixed(1) + "h.01"); });
   });
   return (_worldPath = out.join(""));
 };
@@ -5393,25 +5393,26 @@ class Component extends DCLogic {
         add(countryOf(sym, h.isin), v);
       });
       const PAL = ["#5B5BD6", "#2AA6B5", "#F6546A", "#F2A03D", "#43CEA2", "#9C7BFF", "#1b1b1f"];
-      const top = Object.entries(expo).sort((a, b) => b[1] - a[1]).slice(0, 7);
+      const top = Object.entries(expo).sort((a, b) => b[1] - a[1]).slice(0, 6);
       geoHas = top.length > 0 && tot > 0;
       const pts = top.map(([cc, v], i) => {
         const c = COUNTRIES[cc] || COUNTRIES.US;
-        return { cc, name: c[0], x: c[2] + 180, y: 26 + (80 - c[1]), pct: v / tot * 100, color: PAL[i % PAL.length] };
+        return { cc, name: c[0], x: 80 + (c[2] + 180) * 0.6667, y: 49 + (80 - c[1]) * 0.6667, pct: v / tot * 100, color: PAL[i % PAL.length] };
       });
-      pts.forEach(pt => geoRings.push({ cx: pt.x.toFixed(1), cy: pt.y.toFixed(1), r: (3 + Math.sqrt(pt.pct) * 1.5).toFixed(1), color: pt.color }));
+      pts.forEach(pt => geoRings.push({ cx: pt.x.toFixed(1), cy: pt.y.toFixed(1), r: (2.4 + Math.sqrt(pt.pct) * 1.0).toFixed(1), color: pt.color }));
       [-1, 1].forEach(side => {
-        const arr = pts.filter(pt => (pt.x < 180 ? -1 : 1) === side).sort((a, b) => a.y - b.y);
+        const arr = pts.filter(pt => (pt.x < 200 ? -1 : 1) === side).sort((a, b) => a.y - b.y);
         let last = -1e9;
-        arr.forEach(pt => { pt.ly = Math.max(pt.y, last + 36, 18); last = pt.ly; });
-        for (let i = arr.length - 1; i >= 0; i--) { const maxY = 176 - (arr.length - 1 - i) * 36; if (arr[i].ly > maxY) arr[i].ly = maxY; }
+        arr.forEach(pt => { pt.ly = Math.max(pt.y, last + 32, 16); last = pt.ly; });
+        for (let i = arr.length - 1; i >= 0; i--) { const maxY = 176 - (arr.length - 1 - i) * 32; if (arr[i].ly > maxY) arr[i].ly = maxY; }
         arr.forEach(pt => {
-          const xe = side === -1 ? 74 : 286;
+          // Linie: vom Land waagerecht/leicht schraeg an den Rand, dort steht die Beschriftung.
+          const xe = side === -1 ? 78 : 322;
           geoCallouts.push({
             color: pt.color,
-            path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + (side === -1 ? Math.max(xe, 0) : Math.min(xe, 360)).toFixed(1) + " " + pt.ly.toFixed(1),
+            path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + xe + " " + pt.ly.toFixed(1),
             dotX: pt.x.toFixed(1), dotY: pt.y.toFixed(1),
-            posStyle: (side === -1 ? "left:0.5%;text-align:left" : "right:0.5%;text-align:right") + ";top:" + ((pt.ly - 15) / 190 * 100).toFixed(2) + "%",
+            posStyle: (side === -1 ? "left:0;text-align:left" : "right:0;text-align:right") + ";top:" + ((pt.ly - 14) / 190 * 100).toFixed(2) + "%",
             name: pt.name, pct: Math.round(pt.pct) + "%"
           });
         });
