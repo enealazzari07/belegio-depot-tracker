@@ -230,18 +230,21 @@ input::placeholder{color:var(--tx3)}
 #home-cards::-webkit-scrollbar{display:none}
 @keyframes wIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .w-in{animation:wIn .5s cubic-bezier(.22,1,.36,1) both}
-.cd-panel{animation:cardIn .55s cubic-bezier(.32,.72,0,1) both}
+.cd-panel{animation:cardIn .55s cubic-bezier(.32,.72,0,1) both;overflow-x:hidden;overflow-y:auto}
 .cd-rise{animation:wIn .5s cubic-bezier(.22,1,.36,1) .22s backwards}
 .cd-rise2{animation:wIn .5s cubic-bezier(.22,1,.36,1) .3s backwards}
 @keyframes cardIn{
-  from{clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round 30px);-webkit-clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round 30px)}
-  to{clip-path:inset(0px 0px 0px 0px round 0px);-webkit-clip-path:inset(0px 0px 0px 0px round 0px)}
+  from{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:30px}
+  to{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
 }
 @keyframes cardOut{
-  from{clip-path:inset(0px 0px 0px 0px round 0px);-webkit-clip-path:inset(0px 0px 0px 0px round 0px)}
-  to{clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round 30px);-webkit-clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round 30px)}
+  from{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
+  to{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:30px}
 }
-@media (prefers-reduced-motion: reduce){.cd-panel,.cd-rise,.cd-rise2{animation:none!important}}
+@keyframes heroIn{from{height:var(--chh)}to{height:352px}}
+@keyframes heroOut{from{height:352px}to{height:var(--chh)}}
+.cd-hero{animation:heroIn .55s cubic-bezier(.32,.72,0,1) both}
+@media (prefers-reduced-motion: reduce){.cd-panel,.cd-hero,.cd-rise,.cd-rise2{animation:none!important}}
 .sheet-in{animation:sheetMorph .5s cubic-bezier(.32,.72,0,1) backwards;transform-origin:50% 100%}
 .sheet-in>*{animation:wIn .5s cubic-bezier(.22,1,.36,1) backwards}
 .sheet-in>*:nth-child(1){animation-delay:.04s}.sheet-in>*:nth-child(2){animation-delay:.09s}
@@ -2087,15 +2090,15 @@ input::placeholder{color:var(--tx3)}
     <!-- Karten-Detail: waechst aus der angetippten Home-Karte zur Vollansicht
          (clip-path-Morph). Inhalt = dieselbe Detailansicht wie im Depot. -->
     <sc-for list="{{ cardDetailItems }}" as="d" hint-placeholder-count="1">
-      <div id="card-detail" class="cd-panel" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch">
-        <div style="position:relative;height:352px;background:{{ d.heroBg }};overflow:hidden">
+      <div id="card-detail" class="cd-panel" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);-webkit-overflow-scrolling:touch">
+        <div class="cd-hero" style="position:relative;height:352px;background:{{ d.heroBg }};overflow:hidden">
           <sc-if value="{{ d.noPhoto }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 300 290" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="{{ d.sunX }}" cy="86" r="40" fill="rgba(255,255,255,.22)"></circle><path d="M0 196 L62 128 L112 172 L184 92 L300 196 V290 H0Z" fill="rgba(255,255,255,.16)"></path><path d="M0 226 L88 168 L156 208 L236 146 L300 212 V290 H0Z" fill="rgba(0,0,0,.16)"></path></svg></sc-if>
           <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,.6) 100%);pointer-events:none"></div>
           <button onClick="{{ closeCardDetail }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff" style-active="transform:scale(.92)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
           </button>
           <span style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 20px);right:18px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ d.heroKind }}</span>
-          <div style="position:absolute;left:20px;right:20px;bottom:22px;display:flex;flex-direction:column;gap:6px;" class="cd-rise">
+          <div style="position:absolute;left:20px;right:20px;bottom:52px;display:flex;flex-direction:column;gap:6px;" class="cd-rise">
             <span style="color:rgba(255,255,255,.82);font-size:13px;font-weight:600">{{ d.heroSub }}</span>
             <span style="color:#fff;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ d.heroName }}</span>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2104,16 +2107,32 @@ input::placeholder{color:var(--tx3)}
             </div>
           </div>
         </div>
-        <div class="cd-rise2" style="padding:20px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px">
-            <sc-for list="{{ d.stats }}" as="st" hint-placeholder-count="6">
-              <div style="display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:16px;background:var(--surf);border:1px solid var(--line);min-width:0">
-                <span style="color:var(--tx3);font-size:9.5px;font-weight:700;letter-spacing:.07em">{{ st.k }}</span>
-                <span class="mono" style="color:{{ st.c }};font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ st.v }}</span>
+        <div style="position:relative;z-index:2;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:24px 16px calc(40px + env(safe-area-inset-bottom, 0px))">
+        <div class="cd-rise2">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-radius:28px;background:linear-gradient(160deg,#26262c,#141417);box-shadow:0 22px 40px -22px rgba(10,12,20,.7);margin-bottom:12px">
+            <div style="display:flex;flex-direction:column;gap:5px;min-width:0">
+              <span style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;letter-spacing:.06em">AKTUELLER WERT</span>
+              <span class="mono" style="color:#fff;font-size:24px;font-weight:700;letter-spacing:-.02em">{{ d.heroValue }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
+              <span style="color:rgba(255,255,255,.6);font-size:11px;font-weight:600;letter-spacing:.06em">GEWINN</span>
+              <span class="mono" style="padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.gainOnDark }};font-size:13px;font-weight:700">{{ d.gainLine }}</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+            <sc-for list="{{ d.stats }}" as="st" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:24px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);min-width:0">
+                <span style="width:38px;height:38px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ st.icon }}"></path></svg>
+                </span>
+                <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                  <span class="mono" style="color:var(--tx);font-size:17px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ st.v }}</span>
+                  <span style="color:var(--tx3);font-size:11.5px;font-weight:600">{{ st.k }}</span>
+                </div>
               </div>
             </sc-for>
           </div>
-          <div class="card" style="padding:14px">
+          <div class="card" style="padding:16px;border-radius:26px">
               <div style="padding:0 0 0;animation:fade .22s ease">
 
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
@@ -2266,6 +2285,7 @@ input::placeholder{color:var(--tx3)}
 
               </div>
           </div>
+        </div>
         </div>
       </div>
     </sc-for>
@@ -3647,10 +3667,10 @@ class Component extends DCLogic {
     if (this._stackMoved) return;
     const card = e.currentTarget;
     const frame = document.querySelector("[data-theme] > div");
-    let v = "--ct:30%;--cr:12%;--cb:30%;--cl:12%";
+    let v = "--chh:296px;--ct:30%;--cr:12%;--cb:30%;--cl:12%";
     if (card && frame) {
       const r = card.getBoundingClientRect(), f = frame.getBoundingClientRect();
-      v = "--ct:" + Math.max(0, r.top - f.top) + "px;--cr:" + Math.max(0, f.right - r.right) + "px;--cb:" + Math.max(0, f.bottom - r.bottom) + "px;--cl:" + Math.max(0, r.left - f.left) + "px";
+      v = "--chh:" + Math.round(r.height) + "px;--ct:" + Math.max(0, r.top - f.top) + "px;--cr:" + Math.max(0, f.right - r.right) + "px;--cb:" + Math.max(0, f.bottom - r.bottom) + "px;--cl:" + Math.max(0, r.left - f.left) + "px";
     }
     this._cardVars = v;
     clearTimeout(this._cardCloseT);
@@ -3663,9 +3683,15 @@ class Component extends DCLogic {
     const el = document.getElementById("card-detail");
     const done = () => { this._cardClosing = false; this.setState({ cardDetailSym: null, openPosSymbol: null, posScrub: null }); };
     if (!el) { done(); return; }
-    el.style.animation = "cardOut .45s cubic-bezier(.32,.72,0,1) both";
+    // Erst nach oben (Bild), Infos ausblenden — sonst zeigt die schrumpfende
+    // Flaeche Kacheln statt des Bildes.
+    el.scrollTop = 0;
     el.style.overflow = "hidden";
-    this._cardCloseT = setTimeout(done, 440);
+    el.querySelectorAll(".cd-rise, .cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .16s ease"; n.style.opacity = "0"; });
+    el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both";
+    const hero = el.querySelector(".cd-hero");
+    if (hero) hero.style.animation = "heroOut .46s cubic-bezier(.32,.72,0,1) both";
+    this._cardCloseT = setTimeout(done, 450);
   };
   onEscKey = e => {
     if (e.key !== "Escape") return;
@@ -5420,16 +5446,16 @@ class Component extends DCLogic {
           const c = all.find(x => x.sym === selSym) || {};
           const h = holdings.find(x => (x.sym || x.abbr) === selSym) || {};
           return Object.assign({}, dd, {
-            clipVars: this._cardVars || "--ct:30%;--cr:12%;--cb:30%;--cl:12%",
+            clipVars: this._cardVars || "--chh:296px;--ct:30%;--cr:12%;--cb:30%;--cl:12%",
             heroBg: c.bg, noPhoto: c.noPhoto, sunX: c.sunX,
             heroKind: c.kind, heroName: c.name, heroSub: c.sub, heroValue: c.value, heroDay: c.day, heroSince: c.since,
+            gainLine: dd.gain + " CHF",
+            gainOnDark: String(dd.gain).startsWith("-") ? "#ff8c8c" : "#7be3a5",
             stats: [
-              { k: "STÜCKZAHL", v: String(h.shares), c: "var(--tx)" },
-              { k: "Ø EINSTAND", v: f2(h.buy), c: "var(--tx)" },
-              { k: "KURS", v: f2(h.cur), c: "var(--tx)" },
-              { k: "WERT", v: c.value, c: "var(--tx)" },
-              { k: "GEWINN", v: dd.gain, c: dd.color },
-              { k: "ANTEIL", v: dd.share, c: "var(--tx)" }
+              { k: "Stückzahl", v: String(h.shares), icon: "M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5" },
+              { k: "Ø Einstand", v: f2(h.buy), icon: "M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01" },
+              { k: "Aktueller Kurs", v: f2(h.cur), icon: "M22 12h-4l-3 9L9 3l-3 9H2" },
+              { k: "Anteil am Depot", v: dd.share, icon: "M12 3v9h9M20.4 15.5A9 9 0 1 1 8.5 3.6" }
             ]
           });
         }) : [];
