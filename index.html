@@ -3785,7 +3785,9 @@ class Component extends DCLogic {
     const inn = document.getElementById("cd-inner");
     if (inn) inn.scrollTop = 0;
     el.style.overflow = "hidden";
-    el.querySelectorAll(".cd-rise, .cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .16s ease"; n.style.opacity = "0"; });
+    el.querySelectorAll(".cd-rise2").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .12s ease"; n.style.opacity = "0"; });
+    // Name/Wert im Bild bleiben sichtbar und schrumpfen mit dem Bild in die Karte.
+    el.querySelectorAll(".cd-rise").forEach(n => { n.style.animation = "none"; n.style.transition = "opacity .2s ease"; n.style.opacity = "1"; });
     el.style.animation = "cardOut .46s cubic-bezier(.32,.72,0,1) both, cdFadeOut .46s ease both";
     // Nur das Bild schrumpft in die Karte: weisser Block und Kopfleiste blenden sofort aus,
     // das Bild folgt exakt der schrumpfenden Flaeche (statt separat in der Hoehe zu animieren).
