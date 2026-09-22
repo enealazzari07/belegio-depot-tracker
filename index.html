@@ -5412,6 +5412,10 @@ class Component extends DCLogic {
     const rangeDpFor = h => {
       const range = this.state.chartRange || "D";
       if (range === "D") return typeof h.dp === "number" ? h.dp : null;
+      // "Max" hat pro Position keinen sinnvollen fixen Vergleichszeitpunkt
+      // (die Kurshistorie reicht oft weiter zurueck als der eigene Kauf) —
+      // gemeint ist hier immer die Rendite seit dem eigenen Einstand.
+      if (range === "MAX") return h.buy ? (h.cur - h.buy) / h.buy * 100 : null;
       const refDate = rangeAgoDateFor(range);
       if (!refDate) return null;
       const refPrice = priceOnOrBefore(h.sym || h.abbr, refDate);
