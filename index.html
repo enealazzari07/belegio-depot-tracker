@@ -848,9 +848,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
-          <div style="display:inline-flex;gap:3px;height:38px;padding:3px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+          <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
             <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-              <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 13px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+              <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
             </sc-for>
           </div>
         </div>
@@ -1858,9 +1858,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;margin-bottom:16px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Märkte</span>
-          <div style="display:inline-flex;gap:3px;height:38px;padding:3px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+          <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
             <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
-              <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
+              <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
             </sc-for>
           </div>
         </div>
@@ -2021,9 +2021,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
         <div style="display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:16px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">News</span>
-          <div style="display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;justify-content:flex-end">
+          <div style="display:flex;align-items:center;gap:8px;height:42px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;justify-content:flex-end">
             <sc-for list="{{ newsChips }}" as="c" hint-placeholder-count="4">
-              <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};border:1px solid {{ c.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ c.label }}</button>
+              <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;height:42px;padding:0 16px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ c.label }}</button>
             </sc-for>
           </div>
         </div>
