@@ -1856,8 +1856,13 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;padding:0 20px;margin-bottom:16px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;margin-bottom:16px">
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Märkte</span>
+          <div style="display:inline-flex;gap:3px;height:38px;padding:3px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+            <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
+              <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
+            </sc-for>
+          </div>
         </div>
 
         <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
@@ -1892,14 +1897,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <sc-if value="{{ marketSearchLoading }}" hint-placeholder-val="{{ false }}">
             <span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block;flex:none"></span>
           </sc-if>
-        </div>
-
-        <div style="margin:0 20px 18px;overflow-x:auto;scrollbar-width:none">
-          <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
-            <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
-              <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 16px;border-radius:999px;font-size:13px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
-            </sc-for>
-          </div>
         </div>
 
         <!-- Suchmodus: ersetzt die Uebersicht (Indizes/Meistbewegt) komplett,
@@ -2022,19 +2019,18 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;padding:0 20px;margin-bottom:16px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
+        <div style="display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:16px">
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">News</span>
+          <div style="display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;justify-content:flex-end">
+            <sc-for list="{{ newsChips }}" as="c" hint-placeholder-count="4">
+              <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};border:1px solid {{ c.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ c.label }}</button>
+            </sc-for>
+          </div>
         </div>
 
-        <div style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+        <div style="margin:0 20px 18px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
           <input value="{{ newsSearchValue }}" onInput="{{ onNewsSearch }}" placeholder="News durchsuchen…" style="all:unset;flex:1;min-width:0;color:var(--tx);font-size:14px">
-        </div>
-
-        <div style="display:flex;gap:8px;padding:0 20px 18px;overflow-x:auto;scrollbar-width:none">
-          <sc-for list="{{ newsChips }}" as="c" hint-placeholder-count="4">
-            <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};border:1px solid {{ c.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ c.label }}</button>
-          </sc-for>
         </div>
 
         <sc-if value="{{ noNews }}" hint-placeholder-val="{{ false }}">
