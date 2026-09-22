@@ -565,7 +565,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                         <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>{{ d.insiderCount }}
                       </span>
                     </sc-if>
-                    <span class="mono" style="color:{{ d.dayColorDark }};font-size:10.5px;font-weight:700;white-space:nowrap">{{ d.dayLabel }}</span>
+                    <span class="mono" style="display:{{ d.dayDisplay }};padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.dayColorDark }};font-size:10.5px;font-weight:700;white-space:nowrap">{{ d.dayLabel }}</span>
                   </div>
                 </div>
                 <sc-if value="{{ d.hasSpark }}" hint-placeholder-val="{{ false }}">
@@ -575,7 +575,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </sc-if>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
                   <span class="mono" style="color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em">{{ d.value }}</span>
-                  <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gainPct }}</span>
+                  <span class="mono" style="color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gainPct }}</span>
                 </div>
               </button>
             </sc-for>
@@ -1117,7 +1117,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v0z"></path></svg>{{ d.insiderCount }}
                     </span>
                   </sc-if>
-                  <span class="mono" style="color:{{ d.dayColorDark }};font-size:10.5px;font-weight:700;white-space:nowrap">{{ d.dayLabel }}</span>
+                  <span class="mono" style="display:{{ d.dayDisplay }};padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.dayColorDark }};font-size:10.5px;font-weight:700;white-space:nowrap">{{ d.dayLabel }}</span>
                 </div>
               </div>
               <sc-if value="{{ d.hasSpark }}" hint-placeholder-val="{{ false }}">
@@ -1127,7 +1127,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </sc-if>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
                 <span class="mono" style="color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em">{{ d.value }}</span>
-                <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gainPct }}</span>
+                <span class="mono" style="color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gainPct }}</span>
               </div>
             </button>
           </sc-for>
@@ -5864,6 +5864,14 @@ class Component extends DCLogic {
 
         const spark = buildSparkline(hist[sym]);
         const dMarket = isinLike(sym) ? "open" : marketStatus(sym);
+        // Prozent neben dem Markt-Status-Symbol: bei Zeitraum "Tag" die Live-
+        // Tagesbewegung (h.dp), bei anderen oben gewaehlten Zeitraeumen die
+        // Veraenderung ueber diesen Zeitraum — wie im Home-Karten-Stack.
+        const isDailyRange = (this.state.chartRange || "D") === "D";
+        const noLive = isinLike(sym) && !h.live;
+        const rangeWeekend = isDailyRange && dMarket === "weekend";
+        const rangeDp = isDailyRange ? (typeof h.dp === "number" ? h.dp : null) : rangeDpFor(h);
+        const noRangeData = isDailyRange ? noLive : rangeDp == null;
         const symInsider = this.state.insiderTrades[sym] || [];
         const insiderNew = this.state.insiderAlertsSeenAt
           ? symInsider.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt)) : symInsider.length > 0;
@@ -5886,8 +5894,9 @@ class Component extends DCLogic {
           category,
           openMenu: this.openPosMenu(sym),
           spark, hasSpark: !!spark,
-          dayLabel: typeof h.dp !== "number" ? "kein Kurs" : dMarket === "weekend" ? "" : (h.dp >= 0 ? "+" : "") + h.dp.toFixed(1) + " %",
-          dayColor: typeof h.dp !== "number" ? "var(--tx3)" : h.dp >= 0 ? "var(--pos)" : "var(--neg)",
+          dayLabel: noRangeData ? "kein Kurs" : rangeWeekend ? "" : (rangeDp >= 0 ? "+" : "") + rangeDp.toFixed(1) + " %",
+          dayColor: noRangeData ? "var(--tx3)" : rangeDp >= 0 ? "var(--pos)" : "var(--neg)",
+          dayDisplay: rangeWeekend ? "none" : "inline-flex",
           marketClosed: dMarket !== "open",
           marketLabel: MARKET_STATUS_LABEL[dMarket] || "",
           marketPillBg: dMarket === "weekend" ? "var(--surf2)" : "var(--acc-soft)",
@@ -5904,7 +5913,7 @@ class Component extends DCLogic {
           sellPos: this.startTrade(sym, "sell"),
           gainPillBg: d >= 0 ? "var(--pos-soft)" : "var(--neg-soft)",
           colorDark: d >= 0 ? "#7be3a5" : "#ff8c8c",
-          dayColorDark: typeof h.dp !== "number" ? "rgba(255,255,255,.6)" : h.dp >= 0 ? "#7be3a5" : "#ff8c8c",
+          dayColorDark: noRangeData ? "rgba(255,255,255,.6)" : rangeDp >= 0 ? "#7be3a5" : "#ff8c8c",
           chevron: isOpenPos ? "180" : "0",
 
           posTabs: tabDef.map(t => ({
