@@ -1903,15 +1903,15 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">{{ marketSearchError }}</p>
           </sc-if>
           <sc-if value="{{ hasMarketSearchResults }}" hint-placeholder-val="{{ false }}">
-            <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+            <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:7px">
               <sc-for list="{{ marketSearchResults }}" as="r" hint-placeholder-count="4">
-                <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.99)">
-                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ r.logo }}</div>
+                <button onClick="{{ r.open }}" data-rowcard="1" class="rowbtn" style="display:flex;align-items:center;gap:12px;padding:13px 16px 13px 12px;position:relative;overflow:hidden;isolation:isolate;border-radius:24px;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);border:none;box-shadow:0 14px 28px -20px rgba(16,19,26,.45);text-align:left;transition:transform 140ms ease" style-active="transform:scale(.985)">
+                  <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ r.logo }}</div>
                   <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                    <span style="color:var(--tx);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
-                    <span class="mono" style="color:var(--tx3);font-size:11.5px">{{ r.symbol }}</span>
+                    <span style="color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+                    <span class="mono" style="color:rgba(255,255,255,.55);font-size:10.5px">{{ r.symbol }}</span>
                   </div>
-                  <span style="color:var(--tx3);font-size:10.5px;font-weight:600;flex:none">{{ r.type }}</span>
+                  <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.78);font-size:10px;font-weight:700;flex:none">{{ r.type }}</span>
                 </button>
               </sc-for>
             </div>
@@ -1929,15 +1929,21 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">Marktdaten aktuell nicht verfügbar.</p>
           </sc-if>
 
+          <!-- Index-Kacheln im Home-Positionskarten-Look: dunkle Verlaufsflaeche,
+               Logo-Kreis, Sparkline, Preis+Change — statt der bisherigen
+               schlichten weissen Quadrate. -->
           <sc-if value="{{ marketIndices.length }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 6px;margin-bottom:22px">
+            <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 6px;margin-bottom:22px;scroll-snap-type:x mandatory;scroll-padding:0 20px">
               <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
-                <div style="flex:none;width:140px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);padding:14px">
-                  <span style="display:block;color:var(--tx2);font-size:11.5px;font-weight:600;margin-bottom:6px">{{ idx.label }}</span>
-                  <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'Roboto Mono',monospace;margin-bottom:2px">{{ idx.price }}</span>
-                  <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace;margin-bottom:8px">{{ idx.change }}</span>
-                  <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:30px;display:block">
-                    <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <div style="flex:none;width:168px;scroll-snap-align:start;padding:14px;position:relative;overflow:hidden;isolation:isolate;border-radius:24px;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);box-shadow:0 14px 28px -20px rgba(16,19,26,.45)">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px">
+                    <span style="color:rgba(255,255,255,.78);font-size:11.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ idx.label }}</span>
+                    <span style="width:8px;height:8px;border-radius:50%;background:{{ idx.color }};flex:none"></span>
+                  </div>
+                  <span style="display:block;color:#fff;font-size:16px;font-weight:700;font-family:'Roboto Mono',monospace;letter-spacing:-.01em;margin-bottom:2px">{{ idx.price }}</span>
+                  <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:700;font-family:'Roboto Mono',monospace;margin-bottom:10px">{{ idx.change }}</span>
+                  <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:28px;display:block">
+                    <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
                   </svg>
                 </div>
               </sc-for>
@@ -1948,14 +1954,14 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <div style="padding:0 20px 10px">
               <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Meistbewegt</span>
             </div>
-            <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+            <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:7px">
               <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
-                <button onClick="{{ m.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left;width:100%" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.99)">
-                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ m.logo }}</div>
-                  <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
-                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-                    <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'Roboto Mono',monospace">{{ m.price }}</span>
-                    <span style="color:{{ m.color }};font-size:11.5px;font-weight:600;font-family:'Roboto Mono',monospace">{{ m.change }}</span>
+                <button onClick="{{ m.open }}" data-rowcard="1" class="rowbtn" style="display:flex;align-items:center;gap:12px;padding:13px 16px 13px 12px;position:relative;overflow:hidden;isolation:isolate;border-radius:24px;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);border:none;box-shadow:0 14px 28px -20px rgba(16,19,26,.45);text-align:left;transition:transform 140ms ease" style-active="transform:scale(.985)">
+                  <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ m.logo }}</div>
+                  <span style="flex:1;color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.name }}</span>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
+                    <span class="mono" style="color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em">{{ m.price }}</span>
+                    <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ m.colorDark }};font-size:11px;font-weight:700">{{ m.change }}</span>
                   </div>
                 </button>
               </sc-for>
@@ -6086,6 +6092,7 @@ class Component extends DCLogic {
           change: (dp >= 0 ? "+" : "") + dp.toFixed(2) + "%",
           changeAbs: (abs >= 0 ? "+" : "") + abs.toLocaleString("de-CH", { maximumFractionDigits: 2 }),
           color: dp >= 0 ? "var(--pos)" : "var(--neg)",
+          colorDark: dp >= 0 ? "#7be3a5" : "#ff8c8c",
           dp,
           open: this.openStockDetail(sym, name)
         };
