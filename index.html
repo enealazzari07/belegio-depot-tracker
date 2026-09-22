@@ -5318,7 +5318,7 @@ class Component extends DCLogic {
     // ---------- Mini-Kursverlauf je Position (Tag/Woche) ----------
     const todayStr = dstr(new Date());
     const todaySamples = this.state.intradayDate === todayStr ? this.state.intraday : {};
-    const buildPositionChart = (sym, cur, range, dp) => {
+    const buildPositionChart = (sym, cur, range, dp, firstBuyDate) => {
       let pts;
       const ser = (this.state.posSeries || {})[sym + "|" + range];
       if ((range === "D" || range === "W" || range === "M") && ser && ser.points && ser.points.length >= 2) {
@@ -5352,6 +5352,12 @@ class Component extends DCLogic {
           ];
           pts = raw.filter((p, i) => i === 0 || p.close !== raw[i - 1].close);
         }
+      }
+      // Nie weiter zurueckgehen als der erste Kauf — vorher gehoerte einem die
+      // Position schlicht noch nicht, der Verlauf davor waere irrefuehrend.
+      if (firstBuyDate && pts && pts.length) {
+        const clipped = pts.filter(p => p.date >= firstBuyDate);
+        if (clipped.length >= 2) pts = clipped;
       }
       if (!pts || pts.length < 2) return null;
       const vals = pts.map(p => p.close);
@@ -5714,17 +5720,18 @@ class Component extends DCLogic {
         const showTransactions = isOpenPos && subTab === "transactions";
         const symTxs = showTransactions ? (this.state.txs || []).filter(t => t.symbol === sym).sort((a, b) => b.date < a.date ? -1 : 1) : [];
         const posChartRange = this.state.posChartRange || "D";
+        const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
+        const firstBuyDate = allSymTxs.length ? allSymTxs.reduce((m, t) => (t.date < m ? t.date : m), allSymTxs[0].date) : null;
         // Historien-/Intraday-Reihen sind in Landeswaehrung — der Positions-
         // Chart bleibt deshalb bewusst unkonvertiert bei curNative.
         const cdOn = this.state.cardDetailSym === sym;
-        const posChart = (showChart || cdOn) ? buildPositionChart(sym, h.curNative, posChartRange, h.dp) : null;
+        const posChart = (showChart || cdOn) ? buildPositionChart(sym, h.curNative, posChartRange, h.dp, firstBuyDate) : null;
         const cd = cdOn ? detailChart(posChart, posChartRange, this.state.posScrub && this.state.posScrub.sym === sym ? this.state.posScrub.idx : null) : null;
         posChartPoints[sym] = posChart ? posChart.points : null;
         const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
           ? posChart.points[this.state.posScrub.idx] : null;
         const scrubDelta = scrubP && posChart.first ? (scrubP.close - posChart.first) / posChart.first * 100 : 0;
 
-        const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
         // 52-Wochen-Spanne nur zeigen, wenn wirklich genug Historie da ist —
         // sonst wäre der Balken irreführend.
         const yearRows = (hist[sym] || []).filter(p => p.date >= dstr(new Date(Date.now() - 365 * 864e5)));
@@ -5810,7 +5817,7 @@ class Component extends DCLogic {
           cdDotX: cd ? cd.dotX : "100%", cdDotY: cd ? cd.dotY : "50%",
           cdScrubX: cd ? cd.scrubX : "0",
           cdAxis: cd ? cd.axis : [],
-          cdMain: (scrubP ? f2(scrubP.close) : f2(h.curNative)) + " " + (h.currency || ""),
+          cdMain: f2(h.shares * (scrubP ? scrubP.close : h.curNative)) + " " + (h.currency || ""),
           cdWhen: scrubP ? scrubP.label : (posChartRange === "D" ? "Heute" : posChartRange === "W" ? "Letzte Woche" : posChartRange === "M" ? "Letzter Monat" : posChartRange === "Y" ? "Letztes Jahr" : "Gesamter Verlauf"),
           cdRanges: chartRangeKeys.map(k => ({
             label: { D: "1T", W: "1W", M: "1M", Y: "1J", MAX: "Max" }[k],
