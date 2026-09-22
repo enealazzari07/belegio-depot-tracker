@@ -401,7 +401,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
            des blauen Bereichs soll die Box ohne erkennbare Kante in die Flaeche
            uebergehen. Ein abweichender Ton (frueher --surf3) zeichnet dort die
            Sheet-Kante nach, was hier unerwuenscht ist. -->
-      <div style="position:absolute;inset:0;overflow-y:auto;background:var(--home-bg);animation:fade .3s ease">
+      <div id="home-scroll" onScroll="{{ onHomeScroll }}" style="position:absolute;inset:0;overflow-y:auto;background:var(--home-bg);animation:fade .3s ease">
         <!-- Zeitraum-Switch + Glocke: eigene sticky Leiste ausserhalb des normalen
              Scrollflusses, damit sie beim Runterscrollen der Positionenliste immer
              sichtbar oben stehen bleibt statt mit dem Hero wegzuscrollen. Unabhaengig
@@ -415,8 +415,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <div style="position:sticky;top:0;z-index:5">
           <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%)"></div>
           <div style="position:relative;padding:calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)" style-hover="background:rgba(16,19,26,.1)">
+            <div id="home-account-row" style="display:flex;align-items:center;gap:10px">
+              <button id="home-account-btn" onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
               </button>
               <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
@@ -4258,6 +4258,20 @@ class Component extends DCLogic {
     const ti = el.querySelector(".cd-title");
     if (ti) ti.style.opacity = String(Math.min(1, Math.max(0, (el.scrollTop - 70) / 70)));
   };
+  // Account-Button oben links blendet beim Runterscrollen aus, die
+  // Zeitraum-Bar rutscht dabei smooth an seine Stelle (Gap + Breite
+  // laufen synchron mit dem Scroll-Fortschritt statt hart zu klappen).
+  onHomeScroll = e => {
+    const el = e.currentTarget;
+    const btn = document.getElementById("home-account-btn");
+    const row = document.getElementById("home-account-row");
+    if (!el || !btn || !row) return;
+    const p = Math.min(1, Math.max(0, el.scrollTop / 40));
+    btn.style.width = (42 * (1 - p)) + "px";
+    btn.style.opacity = String(1 - p);
+    btn.style.pointerEvents = p > 0.5 ? "none" : "auto";
+    row.style.gap = (10 * (1 - p)) + "px";
+  };
   // Direkt aus der Vollansicht kaufen/verkaufen: Formular mit vorbelegter Position.
   startTrade = (sym, side) => () => {
     const h = (this.state.holdings || []).find(x => (x.sym || x.abbr) === sym) || {};
@@ -6819,6 +6833,7 @@ class Component extends DCLogic {
         bg: i === carouselIdx ? "var(--acc2)" : "var(--line2)"
       })),
       onCarouselScroll: this.onCarouselScroll,
+      onHomeScroll: this.onHomeScroll,
       onCarouselTouch: this.onCarouselTouch,
 
       // ---------- „Was heute bewegt" ----------
