@@ -419,7 +419,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <button id="home-account-btn" onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
               </button>
-              <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+              <div id="home-range-bar" style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;will-change:transform">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
                   <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ r.bg }};color:{{ r.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ r.label }}</button>
                 </sc-for>
@@ -4258,19 +4258,18 @@ class Component extends DCLogic {
     const ti = el.querySelector(".cd-title");
     if (ti) ti.style.opacity = String(Math.min(1, Math.max(0, (el.scrollTop - 70) / 70)));
   };
-  // Account-Button oben links blendet beim Runterscrollen aus, die
-  // Zeitraum-Bar rutscht dabei smooth an seine Stelle (Gap + Breite
-  // laufen synchron mit dem Scroll-Fortschritt statt hart zu klappen).
+  // Account-Button oben links: die Zeitraum-Bar schiebt sich beim
+  // Runterscrollen smooth per transform darueber (statt Layout-Reflow),
+  // der Button verblasst darunter und verschwindet.
   onHomeScroll = e => {
     const el = e.currentTarget;
     const btn = document.getElementById("home-account-btn");
-    const row = document.getElementById("home-account-row");
-    if (!el || !btn || !row) return;
+    const bar = document.getElementById("home-range-bar");
+    if (!el || !btn || !bar) return;
     const p = Math.min(1, Math.max(0, el.scrollTop / 40));
-    btn.style.width = (42 * (1 - p)) + "px";
+    bar.style.transform = "translateX(" + (-52 * p) + "px)";
     btn.style.opacity = String(1 - p);
     btn.style.pointerEvents = p > 0.5 ? "none" : "auto";
-    row.style.gap = (10 * (1 - p)) + "px";
   };
   // Direkt aus der Vollansicht kaufen/verkaufen: Formular mit vorbelegter Position.
   startTrade = (sym, side) => () => {
