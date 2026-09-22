@@ -404,15 +404,16 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       <div style="position:absolute;inset:0;overflow-y:auto;background:var(--home-bg);animation:fade .3s ease">
         <!-- Zeitraum-Switch + Glocke: eigene sticky Leiste ausserhalb des normalen
              Scrollflusses, damit sie beim Runterscrollen der Positionenliste immer
-             sichtbar oben stehen bleibt statt mit dem Hero wegzuscrollen. Kein
-             hart abgeschnittener Flaechenhintergrund mehr, sondern eine geblurrte
-             Ebene, die per Masken-Verlauf schnell auf 0% Deckkraft ausblendet —
-             darunter durchscrollender Inhalt bleibt so als weicher Verlauf statt
-             als harte Kante sichtbar. Reicht ueber den eigentlichen Inhalt hinaus
-             (bottom:-28px), damit der Verlauf Platz zum Ausblenden hat. -->
-        <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
+             sichtbar oben stehen bleibt statt mit dem Hero wegzuscrollen. Unabhaengig
+             von dashReady/dashLoading sichtbar (Switch/Glocke haengen nicht an den
+             geladenen Depotdaten). Kein hart abgeschnittener Flaechenhintergrund,
+             sondern eine geblurrte Ebene, die per Masken-Verlauf auf 0% Deckkraft
+             ausblendet. Deckend bis exakt zur Unterkante des eigentlichen Inhalts
+             (calc(100% - 48px), 48px = die ueber bottom:-48px hinausragende Zone) —
+             sonst wuerde der Verlauf schon in den Buttons selbst anfangen und sie
+             unerwuenscht transparent wirken lassen. -->
         <div style="position:sticky;top:0;z-index:5">
-          <div style="position:absolute;inset:0;bottom:-28px;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 55%,transparent 85%);mask-image:linear-gradient(to bottom,#000 0%,#000 55%,transparent 85%)"></div>
+          <div style="position:absolute;inset:0;bottom:-48px;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 48px),transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 48px),transparent 100%)"></div>
           <div style="position:relative;padding:calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
             <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(16,19,26,.06);border:1px solid var(--gbtn-line);box-sizing:border-box">
               <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
@@ -427,7 +428,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </button>
           </div>
         </div>
-        </sc-if>
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
@@ -441,7 +441,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
         <div>
 
-        <div style="background:var(--brand);padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 30px">
+        <div style="background:var(--brand);padding:6px 20px 30px">
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:250px">
                 <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--onBrand-line);border-top-color:var(--onBrand);animation:spin .8s linear infinite;display:block"></span>
