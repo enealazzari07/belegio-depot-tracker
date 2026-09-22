@@ -2728,10 +2728,24 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
-    <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;bottom:92px;left:20px;right:20px;padding:14px 16px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);display:flex;align-items:center;gap:11px;animation:rise .3s ease;z-index:7">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 6L9 17l-5-5"></path></svg>
-        <span style="color:var(--tx);font-size:13px;font-weight:500">{{ toastMsg }}</span>
+    <!-- Toasts: gestapelt ueber der Tab-Bar, im Glas-Look der Glocke oben
+         rechts (var(--gbtn) + Blur statt einer flachen Flaeche). Jeder laesst
+         sich einzeln per horizontalem Wisch (folgt live dem Finger, faedet
+         beim Wegziehen aus) oder per X schliessen. -->
+    <sc-if value="{{ hasToasts }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:calc(env(safe-area-inset-bottom, 0px) + 76px);left:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:7;pointer-events:none">
+        <sc-for list="{{ toasts }}" as="ts" hint-placeholder-count="1">
+          <div onPointerDown="{{ ts.dragStart }}" onPointerMove="{{ ts.dragMove }}" onPointerUp="{{ ts.dragEnd }}" onPointerCancel="{{ ts.dragEnd }}" style="pointer-events:auto;touch-action:pan-y;padding:13px 12px 13px 16px;border-radius:16px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);display:flex;align-items:center;gap:11px;box-shadow:0 10px 26px -12px rgba(16,19,26,.35);animation:rise .3s ease;opacity:{{ ts.opacity }};{{ ts.style }}">
+            <sc-if value="{{ ts.isMarket }}" hint-placeholder-val="{{ false }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 17l5-5 3.5 3.5L21 5"></path><path d="M15 5h6v6"></path></svg>
+            </sc-if>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:{{ ts.isMarket ? 'none' : 'block' }}"><path d="M20 6L9 17l-5-5"></path></svg>
+            <span style="flex:1;min-width:0;color:var(--tx);font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ts.msg }}</span>
+            <button onClick="{{ ts.close }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--tx3)" style-hover="background:rgba(16,19,26,.06)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </sc-for>
       </div>
     </sc-if>
 
@@ -3163,7 +3177,7 @@ class Component extends DCLogic {
     // Kurs -> CHF. CHF selbst ist per Definition 1, alles andere kommt aus
     // Yahoo ("USDCHF=X"); fehlt ein Kurs, bleibt es bei 1:1.
     fxRates: { CHF: 1 },
-    toast: false, toastMsg: "", plan: "monthly", userPlan: "free", weeklyUploads: 0,
+    toasts: [], plan: "monthly", userPlan: "free", weeklyUploads: 0,
     quotes: {}, liveNews: null, conn: "idle", syncing: false,
     marketQuotes: null, marketHistory: null, moverQuotes: null, marketsLoading: false, marketsError: false,
     splash: false, dashLoading: true,
@@ -3858,9 +3872,8 @@ class Component extends DCLogic {
         currency: f.currency || "CHF",
       });
       await this.loadDividends();
-      this.setState({ divBusy: false, divSheetOpen: false, divForm: null, toast: true, toastMsg: "Dividende erfasst" });
-      clearTimeout(this.t2);
-      this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
+      this.setState({ divBusy: false, divSheetOpen: false, divForm: null });
+      this.pushToast("Dividende erfasst");
     } catch (e) {
       this.setState({ divBusy: false, divError: e.message || "Fehler beim Speichern." });
     }
@@ -3879,7 +3892,22 @@ class Component extends DCLogic {
   loadPriceAlerts = async () => {
     try {
       const db = await this.db();
-      this.setState({ priceAlerts: await db.listPriceAlerts() });
+      const fresh = await db.listPriceAlerts();
+      // Neu ausgeloeste Alarme seit dem letzten Laden per Toast melden ("was
+      // gerade am Markt passiert ist") — Vergleich gegen die vorher bekannten
+      // triggered_at-Zeitstempel, damit ein Alarm nur einmal gemeldet wird.
+      const prevTriggered = this._seenAlertTriggers || {};
+      const nextTriggered = {};
+      for (const a of fresh) {
+        if (!a.active && a.triggered_at) {
+          nextTriggered[a.id] = a.triggered_at;
+          if (prevTriggered[a.id] !== a.triggered_at && Object.keys(prevTriggered).length) {
+            this.pushToast(a.symbol + " hat den Zielkurs erreicht", { tone: "market" });
+          }
+        }
+      }
+      this._seenAlertTriggers = nextTriggered;
+      this.setState({ priceAlerts: fresh });
     } catch (e) { /* Ladefehler — Liste bleibt leer */ }
   };
 
@@ -3911,9 +3939,8 @@ class Component extends DCLogic {
       const db = await this.db();
       await db.insertPriceAlert({ symbol, name: f.name || symbol, direction: f.direction || "above", target_price: target });
       await this.loadPriceAlerts();
-      this.setState({ alertBusy: false, alertForm: null, alertSheetOpen: false, toast: true, toastMsg: "Kursalarm gesetzt" });
-      clearTimeout(this.t2);
-      this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
+      this.setState({ alertBusy: false, alertForm: null, alertSheetOpen: false });
+      this.pushToast("Kursalarm gesetzt");
     } catch (e) {
       this.setState({ alertBusy: false, alertError: e.message || "Fehler beim Speichern." });
     }
@@ -4008,6 +4035,41 @@ class Component extends DCLogic {
     if (this._sheetDrag) return;
     this.springSheetTo(window.innerHeight || 900, 0, fn);
   };
+
+  // ---------- Toasts (unten ueber der Tab-Bar) ----------
+  // Nur fuer Wichtiges: erfolgreiches Buchen/Scannen, gesetzte Kursalarme,
+  // ausgeloeste Kursalarme ("was am Markt passiert ist"). Mehrere stapeln
+  // sich, jede laesst sich einzeln per Wisch (horizontal) oder X schliessen;
+  // ohne Interaktion verschwinden sie nach ein paar Sekunden von selbst.
+  pushToast = (msg, opts = {}) => {
+    const id = Date.now() + Math.random();
+    this.setState(s => ({ toasts: [...(s.toasts || []), { id, msg, tone: opts.tone || "pos", dragX: 0 }] }));
+    this._toastTimers = this._toastTimers || {};
+    this._toastTimers[id] = setTimeout(() => this.dismissToast(id)(), opts.duration || 4200);
+  };
+  dismissToast = id => () => {
+    clearTimeout((this._toastTimers || {})[id]);
+    this.setState(s => ({ toasts: (s.toasts || []).filter(t => t.id !== id) }));
+  };
+  toastDragStart = id => e => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    this._toastDrag = { id, x0: e.clientX };
+  };
+  toastDragMove = e => {
+    const d = this._toastDrag;
+    if (!d) return;
+    const dx = e.clientX - d.x0;
+    this.setState(s => ({ toasts: (s.toasts || []).map(t => t.id === d.id ? { ...t, dragX: dx } : t) }));
+  };
+  toastDragEnd = () => {
+    const d = this._toastDrag;
+    if (!d) return;
+    this._toastDrag = null;
+    const t = (this.state.toasts || []).find(x => x.id === d.id);
+    if (t && Math.abs(t.dragX) > 90) { this.dismissToast(d.id)(); return; }
+    this.setState(s => ({ toasts: (s.toasts || []).map(t => t.id === d.id ? { ...t, dragX: 0 } : t) }));
+  };
+
   // Firmensitz-Fotos automatisch zu Einzelaktien holen (einmal je Titel, lokal gemerkt).
   loadHqImages = async () => {
     const seen = this.state.hqImages || {};
@@ -4846,9 +4908,11 @@ class Component extends DCLogic {
       if (holdings.length) this.sync();
       await this.loadReceipts();
       this.loadInsiderTrades(holdings);
-      this.setState({ screen: "dash", toast: true, toastMsg: symbol + (isSell ? " als Verkauf gebucht" : " ins Depot gebucht"), pendingFile: null, extracted: null });
-      clearTimeout(this.t2);
-      this.t2 = setTimeout(() => this.setState({ toast: false }), 2600);
+      const wasScanned = !!this.state.pendingFile;
+      this.setState({ screen: "dash", pendingFile: null, extracted: null });
+      this.pushToast(
+        wasScanned ? symbol + " erfolgreich eingescannt" : symbol + (isSell ? " als Verkauf gebucht" : " ins Depot gebucht")
+      );
     } catch (e) {
       console.error(e);
       this.setState({ confirmError: e.message || "Fehler beim Speichern." });
@@ -6155,7 +6219,16 @@ class Component extends DCLogic {
       isUpload: screen === "upload", isReview: screen === "review", isPro: screen === "pro",
       showTabs: screen !== "login" && screen !== "pro" && !this.state.splash,
       parsing: this.state.parsing, notParsing: !this.state.parsing,
-      toast: this.state.toast, toastMsg: this.state.toastMsg,
+      hasToasts: (this.state.toasts || []).length > 0,
+      toasts: (this.state.toasts || []).map(t => ({
+        id: t.id,
+        msg: t.msg,
+        isMarket: t.tone === "market",
+        opacity: Math.max(0, 1 - Math.abs(t.dragX) / 160).toFixed(2),
+        style: "transform:translateX(" + t.dragX + "px)" + (t.dragX ? ";transition:none" : ";transition:transform .25s cubic-bezier(.22,1,.36,1)"),
+        dragStart: this.toastDragStart(t.id), dragMove: this.toastDragMove, dragEnd: this.toastDragEnd,
+        close: this.dismissToast(t.id)
+      })),
       ocrError: this.state.ocrError, confirmError: this.state.confirmError,
 
       goDash: this.go("dash"), goUpload: this.go("upload"), goPro: this.go("pro"), openAbo: this.openAbo,
