@@ -575,7 +575,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </sc-if>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
                   <span class="mono" style="color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em">{{ d.value }}</span>
-                  <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gain }}</span>
+                  <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gainPct }}</span>
                 </div>
               </button>
             </sc-for>
@@ -1127,7 +1127,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </sc-if>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
                 <span class="mono" style="color:#fff;font-size:13.5px;font-weight:700;letter-spacing:-.01em">{{ d.value }}</span>
-                <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gain }}</span>
+                <span class="mono" style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.12);color:{{ d.colorDark }};font-size:11px;font-weight:700">{{ d.gainPct }}</span>
               </div>
             </button>
           </sc-for>
@@ -5878,6 +5878,7 @@ class Component extends DCLogic {
           symKey: sym,
           value: f2(v),
           gain: (d >= 0 ? "+" : "") + f2(d),
+          gainPct: (d >= 0 ? "+" : "") + (inv ? (d / inv * 100) : 0).toFixed(1) + " %",
           color: d >= 0 ? "var(--pos)" : "var(--neg)",
           share: w.toFixed(1) + " %",
           tone: d >= 0 ? "var(--acc2)" : "var(--neg)",
