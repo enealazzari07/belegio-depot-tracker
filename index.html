@@ -867,9 +867,14 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
         <sc-if value="{{ aiScoreHas }}" hint-placeholder-val="{{ false }}">
           <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:22px 20px 20px;margin-bottom:26px;position:relative;overflow:hidden">
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px">
-              <span style="color:var(--tx);font-size:19px;font-weight:700;letter-spacing:-.02em">KI Score</span>
-              <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px">
+              <div style="display:flex;align-items:baseline;gap:8px">
+                <span style="color:var(--tx);font-size:19px;font-weight:700;letter-spacing:-.02em">KI Score</span>
+                <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
+              </div>
+              <sc-if value="{{ aiScoreDone }}" hint-placeholder-val="{{ false }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
+              </sc-if>
             </div>
 
             <sc-if value="{{ aiScoreIdle }}" hint-placeholder-val="{{ false }}">
@@ -897,8 +902,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </sc-if>
 
             <sc-if value="{{ aiScoreDone }}" hint-placeholder-val="{{ false }}">
-              <div style="position:relative">
-                <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible;{{ geoWrapStyle }}">
+              <button onClick="{{ aiScoreOpen }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.85">
+                <div style="position:absolute;left:-10%;right:-10%;top:-10%;bottom:20%;background:radial-gradient(ellipse at 50% 25%,{{ aiScoreGlow }} 0%,transparent 70%);pointer-events:none"></div>
+                <svg viewBox="0 0 200 112" width="100%" style="position:relative;display:block;overflow:visible;{{ geoWrapStyle }}">
                   <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="8" stroke-linecap="round"></path>
                   <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="{{ aiScoreColor }}" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{ aiScoreArcLen }} {{ aiScoreArcLen }}" stroke-dashoffset="{{ aiScoreArcOffset }}"></path>
                 </svg>
@@ -910,27 +916,13 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                   <span style="color:{{ aiScoreColor }};font-size:14px;font-weight:700">{{ aiScoreLabel }}</span>
                 </div>
                 <sc-if value="{{ aiScoreLocked }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap" style-active="transform:translate(-50%,-50%) scale(.97)">
+                  <div style="position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
                     <span style="color:#fff;font-size:12px;font-weight:700">KI Score mit Pro</span>
                     <span style="padding:6px 12px;border-radius:999px;background:#fff;color:#1b1b1f;font-size:11px;font-weight:700">Freischalten</span>
-                  </button>
-                </sc-if>
-              </div>
-              <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);box-sizing:border-box;margin-top:14px;{{ geoWrapStyle }}">
-                <sc-for list="{{ aiScoreTabs }}" as="t" hint-placeholder-count="4">
-                  <button onClick="{{ t.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;border-radius:999px;background:{{ t.bg }};color:{{ t.tx }};font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ t.label }}</button>
-                </sc-for>
-              </div>
-              <sc-if value="{{ aiScoreActive }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;{{ geoWrapStyle }}">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                    <span style="color:var(--tx);font-size:13px;font-weight:700">{{ aiScoreActive.title }}</span>
-                    <span class="mono" style="flex:none;color:{{ aiScoreActive.scoreColor }};font-size:12px;font-weight:700">{{ aiScoreActive.score }} / 100</span>
                   </div>
-                  <span style="color:var(--tx3);font-size:13px;line-height:1.55;text-wrap:pretty">{{ aiScoreActive.desc }}</span>
-                </div>
-              </sc-if>
+                </sc-if>
+              </button>
             </sc-if>
           </div>
         </sc-if>
@@ -1488,6 +1480,41 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
         </div>
       </sc-if>
+    </sc-if>
+
+    <!-- KI-Score-Details: alle vier Teilwerte inkl. Begruendung auf einmal,
+         statt der frueheren Tab-Umschaltung direkt in der Karte. -->
+    <sc-if value="{{ aiScoreSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div data-scrim="1" onClick="{{ closeAiScoreSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:85%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 20px calc(20px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onPointerDown="{{ aiScoreSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
+          <span style="flex:1;color:var(--tx);font-size:17px;font-weight:700">KI Score</span>
+          <button onClick="{{ closeAiScoreSheet }}" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:var(--surf2);margin-bottom:22px">
+          <span class="mono" style="color:var(--tx);font-size:34px;font-weight:700;letter-spacing:-.02em;flex:none">{{ aiScoreTotal }}</span>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="color:{{ aiScoreColor }};font-size:14px;font-weight:700">{{ aiScoreLabel }}</span>
+            <span style="color:var(--tx3);font-size:11.5px">von 100 Punkten</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ aiScoreFactors }}" as="f" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:16px;border-bottom:1px solid var(--line)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <span style="color:var(--tx);font-size:14px;font-weight:700">{{ f.label }}</span>
+                <span class="mono" style="flex:none;color:{{ f.scoreColor }};font-size:12.5px;font-weight:700">{{ f.score }} / 100</span>
+              </div>
+              <span style="color:var(--tx2);font-size:12.5px;font-weight:600">{{ f.title }}</span>
+              <span style="color:var(--tx3);font-size:13px;line-height:1.55;text-wrap:pretty">{{ f.desc }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin:16px 0 0;color:var(--tx3);font-size:10.5px;line-height:1.5">Automatisch aus deinen Depot-Daten berechnet, keine Anlageberatung.</p>
+      </div>
     </sc-if>
 
     <!-- Dividende erfassen. Auf oberster Ebene, weil der Ausloeser sowohl auf
@@ -4150,12 +4177,11 @@ class Component extends DCLogic {
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
   setDepotTab = k => () => { this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
-  setAiScoreTab = k => () => this.setState({ aiScoreTab: k });
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
     if (this._aiScoreTimer) return;
-    this.setState({ aiScoreChecking: true, aiScoreStep: 0, aiScoreDone: false, aiScoreTab: null });
+    this.setState({ aiScoreChecking: true, aiScoreStep: 0, aiScoreDone: false });
     this._aiScoreTimer = setInterval(() => {
       const next = (this.state.aiScoreStep || 0) + 1;
       if (next >= AI_SCORE_STEPS.length) {
@@ -4174,6 +4200,9 @@ class Component extends DCLogic {
       }, 200);
     }, 700);
   };
+  openAiScoreSheet = () => this.setState({ aiScoreSheetOpen: true });
+  closeAiScoreSheet = () => this.setState({ aiScoreSheetOpen: false });
+  aiScoreOpen = () => (this.state.userPlan === "pro" ? this.openAiScoreSheet() : this.go("pro")());
   loadInsiderExtra = async () => {
     const have = this.state.insiderTrades || {};
     const need = divCandidates(this.state.holdings, this.state.etfHoldings).map(c => c.sym).filter(x => !(x in have) && !this._insTried?.[x]);
@@ -5754,10 +5783,10 @@ class Component extends DCLogic {
       const riskScore = riskyShare == null ? 68 : Math.max(0, Math.min(100, 100 - riskyShare * 100));
 
       const total = Math.round((divScore + conScore + perfScore + riskScore) / 4);
-      const bucket = total >= 80 ? { label: "Optimal", color: "var(--pos)" }
-        : total >= 60 ? { label: "Gut", color: "var(--pos)" }
-        : total >= 40 ? { label: "Okay", color: "var(--warn)" }
-        : { label: "Schwach", color: "var(--neg)" };
+      const bucket = total >= 80 ? { label: "Optimal", color: "var(--pos)", glow: "var(--pos-soft)" }
+        : total >= 60 ? { label: "Gut", color: "var(--pos)", glow: "var(--pos-soft)" }
+        : total >= 40 ? { label: "Okay", color: "var(--warn)", glow: "var(--warn-soft)" }
+        : { label: "Schwach", color: "var(--neg)", glow: "var(--neg-soft)" };
       const scoreColor = s => s >= 70 ? "var(--pos)" : s >= 45 ? "var(--warn)" : "var(--neg)";
 
       const factors = [
@@ -6720,15 +6749,14 @@ class Component extends DCLogic {
       aiScoreTotal: aiScoreData ? aiScoreData.total : 0,
       aiScoreLabel: aiScoreData ? aiScoreData.bucket.label : "",
       aiScoreColor: aiScoreData ? aiScoreData.bucket.color : "var(--tx3)",
+      aiScoreGlow: aiScoreData ? aiScoreData.bucket.glow : "transparent",
       aiScoreArcOffset: aiScoreData ? (AI_SCORE_ARC * (1 - aiScoreData.total / 100)).toFixed(1) : String(AI_SCORE_ARC.toFixed(1)),
       aiScoreArcLen: AI_SCORE_ARC.toFixed(1),
-      aiScoreTabs: aiScoreData ? aiScoreData.factors.map(f => ({
-        key: f.key, label: f.label,
-        bg: this.state.aiScoreTab === f.key ? "#1b1b1f" : "transparent",
-        tx: this.state.aiScoreTab === f.key ? "#fff" : "var(--tx2)",
-        go: this.setAiScoreTab(f.key)
-      })) : [],
-      aiScoreActive: aiScoreData && this.state.aiScoreTab ? (aiScoreData.factors.find(f => f.key === this.state.aiScoreTab) || null) : null,
+      aiScoreOpen: this.aiScoreOpen,
+      aiScoreSheetOpen: this.state.aiScoreSheetOpen,
+      closeAiScoreSheet: this.animClose(this.closeAiScoreSheet),
+      aiScoreSheetDragDown: this.sheetDragDown(this.closeAiScoreSheet),
+      aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
       geoHas, geoCallouts, geoRings, geoDots: worldDotsPath(),
       geoIsPro: proActive, geoLocked: !proActive,
       geoWrapStyle: proActive ? "" : "filter:blur(7px);opacity:.75;pointer-events:none",
