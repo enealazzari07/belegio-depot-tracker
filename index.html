@@ -880,7 +880,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <sc-if value="{{ aiScoreIdle }}" hint-placeholder-val="{{ false }}">
               <button onClick="{{ startAiScoreCheck }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.8">
                 <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible">
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="5" stroke-linecap="round"></path>
                 </svg>
                 <div style="position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:9px;padding:10px 18px 10px 12px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -14px rgba(16,19,26,.5);white-space:nowrap">
                   <span style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
@@ -892,7 +892,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <sc-if value="{{ aiScoreCheckingNow }}" hint-placeholder-val="{{ false }}">
               <div style="position:relative">
                 <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible">
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="5" stroke-linecap="round"></path>
                 </svg>
                 <div style="position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px">
                   <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:#1b1b1f;animation:spin .8s linear infinite;display:block"></span>
@@ -905,8 +905,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <button onClick="{{ aiScoreOpen }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.85">
                 <div style="position:absolute;left:-10%;right:-10%;top:-10%;bottom:20%;background:radial-gradient(ellipse at 50% 25%,{{ aiScoreGlow }} 0%,transparent 70%);pointer-events:none"></div>
                 <svg viewBox="0 0 200 112" width="100%" style="position:relative;display:block;overflow:visible;{{ geoWrapStyle }}">
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="8" stroke-linecap="round"></path>
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="{{ aiScoreColor }}" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{ aiScoreArcLen }} {{ aiScoreArcLen }}" stroke-dashoffset="{{ aiScoreArcOffset }}"></path>
+                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="5" stroke-linecap="round"></path>
+                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="{{ aiScoreColor }}" stroke-width="5" stroke-linecap="round" stroke-dasharray="{{ aiScoreArcLen }} {{ aiScoreArcLen }}" stroke-dashoffset="{{ aiScoreArcOffset }}"></path>
                 </svg>
                 <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;{{ geoWrapStyle }}">
                   <div style="display:flex;align-items:baseline;gap:4px">
