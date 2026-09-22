@@ -846,11 +846,13 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <sc-if value="{{ isDepot }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
-          </button>
-          <span style="flex:1;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Depot</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px">
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
+          <div style="display:inline-flex;gap:3px;height:38px;padding:3px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+            <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
+              <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 13px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+            </sc-for>
+          </div>
         </div>
 
 
@@ -884,12 +886,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"></path></svg></span>
             <span style="color:#fff;font-size:13px;font-weight:700">Zinseszins</span>
           </button>
-        </div>
-
-        <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;margin-bottom:18px">
-          <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-            <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 16px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
-          </sc-for>
         </div>
 
         <sc-if value="{{ depotAlloc }}" hint-placeholder-val="{{ false }}">
@@ -1596,10 +1592,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
-          </button>
+        <div style="display:flex;align-items:center;margin-bottom:20px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Beleg hinzufügen</span>
         </div>
 
@@ -1863,10 +1856,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;padding:0 20px;margin-bottom:16px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
-          </button>
+        <div style="display:flex;align-items:center;padding:0 20px;margin-bottom:16px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
         </div>
 
@@ -2032,10 +2022,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:14px;padding:0 20px;margin-bottom:16px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
-          </button>
+        <div style="display:flex;align-items:center;padding:0 20px;margin-bottom:16px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
         </div>
 
