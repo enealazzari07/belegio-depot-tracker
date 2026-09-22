@@ -230,16 +230,19 @@ input::placeholder{color:var(--tx3)}
 #home-cards::-webkit-scrollbar{display:none}
 @keyframes wIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .w-in{animation:wIn .5s cubic-bezier(.22,1,.36,1) both}
-.cd-panel{animation:cardIn .55s cubic-bezier(.32,.72,0,1) both,cdFadeIn .22s ease both;overflow-x:hidden;overflow-y:auto}
+.cd-panel{will-change:clip-path;animation:cardIn .55s cubic-bezier(.32,.72,0,1) both,cdFadeIn .22s ease both;overflow-x:hidden;overflow-y:auto}
 .cd-rise{animation:wIn .5s cubic-bezier(.22,1,.36,1) .12s backwards}
 .cd-rise2{animation:wIn .5s cubic-bezier(.22,1,.36,1) .3s backwards}
+/* clip-path statt top/right/bottom/left: die Flaeche liegt von Anfang an in
+   voller Groesse im DOM (kein Reflow der Charts/Listen bei jedem Frame),
+   nur der sichtbare Ausschnitt waechst/schrumpft (reines Compositing). */
 @keyframes cardIn{
-  from{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:var(--crad,30px)}
-  to{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
+  from{clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round var(--crad,30px))}
+  to{clip-path:inset(0 round 0)}
 }
 @keyframes cardOut{
-  from{top:0px;right:0px;bottom:0px;left:0px;border-radius:0px}
-  to{top:var(--ct);right:var(--cr);bottom:var(--cb);left:var(--cl);border-radius:var(--crad,30px)}
+  from{clip-path:inset(0 round 0)}
+  to{clip-path:inset(var(--ct) var(--cr) var(--cb) var(--cl) round var(--crad,30px))}
 }
 @keyframes cdFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes cdFadeOut{0%,55%{opacity:1}100%{opacity:0}}
@@ -254,24 +257,25 @@ input::placeholder{color:var(--tx3)}
 .ticker:active .ticker-track{animation-play-state:paused}
 @keyframes tickerMove{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 @media (prefers-reduced-motion: reduce){.ticker-track{animation:none!important}.ticker{overflow-x:auto}}
+.ai-panel,.zz-panel{will-change:clip-path}
 .ai-panel{animation:aiIn .52s cubic-bezier(.32,.72,0,1) both}
 @keyframes aiIn{
-  from{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
-  to{top:var(--at);right:17px;bottom:calc(62px + env(safe-area-inset-bottom, 0px));left:17px;border-radius:28px}
+  from{clip-path:var(--aclip0)}
+  to{clip-path:inset(0 round 28px)}
 }
 @keyframes aiCol{
-  from{top:var(--at);right:17px;bottom:calc(62px + env(safe-area-inset-bottom, 0px));left:17px;border-radius:28px}
-  to{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
+  from{clip-path:inset(0 round 28px)}
+  to{clip-path:var(--aclip0)}
 }
 @keyframes zzCol{
-  from{top:var(--at);right:17px;bottom:var(--zb);left:17px;border-radius:28px}
-  to{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
+  from{clip-path:inset(0 round 28px)}
+  to{clip-path:var(--aclip0)}
 }
 @keyframes panelTail{0%,78%{opacity:1}100%{opacity:0}}
 .zz-panel{animation:zzIn .52s cubic-bezier(.32,.72,0,1) both}
 @keyframes zzIn{
-  from{top:var(--at);right:var(--ar);bottom:var(--ab);left:var(--al);border-radius:31px}
-  to{top:var(--at);right:17px;bottom:var(--zb);left:17px;border-radius:28px}
+  from{clip-path:var(--aclip0)}
+  to{clip-path:inset(0 round 28px)}
 }
 @media (prefers-reduced-motion: reduce){.zz-panel{animation:none!important}}
 .ai-body{animation:wIn .45s cubic-bezier(.22,1,.36,1) .18s backwards}
@@ -2491,7 +2495,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <!-- KI-Analyse: schwarzes Fenster waechst vom Button aus nach rechts und unten. -->
     <sc-if value="{{ aiPanelOpen }}" hint-placeholder-val="{{ false }}">
-      <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
+      <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;top:var(--at);right:17px;bottom:calc(62px + env(safe-area-inset-bottom, 0px));left:17px;border-radius:28px;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
         <div style="position:absolute;left:0;right:0;top:0;padding:16px 17px 12px;display:flex;align-items:center;gap:10px">
           <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
           <span style="flex:1;color:#fff;font-size:13px;font-weight:700">KI-Analyse</span>
@@ -2529,7 +2533,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
     <!-- Zinseszins: schwarzes Fenster waechst vom Button aus nach links und unten. -->
     <sc-if value="{{ zzPanelOpen }}" hint-placeholder-val="{{ false }}">
-      <div id="zz-panel" class="zz-panel" style="{{ zzPanelVars }};position:absolute;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
+      <div id="zz-panel" class="zz-panel" style="{{ zzPanelVars }};position:absolute;top:var(--at);right:17px;bottom:var(--zb);left:17px;border-radius:28px;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
         <div style="position:absolute;right:0;top:0;width:var(--aw);box-sizing:border-box;padding:16px 17px 12px;display:flex;align-items:center;gap:10px">
           <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"></path></svg></span>
           <span style="flex:1;color:#fff;font-size:13px;font-weight:700">Zinseszins</span>
@@ -4688,15 +4692,23 @@ class Component extends DCLogic {
   // ---------- KI-Analyse ----------
   openAiSheet = () => this.setState({ aiSheetOpen: true });
   // Schwarzes Fenster waechst vom Button aus (nach rechts und unten); Icon/Titel bleiben an Ort und Stelle.
+  // Statt top/right/bottom/left (Layout-Reflow bei jedem Frame, ruckelt auf
+  // schwaecheren Geraeten) waechst das Panel per clip-path: liegt von Anfang an
+  // in voller Groesse im DOM, nur der sichtbare Ausschnitt wird animiert --
+  // reines Compositing/Paint, kein Reflow.
   openZzPanel = e => {
     const btn = e && e.currentTarget;
     const frame = document.querySelector("[data-theme] > div");
-    let v = "--at:120px;--ar:20px;--ab:600px;--al:20px;--aw:180px;--zb:200px";
+    let v = "--at:120px;--aw:180px;--zb:200px;--aclip0:inset(0 3px 400px 3px round 31px)";
     if (btn && frame) {
       const r = btn.getBoundingClientRect(), f = frame.getBoundingClientRect();
       const topPx = Math.round(r.top - f.top - 4);
+      const ar = Math.round(f.right - r.right - 3);
+      const ab = Math.round(f.bottom - r.bottom - 3);
+      const al = Math.round(r.left - f.left - 3);
       const zb = Math.max(70, Math.round(f.height - topPx - 462));
-      v = "--at:" + topPx + "px;--ar:" + Math.round(f.right - r.right - 3) + "px;--ab:" + Math.round(f.bottom - r.bottom - 3) + "px;--al:" + Math.round(r.left - f.left - 3) + "px;--aw:" + Math.round(r.width + 6) + "px;--zb:" + zb + "px";
+      const clip = "inset(0 " + (ar - 17) + "px " + (ab - zb) + "px " + (al - 17) + "px round 31px)";
+      v = "--at:" + topPx + "px;--aw:" + Math.round(r.width + 6) + "px;--zb:" + zb + "px;--aclip0:" + clip;
     }
     this._zzVars = v;
     this._zzClosing = false;
@@ -4715,10 +4727,15 @@ class Component extends DCLogic {
   openAiPanel = e => {
     const btn = e && e.currentTarget;
     const frame = document.querySelector("[data-theme] > div");
-    let v = "--at:120px;--ar:20px;--ab:600px;--al:20px";
+    let v = "--at:120px;--aclip0:inset(0 3px calc(600px - 62px - env(safe-area-inset-bottom, 0px)) 3px round 31px)";
     if (btn && frame) {
       const r = btn.getBoundingClientRect(), f = frame.getBoundingClientRect();
-      v = "--at:" + Math.round(r.top - f.top - 4) + "px;--ar:" + Math.round(f.right - r.right - 3) + "px;--ab:" + Math.round(f.bottom - r.bottom - 3) + "px;--al:" + Math.round(r.left - f.left - 3) + "px";
+      const topPx = Math.round(r.top - f.top - 4);
+      const ar = Math.round(f.right - r.right - 3);
+      const ab = Math.round(f.bottom - r.bottom - 3);
+      const al = Math.round(r.left - f.left - 3);
+      const clip = "inset(0 " + (ar - 17) + "px calc(" + ab + "px - 62px - env(safe-area-inset-bottom, 0px)) " + (al - 17) + "px round 31px)";
+      v = "--at:" + topPx + "px;--aclip0:" + clip;
     }
     this._aiVars = v;
     this._aiClosing = false;
@@ -6496,9 +6513,9 @@ class Component extends DCLogic {
           }))
         };
       })(),
-      aiPanelOpen: this.state.aiPanelOpen, aiPanelVars: this._aiVars || "--at:120px;--ar:20px;--ab:600px;--al:20px",
+      aiPanelOpen: this.state.aiPanelOpen, aiPanelVars: this._aiVars || "--at:120px;--aclip0:inset(0 3px calc(600px - 62px - env(safe-area-inset-bottom, 0px)) 3px round 31px)",
       openAiPanel: this.openAiPanel, closeAiPanel: this.closeAiPanel,
-      zzPanelOpen: this.state.zzPanelOpen, zzPanelVars: this._zzVars || "--at:120px;--ar:20px;--ab:600px;--al:20px;--aw:180px;--zb:200px",
+      zzPanelOpen: this.state.zzPanelOpen, zzPanelVars: this._zzVars || "--at:120px;--aw:180px;--zb:200px;--aclip0:inset(0 3px 400px 3px round 31px)",
       openZzPanel: this.openZzPanel, closeZzPanel: this.closeZzPanel,
       closeCardDetail: this.closeCardDetail, cdScroll: this.cdScroll, cdInnerScroll: this.cdInnerScroll,
       stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
