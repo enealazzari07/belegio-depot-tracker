@@ -70,6 +70,12 @@
      wirkt wie diffuser Dunst statt einer erkennbaren Kreisscheibe mit
      sichtbarer Kante. */
   --brand:#FFFFFF;
+  /* Grosser, weicher Schatten unter dem Hero (siehe .home-hero-card unten):
+     im Light Mode ist der Hero selbst weiss wie die Flaeche darunter, ein
+     Farbverlauf faellt hier komplett weg — nur ein sehr sanfter, breiter
+     Schatten zeigt "Karte liegt vorne". Bewusst niedrige Deckkraft, sonst
+     wirkt die Flaeche schmutzig-grau statt wie eine leicht schwebende Karte. */
+  --home-hero-shadow:0 -55px 75px 0px rgba(16,19,26,.12);
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
@@ -136,6 +142,10 @@
      Bewusst kein Muster/keine Textur, siehe Kommentar im Light Mode. */
   --brand:linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --brand-flat:#0D1220;
+  /* Dunkler/kraeftiger als im Light Mode: hier muss der Schatten den Sprung
+     von kraeftigem Blau auf fast-Schwarz weich ueberblenden, nicht nur eine
+     leichte Karten-Anhebung andeuten. */
+  --home-hero-shadow:0 -70px 90px 0px rgba(4,5,8,.6);
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
   --onBrand-line:rgba(255,255,255,.18); --onBrand-soft:rgba(255,255,255,.13);
@@ -489,8 +499,13 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              wirken statt als klare weisse Flaeche. Stattdessen jetzt ein
              Schatten mit negativem Y-Offset (schiebt den Schatten NACH OBEN
              in den Hero) — die Box liest sich dadurch als eigenstaendige,
-             nach vorne gehobene Karte statt als Farbverlauf-Fehler. -->
-        <div style="position:relative;margin:-26px 6px 0;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
+             nach vorne gehobene Karte statt als Farbverlauf-Fehler.
+             Grosser Blur, kein negativer Spread (--home-hero-shadow, siehe
+             :root/[data-theme="dark"]): der alte enge/eingezogene Schatten
+             hatte gegen den Rand hin eine erkennbare Kante statt weich
+             auszulaufen — jetzt blurrt er weit genug, um komplett zu
+             verblassen, bevor er den Bildschirmrand erreicht. -->
+        <div style="position:relative;margin:-26px 6px 0;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:var(--home-hero-shadow)">
         <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
              Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
              Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
