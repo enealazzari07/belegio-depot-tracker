@@ -409,11 +409,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              geladenen Depotdaten). Kein hart abgeschnittener Flaechenhintergrund,
              sondern eine geblurrte Ebene, die per Masken-Verlauf auf 0% Deckkraft
              ausblendet. Deckend bis exakt zur Unterkante des eigentlichen Inhalts
-             (calc(100% - 48px), 48px = die ueber bottom:-48px hinausragende Zone) —
-             sonst wuerde der Verlauf schon in den Buttons selbst anfangen und sie
-             unerwuenscht transparent wirken lassen. -->
+             (calc(100% - 14px), 14px = die ueber bottom:-14px hinausragende Zone) —
+             kurzer Verlauf, endet fast direkt unter dem Switch statt weit in den
+             darunterliegenden Inhalt hineinzulaufen. -->
         <div style="position:sticky;top:0;z-index:5">
-          <div style="position:absolute;inset:0;bottom:-48px;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 48px),transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 48px),transparent 100%)"></div>
+          <div style="position:absolute;inset:0;bottom:-14px;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 14px),transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 14px),transparent 100%)"></div>
           <div style="position:relative;padding:calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
             <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(16,19,26,.06);border:1px solid var(--gbtn-line);box-sizing:border-box">
               <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
