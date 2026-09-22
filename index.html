@@ -1847,7 +1847,14 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 16px) 0 128px;animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
+        <div style="display:flex;align-items:center;gap:14px;padding:0 20px;margin-bottom:16px">
+          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
+        </div>
+
         <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
           <div class="ticker" style="margin:0 0 16px">
             <div class="ticker-track" style="animation-duration:{{ tickerDuration }}">
@@ -1870,77 +1877,90 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
           </div>
         </sc-if>
-        <div style="padding:0 20px;margin-bottom:18px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
+
+        <!-- Suchleiste im News-Design: eine Pille mit Lupe + Eingabe, kein
+             separater Such-Button. Laeuft (anders als bei News) serverseitig,
+             deshalb debounced statt rein client-seitig gefiltert. -->
+        <div style="margin:0 20px 14px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input value="{{ marketSearchTerm }}" onInput="{{ onMarketSearchTerm }}" placeholder="Ticker oder Name suchen, z. B. Apple" style="all:unset;flex:1;min-width:0;color:var(--tx);font-size:14px">
+          <sc-if value="{{ marketSearchLoading }}" hint-placeholder-val="{{ false }}">
+            <span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block;flex:none"></span>
+          </sc-if>
         </div>
 
-        <div style="margin:0 20px 14px;display:flex;gap:4px;padding:3px;border-radius:12px;background:var(--surf2)">
+        <div style="display:flex;gap:8px;padding:0 20px 18px;overflow-x:auto;scrollbar-width:none">
           <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
-            <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;text-align:center;padding:8px 0;border-radius:9px;background:{{ mt.bg }};color:{{ mt.tx }};font-size:12.5px;font-weight:600">{{ mt.label }}</button>
+            <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};border:1px solid {{ mt.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
           </sc-for>
         </div>
 
-        <div style="padding:0 20px;display:flex;gap:8px;margin-bottom:14px">
-          <input value="{{ marketSearchTerm }}" onChange="{{ onMarketSearchTerm }}" placeholder="Ticker oder Name suchen, z. B. Apple" style="flex:1;min-width:0;height:44px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
-          <button onClick="{{ runMarketSearch }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 18px;height:44px;border-radius:12px;background:var(--acc);color:var(--accTx);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ marketSearchLabel }}</button>
-        </div>
-        <sc-if value="{{ marketSearchError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0 0 14px;padding:0 20px;color:var(--tx3);font-size:12.5px">{{ marketSearchError }}</p>
+        <!-- Suchmodus: ersetzt die Uebersicht (Indizes/Meistbewegt) komplett,
+             solange ein Suchbegriff steht — wie bei News, das gefilterte
+             Ergebnis statt der Ausgangsliste. -->
+        <sc-if value="{{ isMarketSearching }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ marketSearchError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">{{ marketSearchError }}</p>
+          </sc-if>
+          <sc-if value="{{ hasMarketSearchResults }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ marketSearchResults }}" as="r" hint-placeholder-count="4">
+                <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.99)">
+                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ r.logo }}</div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                    <span style="color:var(--tx);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+                    <span class="mono" style="color:var(--tx3);font-size:11.5px">{{ r.symbol }}</span>
+                  </div>
+                  <span style="color:var(--tx3);font-size:10.5px;font-weight:600;flex:none">{{ r.type }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
         </sc-if>
-        <sc-if value="{{ hasMarketSearchResults }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px">
-            <sc-for list="{{ marketSearchResults }}" as="r" hint-placeholder-count="4">
-              <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:var(--surf);box-shadow:var(--card-shadow)" style-hover="box-shadow:var(--hero-shadow)">
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                  <span style="color:var(--tx);font-size:13.5px;font-weight:600;font-family:'Roboto Mono',monospace">{{ r.symbol }}</span>
-                  <span style="color:var(--tx3);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+
+        <!-- Uebersichtsmodus: nur ohne aktive Suche. -->
+        <sc-if value="{{ isMarketBrowsing }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ marketsLoading }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;justify-content:center;height:120px">
+              <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ marketsError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">Marktdaten aktuell nicht verfügbar.</p>
+          </sc-if>
+
+          <sc-if value="{{ marketIndices.length }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 6px;margin-bottom:22px">
+              <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
+                <div style="flex:none;width:140px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);padding:14px">
+                  <span style="display:block;color:var(--tx2);font-size:11.5px;font-weight:600;margin-bottom:6px">{{ idx.label }}</span>
+                  <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'Roboto Mono',monospace;margin-bottom:2px">{{ idx.price }}</span>
+                  <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace;margin-bottom:8px">{{ idx.change }}</span>
+                  <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:30px;display:block">
+                    <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
                 </div>
-                <span style="color:var(--tx3);font-size:10.5px;font-weight:600;flex:none">{{ r.type }}</span>
-              </button>
-            </sc-for>
-          </div>
-        </sc-if>
+              </sc-for>
+            </div>
+          </sc-if>
 
-        <sc-if value="{{ marketsLoading }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;align-items:center;justify-content:center;height:120px">
-            <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--acc2);animation:spin .8s linear infinite;display:block"></span>
-          </div>
-        </sc-if>
-        <sc-if value="{{ marketsError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">Marktdaten aktuell nicht verfügbar.</p>
-        </sc-if>
-
-        <sc-if value="{{ marketIndices.length }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;gap:10px;overflow-x:auto;padding:0 20px 6px;margin-bottom:22px">
-            <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
-              <div style="flex:none;width:140px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);padding:14px">
-                <span style="display:block;color:var(--tx2);font-size:11.5px;font-weight:600;margin-bottom:6px">{{ idx.label }}</span>
-                <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'Roboto Mono',monospace;margin-bottom:2px">{{ idx.price }}</span>
-                <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'Roboto Mono',monospace;margin-bottom:8px">{{ idx.change }}</span>
-                <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:30px;display:block">
-                  <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </div>
-            </sc-for>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ marketMovers.length }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 20px 10px">
-            <span style="color:var(--tx3);font-size:10.5px;font-weight:600;letter-spacing:.14em">MEISTBEWEGT</span>
-          </div>
-          <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
-            <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
-              <div onClick="{{ m.open }}" style="cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow)" style-hover="box-shadow:var(--hero-shadow)">
-                <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ m.logo }}</div>
-                <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
-                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-                  <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'Roboto Mono',monospace">{{ m.price }}</span>
-                  <span style="color:{{ m.color }};font-size:11.5px;font-weight:600;font-family:'Roboto Mono',monospace">{{ m.change }}</span>
-                </div>
-              </div>
-            </sc-for>
-          </div>
+          <sc-if value="{{ marketMovers.length }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:0 20px 10px">
+              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Meistbewegt</span>
+            </div>
+            <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
+                <button onClick="{{ m.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left;width:100%" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.99)">
+                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Roboto Mono',monospace;flex:none">{{ m.logo }}</div>
+                  <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                    <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'Roboto Mono',monospace">{{ m.price }}</span>
+                    <span style="color:{{ m.color }};font-size:11.5px;font-weight:600;font-family:'Roboto Mono',monospace">{{ m.change }}</span>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
         </sc-if>
       </div>
     </sc-if>
@@ -3207,7 +3227,16 @@ class Component extends DCLogic {
 
   // ---------- Märkte-Suche & Aktien-Detail — läuft serverseitig nur über Yahoo
   // (unlimitiert), nie über die auf Schweizer Titel limitierte EODHD-Quelle. ----------
-  onMarketSearchTerm = e => this.setState({ marketSearchTerm: e.target.value });
+  // Live-Suche wie bei News: kein Such-Button, stattdessen debounced bei jedem
+  // Tastenanschlag (anders als News laeuft das hier serverseitig, deshalb
+  // debounced statt rein client-seitig gefiltert).
+  onMarketSearchTerm = e => {
+    const term = e.target.value;
+    this.setState({ marketSearchTerm: term });
+    clearTimeout(this._marketSearchTimer);
+    if (!term.trim()) { this.setState({ marketSearchResults: [], marketSearchError: "", marketSearchLoading: false }); return; }
+    this._marketSearchTimer = setTimeout(this.runMarketSearch, 350);
+  };
 
   runMarketSearch = async () => {
     const term = this.state.marketSearchTerm.trim();
@@ -6023,8 +6052,9 @@ class Component extends DCLogic {
       hasMarketStrip: marketIndexList.length > 0,
       marketTabs: MARKET_TABS.map(t => ({
         key: t.key, label: t.label,
-        bg: this.state.marketsFilter === t.key ? "var(--surf)" : "transparent",
-        tx: this.state.marketsFilter === t.key ? "var(--tx)" : "var(--tx3)",
+        bg: this.state.marketsFilter === t.key ? "#1b1b1f" : "var(--gbtn)",
+        tx: this.state.marketsFilter === t.key ? "#fff" : "var(--tx2)",
+        border: this.state.marketsFilter === t.key ? "#1b1b1f" : "var(--gbtn-line)",
         go: this.setMarketsFilter(t.key)
       })),
       marketMovers: this.state.moverQuotes ? (MARKET_MOVERS_BY_CAT[this.state.marketsFilter] || []).map(({ sym, name }) => {
@@ -6044,13 +6074,13 @@ class Component extends DCLogic {
       noMarkets: !this.state.marketsLoading && !this.state.marketsError && !this.state.marketQuotes,
 
       marketSearchTerm: this.state.marketSearchTerm, onMarketSearchTerm: this.onMarketSearchTerm,
-      runMarketSearch: this.runMarketSearch,
-      marketSearchLabel: this.state.marketSearchLoading ? "…" : "Suchen",
+      isMarketSearching: !!this.state.marketSearchTerm.trim(),
+      isMarketBrowsing: !this.state.marketSearchTerm.trim(),
       marketSearchLoading: this.state.marketSearchLoading,
-      marketSearchError: this.state.marketSearchError,
-      hasMarketSearchResults: this.state.marketSearchResults.length > 0,
+      marketSearchError: !this.state.marketSearchLoading ? this.state.marketSearchError : "",
+      hasMarketSearchResults: !this.state.marketSearchLoading && this.state.marketSearchResults.length > 0,
       marketSearchResults: this.state.marketSearchResults.map(r => ({
-        symbol: r.symbol, name: r.name || r.symbol, type: r.type || "",
+        symbol: r.symbol, logo: logoFor(r.symbol), name: r.name || r.symbol, type: r.type || "",
         open: this.openStockDetail(r.symbol, r.name)
       })),
 
