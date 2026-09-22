@@ -402,6 +402,26 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
            uebergehen. Ein abweichender Ton (frueher --surf3) zeichnet dort die
            Sheet-Kante nach, was hier unerwuenscht ist. -->
       <div style="position:absolute;inset:0;overflow-y:auto;background:var(--home-bg);animation:fade .3s ease">
+        <!-- Zeitraum-Switch + Glocke: eigene sticky Leiste ausserhalb des normalen
+             Scrollflusses, damit sie beim Runterscrollen der Positionenliste immer
+             sichtbar oben stehen bleibt statt mit dem Hero wegzuscrollen. Eigener
+             deckender Hintergrund (--brand-flat, derselbe Ton wie der Hero-Start),
+             sonst wuerde scrollender Inhalt durchscheinen. -->
+        <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
+        <div style="position:sticky;top:0;z-index:5;background:var(--brand-flat);padding:calc(env(safe-area-inset-top, 0px) + 12px) 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
+          <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(16,19,26,.06);border:1px solid var(--gbtn-line);box-sizing:border-box">
+            <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
+              <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ r.bg }};color:{{ r.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ r.label }}</button>
+            </sc-for>
+          </div>
+          <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <sc-if value="{{ notifBadge }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:1.5px solid var(--brand-flat);display:block"></span>
+            </sc-if>
+          </button>
+        </div>
+        </sc-if>
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
@@ -422,19 +442,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </div>
             </sc-if>
             <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px">
-              <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(16,19,26,.06);border:1px solid var(--gbtn-line);box-sizing:border-box">
-                <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
-                  <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ r.bg }};color:{{ r.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ r.label }}</button>
-                </sc-for>
-              </div>
-              <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                <sc-if value="{{ notifBadge }}" hint-placeholder-val="{{ false }}">
-                  <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:1.5px solid var(--brand-flat);display:block"></span>
-                </sc-if>
-              </button>
-            </div>
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:2px">
               <div style="display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:4px">
                 <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
@@ -3118,7 +3125,7 @@ const compoundProject = (start, monthly, ratePct, years) => {
 class Component extends DCLogic {
   state = {
     theme: "light", screen: "login", parsing: false,
-    holdings: [], receipts: [], txs: [], history: {}, chartRange: "M",
+    holdings: [], receipts: [], txs: [], history: {}, chartRange: "D",
     // Bottom-Sheets: vertikaler Drag-Offset ihres Griffs, 0 = Ruheposition.
     // Ein einzelnes Feld genuegt, weil immer nur ein Sheet gleichzeitig offen ist.
     sheetDragY: 0,
@@ -3496,7 +3503,7 @@ class Component extends DCLogic {
       this.checkNotificationSubscription();
     }
     this.setState({ dashLoading: false });
-    this.ensureHomeSeries(this.state.chartRange || "M");
+    this.ensureHomeSeries(this.state.chartRange || "D");
     this.loadHqImages();
   }
 
@@ -3667,7 +3674,7 @@ class Component extends DCLogic {
       this.loadPriceAlerts();
       this.startAutoSync();
       this.setState({ dashLoading: false });
-    this.ensureHomeSeries(this.state.chartRange || "M");
+    this.ensureHomeSeries(this.state.chartRange || "D");
     this.loadHqImages();
     } catch (e) {
       this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
@@ -5247,6 +5254,23 @@ class Component extends DCLogic {
       for (const p of arr) if (p.date <= d && (!best || p.date > best.date)) best = p;
       return best ? best.close : null;
     };
+    // Referenzdatum je Zeitraum: fuer MAX das aelteste vorhandene Kursdatum
+    // ueber alle sichtbaren Positionen (kein fixer Tagesabstand moeglich).
+    const rangeAgoDateFor = key => {
+      const days = RANGE_DAYS[key];
+      if (days === Infinity) {
+        let min = null;
+        for (const h of visibleHoldings) {
+          const arr = hist[h.sym || h.abbr];
+          if (arr && arr.length) {
+            const d0 = arr.reduce((m, p) => (p.date < m ? p.date : m), arr[0].date);
+            if (!min || d0 < min) min = d0;
+          }
+        }
+        return min;
+      }
+      return dstr(new Date(Date.now() - days * 864e5));
+    };
     let rangePct = null, rangeAbs = null, rangeUnavailable = false;
     if (this.state.chartRange === "D") {
       if (visVal) {
@@ -5257,22 +5281,33 @@ class Component extends DCLogic {
           return a + (h.cur - prevClose) * h.shares;
         }, 0);
       }
-    } else if (this.state.chartRange === "W") {
-      const weekAgoStr = dstr(new Date(Date.now() - 7 * 864e5));
-      let weekAgoValue = 0, missing = !visibleHoldings.length;
+    } else {
+      const refDate = rangeAgoDateFor(this.state.chartRange);
+      let refValue = 0, missing = !visibleHoldings.length || !refDate;
       for (const h of visibleHoldings) {
-        const p = priceOnOrBefore(h.sym || h.abbr, weekAgoStr);
+        const p = priceOnOrBefore(h.sym || h.abbr, refDate);
         if (p == null) { missing = true; continue; }
         // p ist ein Historien-Schluss in Landeswaehrung, visVal steht in CHF.
-        weekAgoValue += h.shares * p * h.fxRate;
+        refValue += h.shares * p * h.fxRate;
       }
-      if (!missing && weekAgoValue) {
-        rangePct = (visVal - weekAgoValue) / weekAgoValue * 100;
-        rangeAbs = visVal - weekAgoValue;
+      if (!missing && refValue) {
+        rangePct = (visVal - refValue) / refValue * 100;
+        rangeAbs = visVal - refValue;
       } else {
         rangeUnavailable = true;
       }
     }
+    // Prozentaenderung je Position ueber den gewaehlten Zeitraum (Home-Screen:
+    // Positionsliste, Karten-Stack). Bei "Tag" bleibt es die Live-Tagesbewegung
+    // (h.dp), sonst Vergleich mit dem letzten Kurs auf/vor dem Referenzdatum.
+    const rangeDpFor = h => {
+      const range = this.state.chartRange || "D";
+      if (range === "D") return typeof h.dp === "number" ? h.dp : null;
+      const refDate = rangeAgoDateFor(range);
+      if (!refDate) return null;
+      const refPrice = priceOnOrBefore(h.sym || h.abbr, refDate);
+      return refPrice ? (h.curNative - refPrice) / refPrice * 100 : null;
+    };
 
     // ---------- Mini-Kursverlauf je Position (Tag/Woche) ----------
     const todayStr = dstr(new Date());
@@ -6406,7 +6441,8 @@ class Component extends DCLogic {
           const sym = h.sym || h.abbr;
           const etf = isEtfSym(sym);
           const pal = PAL[hash(sym) % PAL.length];
-          const dp = typeof h.dp === "number" ? h.dp : null;
+          const isDaily = (this.state.chartRange || "D") === "D";
+          const dp = rangeDpFor(h);
           const st = isinLike(sym) ? "open" : marketStatus(sym);
           const v = h.shares * h.cur;
           const label = displayName(h) + " " + (h.name || "");
@@ -6422,7 +6458,7 @@ class Component extends DCLogic {
             sub: h.shares + " Stk. · Ø " + f2(h.buy),
             value: f2(v) + " CHF",
             since: h.buy ? ((h.cur / h.buy - 1) * 100 >= 0 ? "+" : "") + ((h.cur / h.buy - 1) * 100).toFixed(1) + " %" : "–",
-            day: dp == null ? "kein Kurs" : st === "weekend" ? "Geschlossen" : (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
+            day: dp == null ? "kein Kurs" : (isDaily && st === "weekend") ? "Geschlossen" : (dp >= 0 ? "+" : "") + dp.toFixed(1) + " %",
             photo, credit,
             noPhoto: !photo,
             bg: photo
@@ -6672,21 +6708,26 @@ class Component extends DCLogic {
       holdings: holdings.map(h => {
         const sym = h.sym || h.abbr;
         const noLive = isinLike(sym) && !h.live;
-        const d = typeof h.dp === "number" ? h.dp : 0;
+        const isDaily = (this.state.chartRange || "D") === "D";
+        const mStatus = isinLike(sym) ? "open" : marketStatus(sym);
+        // "Geschlossen"/leer nur bei Tag relevant — bei W/M/Y/Max zaehlt der
+        // Verlauf seit dem Referenzdatum, unabhaengig davon ob der Markt gerade offen ist.
+        const weekend = isDaily && mStatus === "weekend";
+        const rd = isDaily ? (typeof h.dp === "number" ? h.dp : null) : rangeDpFor(h);
+        const noData = isDaily ? noLive : rd == null;
+        const d = rd || 0;
         const changeAbsVal = h.shares * (h.cur - h.cur / (1 + d / 100));
         const spark = buildSparkline(hist[sym]);
-        const mStatus = isinLike(sym) ? "open" : marketStatus(sym);
-        const weekend = mStatus === "weekend";
         return {
           abbr: h.abbr, logo: logoFor(sym), name: displayName(h),
           sub: h.shares + " × " + f2(h.buy),
-          change: noLive ? "kein Kurs" : weekend ? "" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
-          changeAbs: noLive || weekend ? "" : (changeAbsVal >= 0 ? "+" : "") + f2(changeAbsVal) + " CHF",
-          colorDark: noLive ? "rgba(255,255,255,.6)" : d >= 0 ? "#7be3a5" : "#ff8c8c",
+          change: noData ? "kein Kurs" : weekend ? "" : (d >= 0 ? "+" : "") + d.toFixed(1) + " %",
+          changeAbs: noData || weekend ? "" : (changeAbsVal >= 0 ? "+" : "") + f2(changeAbsVal) + " CHF",
+          colorDark: noData ? "rgba(255,255,255,.6)" : d >= 0 ? "#7be3a5" : "#ff8c8c",
           value: f2(h.shares * h.cur),
           changeDisplay: weekend ? "none" : "inline-flex",
-          pillBg: noLive ? "var(--gbtn)" : d >= 0 ? "var(--pos-soft)" : "var(--neg-soft)",
-          color: noLive ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
+          pillBg: noData ? "var(--gbtn)" : d >= 0 ? "var(--pos-soft)" : "var(--neg-soft)",
+          color: noData ? "var(--tx3)" : d >= 0 ? "var(--pos)" : "var(--neg)",
           spark, hasSpark: !!spark,
           marketClosed: !noLive && mStatus !== "open",
           marketLabel: MARKET_STATUS_LABEL[mStatus] || "",
