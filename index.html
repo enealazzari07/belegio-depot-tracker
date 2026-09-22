@@ -415,7 +415,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <div style="position:sticky;top:0;z-index:5">
           <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%)"></div>
           <div style="position:relative;padding:calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
-            <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(16,19,26,.06);border:1px solid var(--gbtn-line);box-sizing:border-box">
+            <div style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
               <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
                 <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ r.bg }};color:{{ r.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ r.label }}</button>
               </sc-for>
