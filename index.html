@@ -795,45 +795,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
         </sc-if>
 
-        <sc-if value="{{ hasSignals }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 20px 20px">
-            <div class="card" style="padding:18px">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
-                <div style="width:30px;height:30px;border-radius:11px;background:var(--acc-soft);display:flex;align-items:center;justify-content:center;flex:none">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--acc2)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3.5 3.5L21 5"></path><path d="M15 5h6v6"></path></svg>
-                </div>
-                <span style="flex:1;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Signale</span>
-                <span class="chip" style="background:var(--acc-soft);color:var(--acc2)">PRO</span>
-              </div>
-              <p style="margin:0 0 15px;color:var(--tx3);font-size:11px;line-height:1.5">Aus deiner Kurshistorie berechnet — Trend, Momentum, Schwankung. Beschreibt die Lage, sagt keine Kurse voraus.</p>
-              <div style="display:flex;flex-direction:column;gap:11px" class="{{ signalsBlur }}">
-                <sc-for list="{{ signals }}" as="sg" hint-placeholder-count="3">
-                  <div style="border-radius:14px;background:var(--surf2);border:1px solid var(--line);padding:12px 13px">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                      <span class="mono" style="color:var(--tx);font-size:12px;font-weight:700">{{ sg.tick }}</span>
-                      <span class="chip" style="background:{{ sg.bg }};color:{{ sg.color }}">{{ sg.tag }}</span>
-                      <span style="flex:1"></span>
-                      <span class="mono" style="color:{{ sg.color }};font-size:11.5px;font-weight:700">{{ sg.headline }}</span>
-                    </div>
-                    <span style="display:block;color:var(--tx2);font-size:12px;line-height:1.5;text-wrap:pretty">{{ sg.body }}</span>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
-                      <sc-for list="{{ sg.metrics }}" as="mt" hint-placeholder-count="3">
-                        <span class="mono" style="color:var(--tx3);font-size:10px;font-weight:600;background:var(--surf);border:1px solid var(--line);padding:3px 7px;border-radius:7px;white-space:nowrap">{{ mt }}</span>
-                      </sc-for>
-                    </div>
-                  </div>
-                </sc-for>
-              </div>
-              <sc-if value="{{ signalsLocked }}" hint-placeholder-val="{{ false }}">
-                <button onClick="{{ openAbo }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:14px;width:100%;height:46px;border-radius:13px;background:var(--acc);color:var(--accTx);font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="opacity:.9">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
-                  Signale mit Pro freischalten
-                </button>
-              </sc-if>
-            </div>
-          </div>
-        </sc-if>
-
         <div style="padding:20px 20px 0">
           <div style="border-radius:26px;padding:16px 18px;background:var(--surf);box-shadow:var(--card-shadow);display:flex;flex-direction:column;gap:11px">
             <div style="display:flex;align-items:center;justify-content:space-between">
@@ -1010,6 +971,39 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </sc-if>
             </div>
             <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin-top:6px">Aus SEC-Form-4-Meldungen (nur US-Titel). Tippen für Einzelheiten. Keine Anlageberatung.</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasSignals }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:26px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+              <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Signale</span>
+              <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
+            </div>
+            <p style="margin:0 0 15px;color:var(--tx3);font-size:11px;line-height:1.5">Aus deiner Kurshistorie berechnet — Trend, Momentum, Schwankung. Beschreibt die Lage, sagt keine Kurse voraus.</p>
+            <div style="display:flex;flex-direction:column;gap:11px" class="{{ signalsBlur }}">
+              <sc-for list="{{ signals }}" as="sg" hint-placeholder-count="3">
+                <div style="border-radius:14px;background:var(--surf2);border:1px solid var(--line);padding:12px 13px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                    <span class="mono" style="color:var(--tx);font-size:12px;font-weight:700">{{ sg.tick }}</span>
+                    <span class="chip" style="background:{{ sg.bg }};color:{{ sg.color }}">{{ sg.tag }}</span>
+                    <span style="flex:1"></span>
+                    <span class="mono" style="color:{{ sg.color }};font-size:11.5px;font-weight:700">{{ sg.headline }}</span>
+                  </div>
+                  <span style="display:block;color:var(--tx2);font-size:12px;line-height:1.5;text-wrap:pretty">{{ sg.body }}</span>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+                    <sc-for list="{{ sg.metrics }}" as="mt" hint-placeholder-count="3">
+                      <span class="mono" style="color:var(--tx3);font-size:10px;font-weight:600;background:var(--surf);border:1px solid var(--line);padding:3px 7px;border-radius:7px;white-space:nowrap">{{ mt }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ signalsLocked }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ openAbo }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:14px;width:100%;height:46px;border-radius:13px;background:var(--acc);color:var(--accTx);font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="opacity:.9">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+                Signale mit Pro freischalten
+              </button>
+            </sc-if>
           </div>
         </sc-if>
 
