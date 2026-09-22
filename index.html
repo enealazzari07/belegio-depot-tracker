@@ -5870,8 +5870,9 @@ class Component extends DCLogic {
         const isDailyRange = (this.state.chartRange || "D") === "D";
         const noLive = isinLike(sym) && !h.live;
         const rangeWeekend = isDailyRange && dMarket === "weekend";
-        const rangeDp = isDailyRange ? (typeof h.dp === "number" ? h.dp : null) : rangeDpFor(h);
-        const noRangeData = isDailyRange ? noLive : rangeDp == null;
+        const rangeDpRaw = isDailyRange ? (typeof h.dp === "number" ? h.dp : null) : rangeDpFor(h);
+        const noRangeData = isDailyRange ? noLive : rangeDpRaw == null;
+        const rangeDp = rangeDpRaw || 0;
         const symInsider = this.state.insiderTrades[sym] || [];
         const insiderNew = this.state.insiderAlertsSeenAt
           ? symInsider.some(t => new Date(t.fetched_at) > new Date(this.state.insiderAlertsSeenAt)) : symInsider.length > 0;
