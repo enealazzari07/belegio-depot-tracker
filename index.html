@@ -881,9 +881,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </button>
         </div>
 
-        <div style="display:flex;gap:8px;margin-bottom:18px">
+        <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;margin-bottom:18px">
           <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-            <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:10px 18px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};border:1px solid {{ dt.border }};font-size:13px;font-weight:600;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background 200ms ease,color 200ms ease,transform 140ms ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+            <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 16px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
           </sc-for>
         </div>
 
@@ -1899,10 +1899,12 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </sc-if>
         </div>
 
-        <div style="display:flex;gap:8px;padding:0 20px 18px;overflow-x:auto;scrollbar-width:none">
-          <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
-            <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:9px 18px;border-radius:999px;font-size:13px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};border:1px solid {{ mt.border }};transition:background 200ms ease,color 200ms ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
-          </sc-for>
+        <div style="margin:0 20px 18px;overflow-x:auto;scrollbar-width:none">
+          <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+            <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
+              <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 16px;border-radius:999px;font-size:13px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
+            </sc-for>
+          </div>
         </div>
 
         <!-- Suchmodus: ersetzt die Uebersicht (Indizes/Meistbewegt) komplett,
@@ -6161,9 +6163,8 @@ class Component extends DCLogic {
       hasMarketStrip: marketIndexList.length > 0,
       marketTabs: MARKET_TABS.map(t => ({
         key: t.key, label: t.label,
-        bg: this.state.marketsFilter === t.key ? "#1b1b1f" : "var(--gbtn)",
+        bg: this.state.marketsFilter === t.key ? "#1b1b1f" : "transparent",
         tx: this.state.marketsFilter === t.key ? "#fff" : "var(--tx2)",
-        border: this.state.marketsFilter === t.key ? "#1b1b1f" : "var(--gbtn-line)",
         go: this.setMarketsFilter(t.key)
       })),
       marketMovers: this.state.moverQuotes ? (MARKET_MOVERS_BY_CAT[this.state.marketsFilter] || []).map(({ sym, name }) => {
@@ -6557,9 +6558,8 @@ class Component extends DCLogic {
       })(),
       depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
-        bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "var(--gbtn)",
-        tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)",
-        border: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "var(--gbtn-line)"
+        bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "transparent",
+        tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)"
       })),
       depotProLabel: proActive ? "Pro aktiv ✓" : "Pro",
       depotProBg: proActive ? "var(--gbtn)" : "#1b1b1f", depotProTx: proActive ? "var(--tx)" : "#fff",
