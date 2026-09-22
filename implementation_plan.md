@@ -1,4 +1,4 @@
-# Belegio — Modernisierung: Design-Fixes & neue Funktionen
+# Stox — Modernisierung: Design-Fixes & neue Funktionen
 
 Status: **Wartet auf Freigabe.** Erledigt ist bisher nur der Hintergrund-Wunsch
 (siehe „Bereits umgesetzt"). Alles darunter ist geplant, nicht gebaut.

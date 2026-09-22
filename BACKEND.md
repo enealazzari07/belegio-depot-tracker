@@ -1,4 +1,4 @@
-# Belegio — Backend
+# Stox — Backend
 
 Läuft auf Supabase (Projekt `rzbmtzxukqfdkcmfmugv`, eu-central-1). Kein eigener
 Server — Client (`index.html` + `db.js`/`market.js`/`ocr.js`) redet direkt mit

@@ -2,7 +2,7 @@
 // Depotstand-Benachrichtigung an, die die "push-daily" Supabase Edge Function
 // per Cron verschickt, und oeffnet beim Antippen die App.
 self.addEventListener("push", event => {
-  let data = { title: "Belegio", body: "Neuer Depotstand verfügbar.", url: "./" };
+  let data = { title: "Stox", body: "Neuer Depotstand verfügbar.", url: "./" };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch (e) {}
@@ -11,7 +11,7 @@ self.addEventListener("push", event => {
       body: data.body,
       icon: "./icon-192.png",
       badge: "./icon-192.png",
-      tag: "belegio-daily",
+      tag: "stox-daily",
       data: { url: data.url || "./" },
     })
   );
