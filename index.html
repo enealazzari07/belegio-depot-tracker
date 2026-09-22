@@ -5347,7 +5347,7 @@ class Component extends DCLogic {
     // ---------- Mini-Kursverlauf je Position (Tag/Woche) ----------
     const todayStr = dstr(new Date());
     const todaySamples = this.state.intradayDate === todayStr ? this.state.intraday : {};
-    const buildPositionChart = (sym, cur, range, dp, firstBuyDate) => {
+    const buildPositionChart = (sym, cur, range, dp, firstBuyDate, symTxsAsc) => {
       let pts;
       const ser = (this.state.posSeries || {})[sym + "|" + range];
       if ((range === "D" || range === "W" || range === "M") && ser && ser.points && ser.points.length >= 2) {
@@ -5411,8 +5411,23 @@ class Component extends DCLogic {
         if (range === "Y" || range === "MAX") opts.year = "numeric";
         return new Date(p.date).toLocaleDateString("de-CH", opts);
       };
+      // Bestand am jeweiligen Datum (reine Stueckzahl, kein Durchschnittspreis
+      // noetig) — der Wert-Verlauf (fuer die Detailansicht) springt damit bei
+      // jedem Nachkauf/Verkauf sichtbar, unabhaengig von der Kursbewegung. Die
+      // Prozentanzeige (pct oben) bleibt bewusst reine Kursbewegung und wird
+      // von diesen Spruengen nicht beruehrt.
+      const sharesAt = d => {
+        let sh = 0;
+        for (const t of (symTxsAsc || [])) {
+          if (t.date > d) break;
+          const qty = Number(t.shares) || 0;
+          sh += t.side === "sell" ? -qty : qty;
+        }
+        return Math.max(0, sh);
+      };
       const points = pts.map((p, i) => ({
-        date: p.date, t: p.t || Date.parse(p.date), close: p.close, label: labelFor(p, i), x: X(i), y: Y(p.close)
+        date: p.date, t: p.t || Date.parse(p.date), close: p.close, value: p.close * sharesAt(p.date),
+        label: labelFor(p, i), x: X(i), y: Y(p.close)
       }));
       return { path, pct, pos: pct >= 0, points, first };
     };
@@ -5440,7 +5455,10 @@ class Component extends DCLogic {
     const detailChart = (pc, range, scrubIdx) => {
       if (!pc || pc.points.length < 2) return null;
       const pts = pc.points, n = pts.length;
-      const vals = pts.map(q => q.close);
+      // Wert (Stueckzahl x Kurs zum jeweiligen Datum) statt reinem Kurs, damit
+      // Nachkaeufe/-verkaeufe als sichtbarer Sprung erscheinen. pc.pct (Prozent-
+      // Badge) bleibt davon unberuehrt, siehe buildPositionChart.
+      const vals = pts.map(q => q.value != null ? q.value : q.close);
       const mn = Math.min(...vals), mx = Math.max(...vals), span = (mx - mn) || 1;
       const W = 320, H = 170, top = 16, bot = 140;
       const X = i => i / (n - 1) * W, Y = v => bot - (v - mn) / span * (bot - top);
@@ -5751,10 +5769,11 @@ class Component extends DCLogic {
         const posChartRange = this.state.posChartRange || "D";
         const allSymTxs = (this.state.txs || []).filter(t => t.symbol === sym);
         const firstBuyDate = allSymTxs.length ? allSymTxs.reduce((m, t) => (t.date < m ? t.date : m), allSymTxs[0].date) : null;
+        const symTxsAsc = allSymTxs.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
         // Historien-/Intraday-Reihen sind in Landeswaehrung — der Positions-
         // Chart bleibt deshalb bewusst unkonvertiert bei curNative.
         const cdOn = this.state.cardDetailSym === sym;
-        const posChart = (showChart || cdOn) ? buildPositionChart(sym, h.curNative, posChartRange, h.dp, firstBuyDate) : null;
+        const posChart = (showChart || cdOn) ? buildPositionChart(sym, h.curNative, posChartRange, h.dp, firstBuyDate, symTxsAsc) : null;
         const cd = cdOn ? detailChart(posChart, posChartRange, this.state.posScrub && this.state.posScrub.sym === sym ? this.state.posScrub.idx : null) : null;
         posChartPoints[sym] = posChart ? posChart.points : null;
         const scrubP = posChart && this.state.posScrub && this.state.posScrub.sym === sym
@@ -5846,7 +5865,7 @@ class Component extends DCLogic {
           cdDotX: cd ? cd.dotX : "100%", cdDotY: cd ? cd.dotY : "50%",
           cdScrubX: cd ? cd.scrubX : "0",
           cdAxis: cd ? cd.axis : [],
-          cdMain: f2(h.shares * (scrubP ? scrubP.close : h.curNative)) + " " + (h.currency || ""),
+          cdMain: f2(scrubP ? scrubP.value : h.shares * h.curNative) + " " + (h.currency || ""),
           cdWhen: scrubP ? scrubP.label : (posChartRange === "D" ? "Heute" : posChartRange === "W" ? "Letzte Woche" : posChartRange === "M" ? "Letzter Monat" : posChartRange === "Y" ? "Letztes Jahr" : "Gesamter Verlauf"),
           cdRanges: chartRangeKeys.map(k => ({
             label: { D: "1T", W: "1W", M: "1M", Y: "1J", MAX: "Max" }[k],
