@@ -937,31 +937,29 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="flex:none;margin-top:4px;padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
             </div>
             <div style="position:relative">
-              <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:24px 20px 18px;{{ geoWrapStyle }}">
-                <!-- Duenner Ring mit runden Kappen, gleiche Strichstaerke/Optik
-                     wie der KI-Score-Bogen. Start oben, im Uhrzeigersinn. -->
-                <div style="position:relative;width:200px;max-width:72%;aspect-ratio:1/1;margin:0 auto 22px">
-                  <svg viewBox="0 0 200 200" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
-                    <g transform="rotate(-90 100 100)">
+              <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:20px 14px 18px;{{ geoWrapStyle }}">
+                <!-- Duenner Ring mit runden Kappen (wie der KI-Score-Bogen) und
+                     Beschriftungslinien zu den Positionen links/rechts. -->
+                <div style="position:relative;width:100%;aspect-ratio:340/200">
+                  <svg viewBox="0 0 340 200" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                    <g transform="rotate(-90 170 98)">
                       <sc-for list="{{ allocRing }}" as="sl" hint-placeholder-count="6">
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="{{ sl.color }}" stroke-width="7" stroke-linecap="{{ sl.cap }}" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
+                        <circle cx="170" cy="98" r="48" fill="none" stroke="{{ sl.color }}" stroke-width="6" stroke-linecap="{{ sl.cap }}" stroke-dasharray="{{ sl.dasharray }}" stroke-dashoffset="{{ sl.dashoffset }}"></circle>
                       </sc-for>
                     </g>
+                    <sc-for list="{{ allocCallouts }}" as="co" hint-placeholder-count="6">
+                      <path d="{{ co.path }}" fill="none" stroke="var(--tx3)" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity=".6" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="2.6" fill="{{ co.color }}" stroke="var(--surf)" stroke-width="1.5"></circle>
+                    </sc-for>
                   </svg>
-                  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:none">
-                    <span class="mono" style="color:var(--tx);font-size:40px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ posCountNum }}</span>
-                    <span style="color:var(--tx3);font-size:12px;font-weight:600">Titel im Depot</span>
+                  <div style="position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none">
+                    <span class="mono" style="color:var(--tx);font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ posCountNum }}</span>
+                    <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.12em">TITEL</span>
                   </div>
-                </div>
-                <div style="display:flex;flex-direction:column">
-                  <sc-for list="{{ allocLegend }}" as="lg" hint-placeholder-count="5">
-                    <div style="display:flex;align-items:center;gap:12px;min-width:0;padding:10px 0;border-top:{{ lg.border }}">
-                      <span style="width:10px;height:10px;border-radius:50%;background:{{ lg.color }};flex:none"></span>
-                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-                        <span style="color:var(--tx);font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lg.name }}</span>
-                        <span class="mono" style="color:var(--tx3);font-size:11px">{{ lg.value }}</span>
-                      </div>
-                      <span class="mono" style="flex:none;padding:4px 10px;border-radius:999px;background:var(--surf2);color:var(--tx);font-size:12px;font-weight:700">{{ lg.pct }}</span>
+                  <sc-for list="{{ allocCallouts }}" as="co" hint-placeholder-count="6">
+                    <div style="position:absolute;{{ co.posStyle }};display:flex;flex-direction:column;gap:2px;line-height:1.15;white-space:nowrap">
+                      <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.name }}</span>
+                      <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:700">{{ co.pct }}</span>
                     </div>
                   </sc-for>
                 </div>
@@ -5921,42 +5919,60 @@ class Component extends DCLogic {
       });
     }
 
-    // Gewichtung als duenner Ring im Stil des KI-Score-Bogens: pro Position
-    // ein Strich-Segment (stroke-dasharray) mit runden Kappen und kleiner
-    // Luecke dazwischen. Sehr kleine Anteile schrumpfen auf Laenge 0 und
-    // erscheinen dank runder Kappe als Punkt statt ganz zu verschwinden.
-    // Die Beschriftung steht darunter als Legende statt als Callouts.
-    const allocRing = [], allocLegend = [];
+    // Gewichtung als duenner Ring im Stil des KI-Score-Bogens (Strich-Segmente
+    // mit runden Kappen und kleiner Luecke), mit Beschriftungslinien, die von
+    // jedem Segment nach links/rechts zu Name + Anteil fuehren. Sehr kleine
+    // Anteile schrumpfen auf Laenge 0 und bleiben dank runder Kappe als Punkt
+    // sichtbar.
+    const allocRing = [], allocCallouts = [];
     if (visibleHoldings.length && visVal) {
-      const R = 80, CIRC = 2 * Math.PI * R, SW = 7;
-      // Kappen ragen je SW/2 ueber das Segmentende hinaus — Luecke also
-      // um SW groesser als der sichtbare Abstand (~4).
-      const GAP = SW + 4;
+      const cx = 170, cy = 98, R = 48, CIRC = 2 * Math.PI * R, SW = 6;
+      // Kappen ragen je SW/2 ueber das Segmentende hinaus — Luecke also um SW
+      // groesser als der sichtbare Abstand (~3.5).
+      const GAP = SW + 3.5;
       const PAL = ["#1b1b1f", "#5B5BD6", "#2AA6B5", "#F6546A", "#F2A03D", "#43CEA2", "#9C7BFF"];
       const sorted2 = visibleHoldings.map(h => ({ h, v: h.shares * h.cur })).sort((a, b) => b.v - a.v);
       const items = sorted2.slice(0, 7).map((x, i) => ({ v: x.v, color: PAL[i % 7], label: displayName(x.h) }));
       const otherV2 = sorted2.slice(7).reduce((a, x) => a + x.v, 0);
-      if (otherV2 > 0.0001) items.push({ v: otherV2, color: "#C9CDD6", label: "Sonstige (" + (sorted2.length - 7) + ")" });
+      if (otherV2 > 0.0001) items.push({ v: otherV2, color: "#C9CDD6", label: "Sonstige" });
+      const single = items.length === 1;
       let acc = 0;
+      const raw = [];
       items.forEach(it => {
         const frac = it.v / visVal;
-        const single = items.length === 1;
         const len = single ? CIRC : Math.max(0, frac * CIRC - GAP);
         allocRing.push({
           color: it.color,
           dasharray: len.toFixed(2) + " " + (CIRC - len + 0.01).toFixed(2),
-          // Start oben (12 Uhr), im Uhrzeigersinn; halbe Luecke Versatz,
-          // damit die Luecken symmetrisch zwischen den Segmenten sitzen.
+          // Start oben (12 Uhr), im Uhrzeigersinn (Kreis ist um -90° gedreht).
           dashoffset: (-(acc * CIRC + (single ? 0 : GAP / 2))).toFixed(2),
           cap: single ? "butt" : "round"
         });
-        allocLegend.push({
-          color: it.color, name: it.label,
-          pct: (frac * 100).toFixed(1) + "%",
-          value: f2(it.v) + " CHF",
-          border: allocLegend.length ? "1px solid var(--line)" : "none"
-        });
+        raw.push({ it, frac, mid: (acc + frac / 2) * 2 * Math.PI });
         acc += frac;
+      });
+      [1, -1].forEach(side => {
+        const arr = raw.filter(r => (Math.sin(r.mid) >= 0 ? 1 : -1) === side)
+          .map(r => ({ ...r, y0: cy - (R + 22) * Math.cos(r.mid) }))
+          .sort((a, b) => a.y0 - b.y0);
+        let last = -1e9;
+        arr.forEach(r => { r.y = Math.max(r.y0, last + 36); last = r.y; });
+        for (let i = arr.length - 1; i >= 0; i--) { const maxY = 186 - (arr.length - 1 - i) * 36; if (arr[i].y > maxY) arr[i].y = maxY; }
+        arr.forEach(r => {
+          const sn = Math.sin(r.mid), cs = Math.cos(r.mid);
+          const p1x = cx + (R + 9) * sn, p1y = cy - (R + 9) * cs;
+          const xe = cx + side * 82;
+          const nm = r.it.label.length > 12 ? r.it.label.slice(0, 11).trim() + "…" : r.it.label;
+          allocCallouts.push({
+            color: r.it.color,
+            dotX: p1x.toFixed(1), dotY: p1y.toFixed(1),
+            path: "M" + p1x.toFixed(1) + " " + p1y.toFixed(1) + " L" + (cx + side * 68).toFixed(1) + " " + r.y.toFixed(1) + " L" + xe.toFixed(1) + " " + r.y.toFixed(1),
+            posStyle: side === 1
+              ? "left:" + ((xe + 6) / 340 * 100).toFixed(2) + "%;top:" + ((r.y - 15) / 200 * 100).toFixed(2) + "%;text-align:left"
+              : "right:" + ((340 - (xe - 6)) / 340 * 100).toFixed(2) + "%;top:" + ((r.y - 15) / 200 * 100).toFixed(2) + "%;text-align:right",
+            name: nm, pct: (r.frac * 100).toFixed(1) + "%"
+          });
+        });
       });
     }
 
@@ -6664,7 +6680,7 @@ class Component extends DCLogic {
       hasAllocation: allocationSlices.length > 0,
       allocationSlices,
       allocationLegend,
-      allocRing, allocLegend,
+      allocRing, allocCallouts,
       depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc",
       ...(() => {
         const cut = Date.now() - 90 * 864e5, it = this.state.insiderTrades || {};
