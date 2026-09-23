@@ -1,79 +1,45 @@
-// Beleg-Erkennung: Bild client-seitig auf <200KB komprimieren, dann Text via
-// Edge Function (API-Ninjas Image-to-Text) lesen und Felder heraus-parsen.
-import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "./db.js";
+// Beleg-Erkennung: laeuft komplett lokal im Browser ueber Tesseract.js (WASM) --
+// kein Bild, kein Text verlaesst das Geraet, kein externer Dienst/API-Key noetig.
+import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 
-const MAX_BYTES = 195 * 1024;
+const MAX_DIM = 2500;
 
-// Graustufen + Kontrastspreizung: Dezimalpunkte und Kommas gehen bei starker
-// Verkleinerung/JPEG-Kompression sonst verloren (aus "2.565" wird "2565").
-// Graustufen-JPEGs sind deutlich kleiner, dadurch bleibt mehr Aufloesung
-// innerhalb der 200-KB-Grenze des OCR-Dienstes.
-function renderPrepared(bitmap, scale) {
-  const w = Math.max(1, Math.round(bitmap.width * scale));
-  const h = Math.max(1, Math.round(bitmap.height * scale));
+// Nur verkleinern, wenn das Foto sehr gross ist (Speicher/Tempo auf Mobilgeraeten) --
+// Tesseract kommt mit dem Originalbild (Farbe, keine Kontrast-Tricks) gut zurecht.
+async function prepareImage(file) {
+  const bitmap = await createImageBitmap(file);
+  if (Math.max(bitmap.width, bitmap.height) <= MAX_DIM) return file;
+  const scale = MAX_DIM / Math.max(bitmap.width, bitmap.height);
+  const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, w, h);
-  ctx.drawImage(bitmap, 0, 0, w, h);
-  const img = ctx.getImageData(0, 0, w, h);
-  const d = img.data;
-  const hist = new Uint32Array(256);
-  for (let i = 0; i < d.length; i += 4) {
-    const g = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
-    d[i] = g;
-    hist[g]++;
-  }
-  const total = w * h;
-  let acc = 0, lo = 0, hi = 255;
-  for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= total * 0.01) { lo = v; break; } }
-  acc = 0;
-  for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= total * 0.2) { hi = v; break; } }
-  if (hi - lo < 40) { lo = 0; hi = 255; }
-  const k = 255 / (hi - lo);
-  for (let i = 0; i < d.length; i += 4) {
-    const v = Math.max(0, Math.min(255, (d[i] - lo) * k)) | 0;
-    d[i] = d[i + 1] = d[i + 2] = v;
-  }
-  ctx.putImageData(img, 0, 0);
-  return canvas;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+  const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.92));
+  return blob || file;
 }
 
-async function compressImage(file) {
-  const bitmap = await createImageBitmap(file);
-  let scale = Math.min(1, 2200 / Math.max(bitmap.width, bitmap.height));
-  let quality = 0.88;
-  let last = null;
-  for (let i = 0; i < 14; i++) {
-    const canvas = renderPrepared(bitmap, scale);
-    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", quality));
-    if (!blob) continue;
-    last = blob;
-    if (blob.size <= MAX_BYTES) return blob;
-    if (quality > 0.6) quality -= 0.1;
-    else { scale *= 0.88; quality = 0.8; }
+// Worker + Sprachmodell bleiben nach dem ersten Scan im Speicher (Ladezeit
+// von ein paar Sekunden faellt dann nur beim allerersten Beleg an).
+let workerPromise = null;
+function getWorker() {
+  if (!workerPromise) {
+    workerPromise = Tesseract.createWorker("deu", 1, {
+      workerPath: new URL("./vendor/tesseract/worker.min.js", import.meta.url).href,
+      corePath: new URL("./vendor/tesseract/tesseract-core-simd-lstm.wasm.js", import.meta.url).href,
+      langPath: new URL("./vendor/tesseract/lang-data", import.meta.url).href,
+      gzip: true,
+      logger: () => {},
+    });
   }
-  return last || file;
+  return workerPromise;
 }
 
 export async function scanReceipt(file) {
-  const blob = await compressImage(file);
-  const { data: sessionData } = await supabase.auth.getSession();
-  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
-  const form = new FormData();
-  form.append("image", blob, "receipt.jpg");
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/ocr`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
-    body: form,
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error || "ocr-error");
-  const text = body.text || "";
+  const blob = await prepareImage(file);
+  const worker = await getWorker();
+  const { data } = await worker.recognize(blob);
+  const text = data.text || "";
   return { text, fields: parseFields(text) };
 }
 
@@ -127,7 +93,7 @@ function valueForLabel(lines, labelRe, { last = false, skipRe = null } = {}) {
   return null;
 }
 
-const FEE_LABEL = /(Kommission|Courtage|Brokerage|Geb(?:ü|ue)hr(?:en)?|B(?:ö|oe)rsengeb(?:ü|ue)hr(?:en)?|Fremdspesen|Spesen|Stempel(?:abgabe|steuer)?|Umsatzabgabe|Abgabe|Transaktionssteuer|Handelsplatzgeb(?:ü|ue)hr|Fees?|Commission|Charges)/i;
+const FEE_LABEL = /(Kommission|Courtage|Brokerage|Geb(?:ü|ue)hr(?:en)?|B(?:ö|oe)rsengeb(?:ü|ue)hr(?:en)?|Fremdspesen|Spesen|Stempel(?:abgabe|steuer)?|Umsatzabgabe|Abgabe(?:n)?|Transaktionssteuer|Handelsplatzgeb(?:ü|ue)hr|Steuer(?:n)?|Fees?|Commission|Charges)/i;
 const FEE_TOTAL = /(?:Total|Gesamt|Summe)\s*(?:der\s*)?(?:Geb(?:ü|ue)hr|Spesen|Kosten|Fees|Abgaben)/i;
 const NOT_A_TOTAL = /(?:Total|Gesamt|Summe)\s*(?:der\s*)?(?:Geb(?:ü|ue)hr|Spesen|Kosten|Fees|Abgaben)|Konto|IBAN|Kunde|Referenz|Valuta|belastet\s*auf|Telefon|Tel\.|Customer|Fax|MwSt|CHE-/i;
 const FEE_SKIP = /(Verrechnungssteuer|Quellensteuer|Kurswert|Gesamtbetrag|Nettobetrag|Endbetrag|Kurs\b)/i;
@@ -251,9 +217,16 @@ function reconcileNumbers(n) {
   if (!shares || !price || !gross) return n;
   const ok = (a, b, c) => Math.abs(a * b - c) <= Math.max(0.02, c * 0.006);
   if (ok(shares, price, gross)) return n;
+  const allInt = Number.isInteger(shares) && Number.isInteger(price) && Number.isInteger(gross);
+  // Der Betrag kann zufaellig glatt sein (z. B. 22.00) und dabei bereits
+  // stimmen, waehrend nur Stueck/Kurs (ueblich 3 Nachkommastellen) den Punkt
+  // verloren haben. Das zuerst mit der ueblichen Annahme pruefen, bevor der
+  // an sich schon korrekte Betrag unten faelschlich mitskaliert wird.
+  if (allInt && ok(shares * 0.001, price * 0.001, gross)) {
+    return { ...n, shares: shares * 0.001, price: price * 0.001 };
+  }
   // Sind alle drei Werte ganze Zahlen, sind ueberall die Punkte verloren:
   // Betrag hat dann 2 Nachkommastellen, Stueck/Kurs meist 3.
-  const allInt = Number.isInteger(shares) && Number.isInteger(price) && Number.isInteger(gross);
   const F = allInt ? [0.001, 0.01, 0.1, 1, 0.0001] : [1, 0.1, 0.01, 0.001, 0.0001];
   const G = allInt ? [0.01] : [1, 0.1, 0.01];
   let best = null;
@@ -319,7 +292,9 @@ function parseFields(rawText) {
 
   const U = "(?:ü|ue|u)";
   let shares = valueForLabel(lines, new RegExp(`(?:St${U}ck(?:zahl)?|Stk\\.?|Anzahl|Quantity|Qty\\.?|Units?|Shares|Menge|Nominal)[:\\s]*`, "i"));
-  let price = valueForLabel(lines, new RegExp(`(?:Ausf(?:ü|ue)hrungskurs|Ausf(?:ü|ue)hrungspreis|Trade\\s*Price|Execution\\s*Price|Unit\\s*Price|Einzelkurs|Kurs(?:\\s*pro\\s*St${U}ck)?|Preis|Price|Rate)[:\\s]*`, "i"), { skipRe: /Kurswert/i });
+  // \b vor Kurs/Preis: sonst matcht das Label innerhalb von "Wechselkurs" oder
+  // "Kaufpreis" (Gesamtbetrag) und liefert den falschen Wert als Stueckkurs.
+  let price = valueForLabel(lines, new RegExp(`(?:Ausf(?:ü|ue)hrungskurs|Ausf(?:ü|ue)hrungspreis|Trade\\s*Price|Execution\\s*Price|Unit\\s*Price|Einzelkurs|St${U}ckpreis|\\bKurs(?:\\s*(?:pro|je)\\s*(?:St${U}ck|Aktie|Titel))?\\b|\\bPreis(?:\\s*(?:pro|je)\\s*(?:St${U}ck|Aktie|Titel))?\\b|\\bPrice\\b|\\bRate\\b)[:\\s]*`, "i"), { skipRe: /Kurswert|Wechselkurs/i });
   let gross = null;
   // Tabellenbelege (z. B. Yuh): Kopfzeile "Anzahl | Preis | Betrag", darunter
   // die Werte in derselben Reihenfolge — Label-Suche wuerde beim "Preis" die
@@ -329,6 +304,10 @@ function parseFields(rawText) {
     const vals = [];
     for (let i = tHead + 1; i < Math.min(lines.length, tHead + 5) && vals.length < 3; i++) vals.push(...amountsIn(lines[i]));
     if (vals.length >= 3) { shares = vals[0]; price = vals[1]; gross = vals[2]; }
+    // Betrag-Spalte von der OCR nicht gelesen (nur "CHF" ohne Zahl dahinter):
+    // Anzahl/Preis trotzdem uebernehmen, Betrag ergibt sich weiter unten aus
+    // Anzahl x Preis.
+    else if (vals.length === 2) { shares = vals[0]; price = vals[1]; }
   }
   {
     const okRow = (a, b, c) => a && b && c && Math.abs(a * b - c) <= Math.max(0.02, c * 0.006);
