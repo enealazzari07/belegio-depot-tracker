@@ -830,21 +830,25 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              Glas-Variante, da dort kein Bild dahinterliegt. -->
         <div style="position:sticky;top:0;height:0;z-index:20">
           <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
-            <div id="depot-head-img" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px;opacity:1">
-              <span style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none;text-shadow:0 1px 10px rgba(0,0,0,.25)">Depot</span>
+            <div id="depot-head-img" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px;opacity:1">
+              <button onClick="{{ goSettings }}" title="Account" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);display:flex;align-items:center;justify-content:center;flex:none;color:#fff" style-active="transform:scale(.92)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
+              </button>
               <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
                 <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
                   <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.txImg }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
                 </sc-for>
               </div>
             </div>
-            <div id="depot-head-scrolled" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px;opacity:0">
+            <div id="depot-head-scrolled" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px;opacity:0">
               <!-- Sobald der weisse Positionen-Block unter die Leiste taucht,
                    friert sie auf dieser Variante ein: einfacher deckender
                    Hintergrund im selben Weiss wie der Block dahinter, kein
                    Blur mehr noetig, weil die Farbe ohnehin exakt passt. -->
               <div style="position:absolute;inset:0;pointer-events:none;background:var(--home-bg)"></div>
-              <span style="position:relative;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
+              <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="position:relative;all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
+              </button>
               <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
                 <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
                   <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
@@ -853,9 +857,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
           </sc-if>
           <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px">
               <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--glass);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
-              <span style="position:relative;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
+              <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="position:relative;all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
+              </button>
               <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
                 <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
                   <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
