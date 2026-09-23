@@ -6879,7 +6879,7 @@ class Component extends DCLogic {
           const label = displayName(h) + " " + (h.name || "");
           const hq = (this.state.hqImages || {})[sym] || null;
           const photo = /invesco|ivz/i.test(label) ? "img/invesco.webp" : /emerging|xtrackers|xtr\b|dws/i.test(label) ? "img/emerging.webp" : (hq && hq.url) || (etf ? "" : "img/depot.webp");
-          const credit = hq && hq.url && !/invesco|ivz|emerging|xtrackers|dws/i.test(label) ? "Foto: " + hq.credit + " · " + hq.license + " · Wikimedia Commons" + (hq.kind === "city" && hq.city ? " (" + hq.city + ")" : "") : "";
+          const credit = hq && hq.url && !/invesco|ivz|emerging|xtrackers|dws/i.test(label) ? "Foto: " + hq.credit + " · " + hq.license + " · Wikimedia Commons" + (hq.kind === "city" && hq.city ? " (" + hq.city + ")" : hq.kind === "sector" && hq.sector ? " (Branche: " + hq.sector + ")" : "") : "";
           return {
             etf,
             sym,

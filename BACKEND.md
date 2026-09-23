@@ -250,6 +250,23 @@ Stückzahl/Kurs/Betrag/Währung. Wird nur eine ISIN gefunden (kein Ticker), vers
 ISIN-Suche unterstützt (bei Alpha Vantage in der Praxis selten). Alle Felder
 sind im Prüf-Screen editierbar, bevor die `transactions`-Zeile entsteht.
 
+## Positionsfotos (`hqimg`-Function)
+
+Foto je Einzelaktie (keine ETFs) fürs Karten-Hero, ausschliesslich von
+Wikimedia Commons und nur mit frei nutzbaren Lizenzen (CC0, Public Domain,
+CC BY — kein BY-SA/NC/ND), inkl. Namensnennung. Dreistufige Kette, jede
+Stufe fällt auf die nächste zurück, wenn nichts Passendes gefunden wird:
+1. Foto vom Firmensitz (Gebäude/Campus/Tower).
+2. Foto der Sitz-Stadt (Skyline), ermittelt über die Firma auf Wikidata
+   (Property P159).
+3. Generisches Branchenfoto (z. B. "pharmaceutical industry", "banking"),
+   ermittelt über die Branche der Firma auf Wikidata (Property P452) — kein
+   Bezug zur konkreten Firma, nur zur Wirtschaftsbranche.
+Ergebnis pro Symbol trägt `kind` ("hq"/"city"/"sector") plus die jeweilige
+Zusatzangabe (`city`/`sector`), damit der Client die Bildunterschrift
+("Foto: X · Lizenz · Wikimedia Commons (Branche: …)") passend beschriftet.
+Ohne Treffer auf allen drei Stufen bleibt die bisherige Farbverlauf-Karte.
+
 ## Investment-Plan
 
 Zielbetrag + Zeitraum (Woche/Monat/Quartal) liegen bewusst nur in
