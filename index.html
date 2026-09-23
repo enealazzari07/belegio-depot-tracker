@@ -863,11 +863,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span class="mono" style="color:#fff;font-size:14px;font-weight:700">{{ investedTotal }} CHF</span>
             </div>
             <div style="display:flex;gap:10px;margin-top:6px">
-              <button onClick="{{ openAiPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border-radius:999px;background:#1b1b1f;border:1px solid rgba(255,255,255,.1);box-shadow:0 14px 28px -16px rgba(0,0,0,.7);transition:transform 140ms ease" style-active="transform:scale(.97)">
+              <button onClick="{{ openAiPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);transition:transform 140ms ease" style-active="transform:scale(.97)">
                 <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
                 <span style="color:#fff;font-size:13px;font-weight:700">KI-Analyse</span>
               </button>
-              <button onClick="{{ openZzPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border-radius:999px;background:#1b1b1f;border:1px solid rgba(255,255,255,.1);box-shadow:0 14px 28px -16px rgba(0,0,0,.7);transition:transform 140ms ease" style-active="transform:scale(.97)">
+              <button onClick="{{ openZzPanel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);transition:transform 140ms ease" style-active="transform:scale(.97)">
                 <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"></path></svg></span>
                 <span style="color:#fff;font-size:13px;font-weight:700">Zinseszins</span>
               </button>
@@ -2624,9 +2624,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
-    <!-- KI-Analyse: schwarzes Fenster waechst vom Button aus nach rechts und unten. -->
+    <!-- KI-Analyse: graues Glas-Fenster waechst vom Button aus nach rechts und unten. -->
     <sc-if value="{{ aiPanelOpen }}" hint-placeholder-val="{{ false }}">
-      <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
+      <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;z-index:60;background:rgba(34,36,44,.72);border:1px solid rgba(255,255,255,.14);box-sizing:border-box;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.6)">
         <div style="position:absolute;left:0;right:0;top:0;padding:16px 17px 12px;display:flex;align-items:center;gap:10px">
           <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
           <span style="flex:1;color:#fff;font-size:13px;font-weight:700">KI-Analyse</span>
@@ -2662,9 +2662,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
-    <!-- Zinseszins: schwarzes Fenster waechst vom Button aus nach links und unten. -->
+    <!-- Zinseszins: graues Glas-Fenster waechst vom Button aus nach links und unten. -->
     <sc-if value="{{ zzPanelOpen }}" hint-placeholder-val="{{ false }}">
-      <div id="zz-panel" class="zz-panel" style="{{ zzPanelVars }};position:absolute;z-index:60;background:#1b1b1f;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.7)">
+      <div id="zz-panel" class="zz-panel" style="{{ zzPanelVars }};position:absolute;z-index:60;background:rgba(34,36,44,.72);border:1px solid rgba(255,255,255,.14);box-sizing:border-box;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.6)">
         <div style="position:absolute;right:0;top:0;width:var(--aw);box-sizing:border-box;padding:16px 17px 12px;display:flex;align-items:center;gap:10px">
           <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"></path></svg></span>
           <span style="flex:1;color:#fff;font-size:13px;font-weight:700">Zinseszins</span>
