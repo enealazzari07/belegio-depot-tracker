@@ -818,57 +818,26 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isDepot }}" hint-placeholder-val="{{ false }}">
-      <div id="depot-scroll" onScroll="{{ onDepotScroll }}" style="position:absolute;inset:0;overflow-y:auto;animation:fade .3s ease;background:{{ depotPageBg }}">
-        <!-- Titel + Tab-Umschalter bleiben beim Scrollen immer oben stehen.
-             Hoehe 0, damit die Leiste ueber dem Inhalt schwebt statt ihn nach
-             unten zu schieben (das Titelbild laeuft darunter weiter). Auf
-             Allgemein liegen zwei komplette Kopfzeilen uebereinander (hell
-             auf dem Bild / dunkel auf Glas) und werden in onDepotScroll
-             stufenlos per Opacity gegeneinander ueberblendet, statt bei
-             einer Schwelle hart umzuschalten -- kein Sprung, kein zu
-             kraeftiges Weiss. Auf Analyse/Dividenden gibt es nur die
-             Glas-Variante, da dort kein Bild dahinterliegt. -->
+      <div id="depot-scroll" style="position:absolute;inset:0;overflow-y:auto;animation:fade .3s ease;background:{{ depotPageBg }}">
+        <!-- Account-Symbol + Tab-Umschalter bleiben beim Scrollen immer oben
+             angeheftet, mit dem ueblichen Apple-artigen Blur dahinter (wie
+             bei Home/Maerkte): eine durchscheinende, konstant geblurrte
+             Flaeche, die nie zu deckendem Weiss wird und nicht animiert
+             umschaltet -- gleich auf dem Titelbild wie ueber dem weissen
+             Positionen-Block. Hoehe 0, damit die Leiste ueber dem Inhalt
+             schwebt statt ihn nach unten zu schieben. -->
         <div style="position:sticky;top:0;height:0;z-index:20">
-          <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
-            <div id="depot-head-img" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px;opacity:1">
-              <button onClick="{{ goSettings }}" title="Account" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);display:flex;align-items:center;justify-content:center;flex:none;color:#fff" style-active="transform:scale(.92)">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
-              </button>
-              <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
-                <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-                  <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.txImg }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
-                </sc-for>
-              </div>
+          <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px">
+            <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--glass);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
+            <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="position:relative;all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
+            </button>
+            <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+              <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
+                <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+              </sc-for>
             </div>
-            <div id="depot-head-scrolled" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px;opacity:0">
-              <!-- Sobald der weisse Positionen-Block unter die Leiste taucht,
-                   friert sie auf dieser Variante ein: einfacher deckender
-                   Hintergrund im selben Weiss wie der Block dahinter, kein
-                   Blur mehr noetig, weil die Farbe ohnehin exakt passt. -->
-              <div style="position:absolute;inset:0;pointer-events:none;background:var(--home-bg)"></div>
-              <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="position:relative;all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
-              </button>
-              <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
-                <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-                  <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
-                </sc-for>
-              </div>
-            </div>
-          </sc-if>
-          <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px">
-              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--glass);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
-              <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="position:relative;all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
-              </button>
-              <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
-                <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-                  <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
-                </sc-for>
-              </div>
-            </div>
-          </sc-if>
+          </div>
         </div>
         <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
         <!-- Grosses Titelbild wie in der Einzelansicht einer Position: Depotwert
@@ -905,7 +874,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
           </div>
         </div>
-        <div id="depot-white-block" style="position:relative;z-index:1;margin-top:-32px;background:var(--home-bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 20px 128px">
+        <div style="position:relative;z-index:1;margin-top:-32px;background:var(--home-bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 20px 128px">
         <span style="display:block;color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:12px">Positionen</span>
 
         <div style="display:flex;flex-direction:column;gap:18px">
@@ -4232,7 +4201,7 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.applyDepotHeadFade(); this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
+  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
@@ -4417,26 +4386,6 @@ class Component extends DCLogic {
   // Account-Button oben links: die Zeitraum-Bar schiebt sich beim
   // Runterscrollen smooth per transform darueber (statt Layout-Reflow),
   // der Button verblasst darunter und verschwindet.
-  // Kopfzeile auf Depot > Allgemein: kurzer Crossfade zwischen der hellen
-  // Variante (auf dem Titelbild) und der dunklen Variante genau dort, wo
-  // der weisse Positionen-Block unter die Leiste taucht -- per Geometrie
-  // (Blockkante vs. Leistenhoehe) statt fixem Scroll-Offset, damit der
-  // Wechsel exakt an dieser Kante passiert statt frueher/spaeter. Danach
-  // bleibt die Leiste auf der dunklen Variante eingefroren: einfacher
-  // deckender Hintergrund im selben Weiss, kein Blur mehr noetig.
-  applyDepotHeadFade = () => {
-    const imgHead = document.getElementById("depot-head-img");
-    const scrolledHead = document.getElementById("depot-head-scrolled");
-    const block = document.getElementById("depot-white-block");
-    if (!imgHead || !scrolledHead || !block) return;
-    const headerH = scrolledHead.getBoundingClientRect().height;
-    const blockTop = block.getBoundingClientRect().top;
-    const FADE = 40;
-    const p = Math.min(1, Math.max(0, (headerH - blockTop) / FADE));
-    imgHead.style.opacity = String(1 - p);
-    scrolledHead.style.opacity = String(p);
-  };
-  onDepotScroll = () => { this.applyDepotHeadFade(); };
   onHomeScroll = e => {
     const el = e.currentTarget;
     const btn = document.getElementById("home-account-btn");
@@ -6826,8 +6775,7 @@ class Component extends DCLogic {
       depotTabs: [{ key: "general", label: "Holdings" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
         bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "transparent",
-        tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)",
-        txImg: (this.state.depotTab || "general") === t.key ? "#fff" : "rgba(255,255,255,.85)"
+        tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)"
       })),
       depotProLabel: proActive ? "Pro aktiv ✓" : "Pro",
       depotProBg: proActive ? "var(--gbtn)" : "#1b1b1f", depotProTx: proActive ? "var(--tx)" : "#fff",
@@ -7113,7 +7061,7 @@ class Component extends DCLogic {
         bg: i === carouselIdx ? "var(--acc2)" : "var(--line2)"
       })),
       onCarouselScroll: this.onCarouselScroll,
-      onHomeScroll: this.onHomeScroll, onDepotScroll: this.onDepotScroll,
+      onHomeScroll: this.onHomeScroll,
       onCarouselTouch: this.onCarouselTouch,
 
       // ---------- „Was heute bewegt" ----------
