@@ -839,7 +839,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </div>
             </div>
             <div id="depot-head-scrolled" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px;opacity:0">
-              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--glass);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
+              <!-- Sobald der weisse Positionen-Block unter die Leiste taucht,
+                   friert sie auf dieser Variante ein: einfacher deckender
+                   Hintergrund im selben Weiss wie der Block dahinter, kein
+                   Blur mehr noetig, weil die Farbe ohnehin exakt passt. -->
+              <div style="position:absolute;inset:0;pointer-events:none;background:var(--home-bg)"></div>
               <span style="position:relative;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
               <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
                 <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
@@ -895,7 +899,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
           </div>
         </div>
-        <div style="position:relative;z-index:1;margin-top:-32px;background:var(--home-bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 20px 128px">
+        <div id="depot-white-block" style="position:relative;z-index:1;margin-top:-32px;background:var(--home-bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 20px 128px">
         <span style="display:block;color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em;margin-bottom:12px">Positionen</span>
 
         <div style="display:flex;flex-direction:column;gap:18px">
@@ -4222,7 +4226,7 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.applyDepotHeadFade(0); this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
+  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.applyDepotHeadFade(); this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
@@ -4407,24 +4411,26 @@ class Component extends DCLogic {
   // Account-Button oben links: die Zeitraum-Bar schiebt sich beim
   // Runterscrollen smooth per transform darueber (statt Layout-Reflow),
   // der Button verblasst darunter und verschwindet.
-  // Kopfzeile auf Depot > Allgemein: stufenlose Ueberblendung zwischen der
-  // hellen Variante (auf dem Titelbild) und der dunklen Glas-Variante
-  // (sobald das Bild durchgescrollt ist), direkt per Scroll-Offset statt
-  // ueber einen State-Schwellenwert -- vermeidet den harten, ruckartigen
-  // Umschlag und macht den Uebergang weich mit dem Scrollen.
-  applyDepotHeadFade = scrollTop => {
+  // Kopfzeile auf Depot > Allgemein: kurzer Crossfade zwischen der hellen
+  // Variante (auf dem Titelbild) und der dunklen Variante genau dort, wo
+  // der weisse Positionen-Block unter die Leiste taucht -- per Geometrie
+  // (Blockkante vs. Leistenhoehe) statt fixem Scroll-Offset, damit der
+  // Wechsel exakt an dieser Kante passiert statt frueher/spaeter. Danach
+  // bleibt die Leiste auf der dunklen Variante eingefroren: einfacher
+  // deckender Hintergrund im selben Weiss, kein Blur mehr noetig.
+  applyDepotHeadFade = () => {
     const imgHead = document.getElementById("depot-head-img");
     const scrolledHead = document.getElementById("depot-head-scrolled");
-    if (!imgHead || !scrolledHead) return;
-    const p = Math.min(1, Math.max(0, (scrollTop - 30) / 130));
+    const block = document.getElementById("depot-white-block");
+    if (!imgHead || !scrolledHead || !block) return;
+    const headerH = scrolledHead.getBoundingClientRect().height;
+    const blockTop = block.getBoundingClientRect().top;
+    const FADE = 40;
+    const p = Math.min(1, Math.max(0, (headerH - blockTop) / FADE));
     imgHead.style.opacity = String(1 - p);
     scrolledHead.style.opacity = String(p);
   };
-  onDepotScroll = e => {
-    const el = e.currentTarget;
-    if (!el) return;
-    this.applyDepotHeadFade(el.scrollTop);
-  };
+  onDepotScroll = () => { this.applyDepotHeadFade(); };
   onHomeScroll = e => {
     const el = e.currentTarget;
     const btn = document.getElementById("home-account-btn");
