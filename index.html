@@ -6817,7 +6817,7 @@ class Component extends DCLogic {
         return { divMonthLabel: MONTHS_DE[mo] + " " + y, divPrev: this.divShift(-1), divNext: this.divShift(1), divCells: cells, divRows: rows, divNoRows: !rows.length && !this.state.divLoading,
           divLoadingNow: this.state.divLoading, divTotal: total > 0 ? "≈ " + f2(total) : "", divHasTotal: total > 0, divCount: cands.length };
       })(),
-      depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
+      depotTabs: [{ key: "general", label: "Holdings" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
         bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "transparent",
         tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)",
