@@ -822,21 +822,43 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <!-- Titel + Tab-Umschalter bleiben beim Scrollen immer oben stehen.
              Hoehe 0, damit die Leiste ueber dem Inhalt schwebt statt ihn nach
              unten zu schieben (das Titelbild laeuft darunter weiter). Auf
-             Analyse/Dividenden liegt eine geblurrte, nach unten ausblendende
-             Flaeche dahinter; auf Allgemein sitzen Titel und Tabs als eigene
-             Pillen auf dem Bild bzw. dem weissen Block. -->
+             Allgemein liegen zwei komplette Kopfzeilen uebereinander (hell
+             auf dem Bild / dunkel auf Glas) und werden in onDepotScroll
+             stufenlos per Opacity gegeneinander ueberblendet, statt bei
+             einer Schwelle hart umzuschalten -- kein Sprung, kein zu
+             kraeftiges Weiss. Auf Analyse/Dividenden gibt es nur die
+             Glas-Variante, da dort kein Bild dahinterliegt. -->
         <div style="position:sticky;top:0;height:0;z-index:20">
-          <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <sc-if value="{{ depotHeadBlur }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:{{ depotPageBg }};animation:fade .2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
-            </sc-if>
-            <span style="position:relative;font-weight:700;letter-spacing:-.025em;flex:none;{{ depotTitleStyle }}">Depot</span>
-            <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;{{ depotBarStyle }}">
-              <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
-                <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
-              </sc-for>
+          <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
+            <div id="depot-head-img" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px;opacity:1">
+              <span style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none;text-shadow:0 1px 10px rgba(0,0,0,.25)">Depot</span>
+              <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+                <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
+                  <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.txImg }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+                </sc-for>
+              </div>
             </div>
-          </div>
+            <div id="depot-head-scrolled" style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px;opacity:0">
+              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--glass);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
+              <span style="position:relative;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
+              <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+                <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
+                  <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--glass);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
+              <span style="position:relative;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Depot</span>
+              <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+                <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
+                  <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
         </div>
         <sc-if value="{{ depotGeneral }}" hint-placeholder-val="{{ true }}">
         <!-- Grosses Titelbild wie in der Einzelansicht einer Position: Depotwert
@@ -4200,7 +4222,7 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.setState({ depotTab: k, depotScrolled: false }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
+  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.applyDepotHeadFade(0); this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
@@ -4385,11 +4407,23 @@ class Component extends DCLogic {
   // Account-Button oben links: die Zeitraum-Bar schiebt sich beim
   // Runterscrollen smooth per transform darueber (statt Layout-Reflow),
   // der Button verblasst darunter und verschwindet.
+  // Kopfzeile auf Depot > Allgemein: stufenlose Ueberblendung zwischen der
+  // hellen Variante (auf dem Titelbild) und der dunklen Glas-Variante
+  // (sobald das Bild durchgescrollt ist), direkt per Scroll-Offset statt
+  // ueber einen State-Schwellenwert -- vermeidet den harten, ruckartigen
+  // Umschlag und macht den Uebergang weich mit dem Scrollen.
+  applyDepotHeadFade = scrollTop => {
+    const imgHead = document.getElementById("depot-head-img");
+    const scrolledHead = document.getElementById("depot-head-scrolled");
+    if (!imgHead || !scrolledHead) return;
+    const p = Math.min(1, Math.max(0, (scrollTop - 30) / 130));
+    imgHead.style.opacity = String(1 - p);
+    scrolledHead.style.opacity = String(p);
+  };
   onDepotScroll = e => {
     const el = e.currentTarget;
     if (!el) return;
-    const scrolled = el.scrollTop > 200;
-    if (scrolled !== !!this.state.depotScrolled) this.setState({ depotScrolled: scrolled });
+    this.applyDepotHeadFade(el.scrollTop);
   };
   onHomeScroll = e => {
     const el = e.currentTarget;
@@ -5778,7 +5812,6 @@ class Component extends DCLogic {
     const proActive = this.state.userPlan === "pro";
     // Depot > Allgemein: solange der Titelbild-Bereich sichtbar ist, stehen
     // Titel und Tab-Leiste hell auf dem Bild; danach normal auf dem Weiss.
-    const depotOnImage = (this.state.depotTab || "general") === "general" && !this.state.depotScrolled;
     const signalList = visibleHoldings
       .map(h => buildSignal(h.sym || h.abbr, displayName(h), hist[h.sym || h.abbr], h.curNative))
       .filter(Boolean)
@@ -6707,7 +6740,7 @@ class Component extends DCLogic {
       allocationSlices,
       allocationLegend,
       allocRing, allocCallouts,
-      depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: (this.state.depotTab || "general") !== "general", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)", depotHeadBlur: !depotOnImage, depotTitleStyle: depotOnImage ? "color:#fff;font-size:22px;text-shadow:0 1px 10px rgba(0,0,0,.25)" : "color:var(--tx);font-size:22px", depotBarStyle: depotOnImage ? "background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18)" : "background:var(--gbtn);border:1px solid var(--gbtn-line)",
+      depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: (this.state.depotTab || "general") !== "general", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)",
       ...(() => {
         const cut = Date.now() - 90 * 864e5, it = this.state.insiderTrades || {};
         const rows = [];
@@ -6781,7 +6814,8 @@ class Component extends DCLogic {
       depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
         bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "transparent",
-        tx: (this.state.depotTab || "general") === t.key ? "#fff" : depotOnImage ? "rgba(255,255,255,.85)" : "var(--tx2)"
+        tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)",
+        txImg: (this.state.depotTab || "general") === t.key ? "#fff" : "rgba(255,255,255,.85)"
       })),
       depotProLabel: proActive ? "Pro aktiv ✓" : "Pro",
       depotProBg: proActive ? "var(--gbtn)" : "#1b1b1f", depotProTx: proActive ? "var(--tx)" : "#fff",
