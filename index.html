@@ -843,10 +843,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              und die beiden Aktions-Buttons liegen direkt auf dem Bild, darunter
              schiebt sich der weisse, oben abgerundete Block mit den Positionen
              und allem Weiteren leicht ueber die Bildunterkante. -->
-        <div style="position:relative;min-height:calc(env(safe-area-inset-top, 0px) + 390px);background:#141417 url(img/depot.webp) center/cover no-repeat;display:flex;flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 40px">
+        <div style="position:relative;background:#141417 url(img/depot.webp) center/cover no-repeat;display:flex;flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 40px">
           <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,22,.62) 0%,rgba(14,16,22,.38) 34%,rgba(14,16,22,.9) 100%);pointer-events:none"></div>
-          <div style="height:42px;flex:none"></div>
-          <div style="flex:1;min-height:12px"></div>
+          <div style="height:64px;flex:none"></div>
           <div style="position:relative;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;align-items:center;justify-content:space-between">
               <span style="color:rgba(255,255,255,.7);font-size:11px;font-weight:700;letter-spacing:.12em">DEPOTWERT</span>
@@ -4389,7 +4388,7 @@ class Component extends DCLogic {
   onDepotScroll = e => {
     const el = e.currentTarget;
     if (!el) return;
-    const scrolled = el.scrollTop > 250;
+    const scrolled = el.scrollTop > 200;
     if (scrolled !== !!this.state.depotScrolled) this.setState({ depotScrolled: scrolled });
   };
   onHomeScroll = e => {
