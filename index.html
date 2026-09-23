@@ -2671,30 +2671,24 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
-    <!-- E-Mail noch nicht bestaetigt: schwebende Karte unten, bis der Link geklickt wurde. -->
-    <sc-if value="{{ verifyPromptOpen }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom, 0px) + 96px);z-index:75;animation:verifyUp .6s cubic-bezier(.22,1,.36,1) .25s both">
-        <div style="background:rgba(22,24,31,.95);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:18px 18px 16px;box-shadow:0 30px 60px -24px rgba(10,12,20,.6);color:#fff">
-          <div style="display:flex;gap:14px;align-items:flex-start">
-            <span style="width:44px;height:44px;border-radius:15px;background:linear-gradient(160deg,#8E9EFF,#5B5BD6 60%,#2D2A6E);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 10px 22px -10px rgba(91,91,214,.8)">
-              <svg style="animation:verifyEnv 2.8s ease-in-out infinite" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3.5"></rect><path d="M3.8 7.2l7 5.1a2 2 0 0 0 2.4 0l7-5.1"></path></svg>
-            </span>
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:1px">
-              <span style="font-size:15.5px;font-weight:800;letter-spacing:-.01em">E-Mail muss bestätigt werden</span>
-              <span style="font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.66)">{{ verifyPromptText }}</span>
-            </div>
-            <button onClick="{{ dismissVerifyPrompt }}" aria-label="Später" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex:none;color:rgba(255,255,255,.8);margin:-4px -4px 0 0" style-active="transform:scale(.9)">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-            </button>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:14px">
-            <button onClick="{{ resendVerify }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:999px;background:#fff;color:#16181f;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s ease" style-active="transform:scale(.97)">
-              <sc-if value="{{ verifySending }}" hint-placeholder-val="{{ false }}"><svg style="animation:spin .8s linear infinite" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".2" stroke-width="3"></circle><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></sc-if>
-              {{ verifyResendLabel }}
-            </button>
-            <button onClick="{{ recheckVerified }}" style="all:unset;box-sizing:border-box;cursor:pointer;height:44px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.97)">Erledigt</button>
-          </div>
+    <!-- Nach dem Registrieren: ganzflaechiger "Bestaetige deine E-Mail"-Screen, bis der Link geklickt wurde. Wegklickbar (X) zurueck zum Login. -->
+    <sc-if value="{{ checkEmailOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top, 0px) + 64px) 28px calc(env(safe-area-inset-bottom, 0px) + 28px);overflow-y:auto">
+        <button onClick="{{ closeCheckEmail }}" aria-label="Zurück zum Login" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 20px);right:20px;width:38px;height:38px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2)" style-active="transform:scale(.92)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+        <div class="w-in" style="animation-delay:.05s;width:64px;height:64px;border-radius:20px;background:linear-gradient(160deg,#8E9EFF,#5B5BD6 60%,#2D2A6E);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -16px rgba(91,91,214,.7)">
+          <svg width="27" height="23" viewBox="0 0 21 18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="0.75" y="1" width="19.5" height="16" rx="3.4"></rect><path d="M1.4 3.4l8.2 6.2a1.6 1.6 0 0 0 2 0l8.2-6.2"></path></svg>
         </div>
+        <span class="w-in" style="animation-delay:.12s;margin-top:28px;color:var(--tx);font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.12">Bestätige<br>deine E-Mail</span>
+        <span class="w-in" style="animation-delay:.18s;margin-top:12px;color:var(--tx3);font-size:15px;line-height:1.55">Wir haben einen Bestätigungslink an <b style="color:var(--tx2)">{{ checkEmailAddress }}</b> geschickt. Tipp in der Mail auf den Link, danach kannst du dich anmelden.</span>
+        <div style="flex:1;min-height:28px"></div>
+        <p style="margin:0 0 14px;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.5">Nichts angekommen? Schau auch im Spam-Ordner nach.</p>
+        <button onClick="{{ resendVerify }}" class="w-in auth-btn {{ verifyBtnClass }}" style="animation-delay:.26s">
+          <span class="ab-t">Mail erneut senden</span>
+          <span class="ab-s"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-opacity=".22" stroke-width="2.6"></circle><path d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span>
+        </button>
+        <button onClick="{{ closeCheckEmail }}" class="w-in" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:12px;width:100%;height:44px;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13.5px;font-weight:700;animation-delay:.32s">Zurück zum Login</button>
       </div>
     </sc-if>
 
@@ -3359,8 +3353,8 @@ class Component extends DCLogic {
     splash: false, dashLoading: true,
 
     user: null,
-    authMode: "login", authEmail: "", authPassword: "", authError: "", authNotice: "", authLoading: false, authBtnFx: "", resetToken: null,
-    emailVerified: null, verifyDismissed: false, verifySending: false, verifySentAt: 0,
+    authMode: "login", authEmail: "", authPassword: "", authError: "", authNotice: "", authLoading: false, authBtnFx: "",
+    checkEmailOpen: false, checkEmailAddress: "", verifySending: false,
 
     extracted: null, pendingFile: null, ocrText: "", ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false,
 
@@ -3717,10 +3711,12 @@ class Component extends DCLogic {
     this.loadInvestPlan();
     this.loadPositionMeta();
     const db = await this.db();
-    const link = await this.handleAuthLinks();
-    const session = link === "reset" ? null : await db.getSession();
-    // Bestaetigung in einem anderen Tab/Geraet: beim Zurueckkehren in die App neu pruefen.
-    document.addEventListener("visibilitychange", this.onVisibleRecheck);
+    // Reset-Link geklickt: Supabase stellt automatisch eine kurzlebige Recovery-Session
+    // her und feuert dieses Event, statt die Session sofort in die App durchzulassen.
+    this._stopRecoveryWatch = db.onPasswordRecovery(() => {
+      this.setState({ screen: "login", authMode: "reset", authPassword: "", authError: "", authNotice: "", checkEmailOpen: false });
+    });
+    const session = await db.getSession();
     if (session) {
       // Face ID sperrt nur den Wiedereinstieg in eine bereits bestehende
       // Session — die Credential-ID muss lokal vorhanden sein, sonst wuerde
@@ -3749,11 +3745,7 @@ class Component extends DCLogic {
     this.loadHqImages();
   }
 
-  onVisibleRecheck = () => {
-    if (document.visibilityState === "visible" && this.state.user && this.state.emailVerified === false) this.loadProfile();
-  };
-
-  componentWillUnmount() { document.removeEventListener("visibilitychange", this.onVisibleRecheck); window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
+  componentWillUnmount() { if (this._stopRecoveryWatch) this._stopRecoveryWatch(); window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
 
   // ---------- Carousel „Was heute bewegt" ↔ „Marktnews" ----------
   // Das Wischen macht CSS scroll-snap; hier wird nur die aktive Seite für die
@@ -3890,10 +3882,8 @@ class Component extends DCLogic {
   onAuthPassword = e => this.set("authPassword", e.target.value);
   onAuthKey = e => { if (e.key === "Enter") { e.preventDefault(); this.submitAuth(); } };
   toggleAuthMode = () => {
-    const m = this.state.authMode;
     // Aus "Passwort vergessen" / "Neues Passwort" fuehrt der Link immer zurueck zur Anmeldung.
-    const next = m === "login" ? "register" : "login";
-    if (m === "reset") this.setState({ resetToken: null });
+    const next = this.state.authMode === "login" ? "register" : "login";
     this.setState({ authMode: next, authError: "", authNotice: "", authBtnFx: "" });
   };
   openForgot = () => this.setState({ authMode: "forgot", authError: "", authNotice: "", authPassword: "", authBtnFx: "" });
@@ -3918,22 +3908,22 @@ class Component extends DCLogic {
     this.setState({ authLoading: true, authError: "", authNotice: "", authBtnFx: "" });
     try {
       const db = await this.db();
-      if (authMode === "register") await db.signUp(authEmail.trim(), authPassword);
-      else await db.signIn(authEmail.trim(), authPassword);
+      if (authMode === "register") {
+        await db.signUp(authEmail.trim(), authPassword);
+        // Supabase blockiert den Login, bis der Bestaetigungslink geklickt wurde —
+        // kein sofortiger Zugang moeglich, deshalb der eigene "Bestaetigen"-Screen.
+        this.setState({ authLoading: false, authBtnFx: "", checkEmailOpen: true, checkEmailAddress: authEmail.trim(), authPassword: "" });
+        return;
+      }
+      await db.signIn(authEmail.trim(), authPassword);
       const session = await db.getSession();
       if (!session) {
         this.authFail("Anmeldung fehlgeschlagen. Bitte versuch es nochmal.");
         return;
       }
-      if (authMode === "register") {
-        // Bestaetigungs-Mail direkt nach dem Anlegen; die Karte unten erinnert, bis der Link geklickt ist.
-        this.setState({ emailVerified: false, verifySentAt: Date.now() });
-        db.sendVerifyMail().catch(() => this.setState({ verifySentAt: 0 }));
-      }
-      await this.enterAfterAuth(session, authMode === "register");
+      await this.enterAfterAuth(session, false);
     } catch (e) {
-      const msg = /invalid login credentials/i.test(e.message || "") ? "E-Mail oder Passwort stimmt nicht." : (e.message || "Fehler bei der Anmeldung.");
-      this.authFail(msg);
+      this.authFail(e.message || "Fehler bei der Anmeldung.");
     }
   };
 
@@ -3941,7 +3931,7 @@ class Component extends DCLogic {
   enterAfterAuth = async (session, isNew) => {
     this.setState({ authBtnFx: "done" });
     await new Promise(r => setTimeout(r, 520));
-    this.setState({ authLoading: false, authBtnFx: "", user: session.user, screen: "dash", authPassword: "", authNotice: "", resetToken: null, dashLoading: true, welcomeOpen: isNew, verifyDismissed: false });
+    this.setState({ authLoading: false, authBtnFx: "", user: session.user, screen: "dash", authPassword: "", authNotice: "", dashLoading: true, welcomeOpen: isNew });
     const holdings = await this.loadPortfolio();
     await this.loadHistory(holdings);
     await this.loadEtfCompositions(holdings);
@@ -3972,18 +3962,16 @@ class Component extends DCLogic {
     }
   };
 
+  // Nur aufrufbar, nachdem der Reset-Link geklickt wurde — Supabase haelt dafuer
+  // schon eine gueltige (kurzlebige) Session bereit, kein eigener Token noetig.
   submitReset = async () => {
-    const { authPassword, resetToken } = this.state;
+    const { authPassword } = this.state;
     if (authPassword.length < 6) { this.authFail("Passwort muss mindestens 6 Zeichen haben."); return; }
     this.setState({ authLoading: true, authError: "", authNotice: "", authBtnFx: "" });
     try {
       const db = await this.db();
-      const res = await db.resetPassword(resetToken, authPassword);
-      if (!res.email) throw new Error("Passwort gespeichert — bitte melde dich neu an.");
-      await db.signOut().catch(() => {});
-      await db.signIn(res.email, authPassword);
+      await db.updatePassword(authPassword);
       const session = await db.getSession();
-      this.setState({ authEmail: res.email, emailVerified: true });
       this.pushToast("Neues Passwort gespeichert", { tone: "pos" });
       await this.enterAfterAuth(session, false);
     } catch (e) {
@@ -3991,52 +3979,21 @@ class Component extends DCLogic {
     }
   };
 
-  // Links aus den E-Mails: ?verify=… bestaetigt direkt, ?reset=… oeffnet das Formular fuer ein neues Passwort.
-  handleAuthLinks = async () => {
-    let params;
-    try { params = new URLSearchParams(location.search); } catch (_) { return null; }
-    const verify = params.get("verify"), reset = params.get("reset");
-    if (!verify && !reset) return null;
-    try { history.replaceState(null, "", location.pathname + location.hash); } catch (_) {}
-    if (reset) {
-      this.setState({ screen: "login", authMode: "reset", resetToken: reset, authPassword: "", authError: "", authNotice: "" });
-      return "reset";
-    }
-    try {
-      const db = await this.db();
-      await db.verifyEmail(verify);
-      this.setState({ emailVerified: true });
-      this.pushToast("E-Mail bestätigt — danke!", { tone: "pos" });
-    } catch (e) {
-      this.pushToast(e.message || "Bestätigungslink ungültig.", { tone: "neg", duration: 5000 });
-    }
-    return "verify";
-  };
-
+  // Bestaetigungsmail auf dem "Bestaetige deine E-Mail"-Screen erneut anfordern.
   resendVerify = async () => {
     if (this.state.verifySending) return;
-    const wait = 60000 - (Date.now() - (this.state.verifySentAt || 0));
-    if (wait > 0) { this.pushToast(`Neuer Link in ${Math.ceil(wait / 1000)} s möglich`); return; }
     this.setState({ verifySending: true });
     try {
       const db = await this.db();
-      const r = await db.sendVerifyMail();
-      if (r.alreadyVerified) { this.setState({ verifySending: false, emailVerified: true }); this.pushToast("E-Mail ist bereits bestätigt", { tone: "pos" }); return; }
-      this.setState({ verifySending: false, verifySentAt: Date.now() });
+      await db.resendVerifyMail(this.state.checkEmailAddress);
+      this.setState({ verifySending: false });
       this.pushToast("Neuer Link ist unterwegs", { tone: "pos" });
     } catch (e) {
       this.setState({ verifySending: false });
       this.pushToast(e.message, { tone: "neg", duration: 4500 });
     }
   };
-
-  // "Erledigt": prueft, ob der Link inzwischen (z. B. auf einem anderen Geraet) geklickt wurde.
-  recheckVerified = async () => {
-    await this.loadProfile();
-    if (this.state.emailVerified) this.pushToast("E-Mail bestätigt — danke!", { tone: "pos" });
-    else this.pushToast("Noch nicht bestätigt — tipp auf den Link in der E-Mail.", { duration: 4000 });
-  };
-  dismissVerifyPrompt = () => this.setState({ verifyDismissed: true });
+  closeCheckEmail = () => this.setState({ checkEmailOpen: false, authMode: "login" });
 
   logoutUser = async () => {
     const db = await this.db();
@@ -4045,7 +4002,7 @@ class Component extends DCLogic {
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
       conn: "idle", authEmail: "", authPassword: "", authMode: "login", authError: "", authNotice: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {},
-      emailVerified: null, verifyDismissed: false,
+      checkEmailOpen: false,
       locked: false
     });
   };
@@ -4856,7 +4813,6 @@ class Component extends DCLogic {
       this.setState({
         userPlan: profile.plan === "pro" ? "pro" : "free",
         insiderAlertsSeenAt: profile.insider_alerts_seen_at,
-        emailVerified: profile.email_verified == null ? null : !!profile.email_verified,
         ...compoundPatch,
       });
     } catch (e) { /* Standard bleibt "free" */ }
@@ -6664,11 +6620,9 @@ class Component extends DCLogic {
       authError: this.state.authError, authNotice: this.state.authNotice, authLoading: !!this.state.authLoading,
       submitAuth: this.submitAuth,
       toggleAuthMode: this.toggleAuthMode,
-      verifyPromptOpen: !!user && this.state.screen === "dash" && this.state.emailVerified === false && !this.state.verifyDismissed && !this.state.welcomeOpen && !this.state.locked,
-      verifyPromptText: `Wir haben dir einen Link an ${(user && user.email) || "deine E-Mail"} geschickt. Tipp darauf, damit dein Konto vollständig ist.`,
-      verifyResendLabel: this.state.verifySending ? "Wird gesendet" : "Link erneut senden",
-      verifySending: !!this.state.verifySending,
-      resendVerify: this.resendVerify, recheckVerified: this.recheckVerified, dismissVerifyPrompt: this.dismissVerifyPrompt,
+      checkEmailOpen: !!this.state.checkEmailOpen, checkEmailAddress: this.state.checkEmailAddress,
+      verifyBtnClass: this.state.verifySending ? "loading" : "",
+      resendVerify: this.resendVerify, closeCheckEmail: this.closeCheckEmail,
       userEmail: (user && user.email) || "",
       userInitials: user && user.email ? user.email.slice(0, 2).toUpperCase() : "–",
 

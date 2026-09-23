@@ -7,62 +7,75 @@ export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Alles unten läuft komplett über das eingebaute Supabase-Auth-System —
+// kein eigener Mail-Versand, keine eigene Edge Function, kein API-Key.
+// Voraussetzung im Supabase-Dashboard (einmalig, Authentication-Einstellungen):
+// "Confirm email" aktiviert, und die App-URL unter "Redirect URLs" eingetragen.
+const AUTH_ERRORS = [
+  [/already registered|user already exists/i, "Diese E-Mail-Adresse ist bereits registriert."],
+  [/email.*not confirmed/i, "Diese E-Mail-Adresse ist noch nicht bestätigt."],
+  [/invalid login credentials/i, "E-Mail oder Passwort stimmt nicht."],
+  [/password should be at least/i, "Passwort muss mindestens 6 Zeichen haben."],
+  [/rate limit/i, "Bitte warte kurz, bevor du es erneut versuchst."],
+  [/unable to validate email/i, "Ungültige E-Mail-Adresse."],
+];
+function mapAuthError(error) {
+  const msg = error?.message || "";
+  const hit = AUTH_ERRORS.find(([re]) => re.test(msg));
+  const e = new Error(hit ? hit[1] : (msg || "Etwas ist schiefgelaufen. Versuch es nochmal."));
+  e.code = error?.code || null;
+  return e;
+}
+
+// App-URL, auf die Supabase nach Klick auf den Bestätigungs- bzw.
+// Reset-Link zurückleitet (muss im Dashboard unter "Redirect URLs" erlaubt sein).
+const redirectUrl = () => `${location.origin}${location.pathname}`;
+
 export async function signUp(email, password) {
-  // Läuft über die "register"-Edge-Function: legt den User serverseitig
-  // (Service-Role-Key) an. Die E-Mail-Bestätigung läuft danach separat über
-  // die "auth-mail"-Function (profiles.email_verified), Login geht sofort.
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY },
-    body: JSON.stringify({ email, password }),
+  // Legt das Konto an und löst die eingebaute Supabase-Bestätigungsmail aus.
+  // Es gibt bewusst keine Session zurück, solange die Mail nicht bestätigt ist —
+  // Supabase blockiert den Login bis dahin serverseitig.
+  const { data, error } = await supabase.auth.signUp({
+    email, password, options: { emailRedirectTo: redirectUrl() },
   });
-  const body = await res.json();
-  if (!res.ok) {
-    const messages = { "email-taken": "Diese E-Mail-Adresse ist bereits registriert.", "invalid-email": "Ungültige E-Mail-Adresse.", "invalid-password": "Passwort muss mindestens 6 Zeichen haben." };
-    throw new Error(messages[body.error] || body.error || "Registrierung fehlgeschlagen.");
-  }
-  return signIn(email, password);
+  if (error) throw mapAuthError(error);
+  return data;
 }
 
 export async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
+  if (error) throw mapAuthError(error);
   return data;
 }
 
-// E-Mail-Bestätigung / Passwort-Reset über die "auth-mail"-Edge-Function.
-const AUTH_MAIL_ERRORS = {
-  "mail-not-configured": "E-Mail-Versand ist noch nicht eingerichtet.",
-  "rate-limited": "Bitte warte kurz, bevor du eine neue E-Mail anforderst.",
-  "invalid-token": "Dieser Link ist ungültig oder wurde schon benutzt.",
-  "expired-token": "Dieser Link ist abgelaufen. Fordere einfach einen neuen an.",
-  "invalid-email": "Ungültige E-Mail-Adresse.",
-  "weak-password": "Passwort muss mindestens 6 Zeichen haben.",
-  "mail-send-failed": "E-Mail konnte nicht gesendet werden. Versuch es später nochmal.",
-};
-
-async function authMail(action, payload = {}) {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/auth-mail`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
-    body: JSON.stringify({ action, ...payload }),
-  });
-  let body = {};
-  try { body = await res.json(); } catch (_e) { body = {}; }
-  if (!res.ok) {
-    const err = new Error(AUTH_MAIL_ERRORS[body.error] || "Etwas ist schiefgelaufen. Versuch es nochmal.");
-    err.code = body.error || "error";
-    throw err;
-  }
-  return body;
+// Bestätigungsmail erneut anfordern (z. B. wenn sie nicht angekommen ist).
+export async function resendVerifyMail(email) {
+  const { error } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: redirectUrl() } });
+  if (error) throw mapAuthError(error);
 }
 
-export const sendVerifyMail = () => authMail("send-verify");
-export const verifyEmail = (token) => authMail("verify", { token });
-export const requestPasswordReset = (email) => authMail("send-reset", { email });
-export const resetPassword = (token, password) => authMail("reset", { token, password });
+// Antwortet bewusst immer gleich (Supabase selbst verrät nicht, ob die Adresse existiert).
+export async function requestPasswordReset(email) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl() });
+  if (error) throw mapAuthError(error);
+  return { ok: true };
+}
+
+// Nur gültig direkt nach Klick auf den Reset-Link (Supabase stellt dabei automatisch
+// eine kurzlebige "Recovery"-Session her, siehe onPasswordRecovery unten).
+export async function updatePassword(password) {
+  const { data, error } = await supabase.auth.updateUser({ password });
+  if (error) throw mapAuthError(error);
+  return data;
+}
+
+// Feuert, sobald der Nutzer über einen Reset-Link in der App landet.
+export function onPasswordRecovery(cb) {
+  const { data } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "PASSWORD_RECOVERY") cb(session);
+  });
+  return () => data.subscription.unsubscribe();
+}
 
 export async function signOut() {
   await supabase.auth.signOut();
@@ -220,11 +233,11 @@ export async function getProfile() {
   if (userErr) throw userErr;
   const { data, error } = await supabase
     .from("profiles")
-    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years, email_verified")
+    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years")
     .eq("user_id", userData.user.id)
     .maybeSingle();
   if (error) throw error;
-  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null, email_verified: null };
+  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null };
 }
 
 // Speichert die Eingaben des Zinseszins-Rechners dauerhaft im Profil, damit sie
