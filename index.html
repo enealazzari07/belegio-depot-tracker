@@ -34,7 +34,7 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --stage:#EEF0F4; --stage2:#DFE2E8;
@@ -172,7 +172,7 @@
    leeren Randbereichen eine falsche Fläche durch, obwohl die App selbst dort
    nie diese Farbe zeigt. */
 html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;background-color:#F5F6F9}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{font-family:'Outfit',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc2);text-decoration:none}
 a:hover{color:var(--tx)}
 input{font-family:inherit}
@@ -196,7 +196,7 @@ input::placeholder{color:var(--tx3)}
 @media (prefers-reduced-transparency: reduce){
   .glass-chip{background:var(--surf2) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
 }
-.mono{font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1}
+.mono{font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1}
 .lbl{color:var(--tx3);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
 .seg{display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--surf2);border:1px solid var(--line)}
 .segb{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 13px;border-radius:9px;font-size:12px;font-weight:700;text-align:center;transition:background .16s ease,color .16s ease}
@@ -306,7 +306,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 </style>
 </helmet>
 
-<div data-theme="{{ theme }}" style="width:100%;min-height:100vh;background:var(--stage);display:flex;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
+<div data-theme="{{ theme }}" style="width:100%;min-height:100vh;background:var(--stage);display:flex;justify-content:center;font-family:'Outfit',sans-serif">
 
   <div style="width:100%;max-width:480px;height:100vh;background:var(--bg);overflow:hidden;position:relative;flex:none">
 
@@ -455,7 +455,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <sc-if value="{{ dashReady }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:2px">
               <div style="display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:4px">
-                <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ totalValue }}</span>
+                <span class="mono" style="color:var(--onBrand);font-size:37px;font-weight:700;letter-spacing:-.02em;line-height:1">{{ totalValue }}</span>
                 <span class="mono" style="color:var(--onBrand3);font-size:11px">Investiert {{ investedTotal }}</span>
               </div>
               <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
@@ -529,7 +529,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </sc-if>
             <sc-for list="{{ grp.items }}" as="d" hint-placeholder-count="4">
               <button onClick="{{ d.openDetail }}" data-rowcard="1" class="rowbtn" style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:13px 16px 13px 12px;position:relative;overflow:hidden;isolation:isolate;border-radius:24px;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);border:none;box-shadow:0 14px 28px -20px rgba(16,19,26,.45);text-align:left;transition:transform 140ms ease" style-active="transform:scale(.985)">
-                <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-size:10px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ d.logo }}</div>
+                <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-size:10px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ d.logo }}</div>
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
                   <span style="color:#fff;font-size:14px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.name }}</span>
                   <div style="display:flex;align-items:center;gap:6px;min-width:0">
@@ -589,7 +589,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,.5) 100%);pointer-events:none"></div>
                     <div style="position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between">
                       <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em">{{ c.kind }}</span>
-                      <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;overflow:hidden">{{ c.logo }}</span>
+                      <span style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;overflow:hidden">{{ c.logo }}</span>
                     </div>
                     <sc-if value="{{ c.hasSpark }}" hint-placeholder-val="{{ false }}">
                       <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="position:absolute;left:22px;right:22px;top:92px;width:calc(100% - 44px);height:58px;overflow:visible;pointer-events:none">
@@ -755,7 +755,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--onBrand2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg>
               </div>
               <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px">
-                <span class="mono" style="color:var(--onBrand);font-size:28px;font-weight:700;letter-spacing:-.03em">{{ investPlanDoneLabel }}</span>
+                <span class="mono" style="color:var(--onBrand);font-size:28px;font-weight:700;letter-spacing:-.015em">{{ investPlanDoneLabel }}</span>
                 <span style="color:var(--onBrand3);font-size:13px;font-weight:600">/ {{ investPlanTargetLabel }}</span>
               </div>
               <div style="height:8px;border-radius:4px;background:var(--onBrand-soft);overflow:hidden;margin-bottom:10px">
@@ -837,7 +837,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="color:rgba(255,255,255,.66);font-size:11px;font-weight:700;letter-spacing:.12em">DEPOTWERT</span>
               <span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700">{{ posCount }}</span>
             </div>
-            <span class="mono" style="color:#fff;font-size:36px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ depotHeroValue }}</span>
+            <span class="mono" style="color:#fff;font-size:36px;font-weight:700;letter-spacing:-.02em;line-height:1">{{ depotHeroValue }}</span>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <span class="mono" style="padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);color:{{ depotHeroColor }};font-size:13px;font-weight:700">{{ depotHeroPct }}</span>
               <span class="mono" style="color:rgba(255,255,255,.82);font-size:13px;font-weight:600">{{ depotHeroAbs }} CHF</span>
@@ -910,7 +910,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </svg>
                 <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;{{ geoWrapStyle }}">
                   <div style="display:flex;align-items:baseline;gap:4px">
-                    <span class="mono" style="color:var(--tx);font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ aiScoreTotal }}</span>
+                    <span class="mono" style="color:var(--tx);font-size:44px;font-weight:700;letter-spacing:-.015em;line-height:1">{{ aiScoreTotal }}</span>
                     <span style="color:var(--tx3);font-size:15px;font-weight:600">/ 100</span>
                   </div>
                   <span style="color:{{ aiScoreColor }};font-size:14px;font-weight:700">{{ aiScoreLabel }}</span>
@@ -953,7 +953,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     </sc-for>
                   </svg>
                   <div style="position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none">
-                    <span class="mono" style="color:var(--tx);font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ posCountNum }}</span>
+                    <span class="mono" style="color:var(--tx);font-size:24px;font-weight:700;letter-spacing:-.015em;line-height:1">{{ posCountNum }}</span>
                     <span style="color:var(--tx3);font-size:9px;font-weight:700;letter-spacing:.12em">TITEL</span>
                   </div>
                   <sc-for list="{{ allocCallouts }}" as="co" hint-placeholder-count="6">
@@ -1161,7 +1161,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </sc-if>
           <sc-for list="{{ grp.items }}" as="d" hint-placeholder-count="4">
             <button onClick="{{ d.openDetail }}" data-rowcard="1" class="rowbtn" style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:13px 16px 13px 12px;position:relative;overflow:hidden;isolation:isolate;border-radius:24px;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);border:none;box-shadow:0 14px 28px -20px rgba(16,19,26,.45);text-align:left;transition:transform 140ms ease" style-active="transform:scale(.985)">
-              <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-size:10px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ d.logo }}</div>
+              <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font-size:10px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ d.logo }}</div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
                 <span style="color:#fff;font-size:14px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.name }}</span>
                 <div style="display:flex;align-items:center;gap:6px;min-width:0">
@@ -1279,7 +1279,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:16px">
                 <div style="display:flex;flex-direction:column;gap:4px">
                   <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.1em">BEZAHLT INSGESAMT</span>
-                  <span class="mono" style="color:var(--tx);font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1">{{ feeTotal }} <span style="font-size:13px;color:var(--tx3);font-weight:600">CHF</span></span>
+                  <span class="mono" style="color:var(--tx);font-size:26px;font-weight:700;letter-spacing:-.015em;line-height:1">{{ feeTotal }} <span style="font-size:13px;color:var(--tx3);font-weight:600">CHF</span></span>
                 </div>
                 <span class="mono" style="padding:5px 11px;border-radius:999px;background:var(--gbtn);color:var(--tx2);font-size:12px;font-weight:700;flex:none">{{ feePct }}</span>
               </div>
@@ -1558,12 +1558,12 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
           <div style="display:flex;flex-direction:column;gap:6px">
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">TICKER</span>
-            <input value="{{ divSymbol }}" onChange="{{ onDivSymbol }}" placeholder="z. B. NESN.SW" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <input value="{{ divSymbol }}" onChange="{{ onDivSymbol }}" placeholder="z. B. NESN.SW" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
           </div>
 
           <div style="display:flex;flex-direction:column;gap:6px">
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">BRUTTOBETRAG</span>
-            <input type="number" value="{{ divGross }}" onChange="{{ onDivGross }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <input type="number" value="{{ divGross }}" onChange="{{ onDivGross }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
           </div>
 
           <div style="display:flex;flex-direction:column;gap:6px">
@@ -1571,7 +1571,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="flex:1;color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">VERRECHNUNGSSTEUER</span>
               <button onClick="{{ divSuggestTax }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:4px 9px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:700" style-hover="background:var(--surf)">35 % einsetzen</button>
             </div>
-            <input type="number" value="{{ divTax }}" onChange="{{ onDivTax }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <input type="number" value="{{ divTax }}" onChange="{{ onDivTax }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
             <span style="color:var(--tx3);font-size:11px;line-height:1.5">Bei Schweizer Titeln 35 % — in der Steuererklärung rückforderbar. Bei ausländischen Titeln steht der Satz auf der Abrechnung.</span>
           </div>
 
@@ -1579,7 +1579,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">WÄHRUNG</span>
             <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
               <sc-for list="{{ divCurrencyOptions }}" as="c" hint-placeholder-count="4">
-                <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:8px 13px;border-radius:10px;background:{{ c.bg }};color:{{ c.tx }};font-size:12px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ c.code }}</button>
+                <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:8px 13px;border-radius:10px;background:{{ c.bg }};color:{{ c.tx }};font-size:12px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ c.code }}</button>
               </sc-for>
             </div>
           </div>
@@ -1615,7 +1615,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <div style="display:flex;flex-direction:column;gap:14px">
           <div style="display:flex;flex-direction:column;gap:6px">
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">TICKER</span>
-            <input value="{{ alertSymbol }}" onChange="{{ onAlertSymbol }}" placeholder="z. B. AAPL" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <input value="{{ alertSymbol }}" onChange="{{ onAlertSymbol }}" placeholder="z. B. AAPL" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
           </div>
 
           <div style="display:flex;flex-direction:column;gap:6px">
@@ -1634,7 +1634,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
           <div style="display:flex;flex-direction:column;gap:6px">
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZIELKURS</span>
-            <input type="number" value="{{ alertTarget }}" onChange="{{ onAlertTarget }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
+            <input type="number" value="{{ alertTarget }}" onChange="{{ onAlertTarget }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
             <span style="color:var(--tx3);font-size:11px;line-height:1.5">{{ alertNotifHint }}</span>
           </div>
 
@@ -1760,7 +1760,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </div>
               <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                 <span style="color:var(--tx);font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.file }}</span>
-                <span style="color:var(--tx3);font-size:11px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.meta }}</span>
+                <span style="color:var(--tx3);font-size:11px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.meta }}</span>
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-right:4px"><path d="M20 6L9 17l-5-5"></path></svg>
             </div>
@@ -1784,10 +1784,10 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <div style="padding:18px 18px 16px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line)">
-            <div style="width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:11px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ reviewLogo }}</div>
+            <div style="width:42px;height:42px;border-radius:12px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:11px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ reviewLogo }}</div>
             <div style="flex:1;display:flex;flex-direction:column;gap:2px">
               <span style="color:var(--tx);font-size:15px;font-weight:600">Position</span>
-              <span style="color:var(--tx3);font-size:11.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ reviewIsin }}</span>
+              <span style="color:var(--tx3);font-size:11.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ reviewIsin }}</span>
             </div>
             <div class="seg" style="flex:none">
               <button onClick="{{ setSideBuy }}" class="segb" style="background:{{ sideBuyBg }};color:{{ sideBuyTx }};padding:7px 11px">Kauf</button>
@@ -1796,18 +1796,18 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 18px;border-bottom:1px solid var(--line)">
             <span style="color:var(--tx3);font-size:12.5px;flex:none">ISIN</span>
-            <input value="{{ isinField }}" onChange="{{ onIsinField }}" placeholder="z. B. IE00B..." style="flex:1;min-width:0;text-align:right;border:none;background:transparent;outline:none;color:var(--tx);font-size:13px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1" style-focus="color:var(--acc2)">
+            <input value="{{ isinField }}" onChange="{{ onIsinField }}" placeholder="z. B. IE00B..." style="flex:1;min-width:0;text-align:right;border:none;background:transparent;outline:none;color:var(--tx);font-size:13px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1" style-focus="color:var(--acc2)">
             <button onClick="{{ resolveIsinField }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:6px 10px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:11px;font-weight:600" style-hover="background:var(--line2)">{{ resolveIsinLabel }}</button>
           </div>
           <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 18px;border-bottom:1px solid var(--line)">
               <span style="color:var(--tx3);font-size:12.5px">{{ f.k }}</span>
-              <input value="{{ f.v }}" onChange="{{ f.onChange }}" style="width:150px;text-align:right;border:none;background:transparent;outline:none;color:var(--tx);font-size:14px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1" style-focus="color:var(--acc2)">
+              <input value="{{ f.v }}" onChange="{{ f.onChange }}" style="width:150px;text-align:right;border:none;background:transparent;outline:none;color:var(--tx);font-size:14px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1" style-focus="color:var(--acc2)">
             </div>
           </sc-for>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:17px 18px;background:var(--surf2)">
             <span style="color:var(--tx2);font-size:13px;font-weight:600">Gesamtbetrag</span>
-            <span style="color:var(--tx);font-size:16px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ reviewTotal }}</span>
+            <span style="color:var(--tx);font-size:16px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ reviewTotal }}</span>
           </div>
         </div>
 
@@ -1858,7 +1858,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(14,26,34,.55) 0%,rgba(10,12,18,.85) 100%)"></div>
             <div style="position:absolute;left:18px;top:18px;padding:12px 14px;border-radius:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:3px">
               <span style="color:rgba(255,255,255,.62);font-size:9.5px;font-weight:700;letter-spacing:.1em">DEPOTWERT</span>
-              <span class="mono" style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-.03em">12'480.50</span>
+              <span class="mono" style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-.015em">12'480.50</span>
               <span class="mono" style="color:#7be3a5;font-size:11px;font-weight:700">+4.2 % seit Kauf</span>
             </div>
             <div style="position:absolute;right:18px;top:34px;display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)">
@@ -1908,7 +1908,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <sc-if value="{{ proNotActive }}" hint-placeholder-val="{{ true }}">
           <div style="pointer-events:auto;display:flex;flex-direction:column;gap:10px;max-width:400px;margin:0 auto">
             <div style="display:flex;align-items:baseline;justify-content:center;gap:8px">
-              <span class="mono" style="color:#fff;font-size:26px;font-weight:700;letter-spacing:-.03em">{{ proPriceLine }}</span>
+              <span class="mono" style="color:#fff;font-size:26px;font-weight:700;letter-spacing:-.015em">{{ proPriceLine }}</span>
               <span style="color:rgba(255,255,255,.55);font-size:12.5px">{{ proPriceSub }}</span>
             </div>
             <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:56px;border-radius:999px;background:#fff;color:#0e1015;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -16px rgba(0,0,0,.6);transition:transform 140ms ease" style-active="transform:scale(.98)">{{ proCta }}</button>
@@ -2002,7 +2002,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
               <sc-for list="{{ marketSearchResults }}" as="r" hint-placeholder-count="4">
                 <button onClick="{{ r.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.99)">
-                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ r.logo }}</div>
+                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ r.logo }}</div>
                   <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                     <span style="color:var(--tx);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
                     <span class="mono" style="color:var(--tx3);font-size:11.5px">{{ r.symbol }}</span>
@@ -2030,8 +2030,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <sc-for list="{{ marketIndices }}" as="idx" hint-placeholder-count="5">
                 <div style="flex:none;width:140px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);padding:14px">
                   <span style="display:block;color:var(--tx2);font-size:11.5px;font-weight:600;margin-bottom:6px">{{ idx.label }}</span>
-                  <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;margin-bottom:2px">{{ idx.price }}</span>
-                  <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;margin-bottom:8px">{{ idx.change }}</span>
+                  <span style="display:block;color:var(--tx);font-size:15px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;margin-bottom:2px">{{ idx.price }}</span>
+                  <span style="display:block;color:{{ idx.color }};font-size:12px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;margin-bottom:8px">{{ idx.change }}</span>
                   <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%;height:30px;display:block">
                     <path d="{{ idx.sparkline }}" fill="none" stroke="{{ idx.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
@@ -2047,11 +2047,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
               <sc-for list="{{ marketMovers }}" as="m" hint-placeholder-count="6">
                 <button onClick="{{ m.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:13px;padding:14px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);text-align:left;width:100%" style-hover="box-shadow:var(--hero-shadow)" style-active="transform:scale(.99)">
-                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ m.logo }}</div>
+                  <div style="width:38px;height:38px;border-radius:11px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--tx2);font-size:10px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ m.logo }}</div>
                   <span style="flex:1;color:var(--tx);font-size:14px;font-weight:600">{{ m.name }}</span>
                   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
-                    <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ m.price }}</span>
-                    <span style="color:{{ m.color }};font-size:11.5px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ m.change }}</span>
+                    <span style="color:var(--tx);font-size:14px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ m.price }}</span>
+                    <span style="color:{{ m.color }};font-size:11.5px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ m.change }}</span>
                   </div>
                 </button>
               </sc-for>
@@ -2068,7 +2068,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <div style="display:flex;flex-direction:column;gap:1px">
-            <span style="color:var(--tx);font-size:16px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ stockDetailSymbol }}</span>
+            <span style="color:var(--tx);font-size:16px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ stockDetailSymbol }}</span>
             <sc-if value="{{ stockDetailName }}" hint-placeholder-val="{{ false }}">
               <span style="color:var(--tx3);font-size:11.5px">{{ stockDetailName }}</span>
             </sc-if>
@@ -2087,8 +2087,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <sc-if value="{{ hasStockDetail }}" hint-placeholder-val="{{ false }}">
           <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);padding:18px">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px">
-              <span style="color:var(--tx);font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ stockDetailPrice }}</span>
-              <span style="color:{{ stockDetailColor }};font-size:14px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding-bottom:3px">{{ stockDetailPct }}</span>
+              <span style="color:var(--tx);font-size:32px;font-weight:700;letter-spacing:-.015em;line-height:1;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ stockDetailPrice }}</span>
+              <span style="color:{{ stockDetailColor }};font-size:14px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding-bottom:3px">{{ stockDetailPct }}</span>
             </div>
             <div style="display:flex;gap:4px;padding:3px;border-radius:9px;background:var(--surf2);margin-bottom:16px;width:fit-content">
               <sc-for list="{{ stockDetailRanges }}" as="r" hint-placeholder-count="5">
@@ -2394,7 +2394,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <div style="margin-bottom:22px">
             <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
               <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
-                <span class="mono" style="color:var(--tx);font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.05">{{ d.cdMain }}</span>
+                <span class="mono" style="color:var(--tx);font-size:26px;font-weight:700;letter-spacing:-.015em;line-height:1.05">{{ d.cdMain }}</span>
                 <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ d.cdWhen }}</span>
               </div>
               <span class="mono" style="flex:none;padding:5px 11px;border-radius:999px;background:var(--surf2);color:{{ d.posChartColor }};font-size:13px;font-weight:700">{{ d.posChartPct }}</span>
@@ -2471,8 +2471,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     <span style="position:absolute;top:-3px;width:3px;height:11px;border-radius:2px;background:var(--acc2);left:{{ d.pos52 }};transform:translateX(-50%);display:block"></span>
                   </div>
                   <div style="display:flex;justify-content:space-between">
-                    <span style="color:var(--tx3);font-size:11px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ d.lo52Label }}</span>
-                    <span style="color:var(--tx3);font-size:11px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ d.hi52Label }}</span>
+                    <span style="color:var(--tx3);font-size:11px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ d.lo52Label }}</span>
+                    <span style="color:var(--tx3);font-size:11px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ d.hi52Label }}</span>
                   </div>
                 </div>
               </sc-if>
@@ -2504,7 +2504,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                         <div style="display:flex;align-items:center;gap:8px">
                           <span style="width:9px;height:9px;border-radius:3px;background:{{ b.bg }};flex:none"></span>
                           <span style="flex:1;color:var(--tx2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ b.name }}</span>
-                          <span style="color:var(--tx3);font-size:11.5px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ b.pctLabel }}</span>
+                          <span style="color:var(--tx3);font-size:11.5px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;flex:none">{{ b.pctLabel }}</span>
                         </div>
                       </sc-for>
                     </div>
@@ -2554,9 +2554,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                                 <span class="chip" style="background:var(--neg-soft);color:var(--neg);flex:none">Verkauf</span>
                               </sc-if>
                             </div>
-                            <span style="color:var(--tx3);font-size:11px;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ t.detail }}</span>
+                            <span style="color:var(--tx3);font-size:11px;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ t.detail }}</span>
                           </div>
-                          <span style="color:{{ t.totalColor }};font-size:12px;font-weight:600;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ t.total }}</span>
+                          <span style="color:{{ t.totalColor }};font-size:12px;font-weight:600;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ t.total }}</span>
                           <button onClick="{{ t.edit }}" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none;transition:transform 140ms ease" style-active="transform:scale(.9)">
                             <svg width="13" height="13" viewBox="0 0 25 25" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16.058 11.5877L17.2852 9.95283C17.8932 9.14283 18.1492 8.14483 18.0062 7.14183C17.8632 6.13883 17.3392 5.25283 16.5292 4.64483C14.8582 3.39083 12.4762 3.72783 11.2212 5.40083L4.46919 14.3958C2.45719 17.0788 4.24719 20.2748 4.32419 20.4098C4.42819 20.5908 4.60319 20.7198 4.80719 20.7668C4.86519 20.7808 5.42519 20.9048 6.20619 20.9048C7.46919 20.9048 9.30719 20.5818 10.5332 18.9478L15.9018 11.7958C15.933 11.7665 15.9621 11.734 15.9887 11.6986C16.0154 11.6631 16.0385 11.626 16.058 11.5877ZM5.47719 19.3578C6.25819 19.4528 8.22819 19.5198 9.33319 18.0468L14.3293 11.391L10.6646 8.63955L5.66819 15.2958C4.54119 16.7998 5.16119 18.6408 5.47719 19.3578ZM11.5648 7.44043L15.23 10.1911L16.0852 9.05183C16.8442 8.04183 16.6392 6.60283 15.6292 5.84383C14.6182 5.08683 13.1782 5.29183 12.4202 6.30083L11.5648 7.44043Z" fill="currentColor"></path><path d="M19.733 20.643H13.356C12.942 20.643 12.606 20.307 12.606 19.893C12.606 19.479 12.942 19.143 13.356 19.143H19.733C20.147 19.143 20.483 19.479 20.483 19.893C20.483 20.307 20.147 20.643 19.733 20.643Z" fill="currentColor"></path></svg>
                           </button>
@@ -2730,7 +2730,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <button onClick="{{ ni.openInsider }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line)">
                 <div style="width:32px;height:32px;border-radius:10px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;color:{{ ni.color }};flex:none">
                   <sc-if value="{{ ni.isTextLogo }}" hint-placeholder-val="{{ true }}">
-                    <span style="font-size:9px;font-weight:700;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ ni.logo }}</span>
+                    <span style="font-size:9px;font-weight:700;font-family:'Outfit',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1">{{ ni.logo }}</span>
                   </sc-if>
                   <sc-if value="{{ ni.isAlertIcon }}" hint-placeholder-val="{{ false }}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>
