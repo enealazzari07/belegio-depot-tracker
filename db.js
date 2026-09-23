@@ -9,7 +9,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export async function signUp(email, password) {
   // Läuft über die "register"-Edge-Function: legt den User serverseitig
-  // (Service-Role-Key) direkt bestätigt an — keine E-Mail-Verifizierung nötig.
+  // (Service-Role-Key) an. Die E-Mail-Bestätigung läuft danach separat über
+  // die "auth-mail"-Function (profiles.email_verified), Login geht sofort.
   const res = await fetch(`${SUPABASE_URL}/functions/v1/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_ANON_KEY}`, apikey: SUPABASE_ANON_KEY },
@@ -28,6 +29,40 @@ export async function signIn(email, password) {
   if (error) throw error;
   return data;
 }
+
+// E-Mail-Bestätigung / Passwort-Reset über die "auth-mail"-Edge-Function.
+const AUTH_MAIL_ERRORS = {
+  "mail-not-configured": "E-Mail-Versand ist noch nicht eingerichtet.",
+  "rate-limited": "Bitte warte kurz, bevor du eine neue E-Mail anforderst.",
+  "invalid-token": "Dieser Link ist ungültig oder wurde schon benutzt.",
+  "expired-token": "Dieser Link ist abgelaufen. Fordere einfach einen neuen an.",
+  "invalid-email": "Ungültige E-Mail-Adresse.",
+  "weak-password": "Passwort muss mindestens 6 Zeichen haben.",
+  "mail-send-failed": "E-Mail konnte nicht gesendet werden. Versuch es später nochmal.",
+};
+
+async function authMail(action, payload = {}) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/auth-mail`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  let body = {};
+  try { body = await res.json(); } catch (_e) { body = {}; }
+  if (!res.ok) {
+    const err = new Error(AUTH_MAIL_ERRORS[body.error] || "Etwas ist schiefgelaufen. Versuch es nochmal.");
+    err.code = body.error || "error";
+    throw err;
+  }
+  return body;
+}
+
+export const sendVerifyMail = () => authMail("send-verify");
+export const verifyEmail = (token) => authMail("verify", { token });
+export const requestPasswordReset = (email) => authMail("send-reset", { email });
+export const resetPassword = (token, password) => authMail("reset", { token, password });
 
 export async function signOut() {
   await supabase.auth.signOut();
@@ -185,11 +220,11 @@ export async function getProfile() {
   if (userErr) throw userErr;
   const { data, error } = await supabase
     .from("profiles")
-    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years")
+    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years, email_verified")
     .eq("user_id", userData.user.id)
     .maybeSingle();
   if (error) throw error;
-  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null };
+  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null, email_verified: null };
 }
 
 // Speichert die Eingaben des Zinseszins-Rechners dauerhaft im Profil, damit sie

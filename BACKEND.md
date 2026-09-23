@@ -95,10 +95,36 @@ eigenen Ordner (`{user_id}/...`).
 
 | Function | Zweck | Auth |
 | --- | --- | --- |
-| `register` | Legt Nutzer per Service-Role direkt bestätigt an (`email_confirm: true`) — keine E-Mail-Verifizierung nötig | offen (kein Login vorhanden) |
+| `register` | Legt Nutzer per Service-Role an (`email_confirm: true`, Login geht sofort) — die eigentliche E-Mail-Bestätigung läuft über `auth-mail` | offen (kein Login vorhanden) |
+| `auth-mail` | E-Mail bestätigen + Passwort zurücksetzen (siehe „E-Mail-Bestätigung & Passwort-Reset" unten) | `send-verify` prüft das User-JWT selbst, der Rest ist token-/e-mail-basiert (`verify_jwt` deaktiviert) |
 | `market` | Proxy für Kurse/News/Suche/Historie | JWT erforderlich |
 | `ocr` | *(ungenutzt, Client scannt seit 2026-09 lokal via Tesseract.js — siehe „Beleg-Erkennung" unten; Function bleibt deployed, wird aber nicht mehr aufgerufen)* | JWT erforderlich |
 | `push-daily` | Verschickt den täglichen Depotstand per Web Push (`mode` "intraday"/"close") und prüft die Kursalarme (`mode` "alerts") | `x-cron-secret`-Header (kein User-JWT, `verify_jwt` deaktiviert) |
+
+## E-Mail-Bestätigung & Passwort-Reset (`auth-mail`-Function)
+
+- `profiles.email_verified` (bool) + `email_verified_at`. Der Trigger
+  `protect_email_verified` verhindert, dass Nutzer (Rollen `anon`/`authenticated`)
+  die Felder selbst setzen — nur die Function (Service-Role) darf das.
+  Bestandskonten vor Einführung wurden als bestätigt markiert.
+- `public.auth_tokens` (RLS an, kein Client-Zugriff): Einmal-Tokens `verify`
+  (24 h) und `reset` (1 h), gespeichert nur als SHA-256-Hash. Max. eine Mail pro
+  Minute und Art je Nutzer.
+- Aktionen (`POST { action, ... }`):
+  - `send-verify` — eingeloggt; schickt die Bestätigungs-Mail (App-Design).
+  - `verify` `{ token }` — setzt `email_verified = true`.
+  - `send-reset` `{ email }` — antwortet immer `ok` (keine Konto-Enumeration).
+  - `reset` `{ token, password }` — setzt das Passwort, entwertet alle offenen
+    Reset-Tokens, markiert die E-Mail als bestätigt.
+- Links zeigen immer auf `app_url` (fest, nie auf den Request-Origin):
+  `…/?verify=TOKEN` bzw. `…/?reset=TOKEN`; der Client wertet sie beim Start aus
+  und entfernt sie sofort aus der Adresszeile.
+- Versand über **Brevo** (bevorzugt) oder **Resend**. Konfiguration in
+  `public.app_secrets`: `brevo_api_key` *oder* `resend_api_key`, `mail_from`
+  (bei Brevo verifizierte Absenderadresse, bei Resend Adresse auf verifizierter
+  Domain), optional `mail_from_name` (Default „Stox“) und `app_url`
+  (Default `https://belegio-depot-tracker.vercel.app`). Fehlt das, antwortet die
+  Function mit `mail-not-configured`.
 
 ## Marktdaten-Anbieter (`market`-Function)
 

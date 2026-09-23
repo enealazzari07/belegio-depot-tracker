@@ -211,6 +211,28 @@ input::placeholder{color:var(--tx3)}
 @keyframes zoomIn{from{transform:scale(1)}to{transform:scale(80)}}
 @keyframes fadeOut{from{opacity:1}to{opacity:0}}
 @keyframes loginIn{0%{opacity:0;transform:scale(.94)}55%{opacity:1}100%{opacity:1;transform:scale(1)}}
+/* Login: Eingabefelder im Stil der Maerkte-Suche (weiss, rund, ohne Rahmen). */
+.auth-in{all:unset;box-sizing:border-box;width:100%;height:54px;border-radius:999px;background:var(--surf);color:var(--tx);font-size:15px;padding:0 22px;box-shadow:var(--card-shadow);transition:box-shadow .25s ease,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.auth-in::placeholder{color:var(--tx3)}
+.auth-in:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 7%,transparent),var(--card-shadow);transform:scale(1.01)}
+/* Anmelde-Button: schrumpft beim Laden zum Kreis mit drehendem Ring, schuettelt bei Fehlern. */
+.auth-btn{all:unset;box-sizing:border-box;cursor:pointer;position:relative;align-self:center;width:100%;height:56px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:15.5px;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:width .55s cubic-bezier(.65,0,.25,1),transform .2s ease,box-shadow .3s ease;box-shadow:0 14px 28px -16px rgba(16,19,26,.55)}
+.auth-btn:active{transform:scale(.97)}
+.auth-btn .ab-t{transition:opacity .2s ease,transform .35s cubic-bezier(.65,0,.25,1);white-space:nowrap}
+.auth-btn .ab-s{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.4);transition:opacity .25s ease .18s,transform .45s cubic-bezier(.34,1.56,.64,1) .18s}
+.auth-btn .ab-s svg{animation:spin .8s linear infinite}
+.auth-btn.loading{width:56px;pointer-events:none}
+.auth-btn.loading .ab-t{opacity:0;transform:scale(.6)}
+.auth-btn.loading .ab-s{opacity:1;transform:none}
+.auth-btn.done{width:56px;pointer-events:none;animation:authDone .6s cubic-bezier(.65,0,.25,1) .1s forwards}
+.auth-btn.done .ab-t{opacity:0}
+.auth-btn.shake{animation:authShake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+@keyframes authDone{to{transform:scale(1.18);opacity:0}}
+@keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* E-Mail-Bestaetigung: schwebende Karte unten. */
+@keyframes verifyUp{from{opacity:0;transform:translateY(calc(100% + 40px))}to{opacity:1;transform:none}}
+@keyframes verifyEnv{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-4deg)}}
 @keyframes wordUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes pop{from{opacity:0;transform:scale(.94) translateY(-6px)}to{opacity:1;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -356,21 +378,29 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
-      <div style="position:absolute;inset:0;padding:132px 32px 44px;display:flex;flex-direction:column;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
+      <div style="position:absolute;inset:0;padding:132px 32px 44px;display:flex;flex-direction:column;overflow-y:auto;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
         <img src="./img/stox-logo.png" alt="Stox" style="width:33%;max-width:140px;height:auto;margin-bottom:36px;display:block">
         <h1 style="margin:0 0 10px;color:var(--tx);font-size:31px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line">{{ authTitle }}</h1>
-        <p style="margin:0 0 36px;color:var(--tx2);font-size:14.5px;line-height:1.5">Dein Depot, ohne Tabellen.</p>
+        <p style="margin:0 0 34px;color:var(--tx2);font-size:14.5px;line-height:1.5">{{ authSub }}</p>
 
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;flex-direction:column;gap:7px">
-            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">E-MAIL</label>
-            <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="du@example.com" style="width:100%;height:52px;border-radius:16px;background:var(--surf2);color:var(--tx);font-size:15px;padding:0 16px;outline:none" style-focus="background:var(--surf3)">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:7px">
-            <label style="color:var(--tx3);font-size:11px;font-weight:600;letter-spacing:.1em">PASSWORT</label>
-            <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="mind. 6 Zeichen" style="width:100%;height:52px;border-radius:16px;background:var(--surf2);color:var(--tx);font-size:15px;padding:0 20px;outline:none" style-focus="background:var(--surf3)">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <sc-if value="{{ authShowEmail }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:22px">E-MAIL</label>
+              <input type="email" sc-camel-auto-complete="email" class="auth-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" onKeyDown="{{ onAuthKey }}" placeholder="du@example.com">
+            </div>
+          </sc-if>
+          <sc-if value="{{ authShowPassword }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 6px 0 22px">
+                <label style="color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em">{{ authPwLabel }}</label>
+                <sc-if value="{{ authShowForgot }}" hint-placeholder-val="{{ true }}">
+                  <a href="#1a" onClick="{{ openForgot }}" style="color:var(--tx2);font-size:12px;font-weight:700">Passwort vergessen?</a>
+                </sc-if>
+              </div>
+              <input type="password" sc-camel-auto-complete="{{ authPwAuto }}" class="auth-in" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" onKeyDown="{{ onAuthKey }}" placeholder="mind. 6 Zeichen">
             <sc-if value="{{ pwShow }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px;animation:wIn .35s cubic-bezier(.22,1,.36,1) both">
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px;padding:0 6px;animation:wIn .35s cubic-bezier(.22,1,.36,1) both">
                 <div style="display:flex;align-items:center;gap:10px">
                   <div style="flex:1;display:flex;align-items:flex-end;gap:5px;height:9px">
                     <sc-for list="{{ pwSegs }}" as="sg" hint-placeholder-count="4">
@@ -386,17 +416,27 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </div>
               </div>
             </sc-if>
-          </div>
+            </div>
+          </sc-if>
         </div>
 
         <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:12px 0 0;color:var(--neg);font-size:12.5px;line-height:1.5">{{ authError }}</p>
+          <p style="margin:14px 0 0;padding:0 22px;color:var(--neg);font-size:12.5px;line-height:1.5;animation:authModeIn .3s ease both">{{ authError }}</p>
+        </sc-if>
+        <sc-if value="{{ authNotice }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:16px 0 0;padding:14px 18px;border-radius:22px;background:var(--surf);box-shadow:var(--card-shadow);display:flex;gap:12px;align-items:flex-start;animation:authModeIn .35s cubic-bezier(.22,1,.36,1) both">
+            <span style="width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--pos) 14%,transparent);color:var(--pos);display:flex;align-items:center;justify-content:center;flex:none"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <span style="color:var(--tx2);font-size:13px;line-height:1.5;padding-top:5px">{{ authNotice }}</span>
+          </div>
         </sc-if>
 
-        <button onClick="{{ submitAuth }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;width:100%;height:54px;border-radius:16px;background:var(--acc);color:var(--accTx);font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ authCta }}</button>
+        <button onClick="{{ submitAuth }}" class="auth-btn {{ authBtnClass }}" style="margin-top:28px" aria-busy="{{ authLoading }}">
+          <span class="ab-t">{{ authCta }}</span>
+          <span class="ab-s"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-opacity=".22" stroke-width="2.6"></circle><path d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span>
+        </button>
 
         <div style="flex:1"></div>
-        <p style="margin:0;text-align:center;color:var(--tx3);font-size:12px">{{ authSwitchLabel }} <a href="#1a" onClick="{{ toggleAuthMode }}" style="color:var(--acc);font-weight:600">{{ authSwitchCta }}</a></p>
+        <p style="margin:0;text-align:center;color:var(--tx3);font-size:12.5px">{{ authSwitchLabel }} <a href="#1a" onClick="{{ toggleAuthMode }}" style="color:var(--acc);font-weight:700">{{ authSwitchCta }}</a></p>
       </div>
     </sc-if>
 
@@ -2631,6 +2671,33 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
+    <!-- E-Mail noch nicht bestaetigt: schwebende Karte unten, bis der Link geklickt wurde. -->
+    <sc-if value="{{ verifyPromptOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom, 0px) + 96px);z-index:75;animation:verifyUp .6s cubic-bezier(.22,1,.36,1) .25s both">
+        <div style="background:rgba(22,24,31,.95);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:18px 18px 16px;box-shadow:0 30px 60px -24px rgba(10,12,20,.6);color:#fff">
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="width:44px;height:44px;border-radius:15px;background:linear-gradient(160deg,#8E9EFF,#5B5BD6 60%,#2D2A6E);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 10px 22px -10px rgba(91,91,214,.8)">
+              <svg style="animation:verifyEnv 2.8s ease-in-out infinite" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3.5"></rect><path d="M3.8 7.2l7 5.1a2 2 0 0 0 2.4 0l7-5.1"></path></svg>
+            </span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:1px">
+              <span style="font-size:15.5px;font-weight:800;letter-spacing:-.01em">E-Mail muss bestätigt werden</span>
+              <span style="font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.66)">{{ verifyPromptText }}</span>
+            </div>
+            <button onClick="{{ dismissVerifyPrompt }}" aria-label="Später" style="all:unset;box-sizing:border-box;cursor:pointer;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex:none;color:rgba(255,255,255,.8);margin:-4px -4px 0 0" style-active="transform:scale(.9)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button onClick="{{ resendVerify }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:999px;background:#fff;color:#16181f;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s ease" style-active="transform:scale(.97)">
+              <sc-if value="{{ verifySending }}" hint-placeholder-val="{{ false }}"><svg style="animation:spin .8s linear infinite" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".2" stroke-width="3"></circle><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></sc-if>
+              {{ verifyResendLabel }}
+            </button>
+            <button onClick="{{ recheckVerified }}" style="all:unset;box-sizing:border-box;cursor:pointer;height:44px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.97)">Erledigt</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- KI-Analyse: graues Glas-Fenster waechst vom Button aus nach rechts und unten. -->
     <sc-if value="{{ aiPanelOpen }}" hint-placeholder-val="{{ false }}">
       <div id="ai-panel" class="ai-panel" style="{{ aiPanelVars }};position:absolute;z-index:60;background:rgba(34,36,44,.72);border:1px solid rgba(255,255,255,.14);box-sizing:border-box;backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,12,20,.6)">
@@ -3292,7 +3359,8 @@ class Component extends DCLogic {
     splash: false, dashLoading: true,
 
     user: null,
-    authMode: "login", authEmail: "", authPassword: "", authError: "", authLoading: false,
+    authMode: "login", authEmail: "", authPassword: "", authError: "", authNotice: "", authLoading: false, authBtnFx: "", resetToken: null,
+    emailVerified: null, verifyDismissed: false, verifySending: false, verifySentAt: 0,
 
     extracted: null, pendingFile: null, ocrText: "", ocrError: false, confirmError: "", isinUnresolved: false, resolvingIsin: false,
 
@@ -3649,7 +3717,10 @@ class Component extends DCLogic {
     this.loadInvestPlan();
     this.loadPositionMeta();
     const db = await this.db();
-    const session = await db.getSession();
+    const link = await this.handleAuthLinks();
+    const session = link === "reset" ? null : await db.getSession();
+    // Bestaetigung in einem anderen Tab/Geraet: beim Zurueckkehren in die App neu pruefen.
+    document.addEventListener("visibilitychange", this.onVisibleRecheck);
     if (session) {
       // Face ID sperrt nur den Wiedereinstieg in eine bereits bestehende
       // Session — die Credential-ID muss lokal vorhanden sein, sonst wuerde
@@ -3678,7 +3749,11 @@ class Component extends DCLogic {
     this.loadHqImages();
   }
 
-  componentWillUnmount() { window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
+  onVisibleRecheck = () => {
+    if (document.visibilityState === "visible" && this.state.user && this.state.emailVerified === false) this.loadProfile();
+  };
+
+  componentWillUnmount() { document.removeEventListener("visibilitychange", this.onVisibleRecheck); window.removeEventListener("keydown", this.onEscKey); clearTimeout(this.t2); clearTimeout(this.t3); clearInterval(this._carouselTimer); this.stopAutoSync(); }
 
   // ---------- Carousel „Was heute bewegt" ↔ „Marktnews" ----------
   // Das Wischen macht CSS scroll-snap; hier wird nur die aktive Seite für die
@@ -3813,44 +3888,155 @@ class Component extends DCLogic {
   // ---------- Auth ----------
   onAuthEmail = e => this.set("authEmail", e.target.value);
   onAuthPassword = e => this.set("authPassword", e.target.value);
-  toggleAuthMode = () => this.setState(s => ({ authMode: s.authMode === "login" ? "register" : "login", authError: "" }));
+  onAuthKey = e => { if (e.key === "Enter") { e.preventDefault(); this.submitAuth(); } };
+  toggleAuthMode = () => {
+    const m = this.state.authMode;
+    // Aus "Passwort vergessen" / "Neues Passwort" fuehrt der Link immer zurueck zur Anmeldung.
+    const next = m === "login" ? "register" : "login";
+    if (m === "reset") this.setState({ resetToken: null });
+    this.setState({ authMode: next, authError: "", authNotice: "", authBtnFx: "" });
+  };
+  openForgot = () => this.setState({ authMode: "forgot", authError: "", authNotice: "", authPassword: "", authBtnFx: "" });
+
+  // Button-Feedback: bei Fehlern kurz schuetteln statt nur Text zu zeigen.
+  authFail = msg => {
+    this.setState({ authLoading: false, authError: msg, authBtnFx: "shake" });
+    clearTimeout(this._authFxT);
+    this._authFxT = setTimeout(() => this.setState({ authBtnFx: "" }), 480);
+  };
 
   submitAuth = async () => {
-    const { authEmail, authPassword, authMode } = this.state;
+    if (this.state.authLoading) return;
+    const { authMode } = this.state;
+    if (authMode === "forgot") return this.submitForgot();
+    if (authMode === "reset") return this.submitReset();
+    const { authEmail, authPassword } = this.state;
     if (!authEmail.trim() || authPassword.length < 6) {
-      this.setState({ authError: "Bitte E-Mail und Passwort (mind. 6 Zeichen) angeben." });
+      this.authFail("Bitte E-Mail und Passwort (mind. 6 Zeichen) angeben.");
       return;
     }
-    this.setState({ authLoading: true, authError: "" });
+    this.setState({ authLoading: true, authError: "", authNotice: "", authBtnFx: "" });
     try {
       const db = await this.db();
       if (authMode === "register") await db.signUp(authEmail.trim(), authPassword);
       else await db.signIn(authEmail.trim(), authPassword);
       const session = await db.getSession();
       if (!session) {
-        this.setState({ authLoading: false, authMode: "login", authPassword: "", authError: "Konto erstellt — bitte bestätige deine E-Mail-Adresse und melde dich dann an." });
+        this.authFail("Anmeldung fehlgeschlagen. Bitte versuch es nochmal.");
         return;
       }
-      this.setState({ authLoading: false, user: session.user, screen: "dash", authPassword: "", dashLoading: true, welcomeOpen: authMode === "register" });
-      const holdings = await this.loadPortfolio();
-      await this.loadHistory(holdings);
-      await this.loadEtfCompositions(holdings);
-      if (holdings.length) this.sync();
-      await this.loadReceipts();
-      this.loadProfile();
-      this.loadMarkets();
-      this.loadInsiderTrades(holdings);
-      this.loadPushLog();
-      this.loadDividends();
-      this.loadPriceAlerts();
-      this.startAutoSync();
-      this.setState({ dashLoading: false });
-    this.ensureHomeSeries(this.state.chartRange || "D");
-    this.loadHqImages();
+      if (authMode === "register") {
+        // Bestaetigungs-Mail direkt nach dem Anlegen; die Karte unten erinnert, bis der Link geklickt ist.
+        this.setState({ emailVerified: false, verifySentAt: Date.now() });
+        db.sendVerifyMail().catch(() => this.setState({ verifySentAt: 0 }));
+      }
+      await this.enterAfterAuth(session, authMode === "register");
     } catch (e) {
-      this.setState({ authLoading: false, authError: e.message || "Fehler bei der Anmeldung." });
+      const msg = /invalid login credentials/i.test(e.message || "") ? "E-Mail oder Passwort stimmt nicht." : (e.message || "Fehler bei der Anmeldung.");
+      this.authFail(msg);
     }
   };
+
+  // Erfolgreich angemeldet: Button fliegt kurz als Kreis aus, dann oeffnet sich das Dashboard.
+  enterAfterAuth = async (session, isNew) => {
+    this.setState({ authBtnFx: "done" });
+    await new Promise(r => setTimeout(r, 520));
+    this.setState({ authLoading: false, authBtnFx: "", user: session.user, screen: "dash", authPassword: "", authNotice: "", resetToken: null, dashLoading: true, welcomeOpen: isNew, verifyDismissed: false });
+    const holdings = await this.loadPortfolio();
+    await this.loadHistory(holdings);
+    await this.loadEtfCompositions(holdings);
+    if (holdings.length) this.sync();
+    await this.loadReceipts();
+    this.loadProfile();
+    this.loadMarkets();
+    this.loadInsiderTrades(holdings);
+    this.loadPushLog();
+    this.loadDividends();
+    this.loadPriceAlerts();
+    this.startAutoSync();
+    this.setState({ dashLoading: false });
+    this.ensureHomeSeries(this.state.chartRange || "D");
+    this.loadHqImages();
+  };
+
+  submitForgot = async () => {
+    const email = this.state.authEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { this.authFail("Bitte gib deine E-Mail-Adresse ein."); return; }
+    this.setState({ authLoading: true, authError: "", authNotice: "", authBtnFx: "" });
+    try {
+      const db = await this.db();
+      await db.requestPasswordReset(email);
+      this.setState({ authLoading: false, authNotice: "Falls ein Konto zu dieser E-Mail existiert, ist ein Link zum Zurücksetzen unterwegs. Schau in dein Postfach (auch im Spam)." });
+    } catch (e) {
+      this.authFail(e.message);
+    }
+  };
+
+  submitReset = async () => {
+    const { authPassword, resetToken } = this.state;
+    if (authPassword.length < 6) { this.authFail("Passwort muss mindestens 6 Zeichen haben."); return; }
+    this.setState({ authLoading: true, authError: "", authNotice: "", authBtnFx: "" });
+    try {
+      const db = await this.db();
+      const res = await db.resetPassword(resetToken, authPassword);
+      if (!res.email) throw new Error("Passwort gespeichert — bitte melde dich neu an.");
+      await db.signOut().catch(() => {});
+      await db.signIn(res.email, authPassword);
+      const session = await db.getSession();
+      this.setState({ authEmail: res.email, emailVerified: true });
+      this.pushToast("Neues Passwort gespeichert", { tone: "pos" });
+      await this.enterAfterAuth(session, false);
+    } catch (e) {
+      this.authFail(e.message);
+    }
+  };
+
+  // Links aus den E-Mails: ?verify=… bestaetigt direkt, ?reset=… oeffnet das Formular fuer ein neues Passwort.
+  handleAuthLinks = async () => {
+    let params;
+    try { params = new URLSearchParams(location.search); } catch (_) { return null; }
+    const verify = params.get("verify"), reset = params.get("reset");
+    if (!verify && !reset) return null;
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch (_) {}
+    if (reset) {
+      this.setState({ screen: "login", authMode: "reset", resetToken: reset, authPassword: "", authError: "", authNotice: "" });
+      return "reset";
+    }
+    try {
+      const db = await this.db();
+      await db.verifyEmail(verify);
+      this.setState({ emailVerified: true });
+      this.pushToast("E-Mail bestätigt — danke!", { tone: "pos" });
+    } catch (e) {
+      this.pushToast(e.message || "Bestätigungslink ungültig.", { tone: "neg", duration: 5000 });
+    }
+    return "verify";
+  };
+
+  resendVerify = async () => {
+    if (this.state.verifySending) return;
+    const wait = 60000 - (Date.now() - (this.state.verifySentAt || 0));
+    if (wait > 0) { this.pushToast(`Neuer Link in ${Math.ceil(wait / 1000)} s möglich`); return; }
+    this.setState({ verifySending: true });
+    try {
+      const db = await this.db();
+      const r = await db.sendVerifyMail();
+      if (r.alreadyVerified) { this.setState({ verifySending: false, emailVerified: true }); this.pushToast("E-Mail ist bereits bestätigt", { tone: "pos" }); return; }
+      this.setState({ verifySending: false, verifySentAt: Date.now() });
+      this.pushToast("Neuer Link ist unterwegs", { tone: "pos" });
+    } catch (e) {
+      this.setState({ verifySending: false });
+      this.pushToast(e.message, { tone: "neg", duration: 4500 });
+    }
+  };
+
+  // "Erledigt": prueft, ob der Link inzwischen (z. B. auf einem anderen Geraet) geklickt wurde.
+  recheckVerified = async () => {
+    await this.loadProfile();
+    if (this.state.emailVerified) this.pushToast("E-Mail bestätigt — danke!", { tone: "pos" });
+    else this.pushToast("Noch nicht bestätigt — tipp auf den Link in der E-Mail.", { duration: 4000 });
+  };
+  dismissVerifyPrompt = () => this.setState({ verifyDismissed: true });
 
   logoutUser = async () => {
     const db = await this.db();
@@ -3858,7 +4044,8 @@ class Component extends DCLogic {
     this.stopAutoSync();
     this.setState({
       user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-      conn: "idle", authEmail: "", authPassword: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {},
+      conn: "idle", authEmail: "", authPassword: "", authMode: "login", authError: "", authNotice: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {},
+      emailVerified: null, verifyDismissed: false,
       locked: false
     });
   };
@@ -4669,6 +4856,7 @@ class Component extends DCLogic {
       this.setState({
         userPlan: profile.plan === "pro" ? "pro" : "free",
         insiderAlertsSeenAt: profile.insider_alerts_seen_at,
+        emailVerified: profile.email_verified == null ? null : !!profile.email_verified,
         ...compoundPatch,
       });
     } catch (e) { /* Standard bleibt "free" */ }
@@ -6446,7 +6634,7 @@ class Component extends DCLogic {
         const lvl = pw.length < 6 ? 0 : Math.max(1, score);
         const col = pw ? COL[lvl] : "var(--tx3)";
         return {
-          pwShow: this.state.authMode === "register" && pw.length > 0,
+          pwShow: (this.state.authMode === "register" || this.state.authMode === "reset") && pw.length > 0,
           pwLabel: LAB[lvl], pwColor: col,
           pwSegs: [0, 1, 2, 3].map(i => ({ h: i < lvl ? "9px" : "4px", bg: i < lvl ? COL[lvl] : "var(--line2)", delay: (i * 70) + "ms" })),
           pwChecks: [
@@ -6454,15 +6642,33 @@ class Component extends DCLogic {
           ].map(c => ({ label: (c.ok ? "✓ " : "") + c.label, bg: c.ok ? "var(--pos-soft)" : "var(--surf2)", tx: c.ok ? "var(--pos)" : "var(--tx3)", scale: c.ok ? "1" : ".96" }))
         };
       })(),
-      authTitle: this.state.authMode === "register" ? "Konto\nerstellen" : "Willkommen\nzurück",
-      authEmail: this.state.authEmail, onAuthEmail: this.onAuthEmail,
+      ...(() => {
+        const m = this.state.authMode;
+        const T = {
+          login: { title: "Willkommen\nzurück", sub: "Dein Depot, ohne Tabellen.", cta: "Anmelden", sw: "Noch kein Konto?", swCta: "Registrieren" },
+          register: { title: "Konto\nerstellen", sub: "Dein Depot, ohne Tabellen.", cta: "Registrieren", sw: "Schon ein Konto?", swCta: "Anmelden" },
+          forgot: { title: "Passwort\nvergessen?", sub: "Kein Problem — wir schicken dir einen Link, mit dem du ein neues festlegst.", cta: "Link senden", sw: "Doch wieder eingefallen?", swCta: "Anmelden" },
+          reset: { title: "Neues\nPasswort", sub: "Wähle ein neues Passwort für dein Konto.", cta: "Passwort speichern", sw: "", swCta: "Zur Anmeldung" },
+        }[m] || {};
+        return {
+          authTitle: T.title, authSub: T.sub, authCta: T.cta,
+          authSwitchLabel: T.sw, authSwitchCta: T.swCta,
+          authShowEmail: m !== "reset", authShowPassword: m !== "forgot", authShowForgot: m === "login",
+          authPwLabel: m === "reset" ? "NEUES PASSWORT" : "PASSWORT",
+          authPwAuto: m === "login" ? "current-password" : "new-password",
+          authBtnClass: this.state.authBtnFx === "done" ? "done" : this.state.authLoading ? "loading" : this.state.authBtnFx,
+        };
+      })(),
+      authEmail: this.state.authEmail, onAuthEmail: this.onAuthEmail, onAuthKey: this.onAuthKey, openForgot: this.openForgot,
       authPassword: this.state.authPassword, onAuthPassword: this.onAuthPassword,
-      authError: this.state.authError,
-      authCta: this.state.authLoading ? "…" : (this.state.authMode === "register" ? "Registrieren" : "Anmelden"),
+      authError: this.state.authError, authNotice: this.state.authNotice, authLoading: !!this.state.authLoading,
       submitAuth: this.submitAuth,
-      authSwitchLabel: this.state.authMode === "register" ? "Schon ein Konto?" : "Noch kein Konto?",
-      authSwitchCta: this.state.authMode === "register" ? "Anmelden" : "Registrieren",
       toggleAuthMode: this.toggleAuthMode,
+      verifyPromptOpen: !!user && this.state.screen === "dash" && this.state.emailVerified === false && !this.state.verifyDismissed && !this.state.welcomeOpen && !this.state.locked,
+      verifyPromptText: `Wir haben dir einen Link an ${(user && user.email) || "deine E-Mail"} geschickt. Tipp darauf, damit dein Konto vollständig ist.`,
+      verifyResendLabel: this.state.verifySending ? "Wird gesendet" : "Link erneut senden",
+      verifySending: !!this.state.verifySending,
+      resendVerify: this.resendVerify, recheckVerified: this.recheckVerified, dismissVerifyPrompt: this.dismissVerifyPrompt,
       userEmail: (user && user.email) || "",
       userInitials: user && user.email ? user.email.slice(0, 2).toUpperCase() : "–",
 
