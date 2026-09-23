@@ -818,7 +818,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isDepot }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;animation:fade .3s ease;background:{{ depotPageBg }}">
+      <div id="depot-scroll" onScroll="{{ onDepotScroll }}" style="position:absolute;inset:0;overflow-y:auto;animation:fade .3s ease;background:{{ depotPageBg }}">
         <!-- Titel + Tab-Umschalter bleiben beim Scrollen immer oben stehen.
              Hoehe 0, damit die Leiste ueber dem Inhalt schwebt statt ihn nach
              unten zu schieben (das Titelbild laeuft darunter weiter). Auf
@@ -827,8 +827,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              Pillen auf dem Bild bzw. dem weissen Block. -->
         <div style="position:sticky;top:0;height:0;z-index:20">
           <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--bg);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
+            <sc-if value="{{ depotHeadBlur }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:{{ depotPageBg }};animation:fade .2s ease;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 78%,transparent 100%)"></div>
             </sc-if>
             <span style="position:relative;font-weight:700;letter-spacing:-.025em;flex:none;{{ depotTitleStyle }}">Depot</span>
             <div style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;{{ depotBarStyle }}">
@@ -4201,7 +4201,7 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => { this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
+  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.setState({ depotTab: k, depotScrolled: false }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
@@ -4386,6 +4386,12 @@ class Component extends DCLogic {
   // Account-Button oben links: die Zeitraum-Bar schiebt sich beim
   // Runterscrollen smooth per transform darueber (statt Layout-Reflow),
   // der Button verblasst darunter und verschwindet.
+  onDepotScroll = e => {
+    const el = e.currentTarget;
+    if (!el) return;
+    const scrolled = el.scrollTop > 330;
+    if (scrolled !== !!this.state.depotScrolled) this.setState({ depotScrolled: scrolled });
+  };
   onHomeScroll = e => {
     const el = e.currentTarget;
     const btn = document.getElementById("home-account-btn");
@@ -5771,6 +5777,9 @@ class Component extends DCLogic {
     // ---------- Depot-Eckdaten über alle Transaktionen ----------
     // ---------- Signale (Pro) ----------
     const proActive = this.state.userPlan === "pro";
+    // Depot > Allgemein: solange der Titelbild-Bereich sichtbar ist, stehen
+    // Titel und Tab-Leiste hell auf dem Bild; danach normal auf dem Weiss.
+    const depotOnImage = (this.state.depotTab || "general") === "general" && !this.state.depotScrolled;
     const signalList = visibleHoldings
       .map(h => buildSignal(h.sym || h.abbr, displayName(h), hist[h.sym || h.abbr], h.curNative))
       .filter(Boolean)
@@ -6699,7 +6708,7 @@ class Component extends DCLogic {
       allocationSlices,
       allocationLegend,
       allocRing, allocCallouts,
-      depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: (this.state.depotTab || "general") !== "general", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)", depotTitleStyle: (this.state.depotTab || "general") === "general" ? "height:42px;line-height:42px;padding:0 14px;border-radius:999px;background:var(--surf);color:var(--tx);font-size:16px;box-shadow:0 10px 24px -14px rgba(10,12,20,.5)" : "color:var(--tx);font-size:22px", depotBarStyle: (this.state.depotTab || "general") === "general" ? "background:var(--surf);box-shadow:0 10px 24px -14px rgba(10,12,20,.5)" : "background:var(--gbtn);border:1px solid var(--gbtn-line)",
+      depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: (this.state.depotTab || "general") !== "general", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)", depotHeadBlur: !depotOnImage, depotTitleStyle: depotOnImage ? "color:#fff;font-size:22px;text-shadow:0 1px 10px rgba(0,0,0,.25)" : "color:var(--tx);font-size:22px", depotBarStyle: depotOnImage ? "background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18)" : "background:var(--gbtn);border:1px solid var(--gbtn-line)",
       ...(() => {
         const cut = Date.now() - 90 * 864e5, it = this.state.insiderTrades || {};
         const rows = [];
@@ -6773,7 +6782,7 @@ class Component extends DCLogic {
       depotTabs: [{ key: "general", label: "Allgemein" }, { key: "alloc", label: "Analyse" }, { key: "div", label: "Dividenden" }].map(t => ({
         label: t.label, go: this.setDepotTab(t.key),
         bg: (this.state.depotTab || "general") === t.key ? "#1b1b1f" : "transparent",
-        tx: (this.state.depotTab || "general") === t.key ? "#fff" : "var(--tx2)"
+        tx: (this.state.depotTab || "general") === t.key ? "#fff" : depotOnImage ? "rgba(255,255,255,.85)" : "var(--tx2)"
       })),
       depotProLabel: proActive ? "Pro aktiv ✓" : "Pro",
       depotProBg: proActive ? "var(--gbtn)" : "#1b1b1f", depotProTx: proActive ? "var(--tx)" : "#fff",
@@ -7059,7 +7068,7 @@ class Component extends DCLogic {
         bg: i === carouselIdx ? "var(--acc2)" : "var(--line2)"
       })),
       onCarouselScroll: this.onCarouselScroll,
-      onHomeScroll: this.onHomeScroll,
+      onHomeScroll: this.onHomeScroll, onDepotScroll: this.onDepotScroll,
       onCarouselTouch: this.onCarouselTouch,
 
       // ---------- „Was heute bewegt" ----------
