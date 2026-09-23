@@ -217,6 +217,10 @@ input::placeholder{color:var(--tx3)}
 @keyframes tabPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
 @keyframes tabSlideL{from{transform:translate3d(calc(50cqw - 134px),0,0)}to{transform:translate3d(0,0,0)}}
 @keyframes tabSlideR{from{transform:translate3d(calc(134px - 50cqw),0,0)}to{transform:translate3d(0,0,0)}}
+/* Depot: Inhalt beim Tab-Wechsel (Wisch oder Tippen) seitlich einschieben
+   statt hart umzuschalten -- Richtung passend zur Wisch-/Tab-Reihenfolge. */
+@keyframes depotSlideL{from{opacity:0;transform:translate3d(36px,0,0)}to{opacity:1;transform:none}}
+@keyframes depotSlideR{from{opacity:0;transform:translate3d(-36px,0,0)}to{opacity:1;transform:none}}
 @keyframes tabScanGrow{from{clip-path:inset(0 calc(50% - 24px) 0 calc(50% - 24px) round 24px)}to{clip-path:inset(-30px -30px -30px -30px round 24px)}}
 @keyframes tabLabel{from{max-width:0;margin-left:-9px;opacity:0;filter:blur(3px)}to{max-width:90px;margin-left:0;opacity:1;filter:blur(0)}}
 .tab-bar{container-type:inline-size;animation:tabPop .3s cubic-bezier(.2,.9,.3,1.15) both}
@@ -818,7 +822,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isDepot }}" hint-placeholder-val="{{ false }}">
-      <div id="depot-scroll" onScroll="{{ onDepotScroll }}" style="position:absolute;inset:0;overflow-y:auto;animation:fade .3s ease;background:{{ depotPageBg }}">
+      <div id="depot-scroll" onScroll="{{ onDepotScroll }}" onPointerDown="{{ depotSwipeStart }}" onPointerMove="{{ depotSwipeMove }}" onPointerUp="{{ depotSwipeEnd }}" onPointerCancel="{{ depotSwipeEnd }}" style="position:absolute;inset:0;overflow-y:auto;animation:fade .3s ease;background:{{ depotPageBg }}">
         <!-- Account-Symbol + Tab-Umschalter bleiben beim Scrollen immer oben
              angeheftet. Jede Pille hat nur ihren eigenen, nativen Blur (wie
              ein iOS-Toolbar-Button) -- kein zusaetzlicher, bar-weiter
@@ -844,7 +848,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              und die beiden Aktions-Buttons liegen direkt auf dem Bild, darunter
              schiebt sich der weisse, oben abgerundete Block mit den Positionen
              und allem Weiteren leicht ueber die Bildunterkante. -->
-        <div style="position:relative;background:#141417 url(img/depot.webp) center/cover no-repeat;display:flex;flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 40px">
+        <div style="position:relative;background:#141417 url(img/depot.webp) center/cover no-repeat;display:flex;flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 40px;animation:{{ depotTabAnim }} .32s cubic-bezier(.32,.72,0,1) both">
           <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,22,.62) 0%,rgba(14,16,22,.38) 34%,rgba(14,16,22,.9) 100%);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none"></div>
           <div style="height:64px;flex:none"></div>
           <div style="position:relative;display:flex;flex-direction:column;gap:12px">
@@ -1043,7 +1047,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         </sc-if>
 
         <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
-        <div style="padding:calc(env(safe-area-inset-top, 0px) + 80px) 20px 128px">
+        <div style="padding:calc(env(safe-area-inset-top, 0px) + 80px) 20px 128px;animation:{{ depotTabAnim }} .32s cubic-bezier(.32,.72,0,1) both">
 
         <sc-if value="{{ depotAlloc }}" hint-placeholder-val="{{ false }}">
 
@@ -1864,10 +1868,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isPro }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;background:linear-gradient(180deg,#ffffff 0px,rgba(255,255,255,.92) 40px,rgba(255,255,255,.55) 150px,rgba(255,255,255,0) 330px) no-repeat local,radial-gradient(120% 60% at 20% 0%,#1d3a44 0%,#141922 46%,#0e1015 100%);animation:rise .32s ease;-webkit-overflow-scrolling:touch">
+      <div id="scr-pro" style="position:absolute;inset:0;overflow-y:auto;background:linear-gradient(180deg,#ffffff 0px,rgba(255,255,255,.92) 40px,rgba(255,255,255,.55) 150px,rgba(255,255,255,0) 330px) no-repeat local,radial-gradient(120% 60% at 20% 0%,#1d3a44 0%,#141922 46%,#0e1015 100%);animation:rise .32s ease;-webkit-overflow-scrolling:touch">
+        <div onPointerDown="{{ edgeBackPro }}" onPointerMove="{{ edgeBackMove }}" onPointerUp="{{ edgeBackEnd }}" onPointerCancel="{{ edgeBackEnd }}" style="position:absolute;left:0;top:0;bottom:0;width:24px;z-index:30;touch-action:none"></div>
         <div style="padding:calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(190px + env(safe-area-inset-bottom, 0px))">
           <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
-            <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#141922" style-active="transform:scale(.92)">
+            <button onClick="{{ goBack }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#141922" style-active="transform:scale(.92)">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
@@ -1935,7 +1940,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </sc-if>
           <sc-if value="{{ proIsActive }}" hint-placeholder-val="{{ false }}">
             <div style="pointer-events:auto;display:flex;flex-direction:column;gap:10px;max-width:400px;margin:0 auto">
-              <button onClick="{{ goDash }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:56px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">Zurück zur App</button>
+              <button onClick="{{ goBack }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:56px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">Zurück zur App</button>
               <span style="text-align:center;color:rgba(255,255,255,.45);font-size:11px">Pro ist aktiv — du musst nichts mehr kaufen.</span>
             </div>
           </sc-if>
@@ -2080,7 +2085,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isStockDetail }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:rise .32s ease">
+      <div id="scr-stockdetail" style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:rise .32s ease">
+        <div onPointerDown="{{ edgeBackStockDetail }}" onPointerMove="{{ edgeBackMove }}" onPointerUp="{{ edgeBackEnd }}" onPointerCancel="{{ edgeBackEnd }}" style="position:absolute;left:0;top:0;bottom:0;width:24px;z-index:30;touch-action:none"></div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
           <button onClick="{{ closeStockDetail }}" style="all:unset;cursor:pointer;width:38px;height:38px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
@@ -2373,6 +2379,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
          (clip-path-Morph). Inhalt = dieselbe Detailansicht wie im Depot. -->
     <sc-for list="{{ cardDetailItems }}" as="d" hint-placeholder-count="1">
       <div id="card-detail" class="cd-panel" onScroll="{{ cdScroll }}" style="{{ d.clipVars }};position:absolute;inset:0;z-index:60;background:var(--bg);-webkit-overflow-scrolling:touch">
+        <div onPointerDown="{{ edgeBackCardDetail }}" onPointerMove="{{ edgeBackMove }}" onPointerUp="{{ edgeBackEnd }}" onPointerCancel="{{ edgeBackEnd }}" style="position:absolute;left:0;top:0;bottom:0;width:24px;z-index:20;touch-action:none"></div>
         <div data-cd-head="1" style="position:sticky;top:0;height:calc(env(safe-area-inset-top, 0px) + 68px);margin-bottom:calc(-1 * (env(safe-area-inset-top, 0px) + 68px));z-index:6;pointer-events:none">
           <span class="cd-spin-top" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 22px);left:50%;width:26px;height:26px;margin-left:-13px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .8s linear infinite;opacity:0;transition:opacity .15s ease"></span>
           <span class="cd-title" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 14px);left:70px;right:116px;height:42px;line-height:42px;color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0;pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.35)">{{ d.heroShort }}</span>
@@ -2775,9 +2782,10 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+      <div id="scr-settings" style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+        <div onPointerDown="{{ edgeBackSettings }}" onPointerMove="{{ edgeBackMove }}" onPointerUp="{{ edgeBackEnd }}" onPointerCancel="{{ edgeBackEnd }}" style="position:absolute;left:0;top:0;bottom:0;width:24px;z-index:30;touch-action:none"></div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
-          <button onClick="{{ goDash }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+          <button onClick="{{ goBack }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
           <span style="color:var(--tx);font-size:16px;font-weight:600">Account & Einstellungen</span>
@@ -3320,7 +3328,20 @@ class Component extends DCLogic {
   skipSplash = () => { clearTimeout(this.t3); this.setState({ splash: false }); };
 
   set = (k, v) => this.setState({ [k]: v });
-  go = s => () => this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
+  // Screen-Verlauf nur fuer goBack() (z. B. Randwisch-Geste): jeder echte
+  // Wechsel landet auf dem Stack, damit "zurueck" tatsaechlich zur letzten
+  // Seite fuehrt statt zu einem fest verdrahteten Ziel -- unabhaengig davon,
+  // ob diese Seite selbst ueber die untere Tab-Leiste oder von woanders
+  // erreicht wurde.
+  go = s => () => {
+    const cur = this.state.screen;
+    if (cur && cur !== s) { this._navStack = this._navStack || []; this._navStack.push(cur); }
+    this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
+  };
+  goBack = () => {
+    const prev = (this._navStack || []).pop() || "dash";
+    this.setState({ screen: prev, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
+  };
 
   goMarkets = () => { this.go("markets")(); this.loadMarkets(); };
   goDepotPage = () => { this.go("depot")(); this.markInsiderSeen(); };
@@ -3381,7 +3402,7 @@ class Component extends DCLogic {
     }
   };
 
-  closeStockDetail = () => this.setState({ screen: "markets", stockDetailSymbol: null, stockDetailName: "", stockDetailData: null });
+  closeStockDetail = () => { this.goBack(); this.setState({ stockDetailSymbol: null, stockDetailName: "", stockDetailData: null }); };
   setStockDetailRange = key => () => this.setState({ stockDetailRange: key });
   setMarketsFilter = key => () => this.setState({ marketsFilter: key });
 
@@ -4137,6 +4158,58 @@ class Component extends DCLogic {
     this.springSheetTo(window.innerHeight || 900, 0, fn);
   };
 
+  // ---------- Randwisch nach rechts = zurueck ----------
+  // Wie Apples systemweite Zurueck-Geste: Start nur nahe am linken Rand
+  // (sonst wuerde jeder normale horizontale Wisch/Scrub im Bildschirm die
+  // Seite mitziehen), der Bildschirm folgt danach 1:1 dem Finger per
+  // direktem Style-Zugriff (kein Re-Render pro Frame). Beim Loslassen
+  // entscheidet Zugweite ODER Geschwindigkeit: weit/schnell genug faehrt
+  // die Seite per CSS-Transition ganz nach rechts raus und die Aktion
+  // (goBack, closeCardDetail, ...) feuert danach; sonst schnellt sie
+  // zurueck an ihren Platz. Mehrere Ziel-Elemente laufen unabhaengig
+  // nebeneinander (id identifiziert, welches gerade gezogen wird).
+  edgeBackStart = (id, action, instant) => e => {
+    if (e.clientX > 28 || this._edgeBack) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.transition = "none";
+    this._edgeBack = { id, el, x0: e.clientX, dx: 0, action, instant, hist: [{ t: performance.now(), x: 0 }] };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  edgeBackMove = e => {
+    const d = this._edgeBack;
+    if (!d) return;
+    let dx = e.clientX - d.x0;
+    if (dx < 0) dx = rubberband(dx, 60, .5);
+    d.dx = dx;
+    d.hist.push({ t: performance.now(), x: dx });
+    if (d.hist.length > 6) d.hist.shift();
+    d.el.style.transform = "translateX(" + dx + "px)";
+  };
+  edgeBackEnd = () => {
+    const d = this._edgeBack;
+    if (!d) return;
+    this._edgeBack = null;
+    const first = d.hist[0], last = d.hist[d.hist.length - 1];
+    const velocity = (last.x - first.x) / Math.max(1, last.t - first.t) * 1000;
+    const w = window.innerWidth || 390;
+    const commit = d.dx > w * 0.3 || velocity > 700;
+    // "instant": Ziel hat eine eigene, feinere Schliess-Animation (Karten-
+    // Detail mit seinem Clip-Path-Morph zurueck zur Ursprungskarte) -- den
+    // Zug-Versatz sofort neutralisieren und deren Animation uebernehmen
+    // lassen, statt zusaetzlich per Slide rauszufahren.
+    if (commit && d.instant) {
+      d.el.style.transition = "none";
+      d.el.style.transform = "";
+      d.action();
+      return;
+    }
+    d.el.style.transition = "transform .3s cubic-bezier(.22,1,.36,1)";
+    d.el.style.transform = "translateX(" + (commit ? w : 0) + "px)";
+    if (commit) setTimeout(d.action, 280);
+    else setTimeout(() => { d.el.style.transition = ""; d.el.style.transform = ""; }, 320);
+  };
+
   // ---------- Toasts (unten ueber der Tab-Bar) ----------
   // Nur fuer Wichtiges: erfolgreiches Buchen/Scannen, gesetzte Kursalarme,
   // ausgeloeste Kursalarme ("was am Markt passiert ist"). Mehrere stapeln
@@ -4201,7 +4274,46 @@ class Component extends DCLogic {
     } catch (e) { /* ohne Bild bleibt der Farbverlauf */ }
   };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
-  setDepotTab = k => () => { const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0; this.applyDepotHeadTone(); this.setState({ depotTab: k }); if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra(); };
+  // Reihenfolge der Depot-Tabs: bestimmt sowohl die Wisch-Richtung (naechster/
+  // vorheriger Tab) als auch, aus welcher Seite der neue Tab-Inhalt beim
+  // Wechsel einschiebt (egal ob per Tipp auf die Leiste oder per Wisch).
+  DEPOT_TAB_ORDER = ["general", "alloc", "div"];
+  setDepotTab = k => () => {
+    const order = this.DEPOT_TAB_ORDER;
+    const from = order.indexOf(this.state.depotTab || "general"), to = order.indexOf(k);
+    this._depotTabDir = to > from ? 1 : to < from ? -1 : 0;
+    const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0;
+    this.applyDepotHeadTone();
+    this.setState({ depotTab: k });
+    if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra();
+  };
+  // ---------- Depot: Tabs per Wisch durchblaettern ----------
+  // Gleiche Richtungs-Erkennung wie bei den Home-Karten (erst ab 8px
+  // entscheiden, ob horizontal oder vertikal gemeint ist, sonst blockiert
+  // das normale Scrollen der Depot-Seite). Zieht bis zum Rand, wechselt
+  // nicht rueber (kein Rundlauf general -> div).
+  depotSwipeStart = e => {
+    this._dsw = { x: e.clientX, y: e.clientY, dir: null };
+  };
+  depotSwipeMove = e => {
+    const s = this._dsw;
+    if (!s || s.dir) return;
+    const dx = e.clientX - s.x, dy = e.clientY - s.y;
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    s.dir = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    if (s.dir === "x") { s.dx = dx; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {} }
+  };
+  depotSwipeEnd = e => {
+    const s = this._dsw;
+    this._dsw = null;
+    if (!s || s.dir !== "x") return;
+    const dx = e.clientX - s.x;
+    if (Math.abs(dx) < 50) return;
+    const order = this.DEPOT_TAB_ORDER;
+    const cur = order.indexOf(this.state.depotTab || "general");
+    const next = order[cur + (dx < 0 ? 1 : -1)];
+    if (next) this.setDepotTab(next)();
+  };
   // Depot > Holdings: Account-Icon und Tab-Leiste sind auf dem Titelbild
   // hell/durchscheinend. Sobald der weisse Positionen-Block darunter
   // erscheint, waeren sie darauf kaum noch zu erkennen -- deshalb kippen
@@ -6432,7 +6544,7 @@ class Component extends DCLogic {
         open: this.openStockDetail(r.symbol, r.name)
       })),
 
-      isStockDetail: screen === "stockDetail", closeStockDetail: this.closeStockDetail,
+      isStockDetail: screen === "stockDetail", closeStockDetail: this.closeStockDetail, edgeBackStockDetail: this.edgeBackStart("scr-stockdetail", this.goBack),
       stockDetailSymbol: this.state.stockDetailSymbol || "",
       stockDetailName: this.state.stockDetailName || "",
       stockDetailLoading: this.state.stockDetailLoading,
@@ -6498,7 +6610,7 @@ class Component extends DCLogic {
       })),
       ocrError: this.state.ocrError, confirmError: this.state.confirmError,
 
-      goDash: this.go("dash"), goUpload: this.go("upload"), goPro: this.go("pro"), openAbo: this.openAbo,
+      goDash: this.go("dash"), goUpload: this.go("upload"), goPro: this.go("pro"), openAbo: this.openAbo, goBack: this.goBack, edgeBackSettings: this.edgeBackStart("scr-settings", this.goBack), edgeBackPro: this.edgeBackStart("scr-pro", this.goBack), edgeBackMove: this.edgeBackMove, edgeBackEnd: this.edgeBackEnd,
       quotaCta: this.state.userPlan === "pro" ? "Pro aktiv" : "Pro ansehen",
       manualEntry: this.manualEntry, onFile: this.onFile,
       startParse: this.manualEntry, confirm: this.confirm,
@@ -6726,6 +6838,8 @@ class Component extends DCLogic {
       allocationLegend,
       allocRing, allocCallouts,
       depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: (this.state.depotTab || "general") !== "general", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)",
+      depotTabAnim: this._depotTabDir === 1 ? "depotSlideL" : this._depotTabDir === -1 ? "depotSlideR" : "fade",
+      depotSwipeStart: this.depotSwipeStart, depotSwipeMove: this.depotSwipeMove, depotSwipeEnd: this.depotSwipeEnd,
       // Kopfzeile: auf Holdings faerbt sich der Blur wie beim Titelbild selbst
       // (dunkel, wie Home es mit --brand-flat fuer den eigenen Hintergrund
       // macht) statt mit dem hellen Glas-Ton -- kein weisser Fleck mehr
@@ -6949,7 +7063,7 @@ class Component extends DCLogic {
       openAiPanel: this.openAiPanel, closeAiPanel: this.closeAiPanel,
       zzPanelOpen: this.state.zzPanelOpen, zzPanelVars: this._zzVars || "--at:120px;--ar:20px;--ab:600px;--al:20px;--aw:180px;--zb:200px",
       openZzPanel: this.openZzPanel, closeZzPanel: this.closeZzPanel,
-      closeCardDetail: this.closeCardDetail, cdScroll: this.cdScroll, cdInnerScroll: this.cdInnerScroll,
+      closeCardDetail: this.closeCardDetail, edgeBackCardDetail: this.edgeBackStart("card-detail", this.closeCardDetail, true), cdScroll: this.cdScroll, cdInnerScroll: this.cdInnerScroll,
       stackDown: this.stackDown, stackMove: this.stackMove, stackUp: this.stackUp,
       homeStatTotalReturnPct: (totalReturnPct >= 0 ? "+" : "") + totalReturnPct.toFixed(1) + " %",
       homeStatTotalReturnColor: totalReturnPct >= 0 ? "var(--pos)" : "var(--neg)",
