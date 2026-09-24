@@ -887,9 +887,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              hellen Bild-Variante zur dunklen Glas-Variante um, sobald der
              weisse Positionen-Block darunter erscheint -- sonst waeren sie
              dort kaum noch zu erkennen. -->
-        <div style="position:sticky;top:0;height:0;z-index:20">
+        <div id="depot-head" style="position:sticky;top:0;height:0;z-index:20">
           <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px">
-            <button id="depot-head-icon" onClick="{{ goSettings }}" title="Account" class="{{ depotHeadIconClass }}" style="all:unset;position:relative;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:{{ depotHeadIconColor }};overflow:hidden;transition:background-color .28s ease,border-color .28s ease,color .28s ease;{{ depotHeadIconStyle }}" style-hover="background:rgba(16,19,26,.1)">
+            <button id="depot-head-icon" onClick="{{ goSettings }}" title="Account" class="{{ depotHeadIconClass }}" style="all:unset;position:relative;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:{{ depotHeadIconColor }};overflow:hidden;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);transition:background-color .28s ease,border-color .28s ease,color .28s ease;{{ depotHeadIconStyle }}" style-hover="background:rgba(16,19,26,.1)">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
             </button>
             <div id="depot-head-tabbar" style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:{{ depotHeadTabBg }};border:1px solid {{ depotHeadTabBorder }};backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;transition:background-color .28s ease,border-color .28s ease;--depot-tab-tx:{{ depotHeadTabTx }}">
@@ -4528,10 +4528,10 @@ class Component extends DCLogic {
     const from = order.indexOf(this.state.depotTab || "general"), to = order.indexOf(k);
     this._depotTabDir = to > from ? 1 : to < from ? -1 : 0;
     const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0;
-    this._depotHeadOnWhite = null;
+    this.resetDepotHeadTone();
     this.applyDepotHeadTone();
     this.setState({ depotTab: k });
-    requestAnimationFrame(() => { this._depotHeadOnWhite = null; this.applyDepotHeadTone(); });
+    requestAnimationFrame(() => { this.resetDepotHeadTone(); this.applyDepotHeadTone(); });
     if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra();
   };
   // ---------- Depot: Tabs per Wisch durchblaettern ----------
@@ -4561,28 +4561,37 @@ class Component extends DCLogic {
     const next = order[cur + (dx < 0 ? 1 : -1)];
     if (next) this.setDepotTab(next)();
   };
-  // Depot > Holdings: Account-Icon und Tab-Leiste sind auf dem Titelbild
-  // hell/durchscheinend. Sobald der weisse Positionen-Block darunter
-  // erscheint, waeren sie darauf kaum noch zu erkennen -- deshalb kippen
-  // Hintergrund, Rahmen und Textfarbe dort auf die dunkle Glas-Variante
-  // (dieselbe wie auf Analyse/Dividenden), weich per CSS-Transition statt
-  // hartem Sprung. Reine Geometrie (Blockkante vs. Leistenhoehe), kein
-  // fixer Scroll-Wert, und wirkt nur, wo diese Elemente ueberhaupt
-  // existieren (auf Analyse/Dividenden no-op).
+  // Depot > Holdings/Analyse: Account-Icon und Tab-Leiste sind auf dem
+  // Titelbild hell/durchscheinend. Pro Element wird geprueft, was direkt
+  // hinter seiner Mitte liegt: heller Block -> dunkle Glas-Variante mit
+  // schwarzem Text/Symbol, Titelbild oder dunkle Karte (.rowbtn) -> helle
+  // Variante mit weissem Text. Weich per CSS-Transition. Auf Dividenden
+  // (kein Block) no-op, dort setzt das Template die Farben.
   applyDepotHeadTone = () => {
     const icon = document.getElementById("depot-head-icon");
     const tabbar = document.getElementById("depot-head-tabbar");
     const block = document.getElementById("depot-white-block");
     if (!icon || !tabbar || !block) return;
-    const onWhite = block.getBoundingClientRect().top <= tabbar.getBoundingClientRect().height + 4;
-    if (this._depotHeadOnWhite === onWhite) return;
-    this._depotHeadOnWhite = onWhite;
-    icon.style.background = onWhite ? "var(--gbtn)" : "rgba(255,255,255,.16)";
-    icon.style.borderColor = onWhite ? "var(--gbtn-line)" : "rgba(255,255,255,.18)";
-    icon.style.color = onWhite ? "var(--tx)" : "#fff";
-    tabbar.style.background = onWhite ? "var(--gbtn)" : "rgba(255,255,255,.16)";
-    tabbar.style.borderColor = onWhite ? "var(--gbtn-line)" : "rgba(255,255,255,.18)";
-    tabbar.style.setProperty("--depot-tab-tx", onWhite ? "var(--tx2)" : "rgba(255,255,255,.85)");
+    const blockTop = block.getBoundingClientRect().top;
+    const onLight = el => {
+      const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      if (blockTop > y) return false;
+      const under = document.elementsFromPoint(x, y).find(n => !n.closest("#depot-head"));
+      return !(under && under.closest(".rowbtn"));
+    };
+    const paint = (el, light) => {
+      if (el._onLight === light) return;
+      el._onLight = light;
+      el.style.background = light ? "var(--gbtn)" : "rgba(255,255,255,.16)";
+      el.style.borderColor = light ? "var(--gbtn-line)" : "rgba(255,255,255,.18)";
+      if (el === icon) el.style.color = light ? "var(--tx)" : "#fff";
+      else el.style.setProperty("--depot-tab-tx", light ? "var(--tx2)" : "rgba(255,255,255,.85)");
+    };
+    paint(icon, onLight(icon));
+    paint(tabbar, onLight(tabbar));
+  };
+  resetDepotHeadTone = () => {
+    ["depot-head-icon", "depot-head-tabbar"].forEach(id => { const el = document.getElementById(id); if (el) el._onLight = undefined; });
   };
   onDepotScroll = () => { this.applyDepotHeadTone(); };
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
