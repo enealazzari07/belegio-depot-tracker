@@ -48,6 +48,14 @@ export async function signIn(email, password) {
   return data;
 }
 
+// Registrierung per Code bestaetigen (Vorlage "Confirm signup" mit {{ .Token }}).
+// Gibt direkt eine Session zurueck – danach ist man eingeloggt.
+export async function verifySignupCode(email, code) {
+  const { data, error } = await supabase.auth.verifyOtp({ email, token: String(code).replace(/\s/g, ""), type: "signup" });
+  if (error) throw mapAuthError(error);
+  return data;
+}
+
 // Bestätigungsmail erneut anfordern (z. B. wenn sie nicht angekommen ist).
 export async function resendVerifyMail(email) {
   const { error } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: redirectUrl() } });

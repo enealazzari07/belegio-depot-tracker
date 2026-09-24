@@ -6,7 +6,7 @@ als "Message body" einfügen.
 
 | Supabase-Vorlage | Datei | Betreff |
 |---|---|---|
-| Confirm signup | `confirm-signup.html` | `Bestätige deine E-Mail · Stox` |
+| Confirm signup | `confirm-signup.html` | `{{ .Token }} · Bestätige deine E-Mail · Stox` |
 | Invite user | `invite.html` | `Du wurdest zu Stox eingeladen` |
 | Magic Link | `magic-link.html` | `Dein Login-Code · Stox` |
 | Change Email Address | `change-email.html` | `Neue E-Mail bestätigen · Stox` |

@@ -2749,7 +2749,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
-    <!-- Nach dem Registrieren: ganzflaechiger "Bestaetige deine E-Mail"-Screen, bis der Link geklickt wurde. Wegklickbar (X) zurueck zum Login. -->
+    <!-- Nach dem Registrieren: ganzflaechiger "Bestaetige deine E-Mail"-Screen mit Code-Eingabe (Code aus der Mail). Wegklickbar (X) zurueck zum Login. -->
     <sc-if value="{{ checkEmailOpen }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top, 0px) + 64px) 28px calc(env(safe-area-inset-bottom, 0px) + 28px);overflow-y:auto">
         <button onClick="{{ closeCheckEmail }}" aria-label="Zurück zum Login" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 20px);right:20px;width:38px;height:38px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--tx2)" style-active="transform:scale(.92)">
@@ -2759,13 +2759,23 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <svg width="27" height="23" viewBox="0 0 21 18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="0.75" y="1" width="19.5" height="16" rx="3.4"></rect><path d="M1.4 3.4l8.2 6.2a1.6 1.6 0 0 0 2 0l8.2-6.2"></path></svg>
         </div>
         <span class="w-in" style="animation-delay:.12s;margin-top:28px;color:var(--tx);font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.12">Bestätige<br>deine E-Mail</span>
-        <span class="w-in" style="animation-delay:.18s;margin-top:12px;color:var(--tx3);font-size:15px;line-height:1.55">Wir haben einen Bestätigungslink an <b style="color:var(--tx2)">{{ checkEmailAddress }}</b> geschickt. Tipp in der Mail auf den Link, danach kannst du dich anmelden.</span>
-        <div style="flex:1;min-height:28px"></div>
-        <p style="margin:0 0 14px;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.5">Nichts angekommen? Schau auch im Spam-Ordner nach.</p>
-        <button onClick="{{ resendVerify }}" class="w-in auth-btn {{ verifyBtnClass }}" style="animation-delay:.26s">
-          <span class="ab-t">Mail erneut senden</span>
+        <span class="w-in" style="animation-delay:.18s;margin-top:12px;color:var(--tx3);font-size:15px;line-height:1.55">Wir haben einen Code an <b style="color:var(--tx2)">{{ checkEmailAddress }}</b> geschickt. Gib ihn hier ein – danach bist du direkt angemeldet.</span>
+        <div class="w-in" style="animation-delay:.24s;position:relative;display:flex;justify-content:center;gap:8px;margin-top:28px">
+          <sc-for list="{{ verifyBoxes }}" as="bx" hint-placeholder-count="6">
+            <span class="mono" style="width:46px;height:58px;border-radius:16px;background:{{ bx.bg }};border:1.5px solid {{ bx.border }};display:flex;align-items:center;justify-content:center;color:var(--tx);font-size:24px;font-weight:800;box-shadow:var(--card-shadow);transition:border-color .15s ease,background .15s ease">{{ bx.ch }}</span>
+          </sc-for>
+          <input inputmode="numeric" pattern="[0-9]*" sc-camel-auto-complete="one-time-code" maxlength="6" value="{{ verifyCode }}" onInput="{{ onVerifyCode }}" aria-label="Code aus der Mail" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;margin:0;background:transparent;color:transparent;caret-color:transparent">
+        </div>
+        <sc-if value="{{ verifyError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:12px 0 0;text-align:center;color:var(--neg);font-size:12.5px">{{ verifyError }}</p>
+        </sc-if>
+        <button onClick="{{ submitVerifyCode }}" class="w-in auth-btn {{ verifyCodeBtnClass }}" style="animation-delay:.3s;margin-top:22px">
+          <span class="ab-t">Bestätigen</span>
           <span class="ab-s"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-opacity=".22" stroke-width="2.6"></circle><path d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span>
         </button>
+        <div style="flex:1;min-height:28px"></div>
+        <p style="margin:0 0 14px;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.5">Nichts angekommen? Schau auch im Spam-Ordner nach.</p>
+        <button onClick="{{ resendVerify }}" class="w-in" style="animation-delay:.34s;all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:48px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);display:flex;align-items:center;justify-content:center;color:var(--tx);font-size:14px;font-weight:600">{{ resendVerifyLabel }}</button>
         <button onClick="{{ closeCheckEmail }}" class="w-in" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:12px;width:100%;height:44px;display:flex;align-items:center;justify-content:center;color:var(--tx3);font-size:13.5px;font-weight:700;animation-delay:.32s">Zurück zum Login</button>
       </div>
     </sc-if>
@@ -4370,6 +4380,12 @@ class Component extends DCLogic {
       }
       await this.enterAfterAuth(session, false);
     } catch (e) {
+      // Noch nicht bestaetigt: direkt zur Code-Eingabe und neuen Code schicken.
+      if (/noch nicht bestätigt/.test(e.message || "") && authMode === "login") {
+        this.setState({ authLoading: false, authBtnFx: "", checkEmailOpen: true, checkEmailAddress: authEmail.trim(), verifyCode: "", verifyError: "" });
+        this.resendVerify();
+        return;
+      }
       this.authFail(e.message || "Fehler bei der Anmeldung.");
     }
   };
@@ -4442,13 +4458,35 @@ class Component extends DCLogic {
       const db = await this.db();
       await db.resendVerifyMail(this.state.checkEmailAddress);
       this.setState({ verifySending: false });
-      this.pushToast("Neuer Link ist unterwegs", { tone: "pos" });
+      this.pushToast("Neuer Code ist unterwegs", { tone: "pos" });
     } catch (e) {
       this.setState({ verifySending: false });
       this.pushToast(e.message, { tone: "neg", duration: 4500 });
     }
   };
-  closeCheckEmail = () => this.setState({ checkEmailOpen: false, authMode: "login" });
+  closeCheckEmail = () => this.setState({ checkEmailOpen: false, authMode: "login", verifyCode: "", verifyError: "" });
+  onVerifyCode = e => {
+    const v = e.target.value.replace(/[^0-9]/g, "").slice(0, this.PW_CODE_LEN);
+    this.setState({ verifyCode: v, verifyError: "" });
+    if (v.length === this.PW_CODE_LEN) setTimeout(() => this.submitVerifyCode(), 120);
+  };
+  // Registrierung per Code bestaetigen -> Session -> direkt ins Dashboard (mit Willkommen).
+  submitVerifyCode = async () => {
+    const code = this.state.verifyCode || "";
+    if (this.state.verifyBusy) return;
+    if (code.length < this.PW_CODE_LEN) return this.setState({ verifyError: "Bitte gib den Code aus der Mail ein." });
+    this.setState({ verifyBusy: true, verifyError: "" });
+    try {
+      const db = await this.db();
+      const r = await db.verifySignupCode(this.state.checkEmailAddress, code);
+      const session = (r && r.session) || await db.getSession();
+      this.setState({ verifyBusy: false, checkEmailOpen: false, verifyCode: "" });
+      if (session) await this.enterAfterAuth(session, true);
+      else this.setState({ authMode: "login", authNotice: "E-Mail bestätigt – du kannst dich jetzt anmelden." });
+    } catch (e) {
+      this.setState({ verifyBusy: false, verifyError: "Der Code ist falsch oder abgelaufen." });
+    }
+  };
 
   // ---------- Einstellungen: Rechtliches, Passwort, Export, Konto loeschen ----------
   openLegal = key => () => this.setState({ legalKey: key });
@@ -7423,6 +7461,10 @@ class Component extends DCLogic {
       checkEmailOpen: !!this.state.checkEmailOpen, checkEmailAddress: this.state.checkEmailAddress,
       verifyBtnClass: this.state.verifySending ? "loading" : "",
       resendVerify: this.resendVerify, closeCheckEmail: this.closeCheckEmail,
+      verifyCode: this.state.verifyCode || "", onVerifyCode: this.onVerifyCode, submitVerifyCode: this.submitVerifyCode,
+      verifyBoxes: this.otpBoxes(this.state.verifyCode || "", this.PW_CODE_LEN), verifyError: this.state.verifyError || "",
+      verifyCodeBtnClass: this.state.verifyBusy ? "loading" : "",
+      resendVerifyLabel: this.state.verifySending ? "Wird gesendet …" : "Code erneut senden",
       userEmail: (user && user.email) || "",
       userInitials: user && user.email ? user.email.slice(0, 2).toUpperCase() : "–",
 

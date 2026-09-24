@@ -61,12 +61,12 @@ def page(pre, title, text, action, note):
 
 
 T = {
-    "confirm-signup": ("Bestätige deine E-Mail · Stox", page(
-        "Ein Tipp noch, dann ist dein Stox-Konto startklar.",
+    "confirm-signup": ("{{ .Token }} · Bestätige deine E-Mail · Stox", page(
+        "Dein Stox-Code: {{ .Token }}",
         "Willkommen bei Stox",
-        "Schön, dass du da bist! Bestätige kurz deine E-Mail-Adresse – danach ist dein Konto startklar und du kannst deinen ersten Beleg scannen.",
-        button("E-Mail bestätigen", "{{ .ConfirmationURL }}"),
-        "Der Link ist 24 Stunden gültig.")),
+        "Schön, dass du da bist! Gib diesen Code in der App ein, um deine E-Mail-Adresse zu bestätigen – danach bist du direkt angemeldet und kannst deinen ersten Beleg scannen.",
+        codebox("{{ .Token }}"),
+        "Der Code ist nur kurz gültig und funktioniert einmal.")),
     "invite": ("Du wurdest zu Stox eingeladen", page(
         "Du wurdest zu Stox eingeladen.",
         "Du bist eingeladen",
