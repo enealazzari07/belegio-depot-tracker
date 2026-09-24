@@ -398,6 +398,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       <div style="position:absolute;inset:0;overflow:hidden;animation:loginIn .85s cubic-bezier(.16,.9,.2,1) both">
         <div style="position:absolute;inset:0;overflow:hidden">
           <img src="./img/login-hero.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">
+          <!-- Unten ins Weiss ausblenden, damit der seitliche Bildrand neben der Box unsichtbar in die Box uebergeht. -->
+          <div style="position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(to bottom,color-mix(in srgb,var(--bg) 0%,transparent) 0%,var(--bg) 85%);pointer-events:none"></div>
           <img src="./img/stox-logo.png" alt="Stox" style="position:absolute;left:32px;top:calc(env(safe-area-inset-top, 0px) + 26px);width:26%;max-width:104px;height:auto;filter:drop-shadow(0 1px 10px rgba(255,255,255,.55))">
           <!-- Deko: dunkle Glas-Karte mit Kursverlauf und zwei Muenzen, leicht schwebend. -->
           <div class="lx" aria-hidden="true">
