@@ -207,6 +207,32 @@ export async function deletePriceAlert(id) {
   if (error) throw error;
 }
 
+// Profilbild: liegt im eigenen Ordner (uid/...) im oeffentlichen "avatars"-Bucket,
+// damit die URL direkt (ohne Signieren) im <img> genutzt werden kann. Alte Datei
+// wird nicht geloescht (Upsert auf neuen Dateinamen), das faellt bei der geringen
+// Groesse nicht ins Gewicht.
+export async function uploadAvatar(file) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const uid = userData.user.id;
+  const ext = (file.name || "").split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${uid}/avatar-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+  if (upErr) throw upErr;
+  const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+  const url = pub.publicUrl;
+  const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("user_id", uid);
+  if (error) throw error;
+  return url;
+}
+
+export async function updateDisplayName(name) {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const { error } = await supabase.from("profiles").update({ full_name: name }).eq("user_id", userData.user.id);
+  if (error) throw error;
+}
+
 export async function uploadReceipt(file, transactionId) {
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr) throw userErr;
@@ -249,11 +275,11 @@ export async function getProfile() {
   if (userErr) throw userErr;
   const { data, error } = await supabase
     .from("profiles")
-    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years")
+    .select("plan, insider_alerts_seen_at, compound_start, compound_monthly, compound_rate, compound_years, full_name, avatar_url")
     .eq("user_id", userData.user.id)
     .maybeSingle();
   if (error) throw error;
-  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null };
+  return data || { plan: "free", insider_alerts_seen_at: null, compound_start: null, compound_monthly: null, compound_rate: null, compound_years: null, full_name: null, avatar_url: null };
 }
 
 // Speichert die Eingaben des Zinseszins-Rechners dauerhaft im Profil, damit sie
