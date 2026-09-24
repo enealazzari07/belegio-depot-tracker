@@ -2955,11 +2955,99 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </button>
           </sc-for>
         </div>
+        <span style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;margin:6px 4px 8px">KONTO</span>
+        <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
+          <sc-for list="{{ accountPrefs }}" as="ap" hint-placeholder-count="3">
+            <button onClick="{{ ap.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
+              <span style="width:30px;height:30px;border-radius:10px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none">{{ ap.icon }}</span>
+              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ ap.label }}</span>
+              <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ ap.hint }}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+          </sc-for>
+        </div>
+        <span style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;margin:6px 4px 8px">HILFE &amp; RECHTLICHES</span>
+        <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
+          <sc-for list="{{ legalPrefs }}" as="lp" hint-placeholder-count="3">
+            <button onClick="{{ lp.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
+              <span style="width:30px;height:30px;border-radius:10px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none">{{ lp.icon }}</span>
+              <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ lp.label }}</span>
+              <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ lp.hint }}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+          </sc-for>
+        </div>
         <button onClick="{{ logout }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;border-radius:999px;background:var(--surf);border:1px solid var(--line);margin-bottom:18px" style-hover="border-color:var(--neg)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
           <span style="color:var(--neg);font-size:14.5px;font-weight:600">Abmelden</span>
         </button>
-        <p style="margin:14px 0 0;text-align:center;color:var(--tx3);font-size:11px">Stox 1.0</p>
+        <button onClick="{{ openDeleteSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:14px;padding:12px;color:var(--neg);font-size:13px;font-weight:600;opacity:.85" style-hover="opacity:1">Konto löschen</button>
+        <p style="margin:8px 0 0;text-align:center;color:var(--tx3);font-size:11px">{{ appVersionLabel }}</p>
+      </div>
+    </sc-if>
+
+    <!-- Einstellungen: Rechtstexte, Passwort aendern, Konto loeschen. -->
+    <sc-if value="{{ legalOpen }}" hint-placeholder-val="{{ false }}">
+      <div data-scrim="1" onClick="{{ closeLegal }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 20px calc(24px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onPointerDown="{{ legalSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+          <span style="flex:1;color:var(--tx);font-size:17px;font-weight:700;letter-spacing:-.01em">{{ legalTitle }}</span>
+          <button onClick="{{ closeLegal }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <span style="display:block;color:var(--tx3);font-size:11.5px;margin:-8px 0 14px">{{ legalUpdated }}</span>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ legalSections }}" as="ls" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <span style="color:var(--tx);font-size:13.5px;font-weight:700">{{ ls.h }}</span>
+              <span style="color:var(--tx2);font-size:13px;line-height:1.55;white-space:pre-line">{{ ls.p }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ pwSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div data-scrim="1" onClick="{{ closePwSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 20px calc(24px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onPointerDown="{{ pwSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+          <span style="flex:1;color:var(--tx);font-size:17px;font-weight:700;letter-spacing:-.01em">Passwort ändern</span>
+          <button onClick="{{ closePwSheet }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <label style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:16px;margin-bottom:8px">NEUES PASSWORT</label>
+        <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNewInput }}" onChange="{{ onPwNew }}" placeholder="mind. 6 Zeichen">
+        <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px">{{ pwError }}</p>
+        </sc-if>
+        <button onClick="{{ savePassword }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSaveLabel }}</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ deleteSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <div data-scrim="1" onClick="{{ closeDeleteSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
+      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 20px calc(24px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
+        <div onPointerDown="{{ deleteSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+          <span style="flex:1;color:var(--tx);font-size:17px;font-weight:700;letter-spacing:-.01em">Konto löschen</span>
+          <button onClick="{{ closeDeleteSheet }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div style="display:flex;gap:12px;padding:14px;border-radius:18px;background:var(--neg-soft);margin-bottom:16px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+          <span style="color:var(--tx);font-size:13px;line-height:1.5">Dein Konto, alle Transaktionen, Dividenden, Belege und Einstellungen werden <b>endgültig</b> gelöscht. Das kann nicht rückgängig gemacht werden. Tipp: Exportiere vorher deine Daten.</span>
+        </div>
+        <label style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:16px;margin-bottom:8px">ZUR BESTÄTIGUNG „LÖSCHEN“ EINGEBEN</label>
+        <input class="auth-in" value="{{ deleteConfirmInput }}" onInput="{{ onDeleteConfirm }}" placeholder="LÖSCHEN" autocapitalize="characters">
+        <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ deleteError }}</p>
+        </sc-if>
+        <button onClick="{{ deleteAccount }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center;opacity:{{ deleteBtnOpacity }};transition:opacity .2s ease" style-active="transform:scale(.98)">{{ deleteBtnLabel }}</button>
       </div>
     </sc-if>
 
@@ -3247,6 +3335,63 @@ const sectorOf = (sym, name) => {
   if (/retail|auto|luxury|consumer disc|travel|hotel/.test(n)) return "cyc";
   if (/industr|aerospace|defen|rüstung|machin|logist|transport/.test(n)) return "ind";
   return "other";
+};
+// ---------- Rechtliches (Einstellungen) ----------
+// Angaben in eckigen Klammern sind Platzhalter und muessen vor dem
+// Livegang durch die echten Betreiberdaten ersetzt werden.
+const APP_VERSION = "1.0";
+const CONTACT = { name: "[Name / Firma]", address: "[Strasse Nr., PLZ Ort, Land]", email: "[kontakt@deine-domain.ch]" };
+const LEGAL = {
+  terms: {
+    title: "Nutzungsbedingungen", updated: "Stand: September 2026",
+    sections: [
+      ["1. Geltungsbereich", "Diese Nutzungsbedingungen regeln die Nutzung der App Stox (nachfolgend \"App\"), betrieben von " + CONTACT.name + ", " + CONTACT.address + ". Mit der Registrierung akzeptierst du diese Bedingungen."],
+      ["2. Leistungen", "Stox ist ein persönliches Depot-Tagebuch: Du erfasst Käufe, Verkäufe und Dividenden (z. B. durch Scannen deiner Abrechnungen) und siehst Kurse, Auswertungen und Meldungen zu deinen Titeln. Stox ist keine Bank, kein Broker und führt keine Transaktionen aus."],
+      ["3. Keine Anlageberatung", "Alle Inhalte der App – Kurse, Kennzahlen, KI Score, Signale, Sektor- und Länderauswertungen, News und Insider-Meldungen – dienen ausschliesslich der Information. Sie stellen keine Anlageberatung, Empfehlung oder Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar. Anlageentscheide triffst du selbst und auf eigenes Risiko."],
+      ["4. Daten Dritter", "Kurse, Unternehmensdaten und News stammen von Drittanbietern und können verzögert, unvollständig oder fehlerhaft sein. Eine Gewähr für Richtigkeit, Vollständigkeit und Aktualität wird nicht übernommen. Die automatisch ausgelesenen Belegdaten solltest du vor dem Speichern prüfen."],
+      ["5. Konto", "Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person ist ein Konto vorgesehen. Du kannst dein Konto jederzeit in den Einstellungen unter \"Konto löschen\" endgültig entfernen."],
+      ["6. Gratis und Pro", "Die Grundfunktionen sind kostenlos, mit einem Kontingent an Beleg-Uploads. Zusätzliche Funktionen stehen mit Stox Pro zur Verfügung. Preise und Umfang werden vor dem Abschluss in der App angezeigt."],
+      ["7. Verfügbarkeit", "Wir bemühen uns um einen störungsfreien Betrieb, können aber keine ununterbrochene Verfügbarkeit garantieren. Funktionen können weiterentwickelt, geändert oder eingestellt werden."],
+      ["8. Haftung", "Soweit gesetzlich zulässig, ist die Haftung für Schäden aus der Nutzung der App, insbesondere für Vermögensschäden aufgrund von Anlageentscheiden oder fehlerhaften Daten, ausgeschlossen."],
+      ["9. Änderungen", "Wir können diese Bedingungen anpassen. Über wesentliche Änderungen informieren wir in der App."],
+      ["10. Anwendbares Recht", "Es gilt schweizerisches Recht. Gerichtsstand ist, soweit zulässig, der Sitz des Betreibers."]
+    ]
+  },
+  privacy: {
+    title: "Datenschutz", updated: "Stand: September 2026",
+    sections: [
+      ["Verantwortlich", CONTACT.name + ", " + CONTACT.address + ", " + CONTACT.email + ". Diese Erklärung richtet sich nach dem Schweizer Datenschutzgesetz (DSG) und, soweit anwendbar, der EU-DSGVO."],
+      ["Welche Daten wir bearbeiten", "Konto: E-Mail-Adresse und Passwort (verschlüsselt gespeichert). Depot: deine erfassten Transaktionen, Dividenden, Kategorien und gespeicherte Belegdateien. Einstellungen: z. B. Zinseszins-Werte und Pro-Status. Benachrichtigungen: technische Push-Adresse deines Geräts und ein Protokoll versendeter Meldungen."],
+      ["Belege", "Das Auslesen deiner Belege (Texterkennung) passiert direkt auf deinem Gerät. Gespeichert werden nur die daraus erfassten Werte und – falls du den Beleg ablegst – die Bilddatei in deinem privaten Speicherbereich."],
+      ["Zweck", "Wir bearbeiten deine Daten ausschliesslich, um dir die Funktionen der App bereitzustellen: Anmeldung, Anzeige und Auswertung deines Depots, Steuer-Report und Benachrichtigungen. Keine Werbung, kein Verkauf von Daten."],
+      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
+      ["Lokal gespeichert", "Einige Einstellungen (z. B. Design, Investment-Plan, Face-ID-Kennung, Hinweise) liegen nur im Speicher deines Browsers bzw. Geräts."],
+      ["Speicherdauer", "Deine Daten bleiben gespeichert, bis du sie löschst oder dein Konto löschst. Mit \"Konto löschen\" werden Konto, Depotdaten und Belegdateien endgültig entfernt."],
+      ["Deine Rechte", "Du hast das Recht auf Auskunft, Berichtigung, Löschung und Herausgabe deiner Daten. Einen Export deiner Transaktionen und Dividenden erhältst du jederzeit in den Einstellungen unter \"Daten exportieren\". Für weitere Anfragen: " + CONTACT.email + "."],
+      ["Sicherheit", "Die Übertragung erfolgt verschlüsselt (HTTPS). Der Zugriff auf deine Daten ist per Zugriffsregeln auf dein eigenes Konto beschränkt."]
+    ]
+  },
+  imprint: {
+    title: "Impressum", updated: "",
+    sections: [
+      ["Betreiber", CONTACT.name + "\n" + CONTACT.address],
+      ["Kontakt", CONTACT.email],
+      ["Haftungsausschluss", "Die Inhalte dieser App wurden mit Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte, insbesondere der Kurs- und Marktdaten, wird keine Gewähr übernommen. Keine Anlageberatung."]
+    ]
+  },
+  licenses: {
+    title: "Lizenzen", updated: "Stox " + APP_VERSION,
+    sections: [
+      ["React", "MIT-Lizenz · Meta Platforms, Inc."],
+      ["Babel Standalone", "MIT-Lizenz · Babel-Team"],
+      ["Supabase JS", "MIT-Lizenz · Supabase, Inc."],
+      ["Tesseract.js", "Apache-Lizenz 2.0 · Texterkennung auf dem Gerät"],
+      ["jsPDF & jsPDF-AutoTable", "MIT-Lizenz · Erstellung des Steuer-Reports"],
+      ["Nunito", "SIL Open Font License 1.1 · Google Fonts"],
+      ["Firmenfotos", "Wikimedia Commons, jeweils mit der angegebenen freien Lizenz (CC0, Public Domain oder CC BY) und Namensnennung."],
+      ["Marktdaten", "Yahoo Finance, EODHD, SEC EDGAR. Daten ohne Gewähr, teils verzögert."]
+    ]
+  }
 };
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
@@ -4196,6 +4341,72 @@ class Component extends DCLogic {
   };
   closeCheckEmail = () => this.setState({ checkEmailOpen: false, authMode: "login" });
 
+  // ---------- Einstellungen: Rechtliches, Passwort, Export, Konto loeschen ----------
+  openLegal = key => () => this.setState({ legalKey: key });
+  closeLegal = () => this.setState({ legalKey: null });
+  openPwSheet = () => this.setState({ pwSheetOpen: true, pwNewInput: "", pwError: "", pwBusy: false });
+  closePwSheet = () => this.setState({ pwSheetOpen: false, pwNewInput: "", pwError: "" });
+  onPwNew = e => this.setState({ pwNewInput: e.target.value, pwError: "" });
+  savePassword = async () => {
+    const pw = this.state.pwNewInput || "";
+    if (pw.length < 6) return this.setState({ pwError: "Mindestens 6 Zeichen." });
+    this.setState({ pwBusy: true, pwError: "" });
+    try {
+      const db = await this.db();
+      await db.updatePassword(pw);
+      this.setState({ pwBusy: false, pwSheetOpen: false, pwNewInput: "" });
+      this.pushToast("Passwort geändert");
+    } catch (e) {
+      this.setState({ pwBusy: false, pwError: e.message || "Passwort konnte nicht geändert werden." });
+    }
+  };
+  // CSV mit Semikolon (Excel CH/DE) und BOM, damit Umlaute korrekt ankommen.
+  exportData = async () => {
+    try {
+      const db = await this.db();
+      const [txs, divs] = await Promise.all([db.listTransactions(), db.listDividends().catch(() => [])]);
+      const esc = v => { const t = v == null ? "" : String(v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+      const rows = [["Typ", "Datum", "Symbol", "ISIN", "Name", "Stück", "Kurs", "Währung", "Gebühren", "Betrag", "Quellensteuer"]];
+      (txs || []).forEach(t => rows.push([t.side === "sell" ? "Verkauf" : "Kauf", t.date, t.symbol, t.isin, t.name, t.shares, t.purchase_price, t.currency, t.fees, t.total_amount, ""]));
+      (divs || []).forEach(d => rows.push(["Dividende", d.date, d.symbol, "", d.name, d.shares, "", d.currency, "", d.gross_amount, d.withholding_tax]));
+      const csv = "\ufeff" + rows.map(r => r.map(esc).join(";")).join("\r\n");
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url; a.download = "stox-export-" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      this.pushToast("Export erstellt");
+    } catch (e) {
+      this.pushToast("Export fehlgeschlagen");
+    }
+  };
+  openSupport = () => {
+    const body = "\n\n---\nStox " + APP_VERSION + " · " + (navigator.userAgent || "");
+    location.href = "mailto:" + CONTACT.email + "?subject=" + encodeURIComponent("Stox Feedback") + "&body=" + encodeURIComponent(body);
+  };
+  openDeleteSheet = () => this.setState({ deleteSheetOpen: true, deleteConfirmInput: "", deleteError: "", deleteBusy: false });
+  closeDeleteSheet = () => { if (!this.state.deleteBusy) this.setState({ deleteSheetOpen: false, deleteConfirmInput: "", deleteError: "" }); };
+  onDeleteConfirm = e => this.setState({ deleteConfirmInput: e.target.value, deleteError: "" });
+  deleteAccount = async () => {
+    if (this.state.deleteBusy || (this.state.deleteConfirmInput || "").trim().toUpperCase() !== "LÖSCHEN") return;
+    this.setState({ deleteBusy: true, deleteError: "" });
+    try {
+      const db = await this.db();
+      await db.deleteMyAccount();
+      try { ["belegio_invest_plan", "belegio_notif_prompt", "belegio_hq_v2"].forEach(k => localStorage.removeItem(k)); } catch (_) {}
+      this.stopAutoSync();
+      this.setState({
+        deleteBusy: false, deleteSheetOpen: false, deleteConfirmInput: "",
+        user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
+        conn: "idle", authEmail: "", authPassword: "", authMode: "login", authError: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {},
+        checkEmailOpen: false, locked: false,
+        authNotice: "Dein Konto und alle Daten wurden gelöscht."
+      });
+    } catch (e) {
+      this.setState({ deleteBusy: false, deleteError: "Löschen fehlgeschlagen. Bitte versuch es erneut oder kontaktiere den Support." });
+    }
+  };
+
   logoutUser = async () => {
     const db = await this.db();
     await db.signOut();
@@ -4984,7 +5195,7 @@ class Component extends DCLogic {
     if (s.cardDetailSym) { this.closeCardDetail(); return; }
     const open = [
       [s.aiSheetOpen, this.closeAiSheet], [s.compoundSheetOpen, this.closeCompoundSheet],
-      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet],
+      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet], [s.legalKey, this.closeLegal], [s.pwSheetOpen, this.closePwSheet], [s.deleteSheetOpen, this.closeDeleteSheet],
       [s.divSheetOpen, this.closeDivSheet], [s.insiderSheetSymbol, this.closeInsiderSheet],
       [s.posMenuSymbol, this.closePosMenu], [s.notifSheetOpen, this.closeNotifSheet]
     ].find(x => x[0]);
@@ -7788,6 +7999,35 @@ class Component extends DCLogic {
       })),
       depotGroups,
       depotWeightBar,
+
+      // ---------- Einstellungen: weitere Punkte ----------
+      accountPrefs: [
+        ["Passwort ändern", "", "M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2", this.openPwSheet],
+        ["Daten exportieren", "CSV", "M12 3v12M7 10l5 5 5-5M4 21h16", this.exportData]
+      ].map(([label, hint, d, go]) => ({ label, hint, go, icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })) })),
+      legalPrefs: [
+        ["Support & Feedback", "", "M4 5h16v11H9l-5 4z", this.openSupport],
+        ["Nutzungsbedingungen", "", "M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6", this.openLegal("terms")],
+        ["Datenschutz", "", "M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z", this.openLegal("privacy")],
+        ["Impressum", "", "M12 8h.01M11 12h1v5h1M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", this.openLegal("imprint")],
+        ["Lizenzen", "v" + APP_VERSION, "M9 18l-6-6 6-6M15 6l6 6-6 6", this.openLegal("licenses")]
+      ].map(([label, hint, d, go]) => ({ label, hint, go, icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })) })),
+      appVersionLabel: "Stox " + APP_VERSION,
+      legalOpen: !!this.state.legalKey && !!LEGAL[this.state.legalKey],
+      legalTitle: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].title : "",
+      legalUpdated: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].updated : "",
+      legalSections: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].sections.map(([h, p]) => ({ h, p })) : [],
+      closeLegal: this.animClose(this.closeLegal), legalSheetDragDown: this.sheetDragDown(this.closeLegal),
+      pwSheetOpen: !!this.state.pwSheetOpen, closePwSheet: this.animClose(this.closePwSheet), pwSheetDragDown: this.sheetDragDown(this.closePwSheet),
+      pwNewInput: this.state.pwNewInput || "", onPwNew: this.onPwNew, savePassword: this.savePassword,
+      pwError: this.state.pwError || "", pwSaveLabel: this.state.pwBusy ? "Speichern …" : "Passwort speichern",
+      openDeleteSheet: this.openDeleteSheet,
+      deleteSheetOpen: !!this.state.deleteSheetOpen, closeDeleteSheet: this.animClose(this.closeDeleteSheet), deleteSheetDragDown: this.sheetDragDown(this.closeDeleteSheet),
+      deleteConfirmInput: this.state.deleteConfirmInput || "", onDeleteConfirm: this.onDeleteConfirm, deleteAccount: this.deleteAccount,
+      deleteError: this.state.deleteError || "",
+      deleteReady: (this.state.deleteConfirmInput || "").trim().toUpperCase() === "LÖSCHEN",
+      deleteBtnOpacity: (this.state.deleteConfirmInput || "").trim().toUpperCase() === "LÖSCHEN" && !this.state.deleteBusy ? "1" : ".45",
+      deleteBtnLabel: this.state.deleteBusy ? "Wird gelöscht …" : "Konto endgültig löschen",
 
       // ---------- Investment-Plan ----------
       investPlanSheetOpen: this.state.investPlanSheetOpen,

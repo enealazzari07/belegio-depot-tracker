@@ -316,3 +316,22 @@ export async function callMarket(action, payload) {
   if (!res.ok) throw new Error(body.error || "market-error");
   return body;
 }
+
+// Konto endgueltig loeschen: erst die eigenen Belegdateien im Storage
+// (liegen im Ordner <user_id>/), dann per RPC delete_my_account alle Zeilen
+// und den Auth-User (security definer, nur fuer auth.uid()), zuletzt lokal abmelden.
+export async function deleteMyAccount() {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  const uid = userData.user.id;
+  for (;;) {
+    const { data: files, error } = await supabase.storage.from("receipts").list(uid, { limit: 100 });
+    if (error || !files || !files.length) break;
+    const { error: rmErr } = await supabase.storage.from("receipts").remove(files.map(f => `${uid}/${f.name}`));
+    if (rmErr) break;
+    if (files.length < 100) break;
+  }
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) throw error;
+  await supabase.auth.signOut().catch(() => {});
+}

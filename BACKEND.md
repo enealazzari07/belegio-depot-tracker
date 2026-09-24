@@ -365,3 +365,12 @@ Währungsumrechnung) und verschickt die Push-Notification über `web-push`.
 410/404-Antworten (Subscription vom Browser verworfen) löschen die
 zugehörige Zeile aus `push_subscriptions` gleich mit. `sw.js` zeigt die
 Notification an und öffnet beim Antippen die App.
+
+## Konto löschen (`delete_my_account`)
+
+RPC `public.delete_my_account()` (security definer, nur `authenticated`):
+löscht alle Zeilen des eingeloggten Nutzers (`auth.uid()`) aus receipts,
+transactions, dividends, price_alerts, push_subscriptions, push_log,
+pockit_store, auth_tokens, profiles und zuletzt den Eintrag in `auth.users`.
+Die Belegdateien im Storage-Bucket `receipts/<user_id>/` entfernt der Client
+vorher selbst über die Storage-API (`db.deleteMyAccount`).
