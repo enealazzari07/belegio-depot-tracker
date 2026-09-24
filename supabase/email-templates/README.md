@@ -12,3 +12,18 @@ als "Message body" einfügen.
 | Change Email Address | `change-email.html` | `Neue E-Mail bestätigen · Stox` |
 | Reset Password | `reset-password.html` | `{{ .Token }} · Passwort ändern · Stox` |
 | Reauthentication | `reauthentication.html` | `{{ .Token }} · Bestätigungscode · Stox` |
+
+## Sicherheitshinweise (Security notifications)
+
+In Supabase unter Authentication → Email Templates → Security notifications
+die jeweilige Benachrichtigung **aktivieren** und Betreff + Inhalt einfügen.
+
+| Supabase-Vorlage | Datei | Betreff |
+|---|---|---|
+| Password changed | `password-changed.html` | `Dein Passwort wurde geändert · Stox` |
+| Email address changed | `email-changed.html` | `Deine E-Mail-Adresse wurde geändert · Stox` |
+| Phone number changed | `phone-changed.html` | `Deine Telefonnummer wurde geändert · Stox` |
+| Sign-in method linked | `identity-linked.html` | `Neue Anmeldemethode verknüpft · Stox` |
+| Sign-in method removed | `identity-unlinked.html` | `Anmeldemethode entfernt · Stox` |
+| Verification method added | `mfa-enrolled.html` | `Neue Bestätigungsmethode hinzugefügt · Stox` |
+| Verification method removed | `mfa-unenrolled.html` | `Bestätigungsmethode entfernt · Stox` |
