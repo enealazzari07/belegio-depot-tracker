@@ -230,6 +230,15 @@ input::placeholder{color:var(--tx3)}
 @keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
 @keyframes authDone{to{transform:scale(1.18);opacity:0}}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* Sektoren-Sprechblase im Glas-Look der Depot-Leiste; Spitze zeigt auf den Datenpunkt. */
+.sbub{position:absolute;z-index:3;display:flex;flex-direction:column;gap:4px;min-width:120px;max-width:190px;padding:9px 12px 10px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-shadow:0 12px 26px -14px rgba(16,19,26,.45);pointer-events:none;opacity:0;transform:translate(calc(-1 * var(--sb-ax,50%)),calc(-100% - 14px)) scale(.86);transform-origin:var(--sb-ax,50%) calc(100% + 10px);transition:opacity .28s ease,transform .45s cubic-bezier(.34,1.4,.64,1)}
+.sbub.on{opacity:1;transform:translate(calc(-1 * var(--sb-ax,50%)),calc(-100% - 14px)) scale(1)}
+.sbub::after{content:"";position:absolute;left:var(--sb-ax,50%);bottom:-6px;width:11px;height:11px;margin-left:-6px;background:inherit;border-right:1px solid var(--glass-line);border-bottom:1px solid var(--glass-line);transform:rotate(45deg);border-bottom-right-radius:3px;clip-path:polygon(100% 0,100% 100%,0 100%)}
+.sbub-h{color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.sbub-r{display:flex;justify-content:space-between;gap:10px;color:var(--tx);font-size:12px;font-weight:700;white-space:nowrap}
+.sbub-r span:first-child{overflow:hidden;text-overflow:ellipsis}
+.sbub-r .mono{color:var(--tx2);font-weight:700}
+@media (prefers-reduced-motion: reduce){.sbub{transition:opacity .2s ease}}
 @keyframes authSwapA{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @keyframes authSwapB{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 /* Login: schwebende Aktien-Karte mit Glas-Knoepfen (Look der Glocke) rechts neben dem Titel. */
@@ -1199,6 +1208,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
             <div style="padding:4px 0 0">
               <div style="position:relative;width:100%;aspect-ratio:340/250">
+                <div id="sector-bubble" class="sbub" aria-live="polite"></div>
                 <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
                   <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
                     <polygon points="{{ rr.points }}" fill="none" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></polygon>
@@ -4549,6 +4559,38 @@ class Component extends DCLogic {
     ["depot-head-icon", "depot-head-tabbar"].forEach(id => { const el = document.getElementById(id); if (el) el._onLight = undefined; });
   };
   onDepotScroll = () => { this.applyDepotHeadTone(); };
+  // Sektoren-Sprechblase: zeigt zu einem zufaelligen Sektor die zwei groessten
+  // Firmen (aus ETFs bzw. eigenen Aktien), blendet nach 3 s aus und taucht 4 s
+  // spaeter an einem anderen Punkt wieder auf. Direkt am DOM statt ueber
+  // setState, damit dafuer nicht die ganze App neu rendert.
+  sectorBubbleCycle = () => {
+    const el = document.getElementById("sector-bubble");
+    const list = this._sectorBubbles || [];
+    if (!el || !list.length) { this._sbTimer = setTimeout(this.sectorBubbleCycle, 1500); return; }
+    let i = Math.floor(Math.random() * list.length);
+    if (list.length > 1 && i === this._sbLast) i = (i + 1) % list.length;
+    this._sbLast = i;
+    const b = list[i];
+    el.replaceChildren();
+    const head = document.createElement("span");
+    head.className = "sbub-h"; head.textContent = b.sector;
+    el.appendChild(head);
+    b.items.forEach(it => {
+      const row = document.createElement("span"); row.className = "sbub-r";
+      const n = document.createElement("span"); n.textContent = it.name;
+      const v = document.createElement("span"); v.className = "mono"; v.textContent = it.pct;
+      row.append(n, v); el.appendChild(row);
+    });
+    // Blase ueber dem Datenpunkt; an den Raendern seitlich versetzt, Spitze bleibt am Punkt.
+    const ax = b.x < 28 ? 18 : b.x > 72 ? 82 : 50;
+    el.style.left = b.x + "%"; el.style.top = b.y + "%";
+    el.style.setProperty("--sb-ax", ax + "%");
+    el.classList.add("on");
+    this._sbTimer = setTimeout(() => {
+      el.classList.remove("on");
+      this._sbTimer = setTimeout(this.sectorBubbleCycle, 4000);
+    }, 3000);
+  };
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
@@ -6294,8 +6336,11 @@ class Component extends DCLogic {
     // Depot (ETFs ueber ihre Sektoraufteilung, Aktien nach Branche).
     const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [];
     if (visibleHoldings.length && visVal) {
-      const expo = {}, ccs = new Set(), perPos = [];
+      const expo = {}, ccs = new Set(), perPos = [], firms = {};
       let tot = 0;
+      // Firmen je Sektor fuer die Sprechblase: Einzelaktien direkt, ETFs ueber
+      // ihre (Top-)Holdings mit absolutem Gewicht.
+      const addFirm = (k, name, x) => { if (!name || !(x > 0)) return; (firms[k] = firms[k] || {})[name] = (firms[k][name] || 0) + x; };
       visibleHoldings.forEach(h => {
         const sym = h.sym || h.abbr, v = h.shares * h.cur, mine = {};
         const add = (k, x) => { mine[k] = (mine[k] || 0) + x; expo[k] = (expo[k] || 0) + x; tot += x; };
@@ -6310,6 +6355,8 @@ class Component extends DCLogic {
         } else if (hw > 0) {
           comp.holdings.forEach(x => add(sectorOf(x.symbol, x.name), v * (x.weight || 0) / hw));
         } else add(sectorOf(sym, displayName(h)), v);
+        if (hw > 0) comp.holdings.forEach(x => addFirm(sectorOf(x.symbol, x.name), x.name || x.symbol, v * (x.weight || 0)));
+        else addFirm(sectorOf(sym, displayName(h)), displayName(h), v);
         perPos.push({ h, v, mine, isEtf: !!((secs && secs.length) || hw > 0) });
       });
       const sorted = Object.entries(expo).filter(([k]) => k !== "other").sort((a, b) => b[1] - a[1]);
@@ -6355,7 +6402,13 @@ class Component extends DCLogic {
           color: COLS[si], name: s.name, pct: s.sub,
           points: dots.map(d => d.x + "," + d.y).join(" "), dots
         });
+        if (si === 0) this._sectorBubbles = axes.map((k, i) => ({
+          x: +dots[i].x / 340 * 100, y: +dots[i].y / 250 * 100, sector: SECTORS[k][0],
+          items: Object.entries(firms[k] || {}).sort((a, b) => b[1] - a[1]).slice(0, 2)
+            .map(([name, x]) => ({ name: name.length > 22 ? name.slice(0, 21).trim() + "…" : name, pct: Math.round(x / (expo[k] || x) * 100) + " %" }))
+        })).filter(b => b.items.length);
       });
+      if (!this._sbStarted) { this._sbStarted = true; setTimeout(this.sectorBubbleCycle, 1500); }
 
       if (sorted.length) analysisLines.push({ k: "Grösster Sektor", v: SECTORS[sorted[0][0]][0] + " · " + Math.round(sorted[0][1] / tot * 100) + " %" });
       const topPos = visibleHoldings.map(h => ({ h, w: h.shares * h.cur / visVal * 100 })).sort((a, b) => b.w - a.w)[0];
