@@ -2955,6 +2955,12 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </button>
           </sc-for>
         </div>
+        <sc-if value="{{ deletionScheduled }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openDeleteSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;padding:16px 18px;border-radius:24px;background:var(--neg-soft);margin-bottom:16px;text-align:left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+            <span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="color:var(--neg);font-size:13.5px;font-weight:700">Konto wird gelöscht</span><span style="color:var(--tx2);font-size:12px">{{ deletionWhen }} · Tippen zum Abbrechen</span></span>
+          </button>
+        </sc-if>
         <span style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;margin:6px 4px 8px">KONTO</span>
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <sc-for list="{{ accountPrefs }}" as="ap" hint-placeholder-count="3">
@@ -3051,16 +3057,51 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div style="display:flex;gap:12px;padding:14px;border-radius:18px;background:var(--neg-soft);margin-bottom:16px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
-          <span style="color:var(--tx);font-size:13px;line-height:1.5">Dein Konto, alle Transaktionen, Dividenden, Belege und Einstellungen werden <b>endgültig</b> gelöscht. Das kann nicht rückgängig gemacht werden. Tipp: Exportiere vorher deine Daten.</span>
-        </div>
-        <label style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:16px;margin-bottom:8px">ZUR BESTÄTIGUNG „LÖSCHEN“ EINGEBEN</label>
-        <input class="auth-in" value="{{ deleteConfirmInput }}" onInput="{{ onDeleteConfirm }}" placeholder="LÖSCHEN" autocapitalize="characters">
-        <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ deleteError }}</p>
+        <sc-if value="{{ deleteAsk }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:12px;padding:14px;border-radius:18px;background:var(--neg-soft);margin-bottom:16px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--neg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+            <span style="color:var(--tx);font-size:13px;line-height:1.5">Konto, Transaktionen, Dividenden, Belege und Einstellungen werden <b>endgültig</b> gelöscht. Tipp: Exportiere vorher deine Daten.</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">1</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Wir schicken dir eine Bestätigungsmail an <b style="color:var(--tx)">{{ userEmailForDelete }}</b>.</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">2</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Nach dem Bestätigen hast du 24 Stunden Zeit, die Löschung abzubrechen – per Link in der Info-Mail oder hier.</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">3</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Ohne Eingriff wird dein Konto danach endgültig gelöscht.</span></div>
+          </div>
+          <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 12px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ deleteError }}</p>
+          </sc-if>
+          <button onClick="{{ requestDelete }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ deleteBtnLabel }}</button>
         </sc-if>
-        <button onClick="{{ deleteAccount }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center;opacity:{{ deleteBtnOpacity }};transition:opacity .2s ease" style-active="transform:scale(.98)">{{ deleteBtnLabel }}</button>
+        <sc-if value="{{ deleteMailSent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:4px 0 6px">
+            <span class="np-ok" style="width:44px;height:44px;border-radius:50%;background:var(--pos);display:flex;align-items:center;justify-content:center;flex:none;color:#fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:npCheck .45s cubic-bezier(.65,0,.35,1) .25s forwards"></path></svg></span>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <span style="color:var(--tx);font-size:15px;font-weight:700">Bestätigungsmail gesendet</span>
+              <span style="color:var(--tx2);font-size:13px;line-height:1.5">Öffne den Link in der Mail an {{ userEmailForDelete }} (1 Stunde gültig). Erst danach startet die 24-Stunden-Frist.</span>
+            </div>
+          </div>
+          <button onClick="{{ closeDeleteSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:50px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">Fertig</button>
+        </sc-if>
+        <sc-if value="{{ deletionScheduled }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:16px;border-radius:18px;background:var(--neg-soft);margin-bottom:16px;display:flex;flex-direction:column;gap:4px">
+            <span style="color:var(--neg);font-size:14px;font-weight:700">Löschung geplant</span>
+            <span style="color:var(--tx);font-size:13px;line-height:1.5">Dein Konto wird am <b>{{ deletionWhen }}</b> endgültig gelöscht.</span>
+          </div>
+          <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 12px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ deleteError }}</p>
+          </sc-if>
+          <button onClick="{{ cancelDeletion }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ cancelDeleteLabel }}</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- Ergebnis nach Klick auf einen Link aus den Loesch-Mails. -->
+    <sc-if value="{{ deleteLinkMsg }}" hint-placeholder-val="{{ false }}">
+      <div data-scrim="1" onClick="{{ closeDeleteLinkMsg }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:90;animation:scrimIn .35s ease"></div>
+      <div style="position:absolute;left:18px;right:18px;top:50%;transform:translateY(-50%);z-index:91;padding:22px 20px 18px;border-radius:28px;background:var(--sheet-bg);box-shadow:0 24px 48px -22px rgba(10,12,20,.55);animation:authModeIn .4s cubic-bezier(.22,1,.36,1) both">
+        <span style="display:block;color:var(--tx);font-size:16px;font-weight:700;margin-bottom:8px">Konto löschen</span>
+        <span style="display:block;color:var(--tx2);font-size:13.5px;line-height:1.55">{{ deleteLinkMsg }}</span>
+        <button onClick="{{ closeDeleteLinkMsg }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;width:100%;height:48px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">OK</button>
       </div>
     </sc-if>
 
@@ -3362,7 +3403,7 @@ const LEGAL = {
       ["2. Leistungen", "Stox ist ein persönliches Depot-Tagebuch: Du erfasst Käufe, Verkäufe und Dividenden (z. B. durch Scannen deiner Abrechnungen) und siehst Kurse, Auswertungen und Meldungen zu deinen Titeln. Stox ist keine Bank, kein Broker und führt keine Transaktionen aus."],
       ["3. Keine Anlageberatung", "Alle Inhalte der App – Kurse, Kennzahlen, KI Score, Signale, Sektor- und Länderauswertungen, News und Insider-Meldungen – dienen ausschliesslich der Information. Sie stellen keine Anlageberatung, Empfehlung oder Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar. Anlageentscheide triffst du selbst und auf eigenes Risiko."],
       ["4. Daten Dritter", "Kurse, Unternehmensdaten und News stammen von Drittanbietern und können verzögert, unvollständig oder fehlerhaft sein. Eine Gewähr für Richtigkeit, Vollständigkeit und Aktualität wird nicht übernommen. Die automatisch ausgelesenen Belegdaten solltest du vor dem Speichern prüfen."],
-      ["5. Konto", "Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person ist ein Konto vorgesehen. Du kannst dein Konto jederzeit in den Einstellungen unter \"Konto löschen\" endgültig entfernen."],
+      ["5. Konto", "Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person ist ein Konto vorgesehen. Du kannst dein Konto jederzeit in den Einstellungen unter \"Konto löschen\" löschen: nach Bestätigung per E-Mail und einer Wartezeit von 24 Stunden, in der du die Löschung abbrechen kannst, wird es endgültig entfernt."],
       ["6. Gratis und Pro", "Die Grundfunktionen sind kostenlos, mit einem Kontingent an Beleg-Uploads. Zusätzliche Funktionen stehen mit Stox Pro zur Verfügung. Preise und Umfang werden vor dem Abschluss in der App angezeigt."],
       ["7. Verfügbarkeit", "Wir bemühen uns um einen störungsfreien Betrieb, können aber keine ununterbrochene Verfügbarkeit garantieren. Funktionen können weiterentwickelt, geändert oder eingestellt werden."],
       ["8. Haftung", "Soweit gesetzlich zulässig, ist die Haftung für Schäden aus der Nutzung der App, insbesondere für Vermögensschäden aufgrund von Anlageentscheiden oder fehlerhaften Daten, ausgeschlossen."],
@@ -3379,7 +3420,7 @@ const LEGAL = {
       ["Zweck", "Wir bearbeiten deine Daten ausschliesslich, um dir die Funktionen der App bereitzustellen: Anmeldung, Anzeige und Auswertung deines Depots, Steuer-Report und Benachrichtigungen. Keine Werbung, kein Verkauf von Daten."],
       ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
       ["Lokal gespeichert", "Einige Einstellungen (z. B. Design, Investment-Plan, Face-ID-Kennung, Hinweise) liegen nur im Speicher deines Browsers bzw. Geräts."],
-      ["Speicherdauer", "Deine Daten bleiben gespeichert, bis du sie löschst oder dein Konto löschst. Mit \"Konto löschen\" werden Konto, Depotdaten und Belegdateien endgültig entfernt."],
+      ["Speicherdauer", "Deine Daten bleiben gespeichert, bis du sie löschst oder dein Konto löschst. Mit \"Konto löschen\" werden Konto, Depotdaten und Belegdateien nach Bestätigung per E-Mail und 24 Stunden Wartezeit endgültig entfernt."],
       ["Deine Rechte", "Du hast das Recht auf Auskunft, Berichtigung, Löschung und Herausgabe deiner Daten. Einen Export deiner Transaktionen und Dividenden erhältst du jederzeit in den Einstellungen unter \"Daten exportieren\". Für weitere Anfragen: " + CONTACT.email + "."],
       ["Sicherheit", "Die Übertragung erfolgt verschlüsselt (HTTPS). Der Zugriff auf deine Daten ist per Zugriffsregeln auf dein eigenes Konto beschränkt."]
     ]
@@ -4063,6 +4104,7 @@ class Component extends DCLogic {
     let headRaf = 0;
     const headTick = () => { if (headRaf) return; headRaf = requestAnimationFrame(() => { headRaf = 0; this.applyHeadTones(); }); };
     document.addEventListener("scroll", headTick, true);
+    this.handleDeleteLinks();
     window.addEventListener("resize", headTick);
     this._headToneIv = setInterval(headTick, 500);
     this.loadIntraday();
@@ -4098,6 +4140,7 @@ class Component extends DCLogic {
       this.loadPriceAlerts();
       this.startAutoSync();
       this.checkNotificationSubscription();
+      this.loadDeletionStatus();
     }
     this.setState({ dashLoading: false });
     this.ensureHomeSeries(this.state.chartRange || "D");
@@ -4398,28 +4441,75 @@ class Component extends DCLogic {
     const body = "\n\n---\nStox " + APP_VERSION + " · " + (navigator.userAgent || "");
     location.href = "mailto:" + CONTACT.email + "?subject=" + encodeURIComponent("Stox Feedback") + "&body=" + encodeURIComponent(body);
   };
-  openDeleteSheet = () => this.setState({ deleteSheetOpen: true, deleteConfirmInput: "", deleteError: "", deleteBusy: false });
-  closeDeleteSheet = () => { if (!this.state.deleteBusy) this.setState({ deleteSheetOpen: false, deleteConfirmInput: "", deleteError: "" }); };
-  onDeleteConfirm = e => this.setState({ deleteConfirmInput: e.target.value, deleteError: "" });
-  deleteAccount = async () => {
-    if (this.state.deleteBusy || (this.state.deleteConfirmInput || "").trim().toUpperCase() !== "LÖSCHEN") return;
+  // Konto loeschen: nur per Mail-Bestaetigung, danach 24 h Wartezeit mit
+  // Abbruch-Link in der Info-Mail bzw. hier in den Einstellungen. Endgueltig
+  // loescht der Server (Edge Function account-delete, stuendlicher Cron).
+  DELETE_ERRORS = {
+    "mail-not-configured": "Der Mailversand ist noch nicht eingerichtet. Bitte kontaktiere den Support.",
+    "rate-limited": "Bitte warte eine Minute, bevor du es erneut versuchst.",
+    "mail-send-failed": "Die Mail konnte nicht gesendet werden. Bitte versuch es später erneut.",
+    "invalid-token": "Dieser Link ist ungültig oder wurde schon verwendet.",
+    "expired-token": "Dieser Link ist abgelaufen. Bitte fordere in der App einen neuen an."
+  };
+  deleteErrorText = e => this.DELETE_ERRORS[e && e.message] || "Etwas ist schiefgelaufen. Bitte versuch es erneut.";
+  loadDeletionStatus = async () => {
+    try {
+      const db = await this.db();
+      const r = await db.accountDelete("status");
+      this.setState({ deletionScheduledFor: r.scheduled_for || null });
+    } catch (_) {}
+  };
+  openDeleteSheet = () => { this.setState({ deleteSheetOpen: true, deleteMailSent: false, deleteError: "", deleteBusy: false }); this.loadDeletionStatus(); };
+  closeDeleteSheet = () => { if (!this.state.deleteBusy) this.setState({ deleteSheetOpen: false, deleteError: "" }); };
+  requestDelete = async () => {
+    if (this.state.deleteBusy) return;
     this.setState({ deleteBusy: true, deleteError: "" });
     try {
       const db = await this.db();
-      await db.deleteMyAccount();
-      try { ["belegio_invest_plan", "belegio_notif_prompt", "belegio_hq_v2"].forEach(k => localStorage.removeItem(k)); } catch (_) {}
-      this.stopAutoSync();
-      this.setState({
-        deleteBusy: false, deleteSheetOpen: false, deleteConfirmInput: "",
-        user: null, screen: "login", holdings: [], receipts: [], txs: [], history: {}, quotes: {}, liveNews: null,
-        conn: "idle", authEmail: "", authPassword: "", authMode: "login", authError: "", userPlan: "free", weeklyUploads: 0, etfHoldings: {},
-        checkEmailOpen: false, locked: false,
-        authNotice: "Dein Konto und alle Daten wurden gelöscht."
-      });
+      const r = await db.accountDelete("request");
+      this.setState({ deleteBusy: false, deleteMailSent: !r.scheduled_for, deletionScheduledFor: r.scheduled_for || this.state.deletionScheduledFor || null });
     } catch (e) {
-      this.setState({ deleteBusy: false, deleteError: "Löschen fehlgeschlagen. Bitte versuch es erneut oder kontaktiere den Support." });
+      this.setState({ deleteBusy: false, deleteError: this.deleteErrorText(e) });
     }
   };
+  cancelDeletion = async () => {
+    if (this.state.deleteBusy) return;
+    this.setState({ deleteBusy: true, deleteError: "" });
+    try {
+      const db = await this.db();
+      await db.accountDelete("cancel-auth");
+      this.setState({ deleteBusy: false, deletionScheduledFor: null, deleteSheetOpen: false });
+      this.pushToast("Löschung abgebrochen");
+    } catch (e) {
+      this.setState({ deleteBusy: false, deleteError: this.deleteErrorText(e) });
+    }
+  };
+  // Links aus den Mails: ?delconfirm=TOKEN bzw. ?delcancel=TOKEN (auch ohne Login).
+  handleDeleteLinks = async () => {
+    let q;
+    try { q = new URLSearchParams(location.search); } catch (_) { return; }
+    const confirmTok = q.get("delconfirm"), cancelTok = q.get("delcancel");
+    if (!confirmTok && !cancelTok) return;
+    try { history.replaceState(null, "", location.pathname); } catch (_) {}
+    let msg;
+    try {
+      const db = await this.db();
+      if (confirmTok) {
+        const r = await db.accountDelete("confirm", { token: confirmTok });
+        const when = r.scheduled_for ? new Date(r.scheduled_for).toLocaleString("de-CH", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+        msg = "Löschung bestätigt. Dein Konto wird am " + when + " Uhr gelöscht – bis dahin kannst du abbrechen (Link in der Mail oder in den Einstellungen).";
+        this.setState({ deletionScheduledFor: r.scheduled_for || null });
+      } else {
+        await db.accountDelete("cancel", { token: cancelTok });
+        msg = "Die Löschung deines Kontos wurde abgebrochen. Alles bleibt, wie es ist.";
+        this.setState({ deletionScheduledFor: null });
+      }
+    } catch (e) {
+      msg = this.deleteErrorText(e);
+    }
+    this.setState({ deleteLinkMsg: msg });
+  };
+  closeDeleteLinkMsg = () => this.setState({ deleteLinkMsg: "" });
 
   logoutUser = async () => {
     const db = await this.db();
@@ -5209,7 +5299,7 @@ class Component extends DCLogic {
     if (s.cardDetailSym) { this.closeCardDetail(); return; }
     const open = [
       [s.aiSheetOpen, this.closeAiSheet], [s.compoundSheetOpen, this.closeCompoundSheet],
-      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet], [s.legalKey, this.closeLegal], [s.pwSheetOpen, this.closePwSheet], [s.deleteSheetOpen, this.closeDeleteSheet],
+      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet], [s.legalKey, this.closeLegal], [s.pwSheetOpen, this.closePwSheet], [s.deleteSheetOpen, this.closeDeleteSheet], [s.deleteLinkMsg, this.closeDeleteLinkMsg],
       [s.divSheetOpen, this.closeDivSheet], [s.insiderSheetSymbol, this.closeInsiderSheet],
       [s.posMenuSymbol, this.closePosMenu], [s.notifSheetOpen, this.closeNotifSheet]
     ].find(x => x[0]);
@@ -8038,11 +8128,16 @@ class Component extends DCLogic {
       pwError: this.state.pwError || "", pwSendLabel: this.state.pwBusy ? "Wird gesendet …" : "Bestätigungslink senden",
       openDeleteSheet: this.openDeleteSheet,
       deleteSheetOpen: !!this.state.deleteSheetOpen, closeDeleteSheet: this.animClose(this.closeDeleteSheet), deleteSheetDragDown: this.sheetDragDown(this.closeDeleteSheet),
-      deleteConfirmInput: this.state.deleteConfirmInput || "", onDeleteConfirm: this.onDeleteConfirm, deleteAccount: this.deleteAccount,
+      requestDelete: this.requestDelete, cancelDeletion: this.cancelDeletion,
       deleteError: this.state.deleteError || "",
-      deleteReady: (this.state.deleteConfirmInput || "").trim().toUpperCase() === "LÖSCHEN",
-      deleteBtnOpacity: (this.state.deleteConfirmInput || "").trim().toUpperCase() === "LÖSCHEN" && !this.state.deleteBusy ? "1" : ".45",
-      deleteBtnLabel: this.state.deleteBusy ? "Wird gelöscht …" : "Konto endgültig löschen",
+      deletionScheduled: !!this.state.deletionScheduledFor,
+      deleteAsk: !this.state.deletionScheduledFor && !this.state.deleteMailSent,
+      deleteMailSent: !this.state.deletionScheduledFor && !!this.state.deleteMailSent,
+      deletionWhen: this.state.deletionScheduledFor ? new Date(this.state.deletionScheduledFor).toLocaleString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " Uhr" : "",
+      deleteBtnLabel: this.state.deleteBusy ? "Einen Moment …" : "Bestätigungsmail senden",
+      cancelDeleteLabel: this.state.deleteBusy ? "Einen Moment …" : "Löschung abbrechen",
+      deleteLinkMsg: this.state.deleteLinkMsg || "", closeDeleteLinkMsg: this.closeDeleteLinkMsg,
+      userEmailForDelete: (user && user.email) || "",
 
       // ---------- Investment-Plan ----------
       investPlanSheetOpen: this.state.investPlanSheetOpen,

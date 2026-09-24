@@ -366,11 +366,18 @@ Währungsumrechnung) und verschickt die Push-Notification über `web-push`.
 zugehörige Zeile aus `push_subscriptions` gleich mit. `sw.js` zeigt die
 Notification an und öffnet beim Antippen die App.
 
-## Konto löschen (`delete_my_account`)
+## Konto löschen (Edge Function `account-delete`)
 
-RPC `public.delete_my_account()` (security definer, nur `authenticated`):
-löscht alle Zeilen des eingeloggten Nutzers (`auth.uid()`) aus receipts,
-transactions, dividends, price_alerts, push_subscriptions, push_log,
-pockit_store, auth_tokens, profiles und zuletzt den Eintrag in `auth.users`.
-Die Belegdateien im Storage-Bucket `receipts/<user_id>/` entfernt der Client
-vorher selbst über die Storage-API (`db.deleteMyAccount`).
+Löschen nur per Mail-Bestätigung und mit 24 h Wartezeit:
+1. App ruft `request` (eingeloggt) → Mail mit Link `?delconfirm=TOKEN` (1 h gültig).
+2. Link → `confirm` → Zeile in `account_deletions` (`scheduled_for` = jetzt + 24 h)
+   und Info-Mail mit Abbruch-Link `?delcancel=TOKEN` (24 h gültig).
+3. Abbrechen per Link (`cancel`) oder in der App (`cancel-auth`).
+4. pg_cron-Job `account-deletion-run` (stündlich, Minute 7) ruft `run` mit
+   `x-cron-secret` auf: löscht Belegdateien im Bucket `receipts/<user_id>/`
+   und per `delete_user_data(uid)` (security definer, nur service_role) alle
+   Zeilen samt `auth.users`, danach eine Abschluss-Mail.
+Tokens liegen gehasht in `auth_tokens` (Arten `delete`, `delete_cancel`).
+Mailversand per SMTP wie `auth-mail`: `app_secrets` braucht `smtp_host`,
+`smtp_port`, `smtp_user`, `smtp_pass`, `mail_from` (optional `mail_from_name`,
+`app_url`) — ohne diese Einträge antwortet `request` mit `mail-not-configured`.

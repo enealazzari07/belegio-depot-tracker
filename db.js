@@ -317,21 +317,18 @@ export async function callMarket(action, payload) {
   return body;
 }
 
-// Konto endgueltig loeschen: erst die eigenen Belegdateien im Storage
-// (liegen im Ordner <user_id>/), dann per RPC delete_my_account alle Zeilen
-// und den Auth-User (security definer, nur fuer auth.uid()), zuletzt lokal abmelden.
-export async function deleteMyAccount() {
-  const { data: userData, error: userErr } = await supabase.auth.getUser();
-  if (userErr) throw userErr;
-  const uid = userData.user.id;
-  for (;;) {
-    const { data: files, error } = await supabase.storage.from("receipts").list(uid, { limit: 100 });
-    if (error || !files || !files.length) break;
-    const { error: rmErr } = await supabase.storage.from("receipts").remove(files.map(f => `${uid}/${f.name}`));
-    if (rmErr) break;
-    if (files.length < 100) break;
-  }
-  const { error } = await supabase.rpc("delete_my_account");
-  if (error) throw error;
-  await supabase.auth.signOut().catch(() => {});
+// Konto loeschen mit Mail-Bestaetigung und 24 h Wartezeit (Edge Function
+// "account-delete"). Aktionen: request, confirm {token}, cancel {token},
+// cancel-auth, status. Endgueltig geloescht wird serverseitig per Cron.
+export async function accountDelete(action, payload = {}) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/account-delete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || "delete-error");
+  return body;
 }
