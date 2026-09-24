@@ -6416,29 +6416,38 @@ class Component extends DCLogic {
         // andere Schrift (Achsentitel sind in dieser Ansicht ausgeblendet).
         if (si === 0) {
           const TX = -120, cyc = this.state.sectorCycle || 0;
-          const groups = axes.map((k, i) => ({
+          const ang = i => -90 + i * 360 / n;
+          const mod = x => ((x % 360) + 360) % 360;
+          // Reihenfolge so, dass das Netz immer im Uhrzeigersinn weiterdreht:
+          // Start beim Sektor mit der kleinsten Drehung ab 0°, dann jeweils der
+          // Sektor davor (absteigender Index).
+          const all = axes.map((k, i) => ({
             k, i, r: R * Math.min(1, pctOf(s, k) / maxP),
             list: Object.entries(firms).filter(([, f]) => f.k === k).sort((a, b) => b[1].v - a[1].v).slice(0, 3).map(([name]) => name)
-          })).filter(g => g.list.length);
+          })).filter(g => g.list.length).sort((a, b) => b.i - a.i);
+          const st = all.reduce((best, g, j) => mod(-ang(g.i)) < mod(-ang(all[best].i)) ? j : best, 0);
+          const groups = all.slice(st).concat(all.slice(0, st));
           sectorGroupCount = groups.length;
+          const base = this._radarBase || 0;
+          if (!this.state.sectorOpen || !groups.length) {
+            // Beim Schliessen vorwaerts bis zur naechsten vollen Umdrehung, nie zurueck.
+            radarRot = this._radarBase = Math.ceil((this._lastRadarRot || 0) / 360) * 360;
+          }
           if (groups.length && this.state.sectorOpen) {
-            // Drehung immer in dieselbe Richtung aufsummieren, damit das Netz
-            // nie "zurueckspringt".
-            const ang = i => -90 + i * 360 / n;
-            let rot = -ang(groups[0].i);
+            let rot = base + mod(-ang(groups[0].i));
             for (let c = 1; c <= cyc; c++) {
               const prev = groups[(c - 1) % groups.length], cur = groups[c % groups.length];
-              rot -= ((ang(cur.i) - ang(prev.i)) % 360 + 360) % 360;
+              rot += mod(ang(prev.i) - ang(cur.i));
             }
-            radarRot = rot;
+            radarRot = this._lastRadarRot = rot;
             const g = groups[cyc % groups.length];
-            const base = cyc === 0 ? 0.75 : 0.95;
+            const delay0 = cyc === 0 ? 0.75 : 0.95;
             const dx = cx + g.r + TX, dy = cy;
             const rowH = 28, total = 34 + g.list.length * rowH;
             const top = Math.max(6, Math.min(244 - total, dy - total / 2));
             sectorHead = {
               name: SECTORS[g.k][0], pct: Math.round((expo[g.k] || 0) / tot * 100) + " % vom Depot",
-              posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + (top / 250 * 100).toFixed(2) + "%", delay: (base + 0.1).toFixed(2) + "s"
+              posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + (top / 250 * 100).toFixed(2) + "%", delay: (delay0 + 0.1).toFixed(2) + "s"
             };
             g.list.forEach((name, j) => {
               const ly = top + 34 + j * rowH + rowH / 2;
@@ -6447,7 +6456,7 @@ class Component extends DCLogic {
                 dotX: dx.toFixed(1), dotY: dy.toFixed(1),
                 path: "M" + dx.toFixed(1) + " " + dy.toFixed(1) + " L" + (cx + R + 8 + TX) + " " + dy.toFixed(1) + " L188 " + ly.toFixed(1) + " L197 " + ly.toFixed(1),
                 posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + ((ly - 8) / 250 * 100).toFixed(2) + "%",
-                delay: (base + j * 0.09).toFixed(2) + "s", labelDelay: (base + 0.3 + j * 0.09).toFixed(2) + "s"
+                delay: (delay0 + j * 0.09).toFixed(2) + "s", labelDelay: (delay0 + 0.3 + j * 0.09).toFixed(2) + "s"
               });
             });
           }
@@ -7365,7 +7374,7 @@ class Component extends DCLogic {
       sfAnim: (this.state.sectorCycle || 0) % 2 ? "B" : "A",
       sectorFirmsOpacity: this.state.sectorOut ? "0" : "1",
       radarMoveTf: this.state.sectorOpen && sectorFirms.length ? "translateX(-35.29%)" : "none",
-      radarRot: this.state.sectorOpen && sectorFirms.length ? radarRot.toFixed(1) : "0",
+      radarRot: radarRot.toFixed(1),
       radarLabelsOpacity: this.state.sectorOpen && sectorFirms.length ? "0" : "1",
       sectorBtnLabel: this.state.sectorOpen ? "Nur Sektoren zeigen" : "Unternehmen anzeigen",
       toggleSectorOpen: this.toggleSectorOpen,
