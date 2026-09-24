@@ -784,43 +784,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              Ertraege, die im Gesamtwert oben NICHT stecken — der zeigt nur den
              Marktwert der aktuell gehaltenen Stuecke. Deshalb eine eigene
              Karte statt einer weiteren Zeile in "Depot auf einen Blick". -->
-        <!-- Kursalarme. Geprueft wird serverseitig alle 15 Min. (Edge Function
-             push-daily, mode "alerts") — die Karte zeigt nur den Zustand. -->
-        <sc-if value="{{ hasAlertCard }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:0 20px 18px">
-            <div class="card" style="padding:18px">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:15px">
-                <div style="width:30px;height:30px;border-radius:11px;background:var(--warn-soft);display:flex;align-items:center;justify-content:center;flex:none">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg>
-                </div>
-                <span style="flex:1;min-width:0;color:var(--tx);font-size:14px;font-weight:700;letter-spacing:-.01em">Kursalarme</span>
-                <span class="mono chip" style="background:var(--acc-soft);color:var(--acc2)">{{ alertCount }} aktiv</span>
-              </div>
-
-              <sc-if value="{{ alertEmpty }}" hint-placeholder-val="{{ false }}">
-                <p style="margin:0;color:var(--tx3);font-size:11.5px;line-height:1.5">Noch kein Alarm gesetzt. Stox prüft die Kurse serverseitig und meldet sich per Push, sobald ein Zielkurs erreicht ist — auch bei geschlossener App.</p>
-              </sc-if>
-
-              <div style="display:flex;flex-direction:column;gap:11px">
-                <sc-for list="{{ alertRows }}" as="al" hint-placeholder-count="3">
-                  <div style="display:flex;align-items:center;gap:10px">
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
-                      <span style="color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ al.name }}</span>
-                      <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ al.label }}</span>
-                    </div>
-                    <span style="color:{{ al.stateColor }};font-size:10.5px;font-weight:700;flex:none">{{ al.state }}</span>
-                    <button onClick="{{ al.toggle }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:5px 9px;border-radius:8px;background:var(--surf2);color:var(--tx2);font-size:10.5px;font-weight:600" style-hover="background:var(--surf3)">{{ al.toggleLabel }}</button>
-                    <button onClick="{{ al.remove }}" aria-label="Alarm löschen" style="all:unset;box-sizing:border-box;cursor:pointer;width:26px;height:26px;border-radius:8px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx3)" style-hover="color:var(--neg)">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-                    </button>
-                  </div>
-                </sc-for>
-              </div>
-
-              <button onClick="{{ openAlertSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:14px;height:42px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13px;font-weight:600" style-hover="border-color:var(--line2)">Kursalarm setzen</button>
-            </div>
-          </div>
-        </sc-if>
 
         <!-- Waehrungsaufteilung. Nur sichtbar, wenn tatsaechlich mehr als eine
              Waehrung im Depot liegt — bei einem reinen CHF-Depot waere die
@@ -1649,10 +1612,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="color:var(--tx);font-size:12.5px;font-weight:600">Dividende</span>
               <span style="color:var(--tx3);font-size:10px">erfassen</span>
             </button>
-            <button onClick="{{ posMenuAlert }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:46px;border-radius:13px;background:var(--surf2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="border-color:var(--line2)">
-              <span style="color:var(--tx);font-size:12.5px;font-weight:600">Kursalarm</span>
-              <span style="color:var(--tx3);font-size:10px">setzen</span>
-            </button>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px">
             <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">KATEGORIE</span>
@@ -1766,56 +1725,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
           <button onClick="{{ saveDividend }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:50px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ divSaveLabel }}</button>
         </div>
-      </div>
-    </sc-if>
-
-    <!-- Kursalarm. Der Abgleich laeuft serverseitig (Edge Function push-daily,
-         mode "alerts", pg_cron alle 15 Min. werktags) — daher der Hinweis auf
-         das Push-Abo: ohne Abo kaeme die Meldung nirgends an. -->
-    <sc-if value="{{ alertSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div data-scrim="1" onClick="{{ closeAlertSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
-      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 18px calc(20px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-        <div onPointerDown="{{ alertSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px">
-          <span style="flex:1;color:var(--tx);font-size:15px;font-weight:700">Kursalarm</span>
-          <button onClick="{{ closeAlertSheet }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-          </button>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">TICKER</span>
-            <input value="{{ alertSymbol }}" onChange="{{ onAlertSymbol }}" placeholder="z. B. AAPL" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Nunito',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
-          </div>
-
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">AUSLÖSEN WENN KURS</span>
-            <div style="display:flex;gap:8px">
-              <button onClick="{{ setAlertAbove }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:12px;background:{{ alertDirAboveBg }};color:{{ alertDirAboveTx }};font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
-                <span>steigt über</span>
-              </button>
-              <button onClick="{{ setAlertBelow }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:44px;border-radius:12px;background:{{ alertDirBelowBg }};color:{{ alertDirBelowTx }};font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"></path></svg>
-                <span>fällt unter</span>
-              </button>
-            </div>
-          </div>
-
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <span style="color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em">ZIELKURS</span>
-            <input type="number" value="{{ alertTarget }}" onChange="{{ onAlertTarget }}" placeholder="0.00" style="width:100%;height:46px;border-radius:12px;background:var(--surf2);border:1px solid var(--line);color:var(--tx);font-size:13.5px;font-family:'Nunito',system-ui,sans-serif;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;padding:0 14px;outline:none;box-sizing:border-box" style-focus="border-color:var(--acc2)">
-            <span style="color:var(--tx3);font-size:11px;line-height:1.5">{{ alertNotifHint }}</span>
-          </div>
-
-          <sc-if value="{{ hasAlertError }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:0;color:var(--neg);font-size:12.5px;line-height:1.5">{{ alertError }}</p>
-          </sc-if>
-
-          <button onClick="{{ saveAlert }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:50px;border-radius:14px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-hover="opacity:.9">{{ alertSaveLabel }}</button>
-        </div>
-        </sc-if>
       </div>
     </sc-if>
 
@@ -2033,10 +1942,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span class="mono" style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-.015em">12'480.50</span>
               <span class="mono" style="color:#7be3a5;font-size:11px;font-weight:700">+4.2 % seit Kauf</span>
             </div>
-            <div style="position:absolute;right:18px;top:34px;display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)">
-              <span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg></span>
-              <span style="color:#fff;font-size:11.5px;font-weight:700">Kursalarm erreicht</span>
-            </div>
             <div style="position:absolute;left:18px;right:18px;bottom:16px;display:flex;align-items:center;gap:8px">
               <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:10.5px;font-weight:700">Steuer-Report</span>
               <span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:10.5px;font-weight:700">KI-Analyse</span>
@@ -2065,7 +1970,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Steuer-Report als PDF</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Übersicht für die Schweizer Steuererklärung: Einstand, Wert, Gewinn, Dividenden und Gebühren.</span></div></div>
             <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">KI-Analyse</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Klumpenrisiko, Diversifikation und verständliche Einschätzungen zu deinem Depot.</span></div></div>
             <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">ETF-Zusammensetzung</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Sieh, welche Aktien in deinen ETFs stecken — Top-Positionen mit Gewichtung.</span></div></div>
-            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Live-Kurse &amp; Kursalarme</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Kurse im Minutentakt, Push-Meldungen bei Zielkurs — auch bei geschlossener App.</span></div></div>
+            <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Live-Kurse &amp; Meldungen</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">Kurse im Minutentakt, Push-Meldungen zu deinem Depot — auch bei geschlossener App.</span></div></div>
             <div style="display:flex;gap:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7be3a5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg><div style="display:flex;flex-direction:column;gap:5px"><span style="color:#fff;font-size:16px;font-weight:700;letter-spacing:-.01em">Insider-Trades &amp; Gebühren-Bericht</span><span style="color:rgba(255,255,255,.55);font-size:13px;line-height:1.5">SEC-Meldungen von Firmeninsidern zu deinen Titeln und ein Bericht, wie viel du an Gebühren gezahlt hast.</span></div></div>
             <div style="height:1px;background:rgba(255,255,255,.12);margin:2px 0"></div>
             <span style="color:rgba(255,255,255,.5);font-size:10.5px;font-weight:700;letter-spacing:.14em">IN ARBEIT</span>
@@ -2772,7 +2677,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
           <div class="w-in" style="animation-delay:.42s;display:flex;gap:14px;align-items:flex-start">
             <span style="width:42px;height:42px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg></span>
-            <div style="display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Kursalarme &amp; Meldungen</span><span style="color:var(--tx3);font-size:13px;line-height:1.45">Zielkurse setzen und per Push informiert werden — auch bei geschlossener App.</span></div>
+            <div style="display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Meldungen</span><span style="color:var(--tx3);font-size:13px;line-height:1.45">Per Push informiert werden, was bei deinen Titeln passiert — auch bei geschlossener App.</span></div>
           </div>
         </div>
         <div style="flex:1;min-height:28px"></div>
