@@ -230,6 +230,8 @@ input::placeholder{color:var(--tx3)}
 @keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
 @keyframes authDone{to{transform:scale(1.18);opacity:0}}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes authSwapA{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes authSwapB{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 /* Login: schwebende Aktien-Karte mit Glas-Knoepfen (Look der Glocke) rechts neben dem Titel. */
 .lx{position:absolute;right:12px;top:calc(env(safe-area-inset-top, 0px) + 62px);width:150px;height:190px;perspective:700px;pointer-events:none}
 .lx-card{position:absolute;left:18px;top:14px;width:112px;height:156px;border-radius:20px;padding:1.5px;background:conic-gradient(from var(--lx-a,0deg),rgba(255,255,255,.95),#7fb2ff 18%,rgba(40,50,80,.2) 35%,rgba(40,50,80,.2) 62%,#6ef0ff 78%,#fff 90%,rgba(255,255,255,.95));box-shadow:0 0 22px -2px rgba(120,170,255,.55),0 26px 40px -18px rgba(8,10,20,.7);transform:rotateX(14deg) rotateY(-22deg) rotateZ(-8deg);animation:lxCard 7s ease-in-out infinite,lxSpin 6s linear infinite}
@@ -416,15 +418,17 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <span class="lx-coin lx-c2"><span class="mono" style="font-size:17px;font-weight:800">%</span></span>
           </div>
           <div style="position:absolute;left:32px;right:32px;top:calc(env(safe-area-inset-top, 0px) + 100px)">
-            <h1 style="margin:0 0 8px;color:#16171D;font-size:29px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line;text-shadow:0 1px 16px rgba(255,255,255,.4)">{{ authTitle }}</h1>
-            <p style="margin:0;max-width:58%;color:rgba(22,23,29,.72);font-size:14.5px;line-height:1.5;text-shadow:0 1px 12px rgba(255,255,255,.35)">{{ authSub }}</p>
+            <h1 style="margin:0 0 8px;color:#16171D;font-size:29px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line;text-shadow:0 1px 16px rgba(255,255,255,.4);animation:{{ authSwapAnim }} .45s cubic-bezier(.22,1,.36,1) both">{{ authTitle }}</h1>
+            <p style="margin:0;max-width:58%;color:rgba(22,23,29,.72);font-size:14.5px;line-height:1.5;text-shadow:0 1px 12px rgba(255,255,255,.35);animation:{{ authSwapAnim }} .45s cubic-bezier(.22,1,.36,1) .05s both">{{ authSub }}</p>
           </div>
         </div>
         <!-- Anmelden/Registrieren-Switch knapp ueber dem weissen Bereich, grauer Glas-Look wie die Glocke. -->
         <sc-if value="{{ authShowModeSwitch }}" hint-placeholder-val="{{ true }}">
           <div style="position:absolute;left:32px;top:calc(46% - 30px - 56px);z-index:1;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(236,237,240,.88);border:1px solid rgba(16,19,26,.08);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+            <!-- Gleitende Markierung statt harter Farbwechsel: beide Knoepfe gleich breit, die Pille rutscht per transform. -->
+            <span style="position:absolute;left:4px;top:4px;bottom:4px;width:calc(50% - 6px);border-radius:999px;background:#1b1b1f;box-shadow:0 6px 14px -8px rgba(16,19,26,.6);transform:translateX({{ authModePillX }});transition:transform .42s cubic-bezier(.32,.72,0,1)"></span>
             <sc-for list="{{ authModeTabs }}" as="am" hint-placeholder-count="2">
-              <button onClick="{{ am.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ am.bg }};color:{{ am.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ am.label }}</button>
+              <button onClick="{{ am.go }}" style="all:unset;position:relative;box-sizing:border-box;cursor:pointer;width:104px;padding:0 10px;border-radius:999px;color:{{ am.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:color .3s ease" style-active="transform:scale(.96)">{{ am.label }}</button>
             </sc-for>
           </div>
         </sc-if>
@@ -6843,10 +6847,13 @@ class Component extends DCLogic {
         return {
           authTitle: T.title, authSub: T.sub, authCta: T.cta,
           authSwitchLabel: T.sw, authSwitchCta: T.swCta,
-          authShowModeSwitch: m === "login" || m === "register", authShowBottomSwitch: m === "forgot" || m === "reset",
+          authShowModeSwitch: m === "login" || m === "register",
+          authModePillX: m === "register" ? "calc(100% + 4px)" : "0",
+          // Wechselnder Animationsname startet die Einblendung bei jedem Moduswechsel neu.
+          authSwapAnim: ["login", "register", "forgot", "reset"].indexOf(m) % 2 ? "authSwapB" : "authSwapA", authShowBottomSwitch: m === "forgot" || m === "reset",
           authModeTabs: [["login", "Anmelden"], ["register", "Registrieren"]].map(([k, label]) => ({
             label, go: m === k ? () => {} : this.toggleAuthMode,
-            bg: m === k ? "#1b1b1f" : "transparent", tx: m === k ? "#fff" : "#4a4d57"
+            tx: m === k ? "#fff" : "#4a4d57"
           })),
           authShowEmail: m !== "reset", authShowPassword: m !== "forgot", authShowForgot: m === "login",
           authPwLabel: m === "reset" ? "NEUES PASSWORT" : "PASSWORT",
