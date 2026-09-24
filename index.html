@@ -1223,7 +1223,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </sc-for>
               </div>
             </div>
-            <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin:10px 4px 0">Linien: deine bis zu drei grössten Positionen, Anteil am Depot je Sektor. Darunter das ganze Depot. ETFs nach tatsächlicher Sektoraufteilung, Einzelaktien nach Branche (geschätzt).</span>
+            <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin:10px 4px 0">Linien: Sektoraufteilung innerhalb jedes ETFs bzw. aller Aktien zusammen (je 100 %), unabhängig von der Grösse im Depot. Darunter das ganze Depot. ETFs nach tatsächlicher Sektoraufteilung, Einzelaktien nach Branche (geschätzt).</span>
           </div>
         </sc-if>
 
@@ -6344,9 +6344,9 @@ class Component extends DCLogic {
     }
 
     // Sektoren als Netzdiagramm + Kurzanalyse fuers Analyse-Titelbild.
-    // Achsen = die groessten Sektoren des Depots, Linien = die bis zu drei
-    // groessten Positionen (Anteil am Depot je Sektor) — so sieht man, welche
-    // ETF/Aktie welchen Sektor ausmacht.
+    // Achsen = die groessten Sektoren des Depots. Linien zeigen die Aufteilung
+    // INNERHALB einer Gruppe (je 100 %), unabhaengig vom Depotanteil: jeder ETF
+    // einzeln (ab drei ETFs alle zusammen) plus alle Einzelaktien als eine Linie.
     const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [];
     let radarMaxLabel = "";
     if (visibleHoldings.length && visVal) {
@@ -6366,7 +6366,7 @@ class Component extends DCLogic {
         } else if (hw > 0) {
           comp.holdings.forEach(x => add(sectorOf(x.symbol, x.name), v * (x.weight || 0) / hw));
         } else add(sectorOf(sym, displayName(h)), v);
-        perPos.push({ h, v, mine });
+        perPos.push({ h, v, mine, isEtf: !!((secs && secs.length) || hw > 0) });
       });
       const sorted = Object.entries(expo).filter(([k]) => k !== "other").sort((a, b) => b[1] - a[1]);
       const shown = sorted.slice(0, 7);
@@ -6378,8 +6378,18 @@ class Component extends DCLogic {
       // Sektoren auffuellen, sonst entsteht kein Netz.
       const axes = sorted.slice(0, 6).map(x => x[0]);
       for (const k of ["tech", "health", "fin", "ind", "cons", "cyc"]) { if (axes.length >= 3) break; if (!axes.includes(k)) axes.push(k); }
-      const series = perPos.sort((a, b) => b.v - a.v).slice(0, 3);
-      const pctOf = (s, k) => (s.mine[k] || 0) / tot * 100;
+      const merge = (list, name, sub) => {
+        const mine = {};
+        let sum = 0;
+        list.forEach(p => Object.entries(p.mine).forEach(([k, x]) => { mine[k] = (mine[k] || 0) + x; sum += x; }));
+        return { name, sub, mine, sum };
+      };
+      const etfs = perPos.filter(p => p.isEtf).sort((a, b) => b.v - a.v), stocks = perPos.filter(p => !p.isEtf);
+      const series = etfs.length > 2
+        ? [merge(etfs, "Alle ETFs", etfs.length + " ETFs")]
+        : etfs.map(p => merge([p], displayName(p.h), "ETF"));
+      if (stocks.length) series.push(merge(stocks, stocks.length === 1 ? displayName(stocks[0].h) : "Alle Aktien", stocks.length === 1 ? "Aktie" : stocks.length + " Aktien"));
+      const pctOf = (s, k) => s.sum ? (s.mine[k] || 0) / s.sum * 100 : 0;
       const peak = Math.max(1, ...series.flatMap(s => axes.map(k => pctOf(s, k))));
       const step = peak <= 10 ? 5 : peak <= 30 ? 10 : peak <= 60 ? 20 : 25;
       const maxP = Math.ceil(peak / step) * step;
@@ -6401,7 +6411,7 @@ class Component extends DCLogic {
       series.forEach((s, si) => {
         const dots = axes.map((k, i) => { const [x, y] = pt(i, R * Math.min(1, pctOf(s, k) / maxP)); return { x: x.toFixed(1), y: y.toFixed(1) }; });
         radarSeries.push({
-          color: COLS[si], name: displayName(s.h), pct: Math.round(s.v / visVal * 100) + " %",
+          color: COLS[si], name: s.name, pct: s.sub,
           points: dots.map(d => d.x + "," + d.y).join(" "), dots
         });
       });
