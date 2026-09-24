@@ -4,7 +4,7 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 // Konto-Loeschung mit Mail-Bestaetigung und 24 h Wartezeit.
 // Aktionen:
-//   request      (eingeloggt)  -> Mail mit 5-stelligem Code (15 min gueltig, max. 5 Versuche)
+//   request      (eingeloggt)  -> Mail mit 6-stelligem Code (15 min gueltig, max. 5 Versuche)
 //   confirm-code (eingeloggt, {code}) -> Loeschung in 24 h einplanen, Info-Mail
 //   confirm / cancel (Token)   -> alte Link-Variante, bleibt fuer bereits verschickte Mails
 //   cancel-auth  (eingeloggt)  -> geplante Loeschung in der App abbrechen
@@ -66,11 +66,11 @@ async function takeToken(token: string, kind: string) {
   await admin.from("auth_tokens").update({ used_at: new Date().toISOString() }).eq("id", data.id);
   return data;
 }
-// 5-stelliger Code, gehasht zusammen mit der User-ID (Codes sind kurz,
+// 6-stelliger Code, gehasht zusammen mit der User-ID (Codes sind kurz,
 // deshalb max. 5 Versuche und 15 min Gueltigkeit).
 async function newCode(userId: string, ttlMs: number) {
-  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 100_000;
-  const code = String(n).padStart(5, "0");
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
+  const code = String(n).padStart(6, "0");
   const { error } = await admin.from("auth_tokens").insert({
     user_id: userId, kind: "delete", token_hash: await sha256(userId + ":" + code), expires_at: new Date(Date.now() + ttlMs).toISOString(),
   });
@@ -79,7 +79,7 @@ async function newCode(userId: string, ttlMs: number) {
 }
 async function takeCode(userId: string, code: string) {
   const c = String(code || "").replace(/\s/g, "");
-  if (!/^\d{5}$/.test(c)) throw new Fail("invalid-code");
+  if (!/^\d{6}$/.test(c)) throw new Fail("invalid-code");
   const { data } = await admin.from("auth_tokens").select("id, token_hash, expires_at, attempts")
     .eq("user_id", userId).eq("kind", "delete").is("used_at", null)
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
@@ -112,10 +112,14 @@ function mailHtml(appUrl: string, o: { pre: string; title: string; text: string;
 <a href="${o.link}" style="display:block;padding:17px 24px;font-family:${font};font-size:15.5px;font-weight:800;color:#FFFFFF;text-decoration:none;border-radius:999px">${esc(o.cta)}</a></td></tr></table>` : "";
   // Ein Tipp markiert den ganzen Code (user-select:all) – leicht zu kopieren.
   const codeBox = o.code ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#EEF0FB" style="border-radius:22px;background:#EEF0FB;padding:22px 10px 16px">
-<div style="font-family:${font};font-size:40px;font-weight:800;letter-spacing:10px;color:#000000;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-user-select:all;user-select:all;cursor:text">${esc(o.code)}</div>
+<div class="code" style="font-family:${font};font-size:40px;text-decoration:none;font-weight:800;letter-spacing:10px;color:#000000;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-user-select:all;user-select:all;cursor:text">${esc(o.code)}</div>
 <div style="margin-top:8px;font-family:${font};font-size:12px;font-weight:600;color:#8A90A6">Antippen und kopieren · in der App einfügen</div></td></tr></table>` : "";
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light only"><title>${esc(o.title)}</title>
+<meta name="color-scheme" content="light only">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+<meta name="x-apple-disable-message-reformatting">
+<style>a[x-apple-data-detectors],.code a,#MessageViewBody .code a,u + #body .code a{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;pointer-events:none!important;cursor:text!important}</style>
+<title>${esc(o.title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;background:#EEF0F5;-webkit-font-smoothing:antialiased">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(o.pre)}</div>

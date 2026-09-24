@@ -22,7 +22,7 @@ def codebox(token):
     # Ein Tipp markiert den ganzen Code (user-select:all), ohne Leerzeichen –
     # iOS/Android bieten "Code kopieren" bzw. Autofill an.
     return f"""<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#EEF0FB" style="border-radius:22px;background:#EEF0FB;padding:22px 10px 16px">
-<div style="font-family:{FONT};font-size:40px;font-weight:800;letter-spacing:10px;color:#000000;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-user-select:all;user-select:all;cursor:text">{token}</div>
+<div class="code" style="font-family:{FONT};font-size:40px;text-decoration:none;font-weight:800;letter-spacing:10px;color:#000000;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-user-select:all;user-select:all;cursor:text">{token}</div>
 <div style="margin-top:8px;font-family:{FONT};font-size:12px;font-weight:600;color:#8A90A6">Antippen und kopieren · in der App einfügen</div>
 </td></tr></table>"""
 
@@ -31,6 +31,9 @@ def page(pre, title, text, action, note):
     return f"""<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+<meta name="x-apple-disable-message-reformatting">
+<style>a[x-apple-data-detectors],.code a,#MessageViewBody .code a,u + #body .code a{{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;pointer-events:none!important;cursor:text!important}}</style>
 <title>{title}</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;background:#EEF0F5;-webkit-font-smoothing:antialiased">

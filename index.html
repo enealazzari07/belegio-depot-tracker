@@ -4498,7 +4498,7 @@ class Component extends DCLogic {
   closePwSheet = () => { if (!this.state.pwBusy) this.setState({ pwSheetOpen: false, pwStep: "ask", pwCode: "", pwNew: "", pwError: "" }); };
   onPwCode = e => this.setState({ pwCode: e.target.value.replace(/[^0-9]/g, "").slice(0, this.PW_CODE_LEN), pwError: "" });
   PW_CODE_LEN = 6;   // Supabase-OTP: mindestens 6 Stellen (Auth > Providers > Email)
-  DEL_CODE_LEN = 5;  // eigener Code der Edge Function account-delete
+  DEL_CODE_LEN = 6;  // eigener Code der Edge Function account-delete
   // Ziffern-Kaestchen fuer die Code-Eingabe (ein unsichtbares Input liegt darueber).
   otpBoxes = (code, len) => Array.from({ length: len }, (_, i) => ({
     ch: code[i] || "",
