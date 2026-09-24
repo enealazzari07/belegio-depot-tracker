@@ -1209,7 +1209,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                      links (dort abgeschnitten); rechts laeuft Sektor fuer Sektor durch,
                      mit blauen Knick-Linien wie bei Gewichtung. -->
                 <div style="position:absolute;inset:0;transform:{{ radarMoveTf }};transition:transform .6s cubic-bezier(.32,.72,0,1)">
-                  <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible;transform-origin:50% 48.8%;transform:rotate({{ radarRot }}deg);transition:transform .9s cubic-bezier(.65,0,.35,1)">
+                  <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible;transform-origin:50% 48.8%;transform:rotate({{ radarRot }}deg);transition:transform .65s cubic-bezier(.65,0,.35,1)">
                     <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
                       <polygon points="{{ rr.points }}" fill="none" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></polygon>
                     </sc-for>
@@ -6456,7 +6456,7 @@ class Component extends DCLogic {
             }
             radarRot = this._lastRadarRot = rot;
             const g = groups[cyc % groups.length];
-            const delay0 = cyc === 0 ? 0.75 : 0.95;
+            const delay0 = cyc === 0 ? 0.6 : 0.7;
             const dx = cx + g.r + TX, dy = cy;
             const rowH = 28, total = 34 + g.list.length * rowH;
             const top = Math.max(6, Math.min(244 - total, dy - total / 2));
