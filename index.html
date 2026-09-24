@@ -535,21 +535,21 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              bottom) — der Verlauf beginnt schon in der oberen Haelfte und endet
              spaetestens an der Unterkante von Switch/Glocke, laeuft also nicht in
              den Inhalt darunter hinein. -->
-        <div style="position:sticky;top:0;z-index:5">
+        <div data-headbar="1" style="position:sticky;top:0;z-index:5">
           <div style="position:absolute;inset:0;pointer-events:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);background:var(--brand-flat);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%)"></div>
           <div style="position:relative;padding:calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
             <div id="home-account-row" style="display:flex;align-items:center;gap:10px">
-              <button id="home-account-btn" onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
+              <button id="home-account-btn" data-headtone="icon" onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);overflow:hidden" style-hover="background:rgba(16,19,26,.1)">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
               </button>
-              <div id="home-range-bar" style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;will-change:transform">
+              <div id="home-range-bar" data-headtone="bar" style="display:flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;will-change:transform">
                 <sc-for list="{{ chartRanges }}" as="r" hint-placeholder-count="5">
                   <button onClick="{{ r.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ r.bg }};color:{{ r.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ r.label }}</button>
                 </sc-for>
               </div>
             </div>
-            <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;position:relative;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg>
+            <button onClick="{{ openNotifSheet }}" title="Benachrichtigungen" data-headtone="icon" class="gbtn" style="all:unset;color:var(--tx);box-sizing:border-box;cursor:pointer;position:relative;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none" style-hover="background:rgba(16,19,26,.1)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg>
               <sc-if value="{{ notifBadge }}" hint-placeholder-val="{{ false }}">
                 <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:1.5px solid var(--brand-flat);display:block"></span>
               </sc-if>
@@ -913,12 +913,12 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              hellen Bild-Variante zur dunklen Glas-Variante um, sobald der
              weisse Positionen-Block darunter erscheint -- sonst waeren sie
              dort kaum noch zu erkennen. -->
-        <div id="depot-head" style="position:sticky;top:0;height:0;z-index:20">
+        <div id="depot-head" data-headbar="1" style="position:sticky;top:0;height:0;z-index:20">
           <div style="position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 22px;display:flex;align-items:center;justify-content:flex-start;gap:10px">
-            <button id="depot-head-icon" onClick="{{ goSettings }}" title="Account" class="{{ depotHeadIconClass }}" style="all:unset;position:relative;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:{{ depotHeadIconColor }};overflow:hidden;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);transition:background-color .28s ease,border-color .28s ease,color .28s ease;{{ depotHeadIconStyle }}" style-hover="background:rgba(16,19,26,.1)">
+            <button id="depot-head-icon" data-headtone="icon" onClick="{{ goSettings }}" title="Account" class="{{ depotHeadIconClass }}" style="all:unset;position:relative;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:{{ depotHeadIconColor }};overflow:hidden;backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);transition:background-color .28s ease,border-color .28s ease,color .28s ease;{{ depotHeadIconStyle }}" style-hover="background:rgba(16,19,26,.1)">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg>
             </button>
-            <div id="depot-head-tabbar" style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:{{ depotHeadTabBg }};border:1px solid {{ depotHeadTabBorder }};backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;transition:background-color .28s ease,border-color .28s ease;--depot-tab-tx:{{ depotHeadTabTx }}">
+            <div id="depot-head-tabbar" data-headtone="bar" style="position:relative;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:{{ depotHeadTabBg }};border:1px solid {{ depotHeadTabBorder }};backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;transition:background-color .28s ease,border-color .28s ease;--depot-tab-tx:{{ depotHeadTabTx }}">
               <sc-for list="{{ depotTabs }}" as="dt" hint-placeholder-count="2">
                 <button onClick="{{ dt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;border-radius:999px;background:{{ dt.bg }};color:{{ dt.tx }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .28s ease" style-active="transform:scale(.96)">{{ dt.label }}</button>
               </sc-for>
@@ -1799,8 +1799,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:0 20px 128px;animation:fade .3s ease">
         <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
-        <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 14px">
-          <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
+        <div data-headbar="1" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 14px">
+          <button onClick="{{ goSettings }}" title="Account" data-headtone="icon" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
         </div>
         <div style="display:flex;align-items:center;margin-bottom:20px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Beleg hinzufügen</span>
@@ -2064,9 +2064,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
         <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
-        <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
-          <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
-          <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+        <div data-headbar="1" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
+          <button onClick="{{ goSettings }}" title="Account" data-headtone="icon" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
+          <div data-headtone="bar" style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
             <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
               <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
             </sc-for>
@@ -2230,9 +2230,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
         <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
-        <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
-          <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
-          <div style="flex:1;min-width:0;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none">
+        <div data-headbar="1" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
+          <button onClick="{{ goSettings }}" title="Account" data-headtone="icon" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
+          <div data-headtone="bar" style="flex:1;min-width:0;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none">
             <sc-for list="{{ newsChips }}" as="c" hint-placeholder-count="4">
               <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ c.label }}</button>
             </sc-for>
@@ -3900,6 +3900,13 @@ class Component extends DCLogic {
 
   async componentDidMount() {
     window.addEventListener("keydown", this.onEscKey);
+    // Kopfleisten-Farbe: bei jedem Scrollen (irgendeines Containers) und in
+    // kurzem Takt fuer Seitenwechsel/Nachladen neu bestimmen.
+    let headRaf = 0;
+    const headTick = () => { if (headRaf) return; headRaf = requestAnimationFrame(() => { headRaf = 0; this.applyHeadTones(); }); };
+    document.addEventListener("scroll", headTick, true);
+    window.addEventListener("resize", headTick);
+    this._headToneIv = setInterval(headTick, 500);
     this.loadIntraday();
     this.startCarousel();
     this.loadInvestPlan();
@@ -4654,38 +4661,43 @@ class Component extends DCLogic {
     const next = order[cur + (dx < 0 ? 1 : -1)];
     if (next) this.setDepotTab(next)();
   };
-  // Depot > Holdings/Analyse: Account-Icon und Tab-Leiste sind auf dem
-  // Titelbild hell/durchscheinend. Pro Element wird geprueft, was direkt
-  // hinter seiner Mitte liegt: heller Block -> dunkle Glas-Variante mit
-  // schwarzem Text/Symbol, Titelbild oder dunkle Karte (.rowbtn) -> helle
-  // Variante mit weissem Text. Weich per CSS-Transition. Auf Dividenden
-  // (kein Block) no-op, dort setzt das Template die Farben.
-  applyDepotHeadTone = () => {
-    const icon = document.getElementById("depot-head-icon");
-    const tabbar = document.getElementById("depot-head-tabbar");
-    const block = document.getElementById("depot-white-block");
-    if (!icon || !tabbar || !block) return;
-    const blockTop = block.getBoundingClientRect().top;
-    const onLight = el => {
-      const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-      if (blockTop > y) return false;
-      const under = document.elementsFromPoint(x, y).find(n => !n.closest("#depot-head"));
-      return !(under && under.closest(".rowbtn"));
-    };
-    const paint = (el, light) => {
-      if (el._onLight === light) return;
-      el._onLight = light;
-      el.style.background = light ? "var(--gbtn)" : "rgba(255,255,255,.16)";
-      el.style.borderColor = light ? "var(--gbtn-line)" : "rgba(255,255,255,.18)";
-      if (el === icon) el.style.color = light ? "var(--tx)" : "#fff";
-      else el.style.setProperty("--depot-tab-tx", light ? "var(--tx2)" : "rgba(255,255,255,.85)");
-    };
-    paint(icon, onLight(icon));
-    paint(tabbar, onLight(tabbar));
+  // Kopfleisten-Farbe auf allen Seiten (Home, Depot, Scannen, Maerkte, News):
+  // Jeder Knopf/jede Pille mit data-headtone prueft, was direkt hinter seiner
+  // Mitte liegt (die Kopfleiste selbst ausgenommen). Dunkler Hintergrund
+  // (Titelbild, dunkle Karten) -> helles Glas mit weissem Text/Symbol, heller
+  // Hintergrund -> dunkles Glas mit schwarzem Text. Weich per CSS-Transition.
+  headToneParse = c => { const m = String(c || "").match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(",").map(x => parseFloat(x)); return { r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1 }; };
+  headToneBehind = (x, y) => {
+    const stack = document.elementsFromPoint(x, y).filter(n => !n.closest("[data-headbar]"));
+    for (const n of stack) {
+      if (n.tagName === "IMG" || n.tagName === "VIDEO") return true;
+      const cs = getComputedStyle(n);
+      let c = this.headToneParse(cs.backgroundColor);
+      if ((!c || c.a < 0.3) && cs.backgroundImage && cs.backgroundImage !== "none") {
+        const g = this.headToneParse((cs.backgroundImage.match(/rgba?\([^)]+\)/) || [])[0]);
+        if (g) c = g; else if (/url\(/.test(cs.backgroundImage)) return true;
+      }
+      if (c && c.a >= 0.3) return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255 < 0.5;
+    }
+    return false;
   };
-  resetDepotHeadTone = () => {
-    ["depot-head-icon", "depot-head-tabbar"].forEach(id => { const el = document.getElementById(id); if (el) el._onLight = undefined; });
+  applyHeadTones = () => {
+    document.querySelectorAll("[data-headtone]").forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (!r.width) return;
+      const dark = this.headToneBehind(r.left + r.width / 2, r.top + r.height / 2);
+      if (el._dark === dark) return;
+      el._dark = dark;
+      const imp = (k, v) => el.style.setProperty(k, v, "important");
+      imp("background", dark ? "rgba(255,255,255,.16)" : "var(--gbtn)");
+      imp("border", "1px solid " + (dark ? "rgba(255,255,255,.18)" : "var(--gbtn-line)"));
+      if (!/border-color \.28s/.test(el.style.transition)) el.style.transition = (el.style.transition ? el.style.transition + "," : "") + "background-color .28s ease,border-color .28s ease,color .28s ease";
+      if (el.dataset.headtone === "icon") el.style.color = dark ? "#fff" : "var(--tx)";
+      else el.style.setProperty("--depot-tab-tx", dark ? "rgba(255,255,255,.85)" : "var(--tx2)");
+    });
   };
+  applyDepotHeadTone = () => this.applyHeadTones();
+  resetDepotHeadTone = () => { document.querySelectorAll("[data-headtone]").forEach(el => { el._dark = undefined; }); };
   onDepotScroll = () => { this.applyDepotHeadTone(); };
   toggleSectorOpen = () => {
     clearTimeout(this._scT);
@@ -7029,7 +7041,7 @@ class Component extends DCLogic {
           newsChips: chips.map(c => ({
             label: c.label,
             bg: filter === c.key ? "#1b1b1f" : "transparent",
-            tx: filter === c.key ? "#fff" : "var(--tx2)",
+            tx: filter === c.key ? "#fff" : "var(--depot-tab-tx, var(--tx2))",
             go: this.setNewsFilter(c.key)
           })),
           newsSearchValue: this.state.newsSearch || "", onNewsSearch: this.onNewsSearch,
@@ -7043,7 +7055,7 @@ class Component extends DCLogic {
       marketTabs: MARKET_TABS.map(t => ({
         key: t.key, label: t.label,
         bg: this.state.marketsFilter === t.key ? "#1b1b1f" : "transparent",
-        tx: this.state.marketsFilter === t.key ? "#fff" : "var(--tx2)",
+        tx: this.state.marketsFilter === t.key ? "#fff" : "var(--depot-tab-tx, var(--tx2))",
         go: this.setMarketsFilter(t.key)
       })),
       marketMovers: this.state.moverQuotes ? (MARKET_MOVERS_BY_CAT[this.state.marketsFilter] || []).map(({ sym, name }) => {
@@ -7152,7 +7164,7 @@ class Component extends DCLogic {
       chartRanges: chartRangeKeys.map(key => ({
         label: RANGE_LABELS[key], go: this.setChartRange(key),
         bg: this.state.chartRange === key ? "#1b1b1f" : "transparent",
-        tx: this.state.chartRange === key ? "#fff" : "var(--tx2)"
+        tx: this.state.chartRange === key ? "#fff" : "var(--depot-tab-tx, var(--tx2))"
       })),
       hasChart: !!chartData, noChart: !chartData,
       chartEmptyMsg: txs.length ? "Zu wenig Daten für diesen Zeitraum." : "Noch keine Positionen — der Verlauf startet mit deinem ersten Kauf.",
