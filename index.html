@@ -1797,7 +1797,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 20px 128px;animation:fade .3s ease">
+        <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
+        <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 14px">
+          <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
+        </div>
         <div style="display:flex;align-items:center;margin-bottom:20px">
           <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Beleg hinzufügen</span>
         </div>
@@ -2058,15 +2062,17 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isMarkets }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;margin-bottom:16px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">Märkte</span>
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
+        <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
+        <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
+          <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
           <div style="display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
             <sc-for list="{{ marketTabs }}" as="mt" hint-placeholder-count="3">
               <button onClick="{{ mt.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ mt.bg }};color:{{ mt.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ mt.label }}</button>
             </sc-for>
           </div>
         </div>
+        <span style="display:block;padding:0 20px;margin-bottom:16px;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">Märkte</span>
 
         <sc-if value="{{ hasMarketStrip }}" hint-placeholder-val="{{ false }}">
           <div class="ticker" style="margin:0 0 16px">
@@ -2222,15 +2228,17 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 0 128px;animation:fade .3s ease">
-        <div style="display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:16px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em;flex:none">News</span>
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
+        <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
+        <div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
+          <button onClick="{{ goSettings }}" title="Account" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
           <div style="flex:1;min-width:0;height:42px;padding:4px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none">
             <sc-for list="{{ newsChips }}" as="c" hint-placeholder-count="4">
               <button onClick="{{ c.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;padding:0 14px;border-radius:999px;font-size:12.5px;font-weight:600;background:{{ c.bg }};color:{{ c.tx }};display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ c.label }}</button>
             </sc-for>
           </div>
         </div>
+        <span style="display:block;padding:0 20px;margin-bottom:16px;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
 
         <div style="margin:0 20px 18px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
