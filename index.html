@@ -1224,7 +1224,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     </sc-for>
                   </svg>
                   <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
-                    <div style="position:absolute;{{ ax.posStyle }};opacity:{{ radarLabelsOpacity }};transition:opacity .3s ease;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
+                    <div style="position:absolute;{{ ax.posStyle }};opacity:{{ radarLabelsOpacity }};transition:opacity .3s ease;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="display:flex;align-items:center;gap:4px;color:var(--tx2);font-size:11px;font-weight:600"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ ax.icon }}"></path></svg>{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
                   </sc-for>
                 </div>
                 <sc-if value="{{ sectorOpen }}" hint-placeholder-val="{{ false }}">
@@ -1235,7 +1235,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                         <circle cx="{{ sf.dotX }}" cy="{{ sf.dotY }}" r="3.6" fill="#3d7bf0" stroke="var(--bg)" stroke-width="1.4" style="opacity:0;animation:sfFade{{ sfAnim }} .3s ease {{ sf.delay }} forwards"></circle>
                       </sc-for>
                     </svg>
-                    <div style="position:absolute;{{ sectorHeadStyle }};max-width:40%;display:flex;flex-direction:column;gap:1px;line-height:1.2;opacity:0;animation:sfIn{{ sfAnim }} .4s cubic-bezier(.22,1,.36,1) {{ sectorHeadDelay }} forwards"><span style="color:#3d7bf0;font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sectorHeadName }}</span><span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600;white-space:nowrap">{{ sectorHeadPct }}</span></div>
+                    <div style="position:absolute;{{ sectorHeadStyle }};max-width:40%;display:flex;flex-direction:column;gap:1px;line-height:1.2;opacity:0;animation:sfIn{{ sfAnim }} .4s cubic-bezier(.22,1,.36,1) {{ sectorHeadDelay }} forwards"><span style="display:flex;align-items:center;gap:5px;min-width:0;color:#3d7bf0;font-size:11px;font-weight:700"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ sectorHeadIcon }}"></path></svg><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sectorHeadName }}</span></span><span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600;white-space:nowrap">{{ sectorHeadPct }}</span></div>
                     <sc-for list="{{ sectorFirms }}" as="sf" hint-placeholder-count="3">
                       <span style="position:absolute;{{ sf.posStyle }};max-width:40%;color:var(--tx);font-size:12.5px;font-weight:700;line-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0;animation:sfIn{{ sfAnim }} .4s cubic-bezier(.22,1,.36,1) {{ sf.labelDelay }} forwards">{{ sf.name }}</span>
                     </sc-for>
@@ -3147,6 +3147,21 @@ const SECTORS = {
   ind: ["Industrie", "#1b1b1f"], cons: ["Basiskonsum", "#43CEA2"], cyc: ["Zyklischer Konsum", "#F6546A"],
   comm: ["Kommunikation", "#9C7BFF"], energy: ["Energie", "#E8547C"], util: ["Versorger", "#3d7bf0"],
   mat: ["Rohstoffe", "#B08A5B"], re: ["Immobilien", "#7DA0B8"], other: ["Sonstige", "#C9CDD6"]
+};
+// Kleine Strich-Icons je Sektor (24er-Raster, ein Pfad mit Teilpfaden).
+const SECTOR_ICONS = {
+  tech: "M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM10 10h4v4h-4zM9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3",
+  health: "M3 12h4l2-5 4 10 2-5h6",
+  fin: "M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 21h18",
+  ind: "M3 21V11l6 4v-4l6 4V7l6 4v10zM3 21h18",
+  cons: "M3 4h2l2.4 11h10.6L21 8H6.2M9 20h.01M17 20h.01",
+  cyc: "M6 8h12l-1 12H7zM9 8a3 3 0 0 1 6 0",
+  comm: "M4 5h16v11H9l-5 4z",
+  energy: "M13 2L4 14h7l-1 8 9-12h-7z",
+  util: "M12 3c3.5 4.5 6 7.7 6 11a6 6 0 0 1-12 0c0-3.3 2.5-6.5 6-11z",
+  mat: "M12 2l8 4.5v11L12 22l-8-4.5v-11zM12 22V11.5M20 6.5l-8 5-8-5",
+  re: "M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
+  other: "M5 12h.01M12 12h.01M19 12h.01"
 };
 const YAHOO_SECTOR = { technology: "tech", healthcare: "health", financial_services: "fin", industrials: "ind", consumer_defensive: "cons", consumer_cyclical: "cyc", communication_services: "comm", energy: "energy", utilities: "util", basic_materials: "mat", realestate: "re" };
 const SECTOR_MAP = (() => {
@@ -6398,7 +6413,7 @@ class Component extends DCLogic {
         const tx = (Math.abs(c) < 0.2 ? "translateX(-50%)" : c > 0 ? "translateX(0)" : "translateX(-100%)")
           + (sn < -0.7 ? " translateY(-100%)" : sn > 0.7 ? " translateY(0)" : " translateY(-50%)");
         radarAxes.push({
-          x2: x2.toFixed(1), y2: y2.toFixed(1), name: SECTORS[k][0], pct: Math.round((expo[k] || 0) / tot * 100) + " %",
+          x2: x2.toFixed(1), y2: y2.toFixed(1), name: SECTORS[k][0], icon: SECTOR_ICONS[k], pct: Math.round((expo[k] || 0) / tot * 100) + " %",
           posStyle: "left:" + (lx / 340 * 100).toFixed(2) + "%;top:" + (ly / 250 * 100).toFixed(2) + "%;transform:" + tx
         });
       });
@@ -6446,7 +6461,7 @@ class Component extends DCLogic {
             const rowH = 28, total = 34 + g.list.length * rowH;
             const top = Math.max(6, Math.min(244 - total, dy - total / 2));
             sectorHead = {
-              name: SECTORS[g.k][0], pct: Math.round((expo[g.k] || 0) / tot * 100) + " % vom Depot",
+              name: SECTORS[g.k][0], icon: SECTOR_ICONS[g.k], pct: Math.round((expo[g.k] || 0) / tot * 100) + " % vom Depot",
               posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + (top / 250 * 100).toFixed(2) + "%", delay: (delay0 + 0.1).toFixed(2) + "s"
             };
             g.list.forEach((name, j) => {
@@ -7369,7 +7384,7 @@ class Component extends DCLogic {
       aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
       sectorHas: sectorRows.length > 0, sectorRows, analysisLines, radarAxes, radarRings, radarSeries,
       sectorFirms, sectorFirmsHas: sectorGroupCount > 0, sectorOpen: !!this.state.sectorOpen && sectorFirms.length > 0,
-      sectorHeadName: sectorHead ? sectorHead.name : "", sectorHeadPct: sectorHead ? sectorHead.pct : "", sectorHeadStyle: sectorHead ? sectorHead.posStyle : "", sectorHeadDelay: sectorHead ? sectorHead.delay : "0s",
+      sectorHeadName: sectorHead ? sectorHead.name : "", sectorHeadPct: sectorHead ? sectorHead.pct : "", sectorHeadIcon: sectorHead ? sectorHead.icon : "", sectorHeadStyle: sectorHead ? sectorHead.posStyle : "", sectorHeadDelay: sectorHead ? sectorHead.delay : "0s",
       // Wechselnde Animationsnamen starten die Einblendung je Sektor neu.
       sfAnim: (this.state.sectorCycle || 0) % 2 ? "B" : "A",
       sectorFirmsOpacity: this.state.sectorOut ? "0" : "1",
