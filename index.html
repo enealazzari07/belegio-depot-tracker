@@ -1199,7 +1199,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     </sc-for>
                   </sc-for>
                 </svg>
-                <span class="mono" style="position:absolute;left:51.5%;top:14%;color:var(--tx3);font-size:10px;font-weight:600">{{ radarMaxLabel }}</span>
                 <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
                   <div style="position:absolute;{{ ax.posStyle }};display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
                 </sc-for>
@@ -6338,7 +6337,6 @@ class Component extends DCLogic {
     // Achsen = die groessten Sektoren, eine einzige Flaeche fuer das gesamte
     // Depot (ETFs ueber ihre Sektoraufteilung, Aktien nach Branche).
     const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [];
-    let radarMaxLabel = "";
     if (visibleHoldings.length && visVal) {
       const expo = {}, ccs = new Set(), perPos = [];
       let tot = 0;
@@ -6379,18 +6377,19 @@ class Component extends DCLogic {
       const peak = Math.max(1, ...series.flatMap(s => axes.map(k => pctOf(s, k))));
       const step = peak <= 10 ? 5 : peak <= 30 ? 10 : peak <= 60 ? 20 : 25;
       const maxP = Math.ceil(peak / step) * step;
-      radarMaxLabel = maxP + " %";
       const cx = 170, cy = 122, R = 84, n = axes.length;
       const pt = (i, r) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
       const poly = rf => axes.map((_, i) => pt(i, R * rf).map(z => z.toFixed(1)).join(",")).join(" ");
       [1 / 3, 2 / 3, 1].forEach(f => radarRings.push({ points: poly(f) }));
       axes.forEach((k, i) => {
-        const [x2, y2] = pt(i, R), [lx, ly] = pt(i, R + 16);
-        const c = Math.cos(-Math.PI / 2 + i * 2 * Math.PI / n);
-        const tx = Math.abs(c) < 0.2 ? "translateX(-50%)" : c > 0 ? "" : "translateX(-100%)";
+        const [x2, y2] = pt(i, R), [lx, ly] = pt(i, R + 6);
+        const c = Math.cos(-Math.PI / 2 + i * 2 * Math.PI / n), sn = Math.sin(-Math.PI / 2 + i * 2 * Math.PI / n);
+        // Beschriftung liegt mit ihrer Kante an der Ecke, nicht mittig darauf.
+        const tx = (Math.abs(c) < 0.2 ? "translateX(-50%)" : c > 0 ? "translateX(0)" : "translateX(-100%)")
+          + (sn < -0.7 ? " translateY(-100%)" : sn > 0.7 ? " translateY(0)" : " translateY(-50%)");
         radarAxes.push({
           x2: x2.toFixed(1), y2: y2.toFixed(1), name: SECTORS[k][0], pct: Math.round((expo[k] || 0) / tot * 100) + " %",
-          posStyle: "left:" + (lx / 340 * 100).toFixed(2) + "%;top:" + (ly / 250 * 100).toFixed(2) + "%;transform:" + tx + " translateY(-50%)"
+          posStyle: "left:" + (lx / 340 * 100).toFixed(2) + "%;top:" + (ly / 250 * 100).toFixed(2) + "%;transform:" + tx
         });
       });
       const COLS = ["#5B5BD6"];
@@ -7303,7 +7302,7 @@ class Component extends DCLogic {
       closeAiScoreSheet: this.animClose(this.closeAiScoreSheet),
       aiScoreSheetDragDown: this.sheetDragDown(this.closeAiScoreSheet),
       aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
-      sectorHas: sectorRows.length > 0, sectorRows, analysisLines, radarAxes, radarRings, radarSeries, radarMaxLabel,
+      sectorHas: sectorRows.length > 0, sectorRows, analysisLines, radarAxes, radarRings, radarSeries,
       geoHas, geoCallouts, geoRings, geoDots: worldDotsPath(),
       geoIsPro: proActive, geoLocked: !proActive,
       geoWrapStyle: proActive ? "" : "filter:blur(7px);opacity:.75;pointer-events:none",
