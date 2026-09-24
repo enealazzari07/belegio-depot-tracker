@@ -1092,70 +1092,102 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         </div>
         </sc-if>
 
-        <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
-        <div style="padding:calc(env(safe-area-inset-top, 0px) + 80px) 20px 128px;animation:{{ depotTabAnim }} .32s cubic-bezier(.32,.72,0,1) both">
-
         <sc-if value="{{ depotAlloc }}" hint-placeholder-val="{{ false }}">
-
-        <sc-if value="{{ aiScoreHas }}" hint-placeholder-val="{{ false }}">
-          <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:22px 20px 20px;margin-bottom:26px;position:relative;overflow:hidden">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px">
-              <div style="display:flex;align-items:baseline;gap:8px">
-                <span style="color:var(--tx);font-size:19px;font-weight:700;letter-spacing:-.02em">KI Score</span>
-                <span style="padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
-              </div>
-              <sc-if value="{{ aiScoreDone }}" hint-placeholder-val="{{ false }}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 6l6 6-6 6"></path></svg>
-              </sc-if>
+        <!-- Analyse: Titelbild im selben Format wie Holdings, statt Depotwert
+             ein kompakter KI Score plus Kurzanalyse direkt auf dem Bild. -->
+        <div style="position:relative;background:#141417 url(img/depot.webp) center/cover no-repeat;display:flex;flex-direction:column;box-sizing:border-box;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 44px;animation:{{ depotTabAnim }} .32s cubic-bezier(.32,.72,0,1) both">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,22,.62) 0%,rgba(14,16,22,.38) 34%,rgba(14,16,22,.9) 100%);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none"></div>
+          <div style="height:64px;flex:none"></div>
+          <div style="position:relative;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="color:rgba(255,255,255,.7);font-size:11px;font-weight:700;letter-spacing:.12em">ANALYSE</span>
+              <span style="padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:11px;font-weight:700">{{ posCount }}</span>
             </div>
-
-            <sc-if value="{{ aiScoreIdle }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ startAiScoreCheck }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.8">
-                <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible">
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="5" stroke-linecap="round"></path>
-                </svg>
-                <div style="position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:9px;padding:10px 18px 10px 12px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -14px rgba(16,19,26,.5);white-space:nowrap">
-                  <span style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;flex:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg></span>
-                  <span style="color:#fff;font-size:13px;font-weight:700">KI Score berechnen</span>
+            <div style="display:flex;align-items:center;gap:16px">
+              <sc-if value="{{ aiScoreHas }}" hint-placeholder-val="{{ false }}">
+                <div style="position:relative;width:112px;flex:none">
+                  <sc-if value="{{ aiScoreIdle }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ startAiScoreCheck }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.8">
+                      <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible">
+                        <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10" stroke-linecap="round"></path>
+                      </svg>
+                      <div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.4 4.6.6-3.4 3.2.9 4.6L12 13.6 8 15.8l.9-4.6L5.5 8l4.6-.6z"></path></svg>
+                        <span style="color:#fff;font-size:11px;font-weight:700">Berechnen</span>
+                      </div>
+                    </button>
+                  </sc-if>
+                  <sc-if value="{{ aiScoreCheckingNow }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:relative">
+                      <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible">
+                        <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10" stroke-linecap="round"></path>
+                      </svg>
+                      <div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px">
+                        <span style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite;display:block"></span>
+                        <span id="ai-score-step-text" style="color:rgba(255,255,255,.75);font-size:9.5px;font-weight:600;white-space:nowrap">{{ aiScoreStepText }}</span>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ aiScoreDone }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ aiScoreOpen }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.85">
+                      <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible;{{ geoWrapStyle }}">
+                        <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10" stroke-linecap="round"></path>
+                        <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="{{ aiScoreColor }}" stroke-width="10" stroke-linecap="round" stroke-dasharray="{{ aiScoreArcLen }} {{ aiScoreArcLen }}" stroke-dashoffset="{{ aiScoreArcOffset }}"></path>
+                      </svg>
+                      <div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1px;{{ geoWrapStyle }}">
+                        <span class="mono" style="color:#fff;font-size:26px;font-weight:700;letter-spacing:-.015em;line-height:1">{{ aiScoreTotal }}</span>
+                        <span style="color:{{ aiScoreColor }};font-size:11px;font-weight:700">{{ aiScoreLabel }}</span>
+                      </div>
+                      <sc-if value="{{ aiScoreLocked }}" hint-placeholder-val="{{ false }}">
+                        <div style="position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#fff;white-space:nowrap">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1b1b1f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+                          <span style="color:#1b1b1f;font-size:10.5px;font-weight:700">Pro</span>
+                        </div>
+                      </sc-if>
+                    </button>
+                  </sc-if>
+                  <span style="display:block;text-align:center;margin-top:6px;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:700;letter-spacing:.1em">KI SCORE</span>
                 </div>
-              </button>
-            </sc-if>
-
-            <sc-if value="{{ aiScoreCheckingNow }}" hint-placeholder-val="{{ false }}">
-              <div style="position:relative">
-                <svg viewBox="0 0 200 112" width="100%" style="display:block;overflow:visible">
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="5" stroke-linecap="round"></path>
-                </svg>
-                <div style="position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px">
-                  <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:#1b1b1f;animation:spin .8s linear infinite;display:block"></span>
-                  <span id="ai-score-step-text" style="color:var(--tx2);font-size:12.5px;font-weight:600;white-space:nowrap">{{ aiScoreStepText }}</span>
-                </div>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ aiScoreDone }}" hint-placeholder-val="{{ false }}">
-              <button onClick="{{ aiScoreOpen }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;position:relative" style-active="opacity:.85">
-                <div style="position:absolute;left:-10%;right:-10%;top:-10%;bottom:20%;background:radial-gradient(ellipse at 50% 25%,{{ aiScoreGlow }} 0%,transparent 70%);pointer-events:none"></div>
-                <svg viewBox="0 0 200 112" width="100%" style="position:relative;display:block;overflow:visible;{{ geoWrapStyle }}">
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="var(--surf2)" stroke-width="5" stroke-linecap="round"></path>
-                  <path d="M14,100 A86,86 0 0 1 186,100" fill="none" stroke="{{ aiScoreColor }}" stroke-width="5" stroke-linecap="round" stroke-dasharray="{{ aiScoreArcLen }} {{ aiScoreArcLen }}" stroke-dashoffset="{{ aiScoreArcOffset }}"></path>
-                </svg>
-                <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;{{ geoWrapStyle }}">
-                  <div style="display:flex;align-items:baseline;gap:4px">
-                    <span class="mono" style="color:var(--tx);font-size:44px;font-weight:700;letter-spacing:-.015em;line-height:1">{{ aiScoreTotal }}</span>
-                    <span style="color:var(--tx3);font-size:15px;font-weight:600">/ 100</span>
+              </sc-if>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ analysisLines }}" as="al" hint-placeholder-count="3">
+                  <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                    <span style="color:rgba(255,255,255,.6);font-size:10.5px;font-weight:600">{{ al.k }}</span>
+                    <span style="color:#fff;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ al.v }}</span>
                   </div>
-                  <span style="color:{{ aiScoreColor }};font-size:14px;font-weight:700">{{ aiScoreLabel }}</span>
-                </div>
-                <sc-if value="{{ aiScoreLocked }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
-                    <span style="color:#fff;font-size:12px;font-weight:700">KI Score mit Pro</span>
-                    <span style="padding:6px 12px;border-radius:999px;background:#fff;color:#1b1b1f;font-size:11px;font-weight:700">Freischalten</span>
-                  </div>
+                </sc-for>
+                <sc-if value="{{ noHoldings }}" hint-placeholder-val="{{ false }}">
+                  <span style="color:rgba(255,255,255,.75);font-size:12.5px;line-height:1.5">Noch keine Positionen — sobald dein Depot gefüllt ist, erscheint hier eine Kurzanalyse.</span>
                 </sc-if>
-              </button>
-            </sc-if>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="depot-white-block" style="position:relative;z-index:1;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 20px 128px">
+
+        <sc-if value="{{ sectorHas }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:26px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px">
+              <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span style="color:var(--tx);font-size:20px;font-weight:700;letter-spacing:-.025em">Sektoren</span>
+                <span style="color:var(--tx3);font-size:12px">In welchen Branchen dein Geld steckt</span>
+              </div>
+            </div>
+            <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:18px 18px 16px;display:flex;flex-direction:column;gap:13px">
+              <sc-for list="{{ sectorRows }}" as="sr" hint-placeholder-count="5">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;align-items:baseline;gap:8px">
+                    <span style="width:8px;height:8px;border-radius:50%;background:{{ sr.color }};flex:none;align-self:center"></span>
+                    <span style="flex:1;min-width:0;color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sr.name }}</span>
+                    <span class="mono" style="color:var(--tx);font-size:12.5px;font-weight:700;flex:none">{{ sr.pct }}</span>
+                  </div>
+                  <div style="height:8px;border-radius:4px;background:var(--surf2);overflow:hidden">
+                    <span style="display:block;height:100%;border-radius:4px;background:{{ sr.color }};width:{{ sr.barWidth }};transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin:10px 4px 0">ETFs nach ihrer tatsächlichen Sektoraufteilung, Einzelaktien nach Branche (geschätzt).</span>
           </div>
         </sc-if>
 
@@ -1321,8 +1353,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
         </sc-if>
 
+        </div>
         </sc-if>
 
+        <sc-if value="{{ depotOther }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:calc(env(safe-area-inset-top, 0px) + 80px) 20px 128px;animation:{{ depotTabAnim }} .32s cubic-bezier(.32,.72,0,1) both">
         <sc-if value="{{ depotDiv }}" hint-placeholder-val="{{ false }}">
           <div style="margin-bottom:26px">
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
@@ -3104,6 +3139,48 @@ const countryOf = (sym, isin) => {
   if (/^[A-Z]{2}[A-Z0-9]{10}$/.test(i) && COUNTRIES[i.slice(0, 2)] && !["IE", "LU"].includes(i.slice(0, 2))) return i.slice(0, 2);
   return "US";
 };
+// Sektoren: ETFs ueber die echte Yahoo-Sektoraufteilung (etfHoldings.sectors),
+// Einzelaktien ueber feste Liste + Namens-Heuristik (Backend liefert keine Branche).
+const SECTORS = {
+  tech: ["Technologie", "#5B5BD6"], health: ["Pharma & Gesundheit", "#2AA6B5"], fin: ["Banken & Finanzen", "#F2A03D"],
+  ind: ["Industrie", "#1b1b1f"], cons: ["Basiskonsum", "#43CEA2"], cyc: ["Zyklischer Konsum", "#F6546A"],
+  comm: ["Kommunikation", "#9C7BFF"], energy: ["Energie", "#E8547C"], util: ["Versorger", "#3d7bf0"],
+  mat: ["Rohstoffe", "#B08A5B"], re: ["Immobilien", "#7DA0B8"], other: ["Sonstige", "#C9CDD6"]
+};
+const YAHOO_SECTOR = { technology: "tech", healthcare: "health", financial_services: "fin", industrials: "ind", consumer_defensive: "cons", consumer_cyclical: "cyc", communication_services: "comm", energy: "energy", utilities: "util", basic_materials: "mat", realestate: "re" };
+const SECTOR_MAP = (() => {
+  const m = {}, add = (k, s) => s.split(" ").forEach(x => { m[x] = k; });
+  add("tech", "AAPL MSFT NVDA AVGO ORCL CRM ADBE AMD INTC CSCO IBM QCOM TXN AMAT MU LRCX KLAC ADI NOW INTU PANW SNPS CDNS CRWD PLTR SHOP SNOW NET DDOG ZS MSTR TSM ASML SAP ARM LOGI LOGN TEMN ALSN U45 INFY ACN SMCI DELL HPQ HPE ANET MRVL ON NXPI STM IFX CHKP WIX NICE ADSK WDAY TEAM MDB OKTA HUBS FTNT UBER ABNB SQ XYZ PYPL COIN");
+  add("health", "NOVN ROG LLY NVO JNJ PFE MRK ABBV AMGN GILD BMY AZN GSK NVS SNY BAYN TEVA UNH CVS CI ELV HUM ISRG TMO DHR ABT MDT SYK BSX BDX ZTS VRTX REGN BIIB MRNA BNTX LONN ALC SOON STMN GALD SDZ ILMN IDXX DXCM EW");
+  add("fin", "JPM BAC WFC C GS MS BLK SCHW AXP V MA UBS UBSG CSGN ZURN SREN SLHN BAER VONN CMBN KB HSBC BNP SAN ING DBK CBK ALV MUV2 BRK.B BRK-B BRK HDB IBN ITUB TD RY BMO CB PGR MET AIG SPGI MCO ICE CME HELN SQN PGHN PARG EFGN");
+  add("ind", "ABBN SIE SIEGY GE HON CAT DE BA LMT RTX NOC GD UPS FDX UNP CSX MMM EMR ETN ITW PH SCHN SCHP KNIN GEBN SIKA SGSN ADEN GF SUN BUCN DKSH FHZN VACN ARBN DAL UAL AIR RHM MTX DHL SU HO VWS");
+  add("cons", "NESN KO PEP PG WMT COST CL KMB MDLZ MO PM BTI UL ULVR DEO BN OR LISN LISP BARN EMMN ORON KHC GIS HSY STZ KR TGT ABI HEIA");
+  add("cyc", "AMZN TSLA HD LOW NKE MCD SBUX BKNG TJX CMG MAR HLT RACE STLA TM F GM MBG BMW VOW3 PAH3 ADS PUM MC RMS KER CFR UHR SWTCH BABA JD PDD MELI SE NIO LULU EBAY ETSY DPZ YUM ITX");
+  add("comm", "GOOGL GOOG META NFLX DIS CMCSA T VZ TMUS SCMN SPOT BIDU TCEHY EA TTWO RBLX SNAP PINS DTE ORAN WBD PARA CHTR");
+  add("energy", "XOM CVX COP SHEL BP TTE ENB CNQ SLB EOG OXY PSX MPC VLO KMI WMB PBR EQNR ENI REP OMV");
+  add("util", "NEE DUK SO D AEP EXC SRE XEL BKW ALPH EOAN RWE IBE ENEL NG");
+  add("mat", "LIN APD SHW ECL FCX NEM RIO BHP VALE GLEN HOLN GIVN CLN EMSN DOW DD NUE ALB SQM BAS SY1 AMRZ");
+  add("re", "PLD AMT EQIX CCI SPG O PSA WELL DLR VNA PSPN SPSN ALLN MOBN");
+  return m;
+})();
+const sectorOf = (sym, name) => {
+  const s = String(sym || "").toUpperCase(), base = s.replace(/\.[A-Z]{1,2}$/, "");
+  if (SECTOR_MAP[s]) return SECTOR_MAP[s];
+  if (SECTOR_MAP[base]) return SECTOR_MAP[base];
+  const n = String(name || "").toLowerCase();
+  if (/gold|silver|silber|metal|mining|rohstoff|commodit|chemi|material/.test(n)) return "mat";
+  if (/pharma|health|gesundheit|bio|medic|therap|care\b/.test(n)) return "health";
+  if (/bank|financ|insur|versicher|capital|holding.*financ|payment/.test(n)) return "fin";
+  if (/tech|software|semicon|digital|cyber|cloud|\bai\b|robot|comput|data/.test(n)) return "tech";
+  if (/energy|energie|oil|öl|petrol|gas\b|clean energy|solar|uran/.test(n)) return "energy";
+  if (/real estate|immobil|reit|property/.test(n)) return "re";
+  if (/utilit|versorg|power|electric/.test(n)) return "util";
+  if (/telecom|media|communic|entertain/.test(n)) return "comm";
+  if (/food|beverage|consumer staples|nahrung/.test(n)) return "cons";
+  if (/retail|auto|luxury|consumer disc|travel|hotel/.test(n)) return "cyc";
+  if (/industr|aerospace|defen|rüstung|machin|logist|transport/.test(n)) return "ind";
+  return "other";
+};
 const RANGE_DAYS = { D: 1, W: 7, M: 30, Y: 365, MAX: Infinity };
 const RANGE_LABELS = { D: "T", W: "W", M: "M", Y: "J", MAX: "Max" };
 const dstr = d => d.toISOString().slice(0, 10);
@@ -4433,8 +4510,10 @@ class Component extends DCLogic {
     const from = order.indexOf(this.state.depotTab || "general"), to = order.indexOf(k);
     this._depotTabDir = to > from ? 1 : to < from ? -1 : 0;
     const sc = document.getElementById("depot-scroll"); if (sc) sc.scrollTop = 0;
+    this._depotHeadOnWhite = null;
     this.applyDepotHeadTone();
     this.setState({ depotTab: k });
+    requestAnimationFrame(() => { this._depotHeadOnWhite = null; this.applyDepotHeadTone(); });
     if (k === "div") this.loadDivCal(); if (k === "alloc") this.loadInsiderExtra();
   };
   // ---------- Depot: Tabs per Wisch durchblaettern ----------
@@ -6228,6 +6307,46 @@ class Component extends DCLogic {
       });
     }
 
+    // Sektoren als Balken + Kurzanalyse fuers Analyse-Titelbild.
+    const sectorRows = [], analysisLines = [];
+    if (visibleHoldings.length && visVal) {
+      const expo = {}, ccs = new Set();
+      let tot = 0;
+      const add = (k, v) => { expo[k] = (expo[k] || 0) + v; tot += v; };
+      visibleHoldings.forEach(h => {
+        const sym = h.sym || h.abbr, v = h.shares * h.cur;
+        const comp = this.state.etfHoldings && this.state.etfHoldings[sym];
+        if (comp && comp.holdings && comp.holdings.length) comp.holdings.forEach(x => ccs.add(countryOf(x.symbol)));
+        else ccs.add(countryOf(sym, h.isin));
+        const secs = comp && (comp.sectors || []).filter(x => x && x.weight > 0);
+        if (secs && secs.length) {
+          const wt = secs.reduce((a, x) => a + x.weight, 0);
+          secs.forEach(x => add(YAHOO_SECTOR[x.sector] || "other", v * x.weight / wt));
+          return;
+        }
+        if (comp && comp.holdings && comp.holdings.length) {
+          const wt = comp.holdings.reduce((a, x) => a + (x.weight || 0), 0);
+          if (wt > 0) { comp.holdings.forEach(x => add(sectorOf(x.symbol, x.name), v * (x.weight || 0) / wt)); return; }
+        }
+        add(sectorOf(sym, displayName(h)), v);
+      });
+      const sorted = Object.entries(expo).filter(([k]) => k !== "other").sort((a, b) => b[1] - a[1]);
+      const shown = sorted.slice(0, 7);
+      const rest = sorted.slice(7).reduce((a, x) => a + x[1], 0) + (expo.other || 0);
+      if (rest > 0.0001) shown.push(["other", rest]);
+      const maxV = Math.max(...shown.map(x => x[1]));
+      shown.forEach(([k, v]) => sectorRows.push({
+        name: SECTORS[k][0], color: SECTORS[k][1],
+        pct: (v / tot * 100).toFixed(1).replace(".0", "") + " %",
+        barWidth: (v / maxV * 100).toFixed(1) + "%"
+      }));
+      if (sorted.length) analysisLines.push({ k: "Grösster Sektor", v: SECTORS[sorted[0][0]][0] + " · " + Math.round(sorted[0][1] / tot * 100) + " %" });
+      const topPos = visibleHoldings.map(h => ({ h, w: h.shares * h.cur / visVal * 100 })).sort((a, b) => b.w - a.w)[0];
+      analysisLines.push({ k: topPos.w > 35 ? "Klumpenrisiko" : "Grösste Position", v: displayName(topPos.h) + " · " + Math.round(topPos.w) + " %" });
+      const winners = visibleHoldings.filter(h => h.cur >= h.buy).length;
+      analysisLines.push({ k: "Streuung", v: visibleHoldings.length + " Titel · " + ccs.size + (ccs.size === 1 ? " Land" : " Länder") + " · " + winners + " im Plus" });
+    }
+
     // Gewichtung als duenner Ring im Stil des KI-Score-Bogens (Strich-Segmente
     // mit runden Kappen und kleiner Luecke), mit Beschriftungslinien, die von
     // jedem Segment nach links/rechts zu Name + Anteil fuehren. Sehr kleine
@@ -7006,7 +7125,7 @@ class Component extends DCLogic {
       allocationSlices,
       allocationLegend,
       allocRing, allocCallouts,
-      depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: (this.state.depotTab || "general") !== "general", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)",
+      depotGeneral: (this.state.depotTab || "general") === "general", depotAlloc: this.state.depotTab === "alloc", depotOther: this.state.depotTab === "div", depotPageBg: (this.state.depotTab || "general") === "general" ? "var(--home-bg)" : "var(--bg)",
       depotTabAnim: this._depotTabDir === 1 ? "depotSlideL" : this._depotTabDir === -1 ? "depotSlideR" : "fade",
       depotSwipeStart: this.depotSwipeStart, depotSwipeMove: this.depotSwipeMove, depotSwipeEnd: this.depotSwipeEnd,
       // Kopfzeile: auf Holdings faerbt sich der Blur wie beim Titelbild selbst
@@ -7015,12 +7134,12 @@ class Component extends DCLogic {
       // ueber dem Bild. Auf Analyse/Dividenden bleibt der helle Glas-Ton,
       // da dort der Seitenhintergrund selbst hell ist. Statisch pro Tab,
       // keine Scroll-Animation.
-      depotHeadIconClass: (this.state.depotTab || "general") === "general" ? "" : "gbtn",
-      depotHeadIconStyle: (this.state.depotTab || "general") === "general" ? "background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18)" : "",
-      depotHeadIconColor: (this.state.depotTab || "general") === "general" ? "#fff" : "var(--tx)",
-      depotHeadTabBg: (this.state.depotTab || "general") === "general" ? "rgba(255,255,255,.16)" : "var(--gbtn)",
-      depotHeadTabBorder: (this.state.depotTab || "general") === "general" ? "rgba(255,255,255,.18)" : "var(--gbtn-line)",
-      depotHeadTabTx: (this.state.depotTab || "general") === "general" ? "rgba(255,255,255,.85)" : "var(--tx2)",
+      depotHeadIconClass: (this.state.depotTab || "general") !== "div" ? "" : "gbtn",
+      depotHeadIconStyle: (this.state.depotTab || "general") !== "div" ? "background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18)" : "",
+      depotHeadIconColor: (this.state.depotTab || "general") !== "div" ? "#fff" : "var(--tx)",
+      depotHeadTabBg: (this.state.depotTab || "general") !== "div" ? "rgba(255,255,255,.16)" : "var(--gbtn)",
+      depotHeadTabBorder: (this.state.depotTab || "general") !== "div" ? "rgba(255,255,255,.18)" : "var(--gbtn-line)",
+      depotHeadTabTx: (this.state.depotTab || "general") !== "div" ? "rgba(255,255,255,.85)" : "var(--tx2)",
       ...(() => {
         const cut = Date.now() - 90 * 864e5, it = this.state.insiderTrades || {};
         const rows = [];
@@ -7117,6 +7236,7 @@ class Component extends DCLogic {
       closeAiScoreSheet: this.animClose(this.closeAiScoreSheet),
       aiScoreSheetDragDown: this.sheetDragDown(this.closeAiScoreSheet),
       aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
+      sectorHas: sectorRows.length > 0, sectorRows, analysisLines,
       geoHas, geoCallouts, geoRings, geoDots: worldDotsPath(),
       geoIsPro: proActive, geoLocked: !proActive,
       geoWrapStyle: proActive ? "" : "filter:blur(7px);opacity:.75;pointer-events:none",
