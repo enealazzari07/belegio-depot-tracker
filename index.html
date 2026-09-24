@@ -418,16 +418,16 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <div style="position:absolute;left:32px;right:32px;top:calc(env(safe-area-inset-top, 0px) + 100px)">
             <h1 style="margin:0 0 8px;color:#16171D;font-size:29px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line;text-shadow:0 1px 16px rgba(255,255,255,.4)">{{ authTitle }}</h1>
             <p style="margin:0;max-width:58%;color:rgba(22,23,29,.72);font-size:14.5px;line-height:1.5;text-shadow:0 1px 12px rgba(255,255,255,.35)">{{ authSub }}</p>
-            <!-- Anmelden/Registrieren-Switch unter dem Slogan, grauer Glas-Look wie die Glocke. -->
-            <sc-if value="{{ authShowModeSwitch }}" hint-placeholder-val="{{ true }}">
-              <div style="display:inline-flex;margin-top:18px;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(236,237,240,.88);border:1px solid rgba(16,19,26,.08);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
-                <sc-for list="{{ authModeTabs }}" as="am" hint-placeholder-count="2">
-                  <button onClick="{{ am.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ am.bg }};color:{{ am.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ am.label }}</button>
-                </sc-for>
-              </div>
-            </sc-if>
           </div>
         </div>
+        <!-- Anmelden/Registrieren-Switch knapp ueber dem weissen Bereich, grauer Glas-Look wie die Glocke. -->
+        <sc-if value="{{ authShowModeSwitch }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;left:32px;top:calc(46% - 30px - 56px);z-index:1;display:inline-flex;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(236,237,240,.88);border:1px solid rgba(16,19,26,.08);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
+            <sc-for list="{{ authModeTabs }}" as="am" hint-placeholder-count="2">
+              <button onClick="{{ am.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;padding:0 14px;border-radius:999px;background:{{ am.bg }};color:{{ am.tx }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .2s ease,color .2s ease" style-active="transform:scale(.96)">{{ am.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
         <div style="position:absolute;left:0;right:0;top:calc(46% - 30px);bottom:0;background:var(--bg);border-radius:30px 30px 0 0;box-shadow:0 -18px 36px -22px rgba(20,24,40,.28);overflow-y:auto;padding:34px 32px calc(env(safe-area-inset-bottom, 0px) + 44px);display:flex;flex-direction:column">
         <div style="display:flex;flex-direction:column;gap:14px">
           <sc-if value="{{ authShowEmail }}" hint-placeholder-val="{{ true }}">
@@ -480,6 +480,18 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <span class="ab-t">{{ authCta }}</span>
           <span class="ab-s"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-opacity=".22" stroke-width="2.6"></circle><path d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path></svg></span>
         </button>
+
+        <!-- Kurze Vertrauens-Hinweise, damit die Flaeche unter dem Button nicht leer wirkt. -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px;padding:0 6px">
+          <div style="display:flex;align-items:center;gap:10px;color:var(--tx3);font-size:12px;line-height:1.4">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+            <span>Keine Bank-Zugangsdaten nötig — du erfasst dein Depot per Beleg.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;color:var(--tx3);font-size:12px;line-height:1.4">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>
+            <span>Belege werden direkt auf deinem Gerät gelesen.</span>
+          </div>
+        </div>
 
         <div style="flex:1;min-height:20px"></div>
         <sc-if value="{{ authShowBottomSwitch }}" hint-placeholder-val="{{ false }}">
