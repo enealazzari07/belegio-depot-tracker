@@ -230,6 +230,17 @@ input::placeholder{color:var(--tx3)}
 @keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
 @keyframes authDone{to{transform:scale(1.18);opacity:0}}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* "Mail versendet": Umschlag ploppt auf, Ring pulsiert, Haken springt dazu. */
+.ms-wrap{position:relative;width:76px;height:76px}
+.ms-env{position:absolute;inset:0;border-radius:50%;background:linear-gradient(160deg,#9AA6FF,#5B5BD6 55%,#2D2A6E);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 30px -14px rgba(60,60,160,.6);animation:msPop .55s cubic-bezier(.34,1.56,.64,1) both}
+.ms-env svg{animation:msFly .9s cubic-bezier(.65,0,.35,1) .35s both}
+.ms-ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid #7E86F0;opacity:0;animation:msRing 1.1s ease-out .3s both}
+.ms-check{position:absolute;right:-2px;bottom:-2px;width:26px;height:26px;border-radius:50%;background:var(--pos);border:3px solid var(--sheet-bg);display:flex;align-items:center;justify-content:center;animation:msPop .45s cubic-bezier(.34,1.56,.64,1) .75s both}
+@keyframes msPop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+@keyframes msFly{0%{transform:none}45%{transform:translate(14px,-14px) scale(.7);opacity:0}46%{transform:translate(-14px,14px) scale(.7);opacity:0}100%{transform:none;opacity:1}}
+@keyframes msRing{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+@keyframes otpIn{from{transform:translateY(8px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.ms-env,.ms-env svg,.ms-ring,.ms-check{animation:none!important}}
 @keyframes sfDrawA{to{stroke-dashoffset:0}}
 @keyframes sfFadeA{to{opacity:1}}
 @keyframes sfInA{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
@@ -457,7 +468,12 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <sc-if value="{{ authShowCode }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:8px">
               <label style="color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:22px">CODE AUS DER MAIL</label>
-              <input inputmode="numeric" sc-camel-auto-complete="one-time-code" class="auth-in" value="{{ authCode }}" onInput="{{ onAuthCode }}" onKeyDown="{{ onAuthKey }}" placeholder="123456" style="text-align:center;font-size:22px;letter-spacing:.3em;font-weight:700">
+              <div style="position:relative;display:flex;justify-content:center;gap:8px">
+                <sc-for list="{{ authBoxes }}" as="bx" hint-placeholder-count="6">
+                  <span class="mono" style="width:46px;height:58px;border-radius:16px;background:{{ bx.bg }};border:1.5px solid {{ bx.border }};display:flex;align-items:center;justify-content:center;color:var(--tx);font-size:24px;font-weight:800;box-shadow:var(--card-shadow);transition:border-color .15s ease,background .15s ease;animation:otpIn .35s cubic-bezier(.34,1.56,.64,1) {{ bx.delay }} both">{{ bx.ch }}</span>
+                </sc-for>
+                <input inputmode="numeric" pattern="[0-9]*" sc-camel-auto-complete="one-time-code" maxlength="6" value="{{ authCode }}" onInput="{{ onAuthCode }}" onKeyDown="{{ onAuthKey }}" aria-label="Code aus der Mail" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;margin:0;background:transparent;color:transparent;caret-color:transparent">
+              </div>
             </div>
           </sc-if>
           <sc-if value="{{ authShowPassword }}" hint-placeholder-val="{{ true }}">
@@ -3036,10 +3052,22 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 12px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
           <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSendLabel }}</button>
         </sc-if>
+        <sc-if value="{{ pwSent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 0 22px">
+            <div class="ms-wrap"><span class="ms-ring"></span><span class="ms-env"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M4 7l8 6 8-6"></path></svg></span><span class="ms-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></div>
+            <span style="margin-top:18px;color:var(--tx);font-size:17px;font-weight:800;animation:authModeIn .4s cubic-bezier(.22,1,.36,1) .35s both">Mail versendet</span>
+            <span style="margin-top:4px;color:var(--tx2);font-size:13px;animation:authModeIn .4s cubic-bezier(.22,1,.36,1) .45s both">an {{ pwEmail }}</span>
+          </div>
+        </sc-if>
         <sc-if value="{{ pwCodeStep }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55">Code an <b style="color:var(--tx)">{{ pwEmail }}</b> gesendet. Gib ihn hier ein und wähle dein neues Passwort.</p>
-          <input inputmode="numeric" sc-camel-auto-complete="one-time-code" class="auth-in" value="{{ pwCode }}" onInput="{{ onPwCode }}" placeholder="Code aus der Mail" style="text-align:center;font-size:22px;letter-spacing:.3em;font-weight:700">
-          <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNew }}" onInput="{{ onPwNew }}" placeholder="Neues Passwort (mind. 6 Zeichen)" style="margin-top:10px">
+          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55;animation:authModeIn .4s ease both">Gib den Code aus der Mail an <b style="color:var(--tx)">{{ pwEmail }}</b> ein und wähle dein neues Passwort.</p>
+          <div style="position:relative;display:flex;justify-content:center;gap:8px;margin:4px 0 2px;animation:authModeIn .45s cubic-bezier(.22,1,.36,1) both">
+            <sc-for list="{{ pwBoxes }}" as="bx" hint-placeholder-count="6">
+              <span class="mono" style="width:46px;height:58px;border-radius:16px;background:{{ bx.bg }};border:1.5px solid {{ bx.border }};display:flex;align-items:center;justify-content:center;color:var(--tx);font-size:24px;font-weight:800;transition:border-color .15s ease,background .15s ease;animation:otpIn .35s cubic-bezier(.34,1.56,.64,1) {{ bx.delay }} both">{{ bx.ch }}</span>
+            </sc-for>
+            <input inputmode="numeric" pattern="[0-9]*" sc-camel-auto-complete="one-time-code" maxlength="{{ pwCodeLen }}" value="{{ pwCode }}" onInput="{{ onPwCode }}" aria-label="Code aus der Mail" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;margin:0;background:transparent;color:transparent;caret-color:transparent">
+          </div>
+          <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNew }}" onInput="{{ onPwNew }}" placeholder="Neues Passwort (mind. 6 Zeichen)" style="margin-top:14px">
           <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
           <button onClick="{{ savePwWithCode }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSaveLabel }}</button>
           <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;color:var(--tx3);font-size:12.5px;font-weight:600">Code erneut senden</button>
@@ -3079,9 +3107,21 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </sc-if>
           <button onClick="{{ requestDelete }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ deleteBtnLabel }}</button>
         </sc-if>
+        <sc-if value="{{ deleteSentAnim }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 0 22px">
+            <div class="ms-wrap"><span class="ms-ring"></span><span class="ms-env"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M4 7l8 6 8-6"></path></svg></span><span class="ms-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></div>
+            <span style="margin-top:18px;color:var(--tx);font-size:17px;font-weight:800;animation:authModeIn .4s cubic-bezier(.22,1,.36,1) .35s both">Mail versendet</span>
+            <span style="margin-top:4px;color:var(--tx2);font-size:13px;animation:authModeIn .4s cubic-bezier(.22,1,.36,1) .45s both">an {{ userEmailForDelete }}</span>
+          </div>
+        </sc-if>
         <sc-if value="{{ deleteMailSent }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55">Code an <b style="color:var(--tx)">{{ userEmailForDelete }}</b> gesendet (15 Minuten gültig). Gib ihn hier ein, um die Löschung zu bestätigen.</p>
-          <input inputmode="numeric" sc-camel-auto-complete="one-time-code" class="auth-in" value="{{ deleteCode }}" onInput="{{ onDeleteCode }}" placeholder="Code aus der Mail" style="text-align:center;font-size:22px;letter-spacing:.3em;font-weight:700">
+          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55;animation:authModeIn .4s ease both">Gib den Code aus der Mail an <b style="color:var(--tx)">{{ userEmailForDelete }}</b> ein (15 Minuten gültig).</p>
+          <div style="position:relative;display:flex;justify-content:center;gap:8px;margin:4px 0 2px;animation:authModeIn .45s cubic-bezier(.22,1,.36,1) both">
+            <sc-for list="{{ deleteBoxes }}" as="bx" hint-placeholder-count="6">
+              <span class="mono" style="width:46px;height:58px;border-radius:16px;background:{{ bx.bg }};border:1.5px solid {{ bx.border }};display:flex;align-items:center;justify-content:center;color:var(--tx);font-size:24px;font-weight:800;transition:border-color .15s ease,background .15s ease;animation:otpIn .35s cubic-bezier(.34,1.56,.64,1) {{ bx.delay }} both">{{ bx.ch }}</span>
+            </sc-for>
+            <input inputmode="numeric" pattern="[0-9]*" sc-camel-auto-complete="one-time-code" maxlength="{{ deleteCodeLen }}" value="{{ deleteCode }}" onInput="{{ onDeleteCode }}" aria-label="Code aus der Mail" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;margin:0;background:transparent;color:transparent;caret-color:transparent">
+          </div>
           <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ deleteError }}</p></sc-if>
           <button onClick="{{ confirmDeleteCode }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ deleteConfirmLabel }}</button>
           <button onClick="{{ requestDelete }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;color:var(--tx3);font-size:12.5px;font-weight:600">Code erneut senden</button>
@@ -4293,7 +4333,7 @@ class Component extends DCLogic {
     this.setState({ authMode: next, authError: "", authNotice: "", authBtnFx: "", recoveryByCode: false, authCode: "" });
   };
   openForgot = () => this.setState({ authMode: "forgot", authError: "", authNotice: "", authPassword: "", authBtnFx: "", recoveryByCode: false, authCode: "" });
-  onAuthCode = e => this.setState({ authCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 8), authError: "" });
+  onAuthCode = e => this.setState({ authCode: e.target.value.replace(/[^0-9]/g, "").slice(0, this.PW_CODE_LEN), authError: "" });
 
   // Button-Feedback: bei Fehlern kurz schuetteln statt nur Text zu zeigen.
   authFail = msg => {
@@ -4418,7 +4458,16 @@ class Component extends DCLogic {
   // mit dem neuen Passwort eingegeben wird – kein Link, man bleibt in der App.
   openPwSheet = () => this.setState({ pwSheetOpen: true, pwStep: "ask", pwCode: "", pwNew: "", pwError: "", pwBusy: false });
   closePwSheet = () => { if (!this.state.pwBusy) this.setState({ pwSheetOpen: false, pwStep: "ask", pwCode: "", pwNew: "", pwError: "" }); };
-  onPwCode = e => this.setState({ pwCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 8), pwError: "" });
+  onPwCode = e => this.setState({ pwCode: e.target.value.replace(/[^0-9]/g, "").slice(0, this.PW_CODE_LEN), pwError: "" });
+  PW_CODE_LEN = 6;   // Supabase-OTP: mindestens 6 Stellen (Auth > Providers > Email)
+  DEL_CODE_LEN = 5;  // eigener Code der Edge Function account-delete
+  // Ziffern-Kaestchen fuer die Code-Eingabe (ein unsichtbares Input liegt darueber).
+  otpBoxes = (code, len) => Array.from({ length: len }, (_, i) => ({
+    ch: code[i] || "",
+    border: i === code.length ? "var(--acc2)" : code[i] ? "var(--line2)" : "var(--line)",
+    bg: code[i] ? "var(--surf)" : "var(--surf2)",
+    delay: (i * 0.05).toFixed(2) + "s"
+  }));
   onPwNew = e => this.setState({ pwNew: e.target.value, pwError: "" });
   sendPwMail = async () => {
     const email = (this.state.user && this.state.user.email) || "";
@@ -4427,7 +4476,10 @@ class Component extends DCLogic {
     try {
       const db = await this.db();
       await db.requestPasswordReset(email);
-      this.setState({ pwBusy: false, pwStep: "code" });
+      // Kurz "Mail versendet" zeigen, dann weich zur Code-Eingabe wechseln.
+      this.setState({ pwBusy: false, pwStep: "sent", pwCode: "" });
+      clearTimeout(this._pwSentT);
+      this._pwSentT = setTimeout(() => { if (this.state.pwStep === "sent") this.setState({ pwStep: "code" }); }, 1900);
     } catch (e) {
       this.setState({ pwBusy: false, pwError: e.message || "Mail konnte nicht gesendet werden." });
     }
@@ -4435,7 +4487,7 @@ class Component extends DCLogic {
   savePwWithCode = async () => {
     const email = (this.state.user && this.state.user.email) || "";
     const code = this.state.pwCode || "", pw = this.state.pwNew || "";
-    if (code.length < 6) return this.setState({ pwError: "Bitte gib den Code aus der Mail ein." });
+    if (code.length < this.PW_CODE_LEN) return this.setState({ pwError: "Bitte gib den Code aus der Mail ein." });
     if (pw.length < 6) return this.setState({ pwError: "Das neue Passwort braucht mindestens 6 Zeichen." });
     if (this.state.pwBusy) return;
     this.setState({ pwBusy: true, pwError: "" });
@@ -4494,10 +4546,10 @@ class Component extends DCLogic {
     } catch (_) {}
   };
   openDeleteSheet = () => { this.setState({ deleteSheetOpen: true, deleteMailSent: false, deleteCode: "", deleteError: "", deleteBusy: false }); this.loadDeletionStatus(); };
-  onDeleteCode = e => this.setState({ deleteCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 6), deleteError: "" });
+  onDeleteCode = e => this.setState({ deleteCode: e.target.value.replace(/[^0-9]/g, "").slice(0, this.DEL_CODE_LEN), deleteError: "" });
   confirmDeleteCode = async () => {
     if (this.state.deleteBusy) return;
-    if ((this.state.deleteCode || "").length !== 6) return this.setState({ deleteError: "Bitte gib den 6-stelligen Code aus der Mail ein." });
+    if ((this.state.deleteCode || "").length !== this.DEL_CODE_LEN) return this.setState({ deleteError: "Bitte gib den " + this.DEL_CODE_LEN + "-stelligen Code aus der Mail ein." });
     this.setState({ deleteBusy: true, deleteError: "" });
     try {
       const db = await this.db();
@@ -4514,7 +4566,11 @@ class Component extends DCLogic {
     try {
       const db = await this.db();
       const r = await db.accountDelete("request");
-      this.setState({ deleteBusy: false, deleteMailSent: !r.scheduled_for, deletionScheduledFor: r.scheduled_for || this.state.deletionScheduledFor || null });
+      if (!r.scheduled_for) {
+        clearTimeout(this._delSentT);
+        this._delSentT = setTimeout(() => { if (this.state.deleteSentAnim) this.setState({ deleteSentAnim: false }); }, 1900);
+      }
+      this.setState({ deleteBusy: false, deleteCode: "", deleteSentAnim: !r.scheduled_for, deleteMailSent: !r.scheduled_for, deletionScheduledFor: r.scheduled_for || this.state.deletionScheduledFor || null });
     } catch (e) {
       this.setState({ deleteBusy: false, deleteError: this.deleteErrorText(e) });
     }
@@ -7343,7 +7399,7 @@ class Component extends DCLogic {
         }[m] || {};
         return {
           authTitle: T.title, authSub: m === "reset" && this.state.recoveryByCode ? "Gib den Code aus der Mail und dein neues Passwort ein." : T.sub, authCta: T.cta,
-          authShowCode: m === "reset" && !!this.state.recoveryByCode, authCode: this.state.authCode || "", onAuthCode: this.onAuthCode,
+          authShowCode: m === "reset" && !!this.state.recoveryByCode, authCode: this.state.authCode || "", onAuthCode: this.onAuthCode, authBoxes: this.otpBoxes(this.state.authCode || "", this.PW_CODE_LEN),
           authSwitchLabel: T.sw, authSwitchCta: T.swCta,
           authShowModeSwitch: m === "login" || m === "register",
           authModePillX: m === "register" ? "calc(100% + 4px)" : "0",
@@ -8172,7 +8228,8 @@ class Component extends DCLogic {
       closeLegal: this.animClose(this.closeLegal), legalSheetDragDown: this.sheetDragDown(this.closeLegal),
       pwSheetOpen: !!this.state.pwSheetOpen, closePwSheet: this.animClose(this.closePwSheet), pwSheetDragDown: this.sheetDragDown(this.closePwSheet),
       sendPwMail: this.sendPwMail, savePwWithCode: this.savePwWithCode, onPwCode: this.onPwCode, onPwNew: this.onPwNew,
-      pwAsk: (this.state.pwStep || "ask") === "ask", pwCodeStep: this.state.pwStep === "code", pwDone: this.state.pwStep === "done",
+      pwAsk: (this.state.pwStep || "ask") === "ask", pwSent: this.state.pwStep === "sent", pwCodeStep: this.state.pwStep === "code", pwDone: this.state.pwStep === "done",
+      pwBoxes: this.otpBoxes(this.state.pwCode || "", this.PW_CODE_LEN), pwCodeLen: String(this.PW_CODE_LEN),
       pwCode: this.state.pwCode || "", pwNew: this.state.pwNew || "",
       pwSaveLabel: this.state.pwBusy ? "Einen Moment …" : "Passwort speichern",
       pwEmail: (user && user.email) || "",
@@ -8184,7 +8241,9 @@ class Component extends DCLogic {
       deleteError: this.state.deleteError || "",
       deletionScheduled: !!this.state.deletionScheduledFor,
       deleteAsk: !this.state.deletionScheduledFor && !this.state.deleteMailSent,
-      deleteMailSent: !this.state.deletionScheduledFor && !!this.state.deleteMailSent,
+      deleteSentAnim: !this.state.deletionScheduledFor && !!this.state.deleteMailSent && !!this.state.deleteSentAnim,
+      deleteMailSent: !this.state.deletionScheduledFor && !!this.state.deleteMailSent && !this.state.deleteSentAnim,
+      deleteBoxes: this.otpBoxes(this.state.deleteCode || "", this.DEL_CODE_LEN), deleteCodeLen: String(this.DEL_CODE_LEN),
       deletionWhen: this.state.deletionScheduledFor ? new Date(this.state.deletionScheduledFor).toLocaleString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " Uhr" : "",
       deleteBtnLabel: this.state.deleteBusy ? "Einen Moment …" : "Code per Mail senden",
       cancelDeleteLabel: this.state.deleteBusy ? "Einen Moment …" : "Löschung abbrechen",
