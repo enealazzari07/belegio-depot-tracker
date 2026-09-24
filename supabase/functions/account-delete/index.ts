@@ -11,7 +11,7 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 //   status       (eingeloggt)  -> geplante Loeschung abfragen
 //   run          (x-cron-secret) -> faellige Konten endgueltig loeschen (stuendlich per pg_cron)
 // Versand per SMTP, Zugangsdaten in public.app_secrets (wie auth-mail).
-// Mail-Design wie auth-mail: dunkle Verlaufskarte mit Logo + Icon, weisse Inhaltskarte.
+// Mail-Design wie die Supabase-Vorlagen: Login-Hintergrund, grosses Logo, weisse Box.
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -102,53 +102,35 @@ async function authUser(req: Request) {
 const esc = (t: string) => t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 const fmtDate = (iso: string) => new Date(iso).toLocaleString("de-CH", { timeZone: "Europe/Zurich", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " Uhr";
 
-// Icons in der Verlaufskachel (gleicher Stil wie auth-mail).
-const ICONS: Record<string, string> = {
-  trash: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"></path><path d="M10 11v6M14 11v6"></path></svg>`,
-  clock: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>`,
-  wave: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>`,
-};
-
-function mailHtml(appUrl: string, o: { pre: string; icon: "trash" | "clock" | "wave"; title: string; text: string; cta?: string; link?: string; code?: string; note: string; danger?: boolean }) {
+// Mail-Design wie die Supabase-Vorlagen (scripts/build-mail-templates.py):
+// Login-Hintergrundbild, grosses Logo, weisse abgerundete Box.
+function mailHtml(appUrl: string, o: { pre: string; title: string; text: string; cta?: string; link?: string; code?: string; note: string; danger?: boolean; icon?: string }) {
   const font = "'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
-  const tile = o.danger ? "linear-gradient(160deg,#FF9DB1,#E4507A 55%,#5B2A63)" : "linear-gradient(160deg,#9AA6FF,#5B5BD6 55%,#2D2A6E)";
-  const btn = o.cta && o.link ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="border-radius:999px;background:${o.danger ? "#C0453A" : "#16171D"}">
-<a href="${o.link}" style="display:block;padding:16px 24px;font-family:${font};font-size:15.5px;font-weight:800;color:#FFFFFF;text-decoration:none;border-radius:999px;letter-spacing:.01em">${esc(o.cta)} →</a>
-</td></tr></table>` : "";
-  const codeBox = o.code ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="border-radius:20px;background:#F3F4F8;padding:20px 12px">
-<span style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:34px;font-weight:800;letter-spacing:10px;color:#16171D">${esc(o.code)}</span>
-</td></tr></table>` : "";
-  const linkBox = o.link ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:26px"><tr><td style="border-top:1px solid #EDEEF3;padding-top:18px">
-<p style="margin:0;font-family:${font};font-size:11.5px;line-height:1.6;color:#AEB2C0;word-break:break-all">Button geht nicht? Link kopieren:<br><a href="${o.link}" style="color:#7A7FA8">${o.link}</a></p>
-</td></tr></table>` : "";
+  const bg = `${appUrl}/img/mail-bg.jpg`;
+  const btn = o.cta && o.link ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="${o.danger ? "#C0453A" : "#16171D"}" style="border-radius:999px;background:${o.danger ? "#C0453A" : "#16171D"}">
+<a href="${o.link}" style="display:block;padding:17px 24px;font-family:${font};font-size:15.5px;font-weight:800;color:#FFFFFF;text-decoration:none;border-radius:999px">${esc(o.cta)}</a></td></tr></table>` : "";
+  const codeBox = o.code ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#EEF0FB" style="border-radius:22px;background:#EEF0FB;padding:22px 10px">
+<span style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:36px;font-weight:800;letter-spacing:12px;color:#16171D">${esc(o.code)}</span></td></tr></table>` : "";
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"><title>${esc(o.title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></head>
-<body style="margin:0;padding:0;background:#EEF0F5;font-family:${font};-webkit-font-smoothing:antialiased">
+<body style="margin:0;padding:0;background:#EEF0F5;-webkit-font-smoothing:antialiased">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(o.pre)}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF0F5;padding:36px 14px">
-<tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:460px">
-<tr><td style="border-radius:32px 32px 0 0;overflow:hidden">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#15161C;background-image:radial-gradient(120% 140% at 15% -10%,#3B3D8F 0%,rgba(59,61,143,0) 55%),radial-gradient(100% 120% at 100% 0%,#5B5BD6 0%,rgba(91,91,214,0) 50%)">
-<tr><td align="center" style="padding:38px 32px 34px">
-<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 28px"><tr><td style="background:#ffffff;border-radius:16px;padding:9px 16px">
-<img src="${appUrl}/img/stox-logo.png" width="72" alt="Stox" style="display:block;width:72px;height:auto;border:0">
-</td></tr></table>
-<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:60px;height:60px;border-radius:19px;background:${tile}">
-<table role="presentation" width="60" height="60" cellpadding="0" cellspacing="0"><tr><td align="center" valign="middle">${ICONS[o.icon]}</td></tr></table>
-</td></tr></table>
-</td></tr>
-</table>
-</td></tr>
-<tr><td style="background:#FFFFFF;border-radius:26px;padding:38px 30px 34px;box-shadow:0 1px 2px rgba(20,24,40,.04),0 20px 44px -20px rgba(20,24,40,.14)">
-<h1 style="margin:0 0 12px;font-family:${font};font-size:25px;line-height:1.25;font-weight:800;letter-spacing:-.4px;color:#16171D">${esc(o.title)}</h1>
-<p style="margin:0 0 30px;font-family:${font};font-size:15px;line-height:1.6;color:#63697A">${esc(o.text)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EEF0F5" style="background:#EEF0F5"><tr><td align="center" style="padding:28px 12px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px">
+<tr><td background="${bg}" bgcolor="#A3ACF6" style="background:#A3ACF6 url('${bg}') center top / cover no-repeat;border-radius:36px;padding:46px 12px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td align="center" style="padding:0 20px"><img src="${appUrl}/img/stox-logo.png" width="190" alt="Stox" style="display:block;width:190px;max-width:70%;height:auto;border:0;margin:0 auto">
+<p style="margin:14px 0 0;font-family:${font};font-size:15px;font-weight:600;color:#2A2C3A;opacity:.8">Dein Depot, ohne Tabellen.</p></td></tr>
+<tr><td style="height:40px;line-height:40px;font-size:0">&nbsp;</td></tr>
+<tr><td bgcolor="#FFFFFF" style="background:#FFFFFF;border-radius:28px;padding:36px 28px 30px;box-shadow:0 18px 40px -22px rgba(20,24,60,.35)">
+<h1 style="margin:0 0 12px;font-family:${font};font-size:26px;line-height:1.2;font-weight:800;letter-spacing:-.5px;color:#16171D">${esc(o.title)}</h1>
+<p style="margin:0 0 26px;font-family:${font};font-size:15px;line-height:1.6;color:#5F6576">${esc(o.text)}</p>
 ${codeBox}${btn}
-<p style="margin:24px 0 0;font-family:${font};font-size:12.5px;line-height:1.5;color:#9096A5">${esc(o.note)}</p>
-${linkBox}
+<p style="margin:24px 0 0;font-family:${font};font-size:12.5px;line-height:1.55;color:#9096A5">${esc(o.note)}</p>
+</td></tr></table>
 </td></tr>
-<tr><td align="center" style="padding:24px 20px 0;font-family:${font};font-size:12px;line-height:1.6;color:#9298A8">Stox · Dein Depot, ohne Tabellen.</td></tr>
+<tr><td align="center" style="padding:22px 20px 0;font-family:${font};font-size:12px;line-height:1.6;color:#9298A8">Stox · Dein Depot, ohne Tabellen.</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
