@@ -1344,13 +1344,13 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     <circle cx="{{ rg.cx }}" cy="{{ rg.cy }}" r="{{ rg.r }}" fill="{{ rg.color }}" opacity=".22"></circle>
                   </sc-for>
                   <sc-for list="{{ geoCallouts }}" as="co" hint-placeholder-count="5">
-                    <path d="{{ co.path }}" fill="none" stroke="var(--tx3)" stroke-width="1" stroke-linejoin="round" opacity=".7" vector-effect="non-scaling-stroke"></path>
+                    <path d="{{ co.path }}" pathLength="1" fill="none" stroke="{{ co.color }}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" vector-effect="non-scaling-stroke" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:sfDrawA .55s cubic-bezier(.4,0,.2,1) .15s forwards"></path>
                     <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="3" fill="{{ co.color }}" stroke="var(--surf)" stroke-width="1.5"></circle>
                   </sc-for>
                 </svg>
                 <sc-for list="{{ geoCallouts }}" as="co" hint-placeholder-count="5">
                   <div style="position:absolute;{{ co.posStyle }};display:flex;flex-direction:column;gap:1px;line-height:1.15;white-space:nowrap">
-                    <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.name }}</span>
+                    <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.flag }} {{ co.name }}</span>
                     <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:700">{{ co.pct }}</span>
                   </div>
                 </sc-for>
@@ -3366,6 +3366,9 @@ const worldDotsPath = () => {
   });
   return (_worldPath = out.join(""));
 };
+// Laendercode -> Flaggen-Emoji (zwei Regional-Indicator-Zeichen), fuer die
+// Beschriftung bei "Herkunft".
+const flagEmoji = cc => String(cc || "").toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
 const COUNTRIES = {
   US: ["USA", 39, -98], CA: ["Kanada", 56, -106], MX: ["Mexiko", 23, -102], BR: ["Brasilien", -10, -52], AR: ["Argentinien", -34, -64],
   GB: ["Grossbritannien", 54, -2], IE: ["Irland", 53, -8], FR: ["Frankreich", 46, 2], DE: ["Deutschland", 51, 10], CH: ["Schweiz", 46.8, 8.2],
@@ -6924,7 +6927,7 @@ class Component extends DCLogic {
             path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + xe + " " + pt.ly.toFixed(1),
             dotX: pt.x.toFixed(1), dotY: pt.y.toFixed(1),
             posStyle: (side === -1 ? "left:0;text-align:left" : "right:0;text-align:right") + ";top:" + ((pt.ly - 14) / 190 * 100).toFixed(2) + "%",
-            name: pt.name, pct: Math.round(pt.pct) + "%"
+            name: pt.name, pct: Math.round(pt.pct) + "%", flag: flagEmoji(pt.cc)
           });
         });
       });
