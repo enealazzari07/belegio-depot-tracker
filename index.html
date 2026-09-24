@@ -70,6 +70,10 @@
      wirkt wie diffuser Dunst statt einer erkennbaren Kreisscheibe mit
      sichtbarer Kante. */
   --brand:#FFFFFF;
+  /* Home-Hero: das Verlaufsbild von der Login-Seite, oben per weissem
+     Verlauf ausgeblichen -- viel Weiss ganz oben (unter der Statusleiste/
+     Account-Zeile), erst weiter unten wird das Blau/Lila des Fotos sichtbar. */
+  --home-hero-bg:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.82) 20%,rgba(255,255,255,.15) 52%,rgba(255,255,255,0) 72%),url('./img/login-hero.webp');
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
@@ -135,6 +139,7 @@
      wie im Light Mode — der Verlauf darf unten kraeftiger/heller ausklingen.
      Bewusst kein Muster/keine Textur, siehe Kommentar im Light Mode. */
   --brand:linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
+  --home-hero-bg:var(--brand);
   --brand-flat:#0D1220;
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
@@ -496,7 +501,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
         <div>
 
-        <div style="background:var(--brand);padding:6px 20px 30px">
+        <div style="background-image:var(--home-hero-bg);background-size:cover;background-position:top center;background-repeat:no-repeat;padding:6px 20px 30px">
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:250px">
                 <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--onBrand-line);border-top-color:var(--onBrand);animation:spin .8s linear infinite;display:block"></span>
