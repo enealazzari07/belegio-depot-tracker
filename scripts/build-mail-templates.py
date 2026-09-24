@@ -22,7 +22,7 @@ def codebox(token):
     # Ein Tipp markiert den ganzen Code (user-select:all), ohne Leerzeichen –
     # iOS/Android bieten "Code kopieren" bzw. Autofill an.
     return f"""<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#EEF0FB" style="border-radius:22px;background:#EEF0FB;padding:22px 10px 16px">
-<div style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:38px;font-weight:800;letter-spacing:8px;color:#16171D;-webkit-user-select:all;user-select:all;cursor:text">{token}</div>
+<div style="font-family:{FONT};font-size:40px;font-weight:800;letter-spacing:10px;color:#000000;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-user-select:all;user-select:all;cursor:text">{token}</div>
 <div style="margin-top:8px;font-family:{FONT};font-size:12px;font-weight:600;color:#8A90A6">Antippen und kopieren · in der App einfügen</div>
 </td></tr></table>"""
 

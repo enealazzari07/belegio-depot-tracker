@@ -112,7 +112,7 @@ function mailHtml(appUrl: string, o: { pre: string; title: string; text: string;
 <a href="${o.link}" style="display:block;padding:17px 24px;font-family:${font};font-size:15.5px;font-weight:800;color:#FFFFFF;text-decoration:none;border-radius:999px">${esc(o.cta)}</a></td></tr></table>` : "";
   // Ein Tipp markiert den ganzen Code (user-select:all) – leicht zu kopieren.
   const codeBox = o.code ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#EEF0FB" style="border-radius:22px;background:#EEF0FB;padding:22px 10px 16px">
-<div style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:38px;font-weight:800;letter-spacing:8px;color:#16171D;-webkit-user-select:all;user-select:all;cursor:text">${esc(o.code)}</div>
+<div style="font-family:${font};font-size:40px;font-weight:800;letter-spacing:10px;color:#000000;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1;-webkit-user-select:all;user-select:all;cursor:text">${esc(o.code)}</div>
 <div style="margin-top:8px;font-family:${font};font-size:12px;font-weight:600;color:#8A90A6">Antippen und kopieren · in der App einfügen</div></td></tr></table>` : "";
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"><title>${esc(o.title)}</title>
