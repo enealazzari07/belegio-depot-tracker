@@ -1183,21 +1183,47 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 <span style="color:var(--tx3);font-size:12px">In welchen Branchen dein Geld steckt</span>
               </div>
             </div>
-            <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:18px 18px 16px;display:flex;flex-direction:column;gap:13px">
-              <sc-for list="{{ sectorRows }}" as="sr" hint-placeholder-count="5">
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <div style="display:flex;align-items:baseline;gap:8px">
-                    <span style="width:8px;height:8px;border-radius:50%;background:{{ sr.color }};flex:none;align-self:center"></span>
-                    <span style="flex:1;min-width:0;color:var(--tx);font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sr.name }}</span>
-                    <span class="mono" style="color:var(--tx);font-size:12.5px;font-weight:700;flex:none">{{ sr.pct }}</span>
+            <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:14px 12px 16px">
+              <div style="position:relative;width:100%;aspect-ratio:340/250">
+                <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                  <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
+                    <polygon points="{{ rr.points }}" fill="none" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></polygon>
+                  </sc-for>
+                  <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
+                    <line x1="170" y1="122" x2="{{ ax.x2 }}" y2="{{ ax.y2 }}" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                  </sc-for>
+                  <sc-for list="{{ radarSeries }}" as="rs" hint-placeholder-count="2">
+                    <polygon points="{{ rs.points }}" fill="{{ rs.color }}" fill-opacity=".08" stroke="{{ rs.color }}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polygon>
+                    <sc-for list="{{ rs.dots }}" as="dt" hint-placeholder-count="6">
+                      <circle cx="{{ dt.x }}" cy="{{ dt.y }}" r="3.4" fill="{{ rs.color }}" stroke="var(--surf)" stroke-width="1.2"></circle>
+                    </sc-for>
+                  </sc-for>
+                </svg>
+                <span class="mono" style="position:absolute;left:51.5%;top:14%;color:var(--tx3);font-size:10px;font-weight:600">{{ radarMaxLabel }}</span>
+                <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
+                  <span style="position:absolute;{{ ax.posStyle }};color:var(--tx2);font-size:11px;font-weight:600;white-space:nowrap">{{ ax.name }}</span>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin:10px 6px 0">
+                <sc-for list="{{ radarSeries }}" as="rs" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <span style="width:18px;height:3px;border-radius:2px;background:{{ rs.color }};flex:none"></span>
+                    <span style="flex:1;min-width:0;color:var(--tx);font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ rs.name }}</span>
+                    <span class="mono" style="color:var(--tx3);font-size:11.5px;font-weight:700;flex:none">{{ rs.pct }}</span>
                   </div>
-                  <div style="height:8px;border-radius:4px;background:var(--surf2);overflow:hidden">
-                    <span style="display:block;height:100%;border-radius:4px;background:{{ sr.color }};width:{{ sr.barWidth }};transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
-                  </div>
-                </div>
-              </sc-for>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin:14px 2px 0;padding-top:12px;border-top:1px solid var(--line)">
+                <sc-for list="{{ sectorRows }}" as="sr" hint-placeholder-count="5">
+                  <span style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surf2);white-space:nowrap">
+                    <span style="width:7px;height:7px;border-radius:50%;background:{{ sr.color }}"></span>
+                    <span style="color:var(--tx2);font-size:11px;font-weight:600">{{ sr.name }}</span>
+                    <span class="mono" style="color:var(--tx);font-size:11px;font-weight:700">{{ sr.pct }}</span>
+                  </span>
+                </sc-for>
+              </div>
             </div>
-            <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin:10px 4px 0">ETFs nach ihrer tatsächlichen Sektoraufteilung, Einzelaktien nach Branche (geschätzt).</span>
+            <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin:10px 4px 0">Linien: deine bis zu drei grössten Positionen, Anteil am Depot je Sektor. Darunter das ganze Depot. ETFs nach tatsächlicher Sektoraufteilung, Einzelaktien nach Branche (geschätzt).</span>
           </div>
         </sc-if>
 
@@ -6317,39 +6343,69 @@ class Component extends DCLogic {
       });
     }
 
-    // Sektoren als Balken + Kurzanalyse fuers Analyse-Titelbild.
-    const sectorRows = [], analysisLines = [];
+    // Sektoren als Netzdiagramm + Kurzanalyse fuers Analyse-Titelbild.
+    // Achsen = die groessten Sektoren des Depots, Linien = die bis zu drei
+    // groessten Positionen (Anteil am Depot je Sektor) — so sieht man, welche
+    // ETF/Aktie welchen Sektor ausmacht.
+    const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [];
+    let radarMaxLabel = "";
     if (visibleHoldings.length && visVal) {
-      const expo = {}, ccs = new Set();
+      const expo = {}, ccs = new Set(), perPos = [];
       let tot = 0;
-      const add = (k, v) => { expo[k] = (expo[k] || 0) + v; tot += v; };
       visibleHoldings.forEach(h => {
-        const sym = h.sym || h.abbr, v = h.shares * h.cur;
+        const sym = h.sym || h.abbr, v = h.shares * h.cur, mine = {};
+        const add = (k, x) => { mine[k] = (mine[k] || 0) + x; expo[k] = (expo[k] || 0) + x; tot += x; };
         const comp = this.state.etfHoldings && this.state.etfHoldings[sym];
         if (comp && comp.holdings && comp.holdings.length) comp.holdings.forEach(x => ccs.add(countryOf(x.symbol)));
         else ccs.add(countryOf(sym, h.isin));
         const secs = comp && (comp.sectors || []).filter(x => x && x.weight > 0);
+        const hw = comp && comp.holdings && comp.holdings.length ? comp.holdings.reduce((a, x) => a + (x.weight || 0), 0) : 0;
         if (secs && secs.length) {
           const wt = secs.reduce((a, x) => a + x.weight, 0);
           secs.forEach(x => add(YAHOO_SECTOR[x.sector] || "other", v * x.weight / wt));
-          return;
-        }
-        if (comp && comp.holdings && comp.holdings.length) {
-          const wt = comp.holdings.reduce((a, x) => a + (x.weight || 0), 0);
-          if (wt > 0) { comp.holdings.forEach(x => add(sectorOf(x.symbol, x.name), v * (x.weight || 0) / wt)); return; }
-        }
-        add(sectorOf(sym, displayName(h)), v);
+        } else if (hw > 0) {
+          comp.holdings.forEach(x => add(sectorOf(x.symbol, x.name), v * (x.weight || 0) / hw));
+        } else add(sectorOf(sym, displayName(h)), v);
+        perPos.push({ h, v, mine });
       });
       const sorted = Object.entries(expo).filter(([k]) => k !== "other").sort((a, b) => b[1] - a[1]);
       const shown = sorted.slice(0, 7);
       const rest = sorted.slice(7).reduce((a, x) => a + x[1], 0) + (expo.other || 0);
       if (rest > 0.0001) shown.push(["other", rest]);
-      const maxV = Math.max(...shown.map(x => x[1]));
-      shown.forEach(([k, v]) => sectorRows.push({
-        name: SECTORS[k][0], color: SECTORS[k][1],
-        pct: (v / tot * 100).toFixed(1).replace(".0", "") + " %",
-        barWidth: (v / maxV * 100).toFixed(1) + "%"
-      }));
+      shown.forEach(([k, v]) => sectorRows.push({ name: SECTORS[k][0], color: SECTORS[k][1], pct: Math.round(v / tot * 100) + " %" }));
+
+      // Netz: 3–6 Achsen. Bei weniger als drei echten Sektoren mit leeren
+      // Sektoren auffuellen, sonst entsteht kein Netz.
+      const axes = sorted.slice(0, 6).map(x => x[0]);
+      for (const k of ["tech", "health", "fin", "ind", "cons", "cyc"]) { if (axes.length >= 3) break; if (!axes.includes(k)) axes.push(k); }
+      const series = perPos.sort((a, b) => b.v - a.v).slice(0, 3);
+      const pctOf = (s, k) => (s.mine[k] || 0) / tot * 100;
+      const peak = Math.max(1, ...series.flatMap(s => axes.map(k => pctOf(s, k))));
+      const step = peak <= 10 ? 5 : peak <= 30 ? 10 : peak <= 60 ? 20 : 25;
+      const maxP = Math.ceil(peak / step) * step;
+      radarMaxLabel = maxP + " %";
+      const cx = 170, cy = 122, R = 84, n = axes.length;
+      const pt = (i, r) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+      const poly = rf => axes.map((_, i) => pt(i, R * rf).map(z => z.toFixed(1)).join(",")).join(" ");
+      [1 / 3, 2 / 3, 1].forEach(f => radarRings.push({ points: poly(f) }));
+      axes.forEach((k, i) => {
+        const [x2, y2] = pt(i, R), [lx, ly] = pt(i, R + 16);
+        const c = Math.cos(-Math.PI / 2 + i * 2 * Math.PI / n);
+        const tx = Math.abs(c) < 0.2 ? "translateX(-50%)" : c > 0 ? "" : "translateX(-100%)";
+        radarAxes.push({
+          x2: x2.toFixed(1), y2: y2.toFixed(1), name: SECTORS[k][0],
+          posStyle: "left:" + (lx / 340 * 100).toFixed(2) + "%;top:" + (ly / 250 * 100).toFixed(2) + "%;transform:" + tx + " translateY(-50%)"
+        });
+      });
+      const COLS = ["#1b1b1f", "#7CB5EC", "#F2A03D"];
+      series.forEach((s, si) => {
+        const dots = axes.map((k, i) => { const [x, y] = pt(i, R * Math.min(1, pctOf(s, k) / maxP)); return { x: x.toFixed(1), y: y.toFixed(1) }; });
+        radarSeries.push({
+          color: COLS[si], name: displayName(s.h), pct: Math.round(s.v / visVal * 100) + " %",
+          points: dots.map(d => d.x + "," + d.y).join(" "), dots
+        });
+      });
+
       if (sorted.length) analysisLines.push({ k: "Grösster Sektor", v: SECTORS[sorted[0][0]][0] + " · " + Math.round(sorted[0][1] / tot * 100) + " %" });
       const topPos = visibleHoldings.map(h => ({ h, w: h.shares * h.cur / visVal * 100 })).sort((a, b) => b.w - a.w)[0];
       analysisLines.push({ k: topPos.w > 35 ? "Klumpenrisiko" : "Grösste Position", v: displayName(topPos.h) + " · " + Math.round(topPos.w) + " %" });
@@ -7251,7 +7307,7 @@ class Component extends DCLogic {
       closeAiScoreSheet: this.animClose(this.closeAiScoreSheet),
       aiScoreSheetDragDown: this.sheetDragDown(this.closeAiScoreSheet),
       aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
-      sectorHas: sectorRows.length > 0, sectorRows, analysisLines,
+      sectorHas: sectorRows.length > 0, sectorRows, analysisLines, radarAxes, radarRings, radarSeries, radarMaxLabel,
       geoHas, geoCallouts, geoRings, geoDots: worldDotsPath(),
       geoIsPro: proActive, geoLocked: !proActive,
       geoWrapStyle: proActive ? "" : "filter:blur(7px);opacity:.75;pointer-events:none",
