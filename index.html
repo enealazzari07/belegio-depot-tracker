@@ -1201,16 +1201,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </svg>
                 <span class="mono" style="position:absolute;left:51.5%;top:14%;color:var(--tx3);font-size:10px;font-weight:600">{{ radarMaxLabel }}</span>
                 <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
-                  <span style="position:absolute;{{ ax.posStyle }};color:var(--tx2);font-size:11px;font-weight:600;white-space:nowrap">{{ ax.name }}</span>
-                </sc-for>
-              </div>
-              <div style="display:flex;flex-wrap:wrap;gap:6px;margin:12px 2px 0">
-                <sc-for list="{{ sectorRows }}" as="sr" hint-placeholder-count="5">
-                  <span style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surf);white-space:nowrap">
-                    <span style="width:7px;height:7px;border-radius:50%;background:{{ sr.color }}"></span>
-                    <span style="color:var(--tx2);font-size:11px;font-weight:600">{{ sr.name }}</span>
-                    <span class="mono" style="color:var(--tx);font-size:11px;font-weight:700">{{ sr.pct }}</span>
-                  </span>
+                  <div style="position:absolute;{{ ax.posStyle }};display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
                 </sc-for>
               </div>
             </div>
@@ -6389,7 +6380,7 @@ class Component extends DCLogic {
         const c = Math.cos(-Math.PI / 2 + i * 2 * Math.PI / n);
         const tx = Math.abs(c) < 0.2 ? "translateX(-50%)" : c > 0 ? "" : "translateX(-100%)";
         radarAxes.push({
-          x2: x2.toFixed(1), y2: y2.toFixed(1), name: SECTORS[k][0],
+          x2: x2.toFixed(1), y2: y2.toFixed(1), name: SECTORS[k][0], pct: Math.round((expo[k] || 0) / tot * 100) + " %",
           posStyle: "left:" + (lx / 340 * 100).toFixed(2) + "%;top:" + (ly / 250 * 100).toFixed(2) + "%;transform:" + tx + " translateY(-50%)"
         });
       });
