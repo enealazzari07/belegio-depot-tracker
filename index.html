@@ -2918,14 +2918,14 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <div style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0 18px;border-bottom:1px solid var(--line)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9"></path></svg>
+            <img src="img/icons/theme.svg" alt="" width="30" height="30" style="flex:none;display:block;width:30px;height:30px;object-fit:contain">
             <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
             <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
               <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
             </button>
           </div>
           <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg>
+            <img src="img/icons/notif.svg" alt="" width="30" height="30" style="flex:none;display:block;width:30px;height:30px;object-fit:contain">
             <div style="flex:1">
               <div style="color:var(--tx);font-size:14.5px;font-weight:500">Täglicher Depotstand</div>
               <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">{{ notifHint }}</div>
@@ -2936,7 +2936,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
           <sc-if value="{{ faceIdSupported }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H6a2.5 2.5 0 0 0-2.5 2.5v2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2M16 20.5h2a2.5 2.5 0 0 0 2.5-2.5v-2M9 10v1.5a3 3 0 0 0 3 3M9 10a3 3 0 0 1 6 0v2.5M8.5 16c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path></svg>
+              <img src="img/icons/faceid.svg" alt="" width="30" height="30" style="flex:none;display:block;width:30px;height:30px;object-fit:contain">
               <div style="flex:1">
                 <div style="color:var(--tx);font-size:14.5px;font-weight:500">Face ID zum Entsperren</div>
                 <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">{{ faceIdHint }}</div>
@@ -7123,7 +7123,9 @@ class Component extends DCLogic {
         ["Steuer-Report", "2026", ["M16.9357 19.9023L17.6956 20.2661C18.4944 20.6485 19.4187 20.0657 19.4177 19.1793L19.408 6.92492C19.408 4.50225 18.0604 3 15.6417 3H8.34252C5.91791 3 4.59955 4.50225 4.59955 6.92492L4.58203 19.1774C4.58106 20.0638 5.50537 20.6475 6.30514 20.2642L7.05919 19.9032C7.51259 19.6853 8.03701 19.6697 8.50306 19.8604L10.6494 20.7351C11.5144 21.0883 12.4844 21.0883 13.3494 20.7351L15.4918 19.8604C15.9579 19.6697 16.4823 19.6853 16.9357 19.9023Z", "M9.25586 14.4531H14.3639", "M9.66602 9.83875L11.2082 11.3809L14.3644 8.22461"], this.state.userPlan === "pro" ? "taxReport" : "pro"]
       ].map(([label, hint, ds, to, filled]) => ({
         label, hint,
-        icon: filled
+        icon: ({ "Abo": "abo.svg", "Steuer-Report": "steuern.svg" })[label]
+          ? React.createElement("img", { src: "img/icons/" + ({ "Abo": "abo.svg", "Steuer-Report": "steuern.svg" })[label], alt: "", width: 30, height: 30, style: { display: "block", width: 30, height: 30, objectFit: "contain" } })
+          : filled
           ? React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "currentColor" }, ds.map((d, i) => React.createElement("path", { key: i, d })))
           : React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" }, ds.map((d, i) => React.createElement("path", { key: i, d }))),
         go: label === "Abo" ? this.openAbo : to ? this.go(to) : () => {}
