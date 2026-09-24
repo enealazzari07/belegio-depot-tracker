@@ -3047,47 +3047,52 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
-    <sc-if value="{{ pwSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <div data-scrim="1" onClick="{{ closePwSheet }}" style="position:absolute;inset:0;background:rgba(10,12,20,.34);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:70;animation:scrimIn .35s ease"></div>
-      <div class="sheet-in" onClick="{{ stopPropagation }}" style="position:absolute;left:0;right:0;bottom:0;will-change:transform;touch-action:pan-y;max-height:88%;overflow-y:auto;background:var(--sheet-bg);border-radius:24px 24px 0 0;padding:14px 20px calc(24px + env(safe-area-inset-bottom, 0px));z-index:71;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);transform:translateY({{ sheetDragY }}px)">
-        <div onPointerDown="{{ pwSheetDragDown }}" onPointerMove="{{ sheetDragMove }}" onPointerUp="{{ sheetDragUp }}" onPointerCancel="{{ sheetDragUp }}" style="width:100%;height:32px;margin:-12px 0 0;cursor:grab;touch-action:none;background:linear-gradient(var(--line2),var(--line2)) center 12px/36px 4px no-repeat"></div>
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
-          <span style="flex:1;color:var(--tx);font-size:17px;font-weight:700;letter-spacing:-.01em">Passwort ändern</span>
-          <button onClick="{{ closePwSheet }}" aria-label="Schliessen" class="gbtn" style="all:unset;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+    <sc-if value="{{ isPwChange }}" hint-placeholder-val="{{ false }}">
+      <div id="scr-pwchange" style="position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 128px;animation:fade .3s ease">
+        <div onPointerDown="{{ edgeBackPwChange }}" onPointerMove="{{ edgeBackMove }}" onPointerUp="{{ edgeBackEnd }}" onPointerCancel="{{ edgeBackEnd }}" style="position:absolute;left:0;top:0;bottom:0;width:24px;z-index:30;touch-action:none"></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:26px">
+          <button onClick="{{ goBack }}" class="gbtn" style="all:unset;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center" style-hover="border-color:var(--line2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--tx2)" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"></path></svg>
           </button>
+          <span style="color:var(--tx);font-size:16px;font-weight:600">Passwort ändern</span>
         </div>
+
         <sc-if value="{{ pwAsk }}" hint-placeholder-val="{{ true }}">
-          <p style="margin:0 0 16px;color:var(--tx2);font-size:13.5px;line-height:1.55">Zur Sicherheit bestätigst du die Änderung mit einem Code. Wir schicken ihn an <b style="color:var(--tx)">{{ pwEmail }}</b>.</p>
+          <p style="margin:0 0 18px;color:var(--tx2);font-size:13.5px;line-height:1.55">Zur Sicherheit bestätigst du die Änderung mit einem Code. Wir schicken ihn an <b style="color:var(--tx)">{{ pwEmail }}</b>.</p>
           <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 12px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
           <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSendLabel }}</button>
         </sc-if>
         <sc-if value="{{ pwSent }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 0 22px">
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 0 22px">
             <div class="ms-wrap"><span class="ms-ring"></span><span class="ms-env"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M4 7l8 6 8-6"></path></svg></span><span class="ms-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></div>
             <span style="margin-top:18px;color:var(--tx);font-size:17px;font-weight:800;animation:authModeIn .4s cubic-bezier(.22,1,.36,1) .35s both">Mail versendet</span>
             <span style="margin-top:4px;color:var(--tx2);font-size:13px;animation:authModeIn .4s cubic-bezier(.22,1,.36,1) .45s both">an {{ pwEmail }}</span>
           </div>
         </sc-if>
         <sc-if value="{{ pwCodeStep }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55;animation:authModeIn .4s ease both">Gib den Code aus der Mail an <b style="color:var(--tx)">{{ pwEmail }}</b> ein und wähle dein neues Passwort.</p>
+          <p style="margin:0 0 18px;color:var(--tx2);font-size:13.5px;line-height:1.55;animation:authModeIn .4s ease both">Gib den Code aus der Mail an <b style="color:var(--tx)">{{ pwEmail }}</b> ein.</p>
           <div style="position:relative;display:flex;justify-content:center;gap:8px;margin:4px 0 2px;animation:authModeIn .45s cubic-bezier(.22,1,.36,1) both">
             <sc-for list="{{ pwBoxes }}" as="bx" hint-placeholder-count="6">
               <span class="mono" style="width:46px;height:58px;border-radius:16px;background:{{ bx.bg }};border:1.5px solid {{ bx.border }};display:flex;align-items:center;justify-content:center;color:var(--tx);font-size:24px;font-weight:800;transition:border-color .15s ease,background .15s ease;animation:otpIn .35s cubic-bezier(.34,1.56,.64,1) {{ bx.delay }} both">{{ bx.ch }}</span>
             </sc-for>
             <input inputmode="numeric" pattern="[0-9]*" sc-camel-auto-complete="one-time-code" maxlength="{{ pwCodeLen }}" value="{{ pwCode }}" onInput="{{ onPwCode }}" aria-label="Code aus der Mail" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;margin:0;background:transparent;color:transparent;caret-color:transparent">
           </div>
-          <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNew }}" onInput="{{ onPwNew }}" placeholder="Neues Passwort (mind. 6 Zeichen)" style="margin-top:14px">
-          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
-          <button onClick="{{ savePwWithCode }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSaveLabel }}</button>
+          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:14px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px;text-align:center">{{ pwError }}</p></sc-if>
+          <button onClick="{{ verifyPwCode }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:20px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwVerifyLabel }}</button>
           <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;color:var(--tx3);font-size:12.5px;font-weight:600">Code erneut senden</button>
+        </sc-if>
+        <sc-if value="{{ pwNewStep }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0 0 16px;color:var(--tx2);font-size:13.5px;line-height:1.55;animation:authModeIn .4s ease both">Code bestätigt. Wähle jetzt dein neues Passwort.</p>
+          <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNew }}" onInput="{{ onPwNew }}" placeholder="Neues Passwort (mind. 6 Zeichen)" autofocus="1">
+          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
+          <button onClick="{{ savePwNew }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSaveLabel }}</button>
         </sc-if>
         <sc-if value="{{ pwDone }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;gap:14px;align-items:center;padding:4px 0 6px">
             <span class="np-ok" style="width:44px;height:44px;border-radius:50%;background:var(--pos);display:flex;align-items:center;justify-content:center;flex:none;color:#fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:npCheck .45s cubic-bezier(.65,0,.35,1) .25s forwards"></path></svg></span>
             <div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Passwort geändert</span><span style="color:var(--tx2);font-size:13px">Ab jetzt meldest du dich mit dem neuen Passwort an.</span></div>
           </div>
-          <button onClick="{{ closePwSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:50px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">Fertig</button>
+          <button onClick="{{ goBack }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:50px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">Fertig</button>
         </sc-if>
       </div>
     </sc-if>
@@ -4494,8 +4499,7 @@ class Component extends DCLogic {
   // Passwort aendern nur per Mail-Bestaetigung: Supabase schickt einen Code
   // (Vorlage "Reset Password" mit {{ .Token }}), der hier in der App zusammen
   // mit dem neuen Passwort eingegeben wird – kein Link, man bleibt in der App.
-  openPwSheet = () => this.setState({ pwSheetOpen: true, pwStep: "ask", pwCode: "", pwNew: "", pwError: "", pwBusy: false });
-  closePwSheet = () => { if (!this.state.pwBusy) this.setState({ pwSheetOpen: false, pwStep: "ask", pwCode: "", pwNew: "", pwError: "" }); };
+  openPwPage = () => { this.go("pwChange")(); this.setState({ pwStep: "ask", pwCode: "", pwNew: "", pwError: "", pwBusy: false }); };
   onPwCode = e => this.setState({ pwCode: e.target.value.replace(/[^0-9]/g, "").slice(0, this.PW_CODE_LEN), pwError: "" });
   PW_CODE_LEN = 6;   // Supabase-OTP: mindestens 6 Stellen (Auth > Providers > Email)
   DEL_CODE_LEN = 6;  // eigener Code der Edge Function account-delete
@@ -4522,20 +4526,34 @@ class Component extends DCLogic {
       this.setState({ pwBusy: false, pwError: e.message || "Mail konnte nicht gesendet werden." });
     }
   };
-  savePwWithCode = async () => {
+  // Zwei getrennte Schritte statt einem: der Code wird fuer sich bestaetigt
+  // (verifyOtp verbraucht ihn und baut eine Recovery-Session auf), erst danach
+  // fragen wir das neue Passwort ab.
+  verifyPwCode = async () => {
     const email = (this.state.user && this.state.user.email) || "";
-    const code = this.state.pwCode || "", pw = this.state.pwNew || "";
+    const code = this.state.pwCode || "";
     if (code.length < this.PW_CODE_LEN) return this.setState({ pwError: "Bitte gib den Code aus der Mail ein." });
-    if (pw.length < 6) return this.setState({ pwError: "Das neue Passwort braucht mindestens 6 Zeichen." });
     if (this.state.pwBusy) return;
     this.setState({ pwBusy: true, pwError: "" });
     try {
       const db = await this.db();
       await db.verifyRecoveryCode(email, code);
-      await db.updatePassword(pw);
-      this.setState({ pwBusy: false, pwStep: "done", pwCode: "", pwNew: "" });
+      this.setState({ pwBusy: false, pwStep: "new", pwCode: "" });
     } catch (e) {
-      this.setState({ pwBusy: false, pwError: /token|otp|expired|invalid/i.test(e.message || "") ? "Der Code ist falsch oder abgelaufen." : (e.message || "Passwort konnte nicht geändert werden.") });
+      this.setState({ pwBusy: false, pwError: /token|otp|expired|invalid/i.test(e.message || "") ? "Der Code ist falsch oder abgelaufen." : (e.message || "Code konnte nicht bestätigt werden.") });
+    }
+  };
+  savePwNew = async () => {
+    const pw = this.state.pwNew || "";
+    if (pw.length < 6) return this.setState({ pwError: "Das neue Passwort braucht mindestens 6 Zeichen." });
+    if (this.state.pwBusy) return;
+    this.setState({ pwBusy: true, pwError: "" });
+    try {
+      const db = await this.db();
+      await db.updatePassword(pw);
+      this.setState({ pwBusy: false, pwStep: "done", pwNew: "" });
+    } catch (e) {
+      this.setState({ pwBusy: false, pwError: e.message || "Passwort konnte nicht geändert werden." });
     }
   };
   // CSV mit Semikolon (Excel CH/DE) und BOM, damit Umlaute korrekt ankommen.
@@ -5440,7 +5458,7 @@ class Component extends DCLogic {
     if (s.cardDetailSym) { this.closeCardDetail(); return; }
     const open = [
       [s.aiSheetOpen, this.closeAiSheet], [s.compoundSheetOpen, this.closeCompoundSheet],
-      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet], [s.legalKey, this.closeLegal], [s.pwSheetOpen, this.closePwSheet], [s.deleteSheetOpen, this.closeDeleteSheet], [s.deleteLinkMsg, this.closeDeleteLinkMsg],
+      [s.investPlanSheetOpen, this.closeInvestPlanSheet], [s.alertSheetOpen, this.closeAlertSheet], [s.legalKey, this.closeLegal], [s.deleteSheetOpen, this.closeDeleteSheet], [s.deleteLinkMsg, this.closeDeleteLinkMsg],
       [s.divSheetOpen, this.closeDivSheet], [s.insiderSheetSymbol, this.closeInsiderSheet],
       [s.posMenuSymbol, this.closePosMenu], [s.notifSheetOpen, this.closeNotifSheet]
     ].find(x => x[0]);
@@ -7395,7 +7413,7 @@ class Component extends DCLogic {
       tDepot: screen === "depot" ? "var(--tx)" : "var(--tx3)",
       tScan: screen === "upload" || screen === "review" ? "var(--tx)" : "var(--tx3)",
       tMarkets: screen === "markets" || screen === "stockDetail" ? "var(--tx)" : "var(--tx3)",
-      tSet: screen === "settings" || screen === "pro" ? "var(--tx)" : "var(--tx3)",
+      tSet: screen === "settings" || screen === "pro" || screen === "pwChange" ? "var(--tx)" : "var(--tx3)",
       tNews: screen === "news" ? "var(--tx)" : "var(--tx3)",
       connLabel: {
         live: "Live-Kurse", demo: "Demo-Daten", badkey: "Key ungültig",
@@ -8252,7 +8270,7 @@ class Component extends DCLogic {
 
       // ---------- Einstellungen: weitere Punkte ----------
       accountPrefs: [
-        ["Passwort ändern", "", "M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2", this.openPwSheet],
+        ["Passwort ändern", "", "M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2", this.openPwPage],
         ["Daten exportieren", "CSV", "M12 3v12M7 10l5 5 5-5M4 21h16", this.exportData]
       ].map(([label, hint, d, go]) => ({ label, hint, go, icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })) })),
       legalPrefs: [
@@ -8268,12 +8286,13 @@ class Component extends DCLogic {
       legalUpdated: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].updated : "",
       legalSections: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].sections.map(([h, p]) => ({ h, p })) : [],
       closeLegal: this.animClose(this.closeLegal), legalSheetDragDown: this.sheetDragDown(this.closeLegal),
-      pwSheetOpen: !!this.state.pwSheetOpen, closePwSheet: this.animClose(this.closePwSheet), pwSheetDragDown: this.sheetDragDown(this.closePwSheet),
-      sendPwMail: this.sendPwMail, savePwWithCode: this.savePwWithCode, onPwCode: this.onPwCode, onPwNew: this.onPwNew,
-      pwAsk: (this.state.pwStep || "ask") === "ask", pwSent: this.state.pwStep === "sent", pwCodeStep: this.state.pwStep === "code", pwDone: this.state.pwStep === "done",
+      isPwChange: screen === "pwChange", edgeBackPwChange: this.edgeBackStart("scr-pwchange", this.goBack),
+      sendPwMail: this.sendPwMail, verifyPwCode: this.verifyPwCode, savePwNew: this.savePwNew, onPwCode: this.onPwCode, onPwNew: this.onPwNew,
+      pwAsk: (this.state.pwStep || "ask") === "ask", pwSent: this.state.pwStep === "sent", pwCodeStep: this.state.pwStep === "code", pwNewStep: this.state.pwStep === "new", pwDone: this.state.pwStep === "done",
       pwBoxes: this.otpBoxes(this.state.pwCode || "", this.PW_CODE_LEN), pwCodeLen: String(this.PW_CODE_LEN),
       pwCode: this.state.pwCode || "", pwNew: this.state.pwNew || "",
       pwSaveLabel: this.state.pwBusy ? "Einen Moment …" : "Passwort speichern",
+      pwVerifyLabel: this.state.pwBusy ? "Einen Moment …" : "Code bestätigen",
       pwEmail: (user && user.email) || "",
       pwError: this.state.pwError || "", pwSendLabel: this.state.pwBusy ? "Wird gesendet …" : "Code per Mail senden",
       openDeleteSheet: this.openDeleteSheet,
