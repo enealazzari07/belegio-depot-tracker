@@ -3019,12 +3019,25 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
-        <label style="display:block;color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:16px;margin-bottom:8px">NEUES PASSWORT</label>
-        <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNewInput }}" onChange="{{ onPwNew }}" placeholder="mind. 6 Zeichen">
-        <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
-          <p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px">{{ pwError }}</p>
+        <sc-if value="{{ pwMailAsk }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:0 0 16px;color:var(--tx2);font-size:13.5px;line-height:1.55">Zur Sicherheit bestätigst du die Änderung per E-Mail. Wir schicken dir einen Link an <b style="color:var(--tx)">{{ pwEmail }}</b> — darüber legst du dein neues Passwort fest.</p>
+          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 12px;color:var(--neg);font-size:12.5px">{{ pwError }}</p>
+          </sc-if>
+          <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSendLabel }}</button>
         </sc-if>
-        <button onClick="{{ savePassword }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:18px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSaveLabel }}</button>
+        <sc-if value="{{ pwMailSent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:14px;align-items:flex-start;padding:4px 0 6px">
+            <span class="np-ok" style="width:44px;height:44px;border-radius:50%;background:var(--pos);display:flex;align-items:center;justify-content:center;flex:none;color:#fff">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:npCheck .45s cubic-bezier(.65,0,.35,1) .25s forwards"></path></svg>
+            </span>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <span style="color:var(--tx);font-size:15px;font-weight:700">Mail ist unterwegs</span>
+              <span style="color:var(--tx2);font-size:13px;line-height:1.5">Öffne den Link in der Mail an {{ pwEmail }}, um dein neues Passwort festzulegen. Schau auch im Spam-Ordner nach.</span>
+            </div>
+          </div>
+          <button onClick="{{ closePwSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:50px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">Fertig</button>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -4344,20 +4357,21 @@ class Component extends DCLogic {
   // ---------- Einstellungen: Rechtliches, Passwort, Export, Konto loeschen ----------
   openLegal = key => () => this.setState({ legalKey: key });
   closeLegal = () => this.setState({ legalKey: null });
-  openPwSheet = () => this.setState({ pwSheetOpen: true, pwNewInput: "", pwError: "", pwBusy: false });
-  closePwSheet = () => this.setState({ pwSheetOpen: false, pwNewInput: "", pwError: "" });
-  onPwNew = e => this.setState({ pwNewInput: e.target.value, pwError: "" });
-  savePassword = async () => {
-    const pw = this.state.pwNewInput || "";
-    if (pw.length < 6) return this.setState({ pwError: "Mindestens 6 Zeichen." });
+  // Passwort aendern nur per Mail-Bestaetigung: Supabase schickt einen Link,
+  // der in die App zurueckfuehrt (onPasswordRecovery -> Modus "reset"), erst
+  // dort wird das neue Passwort gesetzt.
+  openPwSheet = () => this.setState({ pwSheetOpen: true, pwMailSent: false, pwError: "", pwBusy: false });
+  closePwSheet = () => this.setState({ pwSheetOpen: false, pwMailSent: false, pwError: "" });
+  sendPwMail = async () => {
+    const email = (this.state.user && this.state.user.email) || "";
+    if (!email || this.state.pwBusy) return;
     this.setState({ pwBusy: true, pwError: "" });
     try {
       const db = await this.db();
-      await db.updatePassword(pw);
-      this.setState({ pwBusy: false, pwSheetOpen: false, pwNewInput: "" });
-      this.pushToast("Passwort geändert");
+      await db.requestPasswordReset(email);
+      this.setState({ pwBusy: false, pwMailSent: true });
     } catch (e) {
-      this.setState({ pwBusy: false, pwError: e.message || "Passwort konnte nicht geändert werden." });
+      this.setState({ pwBusy: false, pwError: e.message || "Mail konnte nicht gesendet werden." });
     }
   };
   // CSV mit Semikolon (Excel CH/DE) und BOM, damit Umlaute korrekt ankommen.
@@ -8019,8 +8033,9 @@ class Component extends DCLogic {
       legalSections: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].sections.map(([h, p]) => ({ h, p })) : [],
       closeLegal: this.animClose(this.closeLegal), legalSheetDragDown: this.sheetDragDown(this.closeLegal),
       pwSheetOpen: !!this.state.pwSheetOpen, closePwSheet: this.animClose(this.closePwSheet), pwSheetDragDown: this.sheetDragDown(this.closePwSheet),
-      pwNewInput: this.state.pwNewInput || "", onPwNew: this.onPwNew, savePassword: this.savePassword,
-      pwError: this.state.pwError || "", pwSaveLabel: this.state.pwBusy ? "Speichern …" : "Passwort speichern",
+      sendPwMail: this.sendPwMail, pwMailSent: !!this.state.pwMailSent, pwMailAsk: !this.state.pwMailSent,
+      pwEmail: (user && user.email) || "",
+      pwError: this.state.pwError || "", pwSendLabel: this.state.pwBusy ? "Wird gesendet …" : "Bestätigungslink senden",
       openDeleteSheet: this.openDeleteSheet,
       deleteSheetOpen: !!this.state.deleteSheetOpen, closeDeleteSheet: this.animClose(this.closeDeleteSheet), deleteSheetDragDown: this.sheetDragDown(this.closeDeleteSheet),
       deleteConfirmInput: this.state.deleteConfirmInput || "", onDeleteConfirm: this.onDeleteConfirm, deleteAccount: this.deleteAccount,
