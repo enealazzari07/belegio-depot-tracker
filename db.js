@@ -69,6 +69,14 @@ export async function updatePassword(password) {
   return data;
 }
 
+// Passwort aendern per Code: resetPasswordForEmail schickt (mit Vorlage
+// {{ .Token }}) einen Code; verifyOtp meldet damit an, danach updatePassword.
+export async function verifyRecoveryCode(email, code) {
+  const { data, error } = await supabase.auth.verifyOtp({ email, token: String(code).replace(/\s/g, ""), type: "recovery" });
+  if (error) throw mapAuthError(error);
+  return data;
+}
+
 // Feuert, sobald der Nutzer über einen Reset-Link in der App landet.
 export function onPasswordRecovery(cb) {
   const { data } = supabase.auth.onAuthStateChange((event, session) => {

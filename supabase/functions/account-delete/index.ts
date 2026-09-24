@@ -4,10 +4,10 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 // Konto-Loeschung mit Mail-Bestaetigung und 24 h Wartezeit.
 // Aktionen:
-//   request      (eingeloggt)  -> Bestaetigungsmail mit Link ?delconfirm=TOKEN (1 h gueltig)
-//   confirm      (Token)       -> Loeschung in 24 h einplanen, Info-Mail mit Abbruch-Link ?delcancel=TOKEN
-//   cancel       (Token)       -> geplante Loeschung abbrechen (Link aus der Info-Mail)
-//   cancel-auth  (eingeloggt)  -> dasselbe aus der App heraus
+//   request      (eingeloggt)  -> Mail mit 6-stelligem Code (15 min gueltig, max. 5 Versuche)
+//   confirm-code (eingeloggt, {code}) -> Loeschung in 24 h einplanen, Info-Mail
+//   confirm / cancel (Token)   -> alte Link-Variante, bleibt fuer bereits verschickte Mails
+//   cancel-auth  (eingeloggt)  -> geplante Loeschung in der App abbrechen
 //   status       (eingeloggt)  -> geplante Loeschung abfragen
 //   run          (x-cron-secret) -> faellige Konten endgueltig loeschen (stuendlich per pg_cron)
 // Versand per SMTP, Zugangsdaten in public.app_secrets (wie auth-mail).
@@ -66,6 +66,32 @@ async function takeToken(token: string, kind: string) {
   await admin.from("auth_tokens").update({ used_at: new Date().toISOString() }).eq("id", data.id);
   return data;
 }
+// 6-stelliger Code, gehasht zusammen mit der User-ID (Codes sind kurz).
+async function newCode(userId: string, ttlMs: number) {
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
+  const code = String(n).padStart(6, "0");
+  const { error } = await admin.from("auth_tokens").insert({
+    user_id: userId, kind: "delete", token_hash: await sha256(userId + ":" + code), expires_at: new Date(Date.now() + ttlMs).toISOString(),
+  });
+  if (error) throw new Fail("token-error", 500);
+  return code;
+}
+async function takeCode(userId: string, code: string) {
+  const c = String(code || "").replace(/\s/g, "");
+  if (!/^\d{6}$/.test(c)) throw new Fail("invalid-code");
+  const { data } = await admin.from("auth_tokens").select("id, token_hash, expires_at, attempts")
+    .eq("user_id", userId).eq("kind", "delete").is("used_at", null)
+    .order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (!data) throw new Fail("invalid-code");
+  if (new Date(data.expires_at).getTime() < Date.now()) throw new Fail("expired-code");
+  if (data.attempts >= 5) throw new Fail("too-many-attempts", 429);
+  if (data.token_hash !== await sha256(userId + ":" + c)) {
+    await admin.from("auth_tokens").update({ attempts: data.attempts + 1 }).eq("id", data.id);
+    throw new Fail("invalid-code");
+  }
+  await admin.from("auth_tokens").update({ used_at: new Date().toISOString() }).eq("id", data.id);
+}
+
 async function authUser(req: Request) {
   const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data } = await admin.auth.getUser(jwt);
@@ -83,11 +109,14 @@ const ICONS: Record<string, string> = {
   wave: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>`,
 };
 
-function mailHtml(appUrl: string, o: { pre: string; icon: "trash" | "clock" | "wave"; title: string; text: string; cta?: string; link?: string; note: string; danger?: boolean }) {
+function mailHtml(appUrl: string, o: { pre: string; icon: "trash" | "clock" | "wave"; title: string; text: string; cta?: string; link?: string; code?: string; note: string; danger?: boolean }) {
   const font = "'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
   const tile = o.danger ? "linear-gradient(160deg,#FF9DB1,#E4507A 55%,#5B2A63)" : "linear-gradient(160deg,#9AA6FF,#5B5BD6 55%,#2D2A6E)";
   const btn = o.cta && o.link ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="border-radius:999px;background:${o.danger ? "#C0453A" : "#16171D"}">
 <a href="${o.link}" style="display:block;padding:16px 24px;font-family:${font};font-size:15.5px;font-weight:800;color:#FFFFFF;text-decoration:none;border-radius:999px;letter-spacing:.01em">${esc(o.cta)} →</a>
+</td></tr></table>` : "";
+  const codeBox = o.code ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="border-radius:20px;background:#F3F4F8;padding:20px 12px">
+<span style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:34px;font-weight:800;letter-spacing:10px;color:#16171D">${esc(o.code)}</span>
 </td></tr></table>` : "";
   const linkBox = o.link ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:26px"><tr><td style="border-top:1px solid #EDEEF3;padding-top:18px">
 <p style="margin:0;font-family:${font};font-size:11.5px;line-height:1.6;color:#AEB2C0;word-break:break-all">Button geht nicht? Link kopieren:<br><a href="${o.link}" style="color:#7A7FA8">${o.link}</a></p>
@@ -115,7 +144,7 @@ function mailHtml(appUrl: string, o: { pre: string; icon: "trash" | "clock" | "w
 <tr><td style="background:#FFFFFF;border-radius:26px;padding:38px 30px 34px;box-shadow:0 1px 2px rgba(20,24,40,.04),0 20px 44px -20px rgba(20,24,40,.14)">
 <h1 style="margin:0 0 12px;font-family:${font};font-size:25px;line-height:1.25;font-weight:800;letter-spacing:-.4px;color:#16171D">${esc(o.title)}</h1>
 <p style="margin:0 0 30px;font-family:${font};font-size:15px;line-height:1.6;color:#63697A">${esc(o.text)}</p>
-${btn}
+${codeBox}${btn}
 <p style="margin:24px 0 0;font-family:${font};font-size:12.5px;line-height:1.5;color:#9096A5">${esc(o.note)}</p>
 ${linkBox}
 </td></tr>
@@ -149,21 +178,26 @@ async function request(req: Request) {
   if (!mailReady(s)) throw new Fail("mail-not-configured", 503);
   if (await rateLimited(user.id, "delete")) throw new Fail("rate-limited", 429);
   const appUrl = appUrlOf(s);
-  const link = `${appUrl}/?delconfirm=${await newToken(user.id, "delete", 3600_000)}`;
+  const code = await newCode(user.id, 15 * 60_000);
   const o = {
-    pre: "Bestätige, dass dein Stox-Konto gelöscht werden soll.",
+    pre: `Dein Code zum Löschen des Stox-Kontos: ${code}`,
     icon: "trash" as const,
     title: "Konto löschen bestätigen",
-    text: "Du hast in der App angefragt, dein Stox-Konto zu löschen. Bestätige das über den Button. Danach hast du noch 24 Stunden Zeit, die Löschung abzubrechen – erst dann werden Konto, Depotdaten und Belege endgültig entfernt.",
-    cta: "Löschung bestätigen", link, danger: true,
-    note: "Der Link ist 1 Stunde gültig. Du hast das nicht angefragt? Dann ignorier diese Mail – es passiert nichts.",
+    text: "Du hast in der App angefragt, dein Stox-Konto zu löschen. Gib diesen Code in der App ein, um das zu bestätigen. Danach hast du noch 24 Stunden Zeit, die Löschung abzubrechen – erst dann werden Konto, Depotdaten und Belege endgültig entfernt.",
+    code, danger: true,
+    note: "Der Code ist 15 Minuten gültig. Du hast das nicht angefragt? Dann ignorier diese Mail – es passiert nichts.",
   };
-  await sendMail(s, user.email!, "Konto löschen bestätigen · Stox", mailHtml(appUrl, o), `${o.title}\n\n${o.text}\n\n${link}\n\n${o.note}`);
+  await sendMail(s, user.email!, `${code} · Konto löschen bestätigen · Stox`, mailHtml(appUrl, o), `${o.title}\n\nCode: ${code}\n\n${o.text}\n\n${o.note}`);
   return { ok: true, sent: true };
 }
 
 async function confirm(body: any) {
   const t = await takeToken(body.token, "delete");
+  return await schedule(t.user_id);
+}
+
+async function schedule(userId: string) {
+  const t = { user_id: userId };
   const existing = await pending(t.user_id);
   if (existing) return { ok: true, scheduled_for: existing.scheduled_for };
   const scheduled_for = new Date(Date.now() + WAIT_MS).toISOString();
@@ -177,16 +211,14 @@ async function confirm(body: any) {
   const email = u?.user?.email;
   if (email && mailReady(s)) {
     const appUrl = appUrlOf(s);
-    const link = `${appUrl}/?delcancel=${await newToken(t.user_id, "delete_cancel", WAIT_MS)}`;
     const o = {
       pre: "Dein Stox-Konto wird in 24 Stunden gelöscht.",
       icon: "clock" as const,
       title: "Dein Konto wird gelöscht",
-      text: `Die Löschung deines Stox-Kontos ist eingeplant für ${fmtDate(scheduled_for)}. Bis dahin kannst du sie jederzeit abbrechen – über den Button oder in der App unter Einstellungen. Danach werden Konto, Depotdaten und Belege endgültig entfernt.`,
-      cta: "Löschung abbrechen", link,
-      note: "Du hast das nicht veranlasst? Brich die Löschung ab und ändere dein Passwort.",
+      text: `Die Löschung deines Stox-Kontos ist eingeplant für ${fmtDate(scheduled_for)}. Bis dahin kannst du sie jederzeit abbrechen: Öffne Stox und tippe in den Einstellungen auf „Löschung abbrechen“. Danach werden Konto, Depotdaten und Belege endgültig entfernt.`,
+      note: "Du hast das nicht veranlasst? Melde dich an, brich die Löschung ab und ändere dein Passwort.",
     };
-    try { await sendMail(s, email, "Dein Konto wird in 24 Stunden gelöscht · Stox", mailHtml(appUrl, o), `${o.title}\n\n${o.text}\n\n${link}\n\n${o.note}`); } catch (_e) { /* Planung bleibt bestehen */ }
+    try { await sendMail(s, email, "Dein Konto wird in 24 Stunden gelöscht · Stox", mailHtml(appUrl, o), `${o.title}\n\n${o.text}\n\n${o.note}`); } catch (_e) { /* Planung bleibt bestehen */ }
   }
   return { ok: true, scheduled_for };
 }
@@ -244,6 +276,7 @@ Deno.serve(async (req: Request) => {
     switch (body.action) {
       case "request": return json(await request(req));
       case "confirm": return json(await confirm(body));
+      case "confirm-code": { const u = await authUser(req); await takeCode(u.id, body.code); return json(await schedule(u.id)); }
       case "cancel": { const t = await takeToken(body.token, "delete_cancel"); return json(await cancelFor(t.user_id)); }
       case "cancel-auth": { const u = await authUser(req); return json(await cancelFor(u.id)); }
       case "status": { const u = await authUser(req); const p = await pending(u.id); return json({ ok: true, scheduled_for: p?.scheduled_for || null }); }

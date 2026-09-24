@@ -454,6 +454,12 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <input type="email" sc-camel-auto-complete="email" class="auth-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" onKeyDown="{{ onAuthKey }}" placeholder="du@example.com">
             </div>
           </sc-if>
+          <sc-if value="{{ authShowCode }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.1em;padding-left:22px">CODE AUS DER MAIL</label>
+              <input inputmode="numeric" sc-camel-auto-complete="one-time-code" class="auth-in" value="{{ authCode }}" onInput="{{ onAuthCode }}" onKeyDown="{{ onAuthKey }}" placeholder="123456" style="text-align:center;font-size:22px;letter-spacing:.3em;font-weight:700">
+            </div>
+          </sc-if>
           <sc-if value="{{ authShowPassword }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:8px">
               <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 6px 0 22px">
@@ -3025,22 +3031,23 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
         </div>
-        <sc-if value="{{ pwMailAsk }}" hint-placeholder-val="{{ true }}">
-          <p style="margin:0 0 16px;color:var(--tx2);font-size:13.5px;line-height:1.55">Zur Sicherheit bestätigst du die Änderung per E-Mail. Wir schicken dir einen Link an <b style="color:var(--tx)">{{ pwEmail }}</b> — darüber legst du dein neues Passwort fest.</p>
-          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:0 0 12px;color:var(--neg);font-size:12.5px">{{ pwError }}</p>
-          </sc-if>
+        <sc-if value="{{ pwAsk }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:0 0 16px;color:var(--tx2);font-size:13.5px;line-height:1.55">Zur Sicherheit bestätigst du die Änderung mit einem Code. Wir schicken ihn an <b style="color:var(--tx)">{{ pwEmail }}</b>.</p>
+          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 12px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
           <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSendLabel }}</button>
         </sc-if>
-        <sc-if value="{{ pwMailSent }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;gap:14px;align-items:flex-start;padding:4px 0 6px">
-            <span class="np-ok" style="width:44px;height:44px;border-radius:50%;background:var(--pos);display:flex;align-items:center;justify-content:center;flex:none;color:#fff">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:npCheck .45s cubic-bezier(.65,0,.35,1) .25s forwards"></path></svg>
-            </span>
-            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-              <span style="color:var(--tx);font-size:15px;font-weight:700">Mail ist unterwegs</span>
-              <span style="color:var(--tx2);font-size:13px;line-height:1.5">Öffne den Link in der Mail an {{ pwEmail }}, um dein neues Passwort festzulegen. Schau auch im Spam-Ordner nach.</span>
-            </div>
+        <sc-if value="{{ pwCodeStep }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55">Code an <b style="color:var(--tx)">{{ pwEmail }}</b> gesendet. Gib ihn hier ein und wähle dein neues Passwort.</p>
+          <input inputmode="numeric" sc-camel-auto-complete="one-time-code" class="auth-in" value="{{ pwCode }}" onInput="{{ onPwCode }}" placeholder="Code aus der Mail" style="text-align:center;font-size:22px;letter-spacing:.3em;font-weight:700">
+          <input type="password" sc-camel-auto-complete="new-password" class="auth-in" value="{{ pwNew }}" onInput="{{ onPwNew }}" placeholder="Neues Passwort (mind. 6 Zeichen)" style="margin-top:10px">
+          <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px">{{ pwError }}</p></sc-if>
+          <button onClick="{{ savePwWithCode }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:52px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ pwSaveLabel }}</button>
+          <button onClick="{{ sendPwMail }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;color:var(--tx3);font-size:12.5px;font-weight:600">Code erneut senden</button>
+        </sc-if>
+        <sc-if value="{{ pwDone }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:14px;align-items:center;padding:4px 0 6px">
+            <span class="np-ok" style="width:44px;height:44px;border-radius:50%;background:var(--pos);display:flex;align-items:center;justify-content:center;flex:none;color:#fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:npCheck .45s cubic-bezier(.65,0,.35,1) .25s forwards"></path></svg></span>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="color:var(--tx);font-size:15px;font-weight:700">Passwort geändert</span><span style="color:var(--tx2);font-size:13px">Ab jetzt meldest du dich mit dem neuen Passwort an.</span></div>
           </div>
           <button onClick="{{ closePwSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:50px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">Fertig</button>
         </sc-if>
@@ -3063,8 +3070,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             <span style="color:var(--tx);font-size:13px;line-height:1.5">Konto, Transaktionen, Dividenden, Belege und Einstellungen werden <b>endgültig</b> gelöscht. Tipp: Exportiere vorher deine Daten.</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
-            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">1</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Wir schicken dir eine Bestätigungsmail an <b style="color:var(--tx)">{{ userEmailForDelete }}</b>.</span></div>
-            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">2</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Nach dem Bestätigen hast du 24 Stunden Zeit, die Löschung abzubrechen – per Link in der Info-Mail oder hier.</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">1</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Wir schicken dir einen Bestätigungscode an <b style="color:var(--tx)">{{ userEmailForDelete }}</b>, den du hier eingibst.</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">2</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Danach hast du 24 Stunden Zeit, die Löschung hier in den Einstellungen abzubrechen.</span></div>
             <div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="width:22px;height:22px;border-radius:50%;background:var(--surf2);color:var(--tx);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">3</span><span style="color:var(--tx2);font-size:13px;line-height:1.5">Ohne Eingriff wird dein Konto danach endgültig gelöscht.</span></div>
           </div>
           <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}">
@@ -3073,14 +3080,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <button onClick="{{ requestDelete }}" style="all:unset;box-sizing:border-box;cursor:pointer;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ deleteBtnLabel }}</button>
         </sc-if>
         <sc-if value="{{ deleteMailSent }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;gap:14px;align-items:flex-start;padding:4px 0 6px">
-            <span class="np-ok" style="width:44px;height:44px;border-radius:50%;background:var(--pos);display:flex;align-items:center;justify-content:center;flex:none;color:#fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:npCheck .45s cubic-bezier(.65,0,.35,1) .25s forwards"></path></svg></span>
-            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-              <span style="color:var(--tx);font-size:15px;font-weight:700">Bestätigungsmail gesendet</span>
-              <span style="color:var(--tx2);font-size:13px;line-height:1.5">Öffne den Link in der Mail an {{ userEmailForDelete }} (1 Stunde gültig). Erst danach startet die 24-Stunden-Frist.</span>
-            </div>
-          </div>
-          <button onClick="{{ closeDeleteSheet }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:50px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center">Fertig</button>
+          <p style="margin:0 0 14px;color:var(--tx2);font-size:13.5px;line-height:1.55">Code an <b style="color:var(--tx)">{{ userEmailForDelete }}</b> gesendet (15 Minuten gültig). Gib ihn hier ein, um die Löschung zu bestätigen.</p>
+          <input inputmode="numeric" sc-camel-auto-complete="one-time-code" class="auth-in" value="{{ deleteCode }}" onInput="{{ onDeleteCode }}" placeholder="Code aus der Mail" style="text-align:center;font-size:22px;letter-spacing:.3em;font-weight:700">
+          <sc-if value="{{ deleteError }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:0 16px;color:var(--neg);font-size:12.5px;line-height:1.5">{{ deleteError }}</p></sc-if>
+          <button onClick="{{ confirmDeleteCode }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:16px;width:100%;height:52px;border-radius:999px;background:var(--neg);color:#fff;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.98)">{{ deleteConfirmLabel }}</button>
+          <button onClick="{{ requestDelete }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;color:var(--tx3);font-size:12.5px;font-weight:600">Code erneut senden</button>
         </sc-if>
         <sc-if value="{{ deletionScheduled }}" hint-placeholder-val="{{ false }}">
           <div style="padding:16px;border-radius:18px;background:var(--neg-soft);margin-bottom:16px;display:flex;flex-direction:column;gap:4px">
@@ -4286,9 +4290,10 @@ class Component extends DCLogic {
   toggleAuthMode = () => {
     // Aus "Passwort vergessen" / "Neues Passwort" fuehrt der Link immer zurueck zur Anmeldung.
     const next = this.state.authMode === "login" ? "register" : "login";
-    this.setState({ authMode: next, authError: "", authNotice: "", authBtnFx: "" });
+    this.setState({ authMode: next, authError: "", authNotice: "", authBtnFx: "", recoveryByCode: false, authCode: "" });
   };
-  openForgot = () => this.setState({ authMode: "forgot", authError: "", authNotice: "", authPassword: "", authBtnFx: "" });
+  openForgot = () => this.setState({ authMode: "forgot", authError: "", authNotice: "", authPassword: "", authBtnFx: "", recoveryByCode: false, authCode: "" });
+  onAuthCode = e => this.setState({ authCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 8), authError: "" });
 
   // Button-Feedback: bei Fehlern kurz schuetteln statt nur Text zu zeigen.
   authFail = msg => {
@@ -4358,7 +4363,9 @@ class Component extends DCLogic {
     try {
       const db = await this.db();
       await db.requestPasswordReset(email);
-      this.setState({ authLoading: false, authNotice: "Falls ein Konto zu dieser E-Mail existiert, ist ein Link zum Zurücksetzen unterwegs. Schau in dein Postfach (auch im Spam)." });
+      // Code statt Link: direkt weiter zur Eingabe von Code + neuem Passwort.
+      this.setState({ authLoading: false, authMode: "reset", recoveryByCode: true, authCode: "", authPassword: "",
+        authNotice: "Falls ein Konto zu " + email + " existiert, haben wir dir einen Code geschickt. Schau in dein Postfach (auch im Spam)." });
     } catch (e) {
       this.authFail(e.message);
     }
@@ -4368,10 +4375,16 @@ class Component extends DCLogic {
   // schon eine gueltige (kurzlebige) Session bereit, kein eigener Token noetig.
   submitReset = async () => {
     const { authPassword } = this.state;
+    const byCode = !!this.state.recoveryByCode, code = this.state.authCode || "";
+    if (byCode && code.length < 6) { this.authFail("Bitte gib den Code aus der Mail ein."); return; }
     if (authPassword.length < 6) { this.authFail("Passwort muss mindestens 6 Zeichen haben."); return; }
     this.setState({ authLoading: true, authError: "", authNotice: "", authBtnFx: "" });
     try {
       const db = await this.db();
+      if (byCode) {
+        try { await db.verifyRecoveryCode(this.state.authEmail.trim(), code); }
+        catch (e) { this.authFail("Der Code ist falsch oder abgelaufen."); return; }
+      }
       await db.updatePassword(authPassword);
       const session = await db.getSession();
       this.pushToast("Neues Passwort gespeichert", { tone: "pos" });
@@ -4400,11 +4413,13 @@ class Component extends DCLogic {
   // ---------- Einstellungen: Rechtliches, Passwort, Export, Konto loeschen ----------
   openLegal = key => () => this.setState({ legalKey: key });
   closeLegal = () => this.setState({ legalKey: null });
-  // Passwort aendern nur per Mail-Bestaetigung: Supabase schickt einen Link,
-  // der in die App zurueckfuehrt (onPasswordRecovery -> Modus "reset"), erst
-  // dort wird das neue Passwort gesetzt.
-  openPwSheet = () => this.setState({ pwSheetOpen: true, pwMailSent: false, pwError: "", pwBusy: false });
-  closePwSheet = () => this.setState({ pwSheetOpen: false, pwMailSent: false, pwError: "" });
+  // Passwort aendern nur per Mail-Bestaetigung: Supabase schickt einen Code
+  // (Vorlage "Reset Password" mit {{ .Token }}), der hier in der App zusammen
+  // mit dem neuen Passwort eingegeben wird – kein Link, man bleibt in der App.
+  openPwSheet = () => this.setState({ pwSheetOpen: true, pwStep: "ask", pwCode: "", pwNew: "", pwError: "", pwBusy: false });
+  closePwSheet = () => { if (!this.state.pwBusy) this.setState({ pwSheetOpen: false, pwStep: "ask", pwCode: "", pwNew: "", pwError: "" }); };
+  onPwCode = e => this.setState({ pwCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 8), pwError: "" });
+  onPwNew = e => this.setState({ pwNew: e.target.value, pwError: "" });
   sendPwMail = async () => {
     const email = (this.state.user && this.state.user.email) || "";
     if (!email || this.state.pwBusy) return;
@@ -4412,9 +4427,25 @@ class Component extends DCLogic {
     try {
       const db = await this.db();
       await db.requestPasswordReset(email);
-      this.setState({ pwBusy: false, pwMailSent: true });
+      this.setState({ pwBusy: false, pwStep: "code" });
     } catch (e) {
       this.setState({ pwBusy: false, pwError: e.message || "Mail konnte nicht gesendet werden." });
+    }
+  };
+  savePwWithCode = async () => {
+    const email = (this.state.user && this.state.user.email) || "";
+    const code = this.state.pwCode || "", pw = this.state.pwNew || "";
+    if (code.length < 6) return this.setState({ pwError: "Bitte gib den Code aus der Mail ein." });
+    if (pw.length < 6) return this.setState({ pwError: "Das neue Passwort braucht mindestens 6 Zeichen." });
+    if (this.state.pwBusy) return;
+    this.setState({ pwBusy: true, pwError: "" });
+    try {
+      const db = await this.db();
+      await db.verifyRecoveryCode(email, code);
+      await db.updatePassword(pw);
+      this.setState({ pwBusy: false, pwStep: "done", pwCode: "", pwNew: "" });
+    } catch (e) {
+      this.setState({ pwBusy: false, pwError: /token|otp|expired|invalid/i.test(e.message || "") ? "Der Code ist falsch oder abgelaufen." : (e.message || "Passwort konnte nicht geändert werden.") });
     }
   };
   // CSV mit Semikolon (Excel CH/DE) und BOM, damit Umlaute korrekt ankommen.
@@ -4449,6 +4480,9 @@ class Component extends DCLogic {
     "rate-limited": "Bitte warte eine Minute, bevor du es erneut versuchst.",
     "mail-send-failed": "Die Mail konnte nicht gesendet werden. Bitte versuch es später erneut.",
     "invalid-token": "Dieser Link ist ungültig oder wurde schon verwendet.",
+    "invalid-code": "Der Code stimmt nicht.",
+    "expired-code": "Der Code ist abgelaufen. Bitte fordere einen neuen an.",
+    "too-many-attempts": "Zu viele Fehlversuche. Bitte fordere einen neuen Code an.",
     "expired-token": "Dieser Link ist abgelaufen. Bitte fordere in der App einen neuen an."
   };
   deleteErrorText = e => this.DELETE_ERRORS[e && e.message] || "Etwas ist schiefgelaufen. Bitte versuch es erneut.";
@@ -4459,7 +4493,20 @@ class Component extends DCLogic {
       this.setState({ deletionScheduledFor: r.scheduled_for || null });
     } catch (_) {}
   };
-  openDeleteSheet = () => { this.setState({ deleteSheetOpen: true, deleteMailSent: false, deleteError: "", deleteBusy: false }); this.loadDeletionStatus(); };
+  openDeleteSheet = () => { this.setState({ deleteSheetOpen: true, deleteMailSent: false, deleteCode: "", deleteError: "", deleteBusy: false }); this.loadDeletionStatus(); };
+  onDeleteCode = e => this.setState({ deleteCode: e.target.value.replace(/[^0-9]/g, "").slice(0, 6), deleteError: "" });
+  confirmDeleteCode = async () => {
+    if (this.state.deleteBusy) return;
+    if ((this.state.deleteCode || "").length !== 6) return this.setState({ deleteError: "Bitte gib den 6-stelligen Code aus der Mail ein." });
+    this.setState({ deleteBusy: true, deleteError: "" });
+    try {
+      const db = await this.db();
+      const r = await db.accountDelete("confirm-code", { code: this.state.deleteCode });
+      this.setState({ deleteBusy: false, deleteMailSent: false, deleteCode: "", deletionScheduledFor: r.scheduled_for || null });
+    } catch (e) {
+      this.setState({ deleteBusy: false, deleteError: this.deleteErrorText(e) });
+    }
+  };
   closeDeleteSheet = () => { if (!this.state.deleteBusy) this.setState({ deleteSheetOpen: false, deleteError: "" }); };
   requestDelete = async () => {
     if (this.state.deleteBusy) return;
@@ -7291,11 +7338,12 @@ class Component extends DCLogic {
         const T = {
           login: { title: "Willkommen\nzurück", sub: "Dein Depot, ohne Tabellen.", cta: "Anmelden", sw: "Noch kein Konto?", swCta: "Registrieren" },
           register: { title: "Konto\nerstellen", sub: "Dein Depot, ohne Tabellen.", cta: "Registrieren", sw: "Schon ein Konto?", swCta: "Anmelden" },
-          forgot: { title: "Passwort\nvergessen?", sub: "Kein Problem — wir schicken dir einen Link, mit dem du ein neues festlegst.", cta: "Link senden", sw: "Doch wieder eingefallen?", swCta: "Anmelden" },
+          forgot: { title: "Passwort\nvergessen?", sub: "Kein Problem — wir schicken dir einen Code, mit dem du ein neues festlegst.", cta: "Code senden", sw: "Doch wieder eingefallen?", swCta: "Anmelden" },
           reset: { title: "Neues\nPasswort", sub: "Wähle ein neues Passwort für dein Konto.", cta: "Passwort speichern", sw: "", swCta: "Zur Anmeldung" },
         }[m] || {};
         return {
-          authTitle: T.title, authSub: T.sub, authCta: T.cta,
+          authTitle: T.title, authSub: m === "reset" && this.state.recoveryByCode ? "Gib den Code aus der Mail und dein neues Passwort ein." : T.sub, authCta: T.cta,
+          authShowCode: m === "reset" && !!this.state.recoveryByCode, authCode: this.state.authCode || "", onAuthCode: this.onAuthCode,
           authSwitchLabel: T.sw, authSwitchCta: T.swCta,
           authShowModeSwitch: m === "login" || m === "register",
           authModePillX: m === "register" ? "calc(100% + 4px)" : "0",
@@ -8123,18 +8171,22 @@ class Component extends DCLogic {
       legalSections: this.state.legalKey && LEGAL[this.state.legalKey] ? LEGAL[this.state.legalKey].sections.map(([h, p]) => ({ h, p })) : [],
       closeLegal: this.animClose(this.closeLegal), legalSheetDragDown: this.sheetDragDown(this.closeLegal),
       pwSheetOpen: !!this.state.pwSheetOpen, closePwSheet: this.animClose(this.closePwSheet), pwSheetDragDown: this.sheetDragDown(this.closePwSheet),
-      sendPwMail: this.sendPwMail, pwMailSent: !!this.state.pwMailSent, pwMailAsk: !this.state.pwMailSent,
+      sendPwMail: this.sendPwMail, savePwWithCode: this.savePwWithCode, onPwCode: this.onPwCode, onPwNew: this.onPwNew,
+      pwAsk: (this.state.pwStep || "ask") === "ask", pwCodeStep: this.state.pwStep === "code", pwDone: this.state.pwStep === "done",
+      pwCode: this.state.pwCode || "", pwNew: this.state.pwNew || "",
+      pwSaveLabel: this.state.pwBusy ? "Einen Moment …" : "Passwort speichern",
       pwEmail: (user && user.email) || "",
-      pwError: this.state.pwError || "", pwSendLabel: this.state.pwBusy ? "Wird gesendet …" : "Bestätigungslink senden",
+      pwError: this.state.pwError || "", pwSendLabel: this.state.pwBusy ? "Wird gesendet …" : "Code per Mail senden",
       openDeleteSheet: this.openDeleteSheet,
       deleteSheetOpen: !!this.state.deleteSheetOpen, closeDeleteSheet: this.animClose(this.closeDeleteSheet), deleteSheetDragDown: this.sheetDragDown(this.closeDeleteSheet),
-      requestDelete: this.requestDelete, cancelDeletion: this.cancelDeletion,
+      requestDelete: this.requestDelete, cancelDeletion: this.cancelDeletion, onDeleteCode: this.onDeleteCode, confirmDeleteCode: this.confirmDeleteCode,
+      deleteCode: this.state.deleteCode || "", deleteConfirmLabel: this.state.deleteBusy ? "Einen Moment …" : "Löschung bestätigen",
       deleteError: this.state.deleteError || "",
       deletionScheduled: !!this.state.deletionScheduledFor,
       deleteAsk: !this.state.deletionScheduledFor && !this.state.deleteMailSent,
       deleteMailSent: !this.state.deletionScheduledFor && !!this.state.deleteMailSent,
       deletionWhen: this.state.deletionScheduledFor ? new Date(this.state.deletionScheduledFor).toLocaleString("de-CH", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " Uhr" : "",
-      deleteBtnLabel: this.state.deleteBusy ? "Einen Moment …" : "Bestätigungsmail senden",
+      deleteBtnLabel: this.state.deleteBusy ? "Einen Moment …" : "Code per Mail senden",
       cancelDeleteLabel: this.state.deleteBusy ? "Einen Moment …" : "Löschung abbrechen",
       deleteLinkMsg: this.state.deleteLinkMsg || "", closeDeleteLinkMsg: this.closeDeleteLinkMsg,
       userEmailForDelete: (user && user.email) || "",
