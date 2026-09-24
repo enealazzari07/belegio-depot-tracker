@@ -230,6 +230,9 @@ input::placeholder{color:var(--tx3)}
 @keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
 @keyframes authDone{to{transform:scale(1.18);opacity:0}}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes sfDraw{to{stroke-dashoffset:0}}
+@keyframes sfFade{to{opacity:1}}
+@keyframes sfIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
 @keyframes authSwapA{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @keyframes authSwapB{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 /* Login: schwebende Aktien-Karte mit Glas-Knoepfen (Look der Glocke) rechts neben dem Titel. */
@@ -1199,25 +1202,47 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
             <div style="padding:4px 0 0">
               <div style="position:relative;width:100%;aspect-ratio:340/250">
-                <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
-                  <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
-                    <polygon points="{{ rr.points }}" fill="none" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></polygon>
-                  </sc-for>
-                  <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
-                    <line x1="170" y1="122" x2="{{ ax.x2 }}" y2="{{ ax.y2 }}" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
-                  </sc-for>
-                  <sc-for list="{{ radarSeries }}" as="rs" hint-placeholder-count="2">
-                    <polygon points="{{ rs.points }}" fill="{{ rs.color }}" fill-opacity=".16" stroke="{{ rs.color }}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polygon>
-                    <sc-for list="{{ rs.dots }}" as="dt" hint-placeholder-count="6">
-                      <circle cx="{{ dt.x }}" cy="{{ dt.y }}" r="3.4" fill="{{ rs.color }}" stroke="var(--bg)" stroke-width="1.2"></circle>
+                <!-- Bei "Unternehmen anzeigen" rutscht das Netz verkleinert nach links,
+                     rechts erscheinen die groessten Firmen mit blauen Knick-Linien
+                     (wie die Beschriftungslinien bei Gewichtung). -->
+                <div style="position:absolute;inset:0;transform-origin:0 50%;transform:{{ radarMoveTf }};transition:transform .6s cubic-bezier(.32,.72,0,1)">
+                  <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                    <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
+                      <polygon points="{{ rr.points }}" fill="none" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></polygon>
                     </sc-for>
+                    <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
+                      <line x1="170" y1="122" x2="{{ ax.x2 }}" y2="{{ ax.y2 }}" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                    </sc-for>
+                    <sc-for list="{{ radarSeries }}" as="rs" hint-placeholder-count="2">
+                      <polygon points="{{ rs.points }}" fill="{{ rs.color }}" fill-opacity=".16" stroke="{{ rs.color }}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polygon>
+                      <sc-for list="{{ rs.dots }}" as="dt" hint-placeholder-count="6">
+                        <circle cx="{{ dt.x }}" cy="{{ dt.y }}" r="3.4" fill="{{ rs.color }}" stroke="var(--bg)" stroke-width="1.2"></circle>
+                      </sc-for>
+                    </sc-for>
+                  </svg>
+                  <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
+                    <div style="position:absolute;{{ ax.posStyle }};display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
                   </sc-for>
-                </svg>
-                <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
-                  <div style="position:absolute;{{ ax.posStyle }};display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
-                </sc-for>
+                </div>
+                <sc-if value="{{ sectorOpen }}" hint-placeholder-val="{{ false }}">
+                  <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible;pointer-events:none">
+                    <sc-for list="{{ sectorFirms }}" as="sf" hint-placeholder-count="5">
+                      <path d="{{ sf.path }}" pathLength="1" fill="none" stroke="#3d7bf0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-dasharray:1;stroke-dashoffset:1;animation:sfDraw .55s cubic-bezier(.4,0,.2,1) {{ sf.delay }} forwards"></path>
+                      <circle cx="{{ sf.dotX }}" cy="{{ sf.dotY }}" r="3" fill="#3d7bf0" stroke="var(--bg)" stroke-width="1.4" style="opacity:0;animation:sfFade .3s ease {{ sf.delay }} forwards"></circle>
+                    </sc-for>
+                  </svg>
+                  <sc-for list="{{ sectorFirms }}" as="sf" hint-placeholder-count="5">
+                    <div style="position:absolute;{{ sf.posStyle }};display:flex;flex-direction:column;gap:1px;line-height:1.15;max-width:34%;opacity:0;animation:sfIn .4s cubic-bezier(.22,1,.36,1) {{ sf.labelDelay }} forwards">
+                      <span style="color:var(--tx);font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sf.name }}</span>
+                      <span style="color:var(--tx3);font-size:10.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sf.sector }}</span>
+                    </div>
+                  </sc-for>
+                </sc-if>
               </div>
             </div>
+            <sc-if value="{{ sectorFirmsHas }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ toggleSectorOpen }}" style="all:unset;box-sizing:border-box;cursor:pointer;margin-top:14px;width:100%;height:48px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 14px 28px -16px rgba(16,19,26,.6);transition:transform 140ms ease" style-active="transform:scale(.98)">{{ sectorBtnLabel }}</button>
+            </sc-if>
             <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin:10px 4px 0">Sektoraufteilung des gesamten Depots. ETFs nach tatsächlicher Sektoraufteilung, Einzelaktien nach Branche (geschätzt).</span>
           </div>
         </sc-if>
@@ -4549,6 +4574,7 @@ class Component extends DCLogic {
     ["depot-head-icon", "depot-head-tabbar"].forEach(id => { const el = document.getElementById(id); if (el) el._onLight = undefined; });
   };
   onDepotScroll = () => { this.applyDepotHeadTone(); };
+  toggleSectorOpen = () => this.setState(s => ({ sectorOpen: !s.sectorOpen }));
   // Rein kosmetische "Denk"-Animation vor der Score-Anzeige — die Auswertung
   // selbst steht synchron schon bereit, hier geht es nur ums Erlebnis.
   startAiScoreCheck = () => {
@@ -6292,10 +6318,13 @@ class Component extends DCLogic {
     // Sektoren als Netzdiagramm + Kurzanalyse fuers Analyse-Titelbild.
     // Achsen = die groessten Sektoren, eine einzige Flaeche fuer das gesamte
     // Depot (ETFs ueber ihre Sektoraufteilung, Aktien nach Branche).
-    const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [];
+    const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [], sectorFirms = [];
     if (visibleHoldings.length && visVal) {
-      const expo = {}, ccs = new Set(), perPos = [];
+      const expo = {}, ccs = new Set(), perPos = [], firms = {};
       let tot = 0;
+      // Firmen fuer die Unternehmens-Ansicht: Einzelaktien direkt, ETFs ueber
+      // ihre (Top-)Holdings mit absolutem Gewicht.
+      const addFirm = (k, name, x) => { if (!name || !(x > 0)) return; const f = firms[name] || (firms[name] = { k, v: 0 }); f.v += x; };
       visibleHoldings.forEach(h => {
         const sym = h.sym || h.abbr, v = h.shares * h.cur, mine = {};
         const add = (k, x) => { mine[k] = (mine[k] || 0) + x; expo[k] = (expo[k] || 0) + x; tot += x; };
@@ -6310,6 +6339,8 @@ class Component extends DCLogic {
         } else if (hw > 0) {
           comp.holdings.forEach(x => add(sectorOf(x.symbol, x.name), v * (x.weight || 0) / hw));
         } else add(sectorOf(sym, displayName(h)), v);
+        if (hw > 0) comp.holdings.forEach(x => addFirm(sectorOf(x.symbol, x.name), x.name || x.symbol, v * (x.weight || 0)));
+        else addFirm(sectorOf(sym, displayName(h)), displayName(h), v);
         perPos.push({ h, v, mine, isEtf: !!((secs && secs.length) || hw > 0) });
       });
       const sorted = Object.entries(expo).filter(([k]) => k !== "other").sort((a, b) => b[1] - a[1]);
@@ -6355,6 +6386,25 @@ class Component extends DCLogic {
           color: COLS[si], name: s.name, pct: s.sub,
           points: dots.map(d => d.x + "," + d.y).join(" "), dots
         });
+        // Unternehmens-Ansicht: Netz ist per CSS um (0|125) auf .64 skaliert und
+        // 8 Einheiten nach links geschoben — dieselbe Abbildung hier fuer die
+        // Startpunkte der Linien, damit sie exakt an den Datenpunkten sitzen.
+        if (si === 0) {
+          const S = 0.64, TX = -8, map = (x, y) => [TX + S * x, 125 + S * (y - 125)];
+          const top = Object.entries(firms).filter(([, f]) => axes.includes(f.k)).sort((a, b) => b[1].v - a[1].v).slice(0, 5)
+            .map(([name, f]) => { const [x, y] = map(+dots[axes.indexOf(f.k)].x, +dots[axes.indexOf(f.k)].y); return { name, k: f.k, x, y }; })
+            .sort((a, b) => a.y - b.y);
+          top.forEach((f, j) => {
+            const ly = top.length === 1 ? 125 : 36 + j * (178 / (top.length - 1));
+            sectorFirms.push({
+              name: f.name.length > 24 ? f.name.slice(0, 23).trim() + "…" : f.name, sector: SECTORS[f.k][0],
+              dotX: f.x.toFixed(1), dotY: f.y.toFixed(1),
+              path: "M" + f.x.toFixed(1) + " " + f.y.toFixed(1) + " L214 " + ly.toFixed(1) + " L228 " + ly.toFixed(1),
+              posStyle: "left:" + (233 / 340 * 100).toFixed(2) + "%;top:" + ((ly - 13) / 250 * 100).toFixed(2) + "%",
+              delay: (0.45 + j * 0.08).toFixed(2) + "s", labelDelay: (0.8 + j * 0.08).toFixed(2) + "s"
+            });
+          });
+        }
       });
 
       if (sorted.length) analysisLines.push({ k: "Grösster Sektor", v: SECTORS[sorted[0][0]][0] + " · " + Math.round(sorted[0][1] / tot * 100) + " %" });
@@ -7262,6 +7312,10 @@ class Component extends DCLogic {
       aiScoreSheetDragDown: this.sheetDragDown(this.closeAiScoreSheet),
       aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
       sectorHas: sectorRows.length > 0, sectorRows, analysisLines, radarAxes, radarRings, radarSeries,
+      sectorFirms, sectorFirmsHas: sectorFirms.length > 0, sectorOpen: !!this.state.sectorOpen && sectorFirms.length > 0,
+      radarMoveTf: this.state.sectorOpen && sectorFirms.length ? "translateX(-2.35%) scale(.64)" : "none",
+      sectorBtnLabel: this.state.sectorOpen ? "Nur Sektoren zeigen" : "Unternehmen anzeigen",
+      toggleSectorOpen: this.toggleSectorOpen,
       geoHas, geoCallouts, geoRings, geoDots: worldDotsPath(),
       geoIsPro: proActive, geoLocked: !proActive,
       geoWrapStyle: proActive ? "" : "filter:blur(7px);opacity:.75;pointer-events:none",
