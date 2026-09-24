@@ -254,6 +254,9 @@ input::placeholder{color:var(--tx3)}
 @media (max-width:340px){.lx{display:none}}
 @media (prefers-reduced-motion: reduce){.lx-card,.lx-coin,.lx-shine{animation:none!important}}
 /* E-Mail-Bestaetigung: schwebende Karte unten. */
+.np-bell svg{transform-origin:50% 8%;animation:npRing 2.8s ease-in-out .7s infinite}
+@keyframes npRing{0%,60%,100%{transform:rotate(0)}64%{transform:rotate(14deg)}70%{transform:rotate(-12deg)}76%{transform:rotate(8deg)}82%{transform:rotate(-5deg)}88%{transform:rotate(2deg)}}
+@media (prefers-reduced-motion: reduce){.np-bell svg{animation:none}}
 @keyframes verifyUp{from{opacity:0;transform:translateY(calc(100% + 40px))}to{opacity:1;transform:none}}
 @keyframes verifyEnv{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-4deg)}}
 @keyframes wordUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -2949,6 +2952,30 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
       </div>
     </sc-if>
 
+    <!-- Einladung zu Push-Benachrichtigungen: schwebende Glas-Karte ueber der
+         Tab-Bar mit schwingender Glocke. Taktung siehe maybeShowNotifPrompt. -->
+    <sc-if value="{{ notifPromptOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom, 0px) + 70px);z-index:8;padding:18px 18px 16px;border-radius:28px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);box-shadow:0 24px 48px -22px rgba(10,12,20,.55);animation:verifyUp .55s cubic-bezier(.22,1,.36,1) both">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <span class="np-bell" style="width:46px;height:46px;border-radius:50%;background:var(--gbtn);border:1px solid var(--gbtn-line);display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx);position:relative">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg>
+            <span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:1.5px solid var(--bg)"></span>
+          </span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:2px">
+            <span style="color:var(--tx);font-size:15px;font-weight:700;letter-spacing:-.01em">Nichts mehr verpassen</span>
+            <span style="color:var(--tx2);font-size:12.5px;line-height:1.45">Dein Depotstand einmal am Tag und wichtige Meldungen zu deinen Titeln — direkt aufs Handy.</span>
+          </div>
+          <button onClick="{{ dismissNotifPrompt }}" aria-label="Schliessen" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:28px;height:28px;margin:-4px -4px 0 0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--tx3)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button onClick="{{ dismissNotifPrompt }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:46px;border-radius:999px;background:var(--gbtn);border:1px solid var(--gbtn-line);color:var(--tx);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.97)">Später</button>
+          <button onClick="{{ acceptNotifPrompt }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1.4;height:46px;border-radius:999px;background:var(--acc);color:var(--accTx);font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 24px -14px rgba(16,19,26,.6)" style-active="transform:scale(.97)">Aktivieren</button>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- Toasts: gestapelt ueber der Tab-Bar, im Glas-Look der Glocke oben
          rechts (var(--gbtn) + Blur statt einer flachen Flaeche). Jeder laesst
          sich einzeln per horizontalem Wisch (folgt live dem Finger, faedet
@@ -3592,7 +3619,47 @@ class Component extends DCLogic {
       const reg = await navigator.serviceWorker.register("./sw.js");
       const sub = await reg.pushManager.getSubscription();
       this.setState({ notifSubscribed: !!sub });
+      if (!sub) this.maybeShowNotifPrompt();
     } catch (e) {}
+  };
+
+  // ---------- Einladung zu Push-Benachrichtigungen ----------
+  // Kommt immer wieder, aber mit wachsendem Abstand: nach jedem "Später"
+  // 3, 7, 14, dann 30 Tage Pause, nach fuenf Absagen gar nicht mehr. Nie,
+  // wenn schon aktiv oder im Browser blockiert (dann koennte der Knopf eh
+  // nichts ausrichten), und erst nach ein paar Sekunden in der App.
+  NOTIF_PROMPT_KEY = "belegio_notif_prompt";
+  NOTIF_PROMPT_GAPS = [0, 3, 7, 14, 30];
+  readNotifPrompt = () => { try { return JSON.parse(localStorage.getItem(this.NOTIF_PROMPT_KEY) || "{}"); } catch (_) { return {}; } };
+  writeNotifPrompt = v => { try { localStorage.setItem(this.NOTIF_PROMPT_KEY, JSON.stringify(v)); } catch (_) {} };
+  maybeShowNotifPrompt = () => {
+    if (!this.state.notifSupported || this.state.notifSubscribed) return;
+    if (typeof Notification !== "undefined" && Notification.permission === "denied") return;
+    const st = this.readNotifPrompt(), n = st.n || 0;
+    if (n >= this.NOTIF_PROMPT_GAPS.length) return;
+    if (st.last && Date.now() - st.last < this.NOTIF_PROMPT_GAPS[n] * 864e5) return;
+    clearTimeout(this._npT);
+    this._npT = setTimeout(() => {
+      const s = this.state;
+      if (!s.user || s.notifSubscribed || s.welcomeOpen || s.checkEmailOpen || s.locked) return;
+      this.setState({ notifPromptOpen: true });
+    }, 12000);
+  };
+  dismissNotifPrompt = () => {
+    const st = this.readNotifPrompt();
+    this.writeNotifPrompt({ n: (st.n || 0) + 1, last: Date.now() });
+    this.setState({ notifPromptOpen: false });
+  };
+  acceptNotifPrompt = async () => {
+    this.setState({ notifPromptOpen: false });
+    await this.toggleNotifications();
+    if (this.state.notifSubscribed) {
+      this.writeNotifPrompt({ n: this.NOTIF_PROMPT_GAPS.length, last: Date.now() });
+      this.pushToast("Benachrichtigungen aktiviert");
+    } else {
+      const st = this.readNotifPrompt();
+      this.writeNotifPrompt({ n: (st.n || 0) + 1, last: Date.now() });
+    }
   };
 
   toggleNotifications = async () => {
@@ -7168,6 +7235,8 @@ class Component extends DCLogic {
         .sort((a, b) => b.date < a.date ? -1 : 1)
         .slice(0, 20),
       welcomeOpen: this.state.welcomeOpen,
+      notifPromptOpen: !!this.state.notifPromptOpen && !!user,
+      dismissNotifPrompt: this.dismissNotifPrompt, acceptNotifPrompt: this.acceptNotifPrompt,
       closeWelcome: () => this.setState({ welcomeOpen: false }),
       welcomeName: (() => { const e = (this.state.user && this.state.user.email) || ""; const n = e.split("@")[0].replace(/[._-]+/g, " ").trim(); return n ? n.charAt(0).toUpperCase() + n.slice(1) : "Hallo"; })(),
       hasNotifItems: holdings.some(h => (this.state.insiderTrades[h.sym || h.abbr] || []).length > 0) || (this.state.pushLog || []).length > 0,
