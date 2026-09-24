@@ -1208,8 +1208,8 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 <!-- Bei "Unternehmen anzeigen" rutscht das Netz in voller Groesse nach
                      links (dort abgeschnitten); rechts laeuft Sektor fuer Sektor durch,
                      mit blauen Knick-Linien wie bei Gewichtung. -->
-                <div style="position:absolute;inset:0;transform-origin:0 50%;transform:{{ radarMoveTf }};transition:transform .6s cubic-bezier(.32,.72,0,1)">
-                  <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                <div style="position:absolute;inset:0;transform:{{ radarMoveTf }};transition:transform .6s cubic-bezier(.32,.72,0,1)">
+                  <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible;transform-origin:50% 48.8%;transform:rotate({{ radarRot }}deg);transition:transform .9s cubic-bezier(.65,0,.35,1)">
                     <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
                       <polygon points="{{ rr.points }}" fill="none" stroke="var(--line2)" stroke-width="1" vector-effect="non-scaling-stroke"></polygon>
                     </sc-for>
@@ -1224,18 +1224,18 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     </sc-for>
                   </svg>
                   <sc-for list="{{ radarAxes }}" as="ax" hint-placeholder-count="6">
-                    <div style="position:absolute;{{ ax.posStyle }};display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
+                    <div style="position:absolute;{{ ax.posStyle }};opacity:{{ radarLabelsOpacity }};transition:opacity .3s ease;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;white-space:nowrap"><span style="color:var(--tx2);font-size:11px;font-weight:600">{{ ax.name }}</span><span class="mono" style="color:var(--tx);font-size:11.5px;font-weight:700">{{ ax.pct }}</span></div>
                   </sc-for>
                 </div>
                 <sc-if value="{{ sectorOpen }}" hint-placeholder-val="{{ false }}">
                   <div style="position:absolute;inset:0;pointer-events:none;opacity:{{ sectorFirmsOpacity }};transition:opacity .35s ease">
                     <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
                       <sc-for list="{{ sectorFirms }}" as="sf" hint-placeholder-count="3">
-                        <path d="{{ sf.path }}" pathLength="1" fill="none" stroke="#3d7bf0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-dasharray:1;stroke-dashoffset:1;animation:sfDraw{{ sfAnim }} .55s cubic-bezier(.4,0,.2,1) {{ sf.delay }} forwards"></path>
+                        <path d="{{ sf.path }}" pathLength="1" fill="none" stroke="#3d7bf0" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:sfDraw{{ sfAnim }} .55s cubic-bezier(.4,0,.2,1) {{ sf.delay }} forwards"></path>
                         <circle cx="{{ sf.dotX }}" cy="{{ sf.dotY }}" r="3.6" fill="#3d7bf0" stroke="var(--bg)" stroke-width="1.4" style="opacity:0;animation:sfFade{{ sfAnim }} .3s ease {{ sf.delay }} forwards"></circle>
                       </sc-for>
                     </svg>
-                    <span style="position:absolute;{{ sectorHeadStyle }};color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;opacity:0;animation:sfIn{{ sfAnim }} .4s cubic-bezier(.22,1,.36,1) {{ sectorHeadDelay }} forwards">{{ sectorHeadName }}</span>
+                    <div style="position:absolute;{{ sectorHeadStyle }};max-width:40%;display:flex;flex-direction:column;gap:1px;line-height:1.2;opacity:0;animation:sfIn{{ sfAnim }} .4s cubic-bezier(.22,1,.36,1) {{ sectorHeadDelay }} forwards"><span style="color:#3d7bf0;font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sectorHeadName }}</span><span class="mono" style="color:var(--tx3);font-size:10.5px;font-weight:600;white-space:nowrap">{{ sectorHeadPct }}</span></div>
                     <sc-for list="{{ sectorFirms }}" as="sf" hint-placeholder-count="3">
                       <span style="position:absolute;{{ sf.posStyle }};max-width:40%;color:var(--tx);font-size:12.5px;font-weight:700;line-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0;animation:sfIn{{ sfAnim }} .4s cubic-bezier(.22,1,.36,1) {{ sf.labelDelay }} forwards">{{ sf.name }}</span>
                     </sc-for>
@@ -6341,7 +6341,7 @@ class Component extends DCLogic {
     // Achsen = die groessten Sektoren, eine einzige Flaeche fuer das gesamte
     // Depot (ETFs ueber ihre Sektoraufteilung, Aktien nach Branche).
     const sectorRows = [], analysisLines = [], radarAxes = [], radarRings = [], radarSeries = [], sectorFirms = [];
-    let sectorHead = null, sectorGroupCount = 0;
+    let sectorHead = null, sectorGroupCount = 0, radarRot = 0;
     if (visibleHoldings.length && visVal) {
       const expo = {}, ccs = new Set(), perPos = [], firms = {};
       let tot = 0;
@@ -6409,29 +6409,43 @@ class Component extends DCLogic {
           color: COLS[si], name: s.name, pct: s.sub,
           points: dots.map(d => d.x + "," + d.y).join(" "), dots
         });
-        // Unternehmens-Ansicht: Netz bleibt gleich gross und wird um 120
-        // Einheiten nach links geschoben (links abgeschnitten). Rechts laeuft
-        // immer ein Sektor nach dem anderen durch: Linien vom Sektorpunkt zu
-        // seinen bis zu drei groessten Firmen.
+        // Unternehmens-Ansicht: Netz bleibt gleich gross, rutscht 120 Einheiten
+        // nach links (dort abgeschnitten) und dreht sich so, dass der aktuelle
+        // Sektor genau nach rechts zeigt. Die Linien laufen dann vom Datenpunkt
+        // entlang der freien Achse nach rechts zu den Firmen — ueber keine
+        // andere Schrift (Achsentitel sind in dieser Ansicht ausgeblendet).
         if (si === 0) {
-          const TX = -120;
+          const TX = -120, cyc = this.state.sectorCycle || 0;
           const groups = axes.map((k, i) => ({
-            k, x: +dots[i].x + TX, y: +dots[i].y,
+            k, i, r: R * Math.min(1, pctOf(s, k) / maxP),
             list: Object.entries(firms).filter(([, f]) => f.k === k).sort((a, b) => b[1].v - a[1].v).slice(0, 3).map(([name]) => name)
           })).filter(g => g.list.length);
           sectorGroupCount = groups.length;
-          const g = groups.length ? groups[(this.state.sectorCycle || 0) % groups.length] : null;
-          if (g) {
-            const base = (this.state.sectorCycle || 0) === 0 ? 0.5 : 0.1;
-            const rowH = 30, total = 22 + g.list.length * rowH;
-            const top = Math.max(8, Math.min(242 - total, g.y - total / 2));
-            sectorHead = { name: SECTORS[g.k][0], posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + (top / 250 * 100).toFixed(2) + "%", delay: (base + 0.1).toFixed(2) + "s" };
+          if (groups.length && this.state.sectorOpen) {
+            // Drehung immer in dieselbe Richtung aufsummieren, damit das Netz
+            // nie "zurueckspringt".
+            const ang = i => -90 + i * 360 / n;
+            let rot = -ang(groups[0].i);
+            for (let c = 1; c <= cyc; c++) {
+              const prev = groups[(c - 1) % groups.length], cur = groups[c % groups.length];
+              rot -= ((ang(cur.i) - ang(prev.i)) % 360 + 360) % 360;
+            }
+            radarRot = rot;
+            const g = groups[cyc % groups.length];
+            const base = cyc === 0 ? 0.75 : 0.95;
+            const dx = cx + g.r + TX, dy = cy;
+            const rowH = 28, total = 34 + g.list.length * rowH;
+            const top = Math.max(6, Math.min(244 - total, dy - total / 2));
+            sectorHead = {
+              name: SECTORS[g.k][0], pct: Math.round((expo[g.k] || 0) / tot * 100) + " % vom Depot",
+              posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + (top / 250 * 100).toFixed(2) + "%", delay: (base + 0.1).toFixed(2) + "s"
+            };
             g.list.forEach((name, j) => {
-              const ly = top + 22 + j * rowH + rowH / 2;
+              const ly = top + 34 + j * rowH + rowH / 2;
               sectorFirms.push({
                 name: name.length > 22 ? name.slice(0, 21).trim() + "…" : name,
-                dotX: g.x.toFixed(1), dotY: g.y.toFixed(1),
-                path: "M" + g.x.toFixed(1) + " " + g.y.toFixed(1) + " L188 " + ly.toFixed(1) + " L197 " + ly.toFixed(1),
+                dotX: dx.toFixed(1), dotY: dy.toFixed(1),
+                path: "M" + dx.toFixed(1) + " " + dy.toFixed(1) + " L" + (cx + R + 8 + TX) + " " + dy.toFixed(1) + " L188 " + ly.toFixed(1) + " L197 " + ly.toFixed(1),
                 posStyle: "left:" + (202 / 340 * 100).toFixed(2) + "%;top:" + ((ly - 8) / 250 * 100).toFixed(2) + "%",
                 delay: (base + j * 0.09).toFixed(2) + "s", labelDelay: (base + 0.3 + j * 0.09).toFixed(2) + "s"
               });
@@ -7346,11 +7360,13 @@ class Component extends DCLogic {
       aiScoreFactors: aiScoreData ? aiScoreData.factors : [],
       sectorHas: sectorRows.length > 0, sectorRows, analysisLines, radarAxes, radarRings, radarSeries,
       sectorFirms, sectorFirmsHas: sectorGroupCount > 0, sectorOpen: !!this.state.sectorOpen && sectorFirms.length > 0,
-      sectorHeadName: sectorHead ? sectorHead.name : "", sectorHeadStyle: sectorHead ? sectorHead.posStyle : "", sectorHeadDelay: sectorHead ? sectorHead.delay : "0s",
+      sectorHeadName: sectorHead ? sectorHead.name : "", sectorHeadPct: sectorHead ? sectorHead.pct : "", sectorHeadStyle: sectorHead ? sectorHead.posStyle : "", sectorHeadDelay: sectorHead ? sectorHead.delay : "0s",
       // Wechselnde Animationsnamen starten die Einblendung je Sektor neu.
       sfAnim: (this.state.sectorCycle || 0) % 2 ? "B" : "A",
       sectorFirmsOpacity: this.state.sectorOut ? "0" : "1",
       radarMoveTf: this.state.sectorOpen && sectorFirms.length ? "translateX(-35.29%)" : "none",
+      radarRot: this.state.sectorOpen && sectorFirms.length ? radarRot.toFixed(1) : "0",
+      radarLabelsOpacity: this.state.sectorOpen && sectorFirms.length ? "0" : "1",
       sectorBtnLabel: this.state.sectorOpen ? "Nur Sektoren zeigen" : "Unternehmen anzeigen",
       toggleSectorOpen: this.toggleSectorOpen,
       geoHas, geoCallouts, geoRings, geoDots: worldDotsPath(),
