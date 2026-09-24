@@ -1183,7 +1183,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 <span style="color:var(--tx3);font-size:12px">In welchen Branchen dein Geld steckt</span>
               </div>
             </div>
-            <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:14px 12px 16px">
+            <div style="padding:4px 0 0">
               <div style="position:relative;width:100%;aspect-ratio:340/250">
                 <svg viewBox="0 0 340 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
                   <sc-for list="{{ radarRings }}" as="rr" hint-placeholder-count="3">
@@ -1195,7 +1195,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                   <sc-for list="{{ radarSeries }}" as="rs" hint-placeholder-count="2">
                     <polygon points="{{ rs.points }}" fill="{{ rs.color }}" fill-opacity=".08" stroke="{{ rs.color }}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polygon>
                     <sc-for list="{{ rs.dots }}" as="dt" hint-placeholder-count="6">
-                      <circle cx="{{ dt.x }}" cy="{{ dt.y }}" r="3.4" fill="{{ rs.color }}" stroke="var(--surf)" stroke-width="1.2"></circle>
+                      <circle cx="{{ dt.x }}" cy="{{ dt.y }}" r="3.4" fill="{{ rs.color }}" stroke="var(--bg)" stroke-width="1.2"></circle>
                     </sc-for>
                   </sc-for>
                 </svg>
@@ -1215,7 +1215,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               </div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;margin:14px 2px 0;padding-top:12px;border-top:1px solid var(--line)">
                 <sc-for list="{{ sectorRows }}" as="sr" hint-placeholder-count="5">
-                  <span style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surf2);white-space:nowrap">
+                  <span style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--surf);white-space:nowrap">
                     <span style="width:7px;height:7px;border-radius:50%;background:{{ sr.color }}"></span>
                     <span style="color:var(--tx2);font-size:11px;font-weight:600">{{ sr.name }}</span>
                     <span class="mono" style="color:var(--tx);font-size:11px;font-weight:700">{{ sr.pct }}</span>
