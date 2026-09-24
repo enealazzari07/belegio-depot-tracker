@@ -5949,10 +5949,13 @@ class Component extends DCLogic {
     const detailChart = (pc, range, scrubIdx) => {
       if (!pc || pc.points.length < 2) return null;
       const pts = pc.points, n = pts.length;
-      // Wert (Stueckzahl x Kurs zum jeweiligen Datum) statt reinem Kurs, damit
-      // Nachkaeufe/-verkaeufe als sichtbarer Sprung erscheinen. pc.pct (Prozent-
-      // Badge) bleibt davon unberuehrt, siehe buildPositionChart.
-      const vals = pts.map(q => q.value != null ? q.value : q.close);
+      // Reiner Kurs, nicht Wert (Kurs x Stueckzahl) -- die Grafik soll nur die
+      // Kursbewegung der Aktie/des ETFs zeigen, unabhaengig davon, ob zwischen-
+      // durch nachgekauft oder verkauft wurde (das wuerde sonst als Sprung in
+      // der Linie erscheinen, der nichts mit dem Kurs zu tun hat). Gilt fuer
+      // alle Zeitraeume (Tag/Woche/Monat/Jahr/Max). pc.pct (Prozent-Badge) war
+      // schon immer reine Kursbewegung, siehe buildPositionChart.
+      const vals = pts.map(q => q.close);
       const mn = Math.min(...vals), mx = Math.max(...vals), span = (mx - mn) || 1;
       const W = 320, H = 170, top = 16, bot = 140;
       const X = i => i / (n - 1) * W, Y = v => bot - (v - mn) / span * (bot - top);
