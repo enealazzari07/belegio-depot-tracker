@@ -70,10 +70,17 @@
      wirkt wie diffuser Dunst statt einer erkennbaren Kreisscheibe mit
      sichtbarer Kante. */
   --brand:#FFFFFF;
-  /* Home-Hero: das Verlaufsbild von der Login-Seite, oben per weissem
-     Verlauf ausgeblichen -- viel Weiss ganz oben (unter der Statusleiste/
-     Account-Zeile), erst weiter unten wird das Blau/Lila des Fotos sichtbar. */
-  --home-hero-bg:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.82) 20%,rgba(255,255,255,.15) 52%,rgba(255,255,255,0) 72%),url('./img/login-hero.webp');
+  /* Home-Hero: das Verlaufsbild von der Login-Seite, auf dem eigenen Wrapper um
+     den Hero-Inhalt (waechst mit dessen echter Hoehe -- mit oder ohne Chart,
+     je nach Safe-Area) statt auf einer festen Pixelhoehe. "cover" darauf statt
+     auf dem ganzen (sehr hohen) Scroll-Container -- sonst wuerde das Foto
+     absurd hineingezoomt (siehe Kommentar am Wrapper-Div weiter unten). Fuellt
+     dadurch den Hero bis exakt zur "Positionen"-Karte, egal wie hoch der ist.
+     Erst weiss (Statusleiste/Account-Zeile), dann Blau/Lila, dann wieder
+     Weiss kurz vor der Karte -- keine harte Kante, kein Rest-Weissraum. */
+  --home-hero-bg:linear-gradient(180deg,#fff 0%,rgba(255,255,255,.16) 26%,rgba(255,255,255,.06) 50%,#fff 80%,#fff 100%),url('./img/login-hero.webp');
+  --home-hero-size:cover,cover;
+  --home-hero-pos:top,top;
   /* Muss exakt dem 0%-Stop von --brand oben entsprechen (siehe Kommentar dort) —
      das ist die iOS-Statusleistenfarbe auf Home, deutlich als Blau erkennbar
      statt einem blassen, fast weiss wirkenden Ton. */
@@ -140,6 +147,10 @@
      Bewusst kein Muster/keine Textur, siehe Kommentar im Light Mode. */
   --brand:linear-gradient(180deg,#0D1220 0%,#111C36 16%,#16294F 34%,#1B3A72 52%,#22509B 70%,#2A66C4 86%,#3878D8 100%);
   --home-hero-bg:var(--brand);
+  /* Dark Mode hatte den Verlauf schon vorher nur in der kleinen Depotwert-Box --
+     unveraendert lassen, nur das Foto im Light Mode bekommt die grosse Flaeche. */
+  --home-hero-size:cover;
+  --home-hero-pos:top;
   --brand-flat:#0D1220;
   --brand-end:#3878D8; --brand-end-0:rgba(56,120,216,0);
   --onBrand:#FFFFFF; --onBrand2:rgba(255,255,255,.72); --onBrand3:rgba(255,255,255,.50);
@@ -491,17 +502,15 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <!-- Eigener, normal fliessender Wrapper statt background-attachment:local auf dem
              Scroll-Container: dessen Box ist wegen position:absolute;inset:0 exakt
              viewport-hoch, der Hintergrund also unabhaengig vom Attachment-Wert nie
-             groesser als ein Bildschirm. Hier waechst die Box mit dem echten Inhalt
-             mit, der Verlauf scrollt dadurch ganz normal mit statt an einer festen
-             Bildschirmhoehe zu enden. Absichtlich nur zwei Farben in Pixel-Werten
-             (kein color-mix(), keine Prozent-Stops) — so einfach wie moeglich, um
-             jedes Risiko einer Fehlinterpretation durch das Template-Parsing der
-             style-Attribute auszuschliessen. Faerbt bis knapp unter die Positionen-
-             Liste hinein aus, statt ueber die ganze Scrollhoehe zu laufen — das Blau
-             soll etwa auf Hoehe von "Gewichtung im Depot" schon zu Weiss verblasst sein. -->
-        <div>
+             groesser als ein Bildschirm. Hier waechst die Box exakt auf die Hoehe des
+             eigentlichen Hero-Inhalts (mit/ohne Chart, Safe-Area) — "cover" darauf
+             (--home-hero-size) fuellt also immer bis genau zur ueberlappenden
+             "Positionen"-Karte, ohne Rest-Weissraum und ohne das Foto absurd in die
+             Laenge zu ziehen, wie es "cover" auf dem ganzen (sehr hohen)
+             Scroll-Container taete. -->
+        <div style="background-image:var(--home-hero-bg);background-size:var(--home-hero-size);background-position:var(--home-hero-pos);background-repeat:no-repeat">
 
-        <div style="background-image:var(--home-hero-bg);background-size:cover;background-position:top center;background-repeat:no-repeat;padding:6px 20px 30px">
+        <div style="padding:6px 20px 30px">
             <sc-if value="{{ dashLoading }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:center;height:250px">
                 <span style="width:26px;height:26px;border-radius:50%;border:2.5px solid var(--onBrand-line);border-top-color:var(--onBrand);animation:spin .8s linear infinite;display:block"></span>
