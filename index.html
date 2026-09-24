@@ -232,7 +232,7 @@ input::placeholder{color:var(--tx3)}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 /* Sektoren-Sprechblase: runde Glas-Blase am Achsentitel mit zwei kleinen
    Glas-Punkten als Schweif. Ploppt federnd auf, schwebt leicht, schrumpft weg. */
-.sbub{--sb-glass:color-mix(in srgb,var(--surf) 58%,transparent);position:absolute;z-index:3;display:flex;flex-direction:column;gap:3px;min-width:132px;max-width:196px;padding:11px 16px 12px;border-radius:26px;background:var(--sb-glass);border:1px solid color-mix(in srgb,var(--surf) 80%,transparent);backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 30px -16px rgba(16,19,26,.45);pointer-events:none;opacity:0;--sb-dy:calc(-100% - 16px);transform:translate(calc(-1 * var(--sb-ax,50%)),var(--sb-dy)) scale(.4);transform-origin:var(--sb-ax,50%) 100%;filter:blur(3px);transition:opacity .3s ease,filter .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1)}
+.sbub{--sb-glass:color-mix(in srgb,var(--surf) 58%,transparent);position:absolute;z-index:3;display:flex;flex-direction:column;gap:3px;min-width:132px;max-width:196px;padding:11px 16px 12px;border-radius:26px;background:var(--sb-glass);border:1px solid color-mix(in srgb,var(--surf) 80%,transparent);backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 30px -16px rgba(16,19,26,.45);pointer-events:none;opacity:0;--sb-dy:calc(-100% - 16px);transform:translate(calc(-1 * var(--sb-ax,50%)),var(--sb-dy)) scale(.4);transform-origin:var(--sb-ax,50%) 100%;filter:blur(3px);transition:opacity .3s ease,filter .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1),border-radius 1.8s ease-in-out}
 .sbub.below{--sb-dy:16px;transform-origin:var(--sb-ax,50%) 0}
 .sbub.on{opacity:1;filter:none;transform:translate(calc(-1 * var(--sb-ax,50%)),var(--sb-dy)) scale(1);animation:sbFloat 3s ease-in-out .55s infinite}
 .sbub i{position:absolute;left:var(--sb-ax,50%);border-radius:50%;background:var(--sb-glass);border:1px solid color-mix(in srgb,var(--surf) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 6px 12px -6px rgba(16,19,26,.4)}
@@ -4593,7 +4593,13 @@ class Component extends DCLogic {
     el.style.left = b.x + "%"; el.style.top = b.y + "%";
     el.style.setProperty("--sb-ax", b.align + "%");
     el.classList.toggle("below", !!b.below);
+    // Jedes Mal eine etwas andere, organisch runde Form, die waehrend der
+    // Anzeige noch sanft weiter "atmet" (border-radius-Transition).
+    const blob = () => { const r = () => 18 + Math.round(Math.random() * 20); return r() + "px " + r() + "px " + r() + "px " + r() + "px / " + r() + "px " + r() + "px " + r() + "px " + r() + "px"; };
+    el.style.borderRadius = blob();
     el.classList.add("on");
+    clearTimeout(this._sbMorph);
+    this._sbMorph = setTimeout(() => { el.style.borderRadius = blob(); }, 900);
     this._sbTimer = setTimeout(() => {
       el.classList.remove("on");
       this._sbTimer = setTimeout(this.sectorBubbleCycle, 4000);
