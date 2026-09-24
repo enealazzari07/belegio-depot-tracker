@@ -230,6 +230,21 @@ input::placeholder{color:var(--tx3)}
 @keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
 @keyframes authDone{to{transform:scale(1.18);opacity:0}}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* Login: schwebende Aktien-Karte mit Muenzen rechts neben dem Titel. */
+.lx{position:absolute;right:12px;top:calc(env(safe-area-inset-top, 0px) + 62px);width:150px;height:190px;perspective:700px;pointer-events:none}
+.lx-card{position:absolute;left:18px;top:14px;width:112px;height:156px;border-radius:20px;padding:1.5px;background:conic-gradient(from var(--lx-a,0deg),rgba(255,255,255,.95),#7fb2ff 18%,rgba(40,50,80,.2) 35%,rgba(40,50,80,.2) 62%,#6ef0ff 78%,#fff 90%,rgba(255,255,255,.95));box-shadow:0 0 22px -2px rgba(120,170,255,.55),0 26px 40px -18px rgba(8,10,20,.7);transform:rotateX(14deg) rotateY(-22deg) rotateZ(-8deg);animation:lxCard 7s ease-in-out infinite,lxSpin 6s linear infinite}
+.lx-in{width:100%;height:100%;border-radius:18.5px;background:radial-gradient(90px 70px at 80% 10%,rgba(110,150,255,.28),transparent 70%),linear-gradient(160deg,#1a1d27 0%,#0c0e14 70%);overflow:hidden;position:relative}
+.lx-coin{position:absolute;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#d6e4ff 0%,#7fa6ff 22%,#3557c9 55%,#15245e 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),inset 0 -5px 10px rgba(5,10,40,.55),0 12px 22px -8px rgba(10,20,70,.7),0 0 16px rgba(120,160,255,.45);display:flex;align-items:center;justify-content:center;color:#eaf1ff}
+.lx-c1{left:-4px;top:0;animation:lxFloat 4.6s ease-in-out infinite}
+.lx-c2{right:-2px;bottom:4px;width:40px;height:40px;animation:lxFloat 5.4s ease-in-out -2s infinite}
+.lx-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.14) 48%,transparent 60%);transform:translateX(-120%);animation:lxShine 5s ease-in-out 1s infinite}
+@property --lx-a{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes lxSpin{to{--lx-a:360deg}}
+@keyframes lxCard{0%,100%{transform:rotateX(14deg) rotateY(-22deg) rotateZ(-8deg) translateY(0)}50%{transform:rotateX(8deg) rotateY(-14deg) rotateZ(-6deg) translateY(-6px)}}
+@keyframes lxFloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-9px) rotate(6deg)}}
+@keyframes lxShine{0%{transform:translateX(-120%)}45%,100%{transform:translateX(120%)}}
+@media (max-width:340px){.lx{display:none}}
+@media (prefers-reduced-motion: reduce){.lx-card,.lx-coin,.lx-shine{animation:none!important}}
 /* E-Mail-Bestaetigung: schwebende Karte unten. */
 @keyframes verifyUp{from{opacity:0;transform:translateY(calc(100% + 40px))}to{opacity:1;transform:none}}
 @keyframes verifyEnv{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-4deg)}}
@@ -382,9 +397,27 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <div style="position:absolute;top:0;left:0;right:0;height:50%;overflow:hidden">
           <img src="./img/login-hero.webp" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
           <img src="./img/stox-logo.png" alt="Stox" style="position:absolute;left:32px;top:calc(env(safe-area-inset-top, 0px) + 26px);width:26%;max-width:104px;height:auto;filter:drop-shadow(0 1px 10px rgba(255,255,255,.55))">
+          <!-- Deko: dunkle Glas-Karte mit Kursverlauf und zwei Muenzen, leicht schwebend. -->
+          <div class="lx" aria-hidden="true">
+            <div class="lx-card"><div class="lx-in">
+              <div class="lx-shine"></div>
+              <span style="position:absolute;left:12px;top:12px;color:rgba(255,255,255,.55);font-size:8px;font-weight:700;letter-spacing:.12em">DEPOT</span>
+              <span class="mono" style="position:absolute;left:12px;top:24px;color:#fff;font-size:13px;font-weight:700">+12.4%</span>
+              <svg viewBox="0 0 100 60" preserveAspectRatio="none" style="position:absolute;left:8px;right:8px;top:52px;width:calc(100% - 16px);height:52px;overflow:visible">
+                <defs><linearGradient id="lxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb2ff" stop-opacity=".45"></stop><stop offset="1" stop-color="#7fb2ff" stop-opacity="0"></stop></linearGradient></defs>
+                <path d="M0 48 L14 42 L26 46 L40 30 L54 34 L68 18 L82 22 L100 6 V60 H0Z" fill="url(#lxg)"></path>
+                <path d="M0 48 L14 42 L26 46 L40 30 L54 34 L68 18 L82 22 L100 6" fill="none" stroke="#9cc3ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+              </svg>
+              <div style="position:absolute;left:12px;right:12px;bottom:12px;display:flex;align-items:flex-end;gap:4px;height:22px">
+                <span style="flex:1;height:40%;border-radius:2px;background:rgba(255,255,255,.18)"></span><span style="flex:1;height:65%;border-radius:2px;background:rgba(255,255,255,.22)"></span><span style="flex:1;height:50%;border-radius:2px;background:rgba(255,255,255,.18)"></span><span style="flex:1;height:85%;border-radius:2px;background:rgba(127,178,255,.6)"></span><span style="flex:1;height:100%;border-radius:2px;background:#7fb2ff"></span>
+              </div>
+            </div></div>
+            <span class="lx-coin lx-c1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"></path></svg></span>
+            <span class="lx-coin lx-c2"><span class="mono" style="font-size:17px;font-weight:800">%</span></span>
+          </div>
           <div style="position:absolute;left:32px;right:32px;top:calc(env(safe-area-inset-top, 0px) + 100px)">
             <h1 style="margin:0 0 8px;color:#16171D;font-size:29px;font-weight:700;letter-spacing:-.03em;line-height:1.15;white-space:pre-line;text-shadow:0 1px 16px rgba(255,255,255,.4)">{{ authTitle }}</h1>
-            <p style="margin:0;color:rgba(22,23,29,.72);font-size:14.5px;line-height:1.5;text-shadow:0 1px 12px rgba(255,255,255,.35)">{{ authSub }}</p>
+            <p style="margin:0;max-width:58%;color:rgba(22,23,29,.72);font-size:14.5px;line-height:1.5;text-shadow:0 1px 12px rgba(255,255,255,.35)">{{ authSub }}</p>
             <!-- Anmelden/Registrieren-Switch unter dem Slogan, grauer Glas-Look wie die Glocke. -->
             <sc-if value="{{ authShowModeSwitch }}" hint-placeholder-val="{{ true }}">
               <div style="display:inline-flex;margin-top:18px;gap:4px;height:42px;padding:4px;border-radius:999px;background:rgba(236,237,240,.88);border:1px solid rgba(16,19,26,.08);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-sizing:border-box">
