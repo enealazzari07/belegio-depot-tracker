@@ -232,18 +232,16 @@ input::placeholder{color:var(--tx3)}
 @keyframes authModeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 /* Sektoren-Sprechblase: runde Glas-Blase am Achsentitel mit zwei kleinen
    Glas-Punkten als Schweif. Ploppt federnd auf, schwebt leicht, schrumpft weg. */
-.sbub{--sb-glass:color-mix(in srgb,var(--surf) 58%,transparent);position:absolute;z-index:3;display:flex;flex-direction:column;gap:3px;min-width:132px;max-width:196px;padding:11px 16px 12px;border-radius:26px;background:var(--sb-glass);border:1px solid color-mix(in srgb,var(--surf) 80%,transparent);backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 30px -16px rgba(16,19,26,.45);pointer-events:none;opacity:0;--sb-dy:calc(-100% - 16px);transform:translate(calc(-1 * var(--sb-ax,50%)),var(--sb-dy)) scale(.4);transform-origin:var(--sb-ax,50%) 100%;filter:blur(3px);transition:opacity .3s ease,filter .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1),border-radius 1.8s ease-in-out}
+.sbub{--sb-glass:color-mix(in srgb,var(--surf) 58%,transparent);position:absolute;z-index:3;display:flex;flex-direction:column;gap:3px;align-items:center;text-align:center;min-width:130px;max-width:190px;padding:20px 24px 22px;border-radius:50%;background:var(--sb-glass);border:1px solid color-mix(in srgb,var(--surf) 80%,transparent);backdrop-filter:blur(18px) saturate(170%);-webkit-backdrop-filter:blur(18px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 30px -16px rgba(16,19,26,.45);pointer-events:none;opacity:0;--sb-dy:calc(-100% - 16px);transform:translate(calc(-1 * var(--sb-ax,50%)),var(--sb-dy)) scale(.4);transform-origin:var(--sb-ax,50%) 100%;filter:blur(3px);transition:opacity .3s ease,filter .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1),border-radius 1.8s ease-in-out}
 .sbub.below{--sb-dy:16px;transform-origin:var(--sb-ax,50%) 0}
 .sbub.on{opacity:1;filter:none;transform:translate(calc(-1 * var(--sb-ax,50%)),var(--sb-dy)) scale(1);animation:sbFloat 3s ease-in-out .55s infinite}
 .sbub i{position:absolute;left:var(--sb-ax,50%);border-radius:50%;background:var(--sb-glass);border:1px solid color-mix(in srgb,var(--surf) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 6px 12px -6px rgba(16,19,26,.4)}
-.sbub .sbub-d1{width:10px;height:10px;margin-left:-5px;bottom:-13px}
+.sbub .sbub-d1{width:11px;height:11px;margin-left:-5px;bottom:-12px}
 .sbub .sbub-d2{width:6px;height:6px;margin-left:-3px;bottom:-22px}
-.sbub.below .sbub-d1{bottom:auto;top:-13px}
+.sbub.below .sbub-d1{bottom:auto;top:-12px}
 .sbub.below .sbub-d2{bottom:auto;top:-22px}
 .sbub-h{color:var(--tx3);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.sbub-r{display:flex;justify-content:space-between;gap:12px;color:var(--tx);font-size:12.5px;font-weight:700;white-space:nowrap}
-.sbub-r span:first-child{overflow:hidden;text-overflow:ellipsis}
-.sbub-r .mono{color:var(--tx2);font-weight:700}
+.sbub-r{display:block;max-width:100%;color:var(--tx);font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @keyframes sbFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}
 @media (prefers-reduced-motion: reduce){.sbub{transition:opacity .2s ease}.sbub.on{animation:none}}
 @keyframes authSwapA{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
@@ -4585,9 +4583,7 @@ class Component extends DCLogic {
     el.appendChild(head);
     b.items.forEach(it => {
       const row = document.createElement("span"); row.className = "sbub-r";
-      const n = document.createElement("span"); n.textContent = it.name;
-      const v = document.createElement("span"); v.className = "mono"; v.textContent = it.pct;
-      row.append(n, v); el.appendChild(row);
+      row.textContent = it.name; el.appendChild(row);
     });
     // Blase am Achsentitel; Ausrichtung haelt sie innerhalb der Karte.
     el.style.left = b.x + "%"; el.style.top = b.y + "%";
@@ -4595,7 +4591,7 @@ class Component extends DCLogic {
     el.classList.toggle("below", !!b.below);
     // Jedes Mal eine etwas andere, organisch runde Form, die waehrend der
     // Anzeige noch sanft weiter "atmet" (border-radius-Transition).
-    const blob = () => { const r = () => 18 + Math.round(Math.random() * 20); return r() + "px " + r() + "px " + r() + "px " + r() + "px / " + r() + "px " + r() + "px " + r() + "px " + r() + "px"; };
+    const blob = () => { const r = () => 34 + Math.round(Math.random() * 32); const a = r(), b = r(), c = r(), d = r(); return a + "% " + (100 - a) + "% " + b + "% " + (100 - b) + "% / " + c + "% " + d + "% " + (100 - d) + "% " + (100 - c) + "%"; };
     el.style.borderRadius = blob();
     el.classList.add("on");
     clearTimeout(this._sbMorph);
