@@ -2276,54 +2276,25 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </sc-for>
           </div>
         </div>
-        <!-- Yahoo Finance Live: offizieller YouTube-Livestream, gross direkt auf
-             dunklem Hintergrund, startet stumm von selbst. Bleibt beim Scrollen
-             stehen, die abgerundete Inhaltsbox schiebt sich darueber (wie Depot). -->
-        <div style="position:sticky;top:calc(env(safe-area-inset-top, 0px) + 76px);z-index:0;background:#0b0b10">
-          <div data-yfwrap="1" style="position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden">
-            <sc-if value="{{ yfHasSrc }}" hint-placeholder-val="{{ false }}">
-              <iframe data-yflive="1" src="{{ yfLiveSrc }}" title="Yahoo Finance Live" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="display:block;position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
-            </sc-if>
-            <sc-if value="{{ yfNoSrc }}" hint-placeholder-val="{{ true }}">
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);border-top-color:#fff;animation:spin .8s linear infinite"></div></div>
-            </sc-if>
-          </div>
-          <div style="padding:14px 16px 46px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <span style="width:7px;height:7px;border-radius:50%;background:#ff3b30;animation:livePulse 1.4s ease-out infinite"></span>
-              <span style="color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em">LIVE</span>
-              <span style="color:#fff;font-size:15px;font-weight:700;margin-left:4px">Yahoo Finance</span>
-              <span style="color:rgba(255,255,255,.5);font-size:12px;margin-left:auto">via YouTube</span>
-            </div>
-              <!-- Eigene Steuerung über die offizielle YouTube-Player-API (postMessage) -->
-            <div style="display:flex;align-items:center;gap:10px;margin-top:0">
-              <button onClick="{{ yfTogglePlay }}" title="{{ yfPlayLabel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
-                <sc-if value="{{ yfPlaying }}" hint-placeholder-val="{{ true }}">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#0e0e11"><rect x="6" y="5" width="4.2" height="14" rx="1.3"></rect><rect x="13.8" y="5" width="4.2" height="14" rx="1.3"></rect></svg>
-                </sc-if>
-                <sc-if value="{{ yfPaused }}" hint-placeholder-val="{{ false }}">
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="#0e0e11" style="margin-left:3px"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
-                </sc-if>
-              </button>
-              <button onClick="{{ yfToggleMute }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;height:46px;border-radius:999px;background:{{ yfMuteBg }};color:{{ yfMuteTx }};display:flex;align-items:center;justify-content:center;gap:9px;font-size:13.5px;font-weight:700" style-active="transform:scale(.98)">
-                <sc-if value="{{ yfMuted }}" hint-placeholder-val="{{ true }}">
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg>
-                  <span>Ton einschalten</span>
-                </sc-if>
-                <sc-if value="{{ yfUnmuted }}" hint-placeholder-val="{{ false }}">
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"></path></svg>
-                  <span>Ton aus</span>
-                </sc-if>
-              </button>
-              <button onClick="{{ yfFullscreen }}" title="Vollbild" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"></path></svg>
-              </button>
-            </div>
-          </div>
+        <!-- Yahoo Finance Live: offizieller YouTube-Livestream als Vollflaechen-
+             Hintergrund von ganz oben (unter der Kopfleiste) bis zur Inhaltsbox.
+             Laeuft stumm und dauerhaft, ohne Bedienung; das Video fuellt die Flaeche
+             (Seiten werden beschnitten). Bleibt beim Scrollen stehen, die
+             abgerundete Box schiebt sich darueber (wie Depot). -->
+        <div style="position:sticky;top:0;z-index:0;margin-top:calc(-1 * (env(safe-area-inset-top, 0px) + 76px));height:min(52vh, 480px);background:#000;overflow:hidden;container-type:size">
+          <sc-if value="{{ yfHasSrc }}" hint-placeholder-val="{{ false }}">
+            <iframe data-yflive="1" src="{{ yfLiveSrc }}" title="Yahoo Finance Live" tabindex="-1" allow="autoplay; encrypted-media" style="position:absolute;top:50%;left:50%;width:max(100cqw, 177.78cqh);height:max(100cqh, 56.25cqw);transform:translate(-50%,-50%);border:0;pointer-events:none"></iframe>
+          </sc-if>
+          <sc-if value="{{ yfNoSrc }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);border-top-color:#fff;animation:spin .8s linear infinite"></div></div>
+          </sc-if>
         </div>
 
         <div style="position:relative;z-index:1;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 0 128px;min-height:70vh">
-        <span style="display:block;padding:0 20px;margin-bottom:16px;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
+        <div style="display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:16px">
+          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
+          <span style="margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--tx3);font-size:11.5px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#ff3b30;animation:livePulse 1.4s ease-out infinite"></span>Live: Yahoo Finance</span>
+        </div>
 
         <div style="margin:0 20px 18px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
@@ -5313,9 +5284,9 @@ class Component extends DCLogic {
       this.setState(st => ({ yfItems: items && items.length ? items : st.yfItems, yfLiveId: liveId || st.yfLiveId || null }));
     } catch (e) { this._yfLoadedAt = 0; }
   };
-  // Livestream-Player: offizieller YouTube-Embed ohne eigene YouTube-Leiste
-  // (controls=0), gesteuert über die IFrame-Player-API per postMessage. Startet
-  // stumm (sonst blockieren Mobilbrowser das Autoplay); Ton per Knopf.
+  // Livestream-Player: offizieller YouTube-Embed ohne Bedienleiste (controls=0),
+  // stumm (sonst blockieren Mobilbrowser das Autoplay), per IFrame-Player-API
+  // (postMessage) am Laufen gehalten.
   yfPost = (func, args = []) => {
     const f = document.querySelector("iframe[data-yflive]");
     if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), "*");
@@ -5327,22 +5298,19 @@ class Component extends DCLogic {
     this._yfReady = true;
     const info = d.info;
     const st = d.event === "onStateChange" ? info : info && typeof info === "object" ? info.playerState : undefined;
-    const next = {};
-    if (st === 1 || st === 3) next.yfPlaying = true;
-    if (st === 2 || st === 0) next.yfPlaying = false;
-    if (info && typeof info === "object" && typeof info.muted === "boolean") next.yfMuted = info.muted;
-    if (Object.keys(next).length) this.setState(next);
+    // Dauerlauf: pausiert/gestoppt/nicht gestartet -> sofort weiter (stumm).
+    if (st === 2 || st === -1 || st === 5) { this.yfPost("mute"); this.yfPost("playVideo"); }
   };
   // Beim Oeffnen der News-Seite: Beitraege + Live-ID laden. Der Player wartet
   // kurz auf die aktuelle Live-ID (direkter Stream), sonst Kanal-Livestream.
   enterYfLive = () => {
     this._yfSrc = null;
-    this.setState({ yfPlaying: true, yfMuted: true, yfWaitDone: !!this.state.yfLiveId });
+    this.setState({ yfWaitDone: !!this.state.yfLiveId });
     clearTimeout(this._yfWaitT);
     this._yfWaitT = setTimeout(() => this.setState({ yfWaitDone: true }), 3000);
     this.loadYfItems((this.state.holdings || []).map(h => h.sym || h.abbr).filter(x => x && !isinLike(x)));
   };
-  // Beim Player anmelden, damit er Status (Play/Pause, Ton) zurueckmeldet —
+  // Beim Player anmelden, damit er seinen Status zurueckmeldet (fuer den Dauerlauf) —
   // laeuft im Takt, solange die News-Seite offen ist und der Player noch
   // nicht geantwortet hat (auch nach einem Neuladen des iframes).
   yfHandshake = () => {
@@ -5352,26 +5320,7 @@ class Component extends DCLogic {
     if (f.src !== this._yfHelloSrc) { this._yfHelloSrc = f.src; this._yfReady = false; }
     if (!this._yfReady) f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "yflive", channel: "widget" }), "*");
   };
-  yfTogglePlay = () => {
-    const play = !this.state.yfPlaying;
-    this.yfPost(play ? "playVideo" : "pauseVideo");
-    this.setState({ yfPlaying: play });
-  };
-  yfToggleMute = () => {
-    const mute = !this.state.yfMuted;
-    this.yfPost(mute ? "mute" : "unMute");
-    if (!mute) { this.yfPost("setVolume", [100]); this.yfPost("playVideo"); }
-    this.setState({ yfMuted: mute, yfPlaying: mute ? this.state.yfPlaying : true });
-  };
-  yfFullscreen = () => {
-    const w = document.querySelector("[data-yfwrap]");
-    const f = document.querySelector("iframe[data-yflive]");
-    const el = [w, f].find(x => x && (x.requestFullscreen || x.webkitRequestFullscreen));
-    try {
-      if (el) (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
-      else if (f && f.webkitEnterFullscreen) f.webkitEnterFullscreen();
-    } catch (_) {}
-  };
+
   setNewsFilter = k => () => this.setState({ newsFilter: k });
   // Reihenfolge der Depot-Tabs: bestimmt sowohl die Wisch-Richtung (naechster/
   // vorheriger Tab) als auch, aus welcher Seite der neue Tab-Inhalt beim
@@ -7926,12 +7875,6 @@ class Component extends DCLogic {
               }));
             return {
               yfNews: yf, hasYfNews: yf.length > 0,
-              yfPlaying: !!this.state.yfPlaying, yfPaused: !this.state.yfPlaying,
-              yfPlayLabel: this.state.yfPlaying ? "Pause" : "Abspielen",
-              yfMuted: !!this.state.yfMuted, yfUnmuted: !this.state.yfMuted,
-              yfMuteBg: this.state.yfMuted ? "#fff" : "rgba(255,255,255,.12)",
-              yfMuteTx: this.state.yfMuted ? "#0e0e11" : "#fff",
-              yfTogglePlay: this.yfTogglePlay, yfToggleMute: this.yfToggleMute, yfFullscreen: this.yfFullscreen,
               // Offizieller YouTube-Player im datensparsamen Modus (youtube-nocookie).
               // Die URL wird pro Besuch der News-Seite einmal festgelegt, damit der
               // Player waehrend der Wiedergabe nicht neu laedt.
@@ -7939,7 +7882,7 @@ class Component extends DCLogic {
                 if (!this._yfSrc && this.state.screen === "news" && (this.state.yfLiveId || this.state.yfWaitDone)) {
                   this._yfSrc = "https://www.youtube-nocookie.com/embed/"
                     + (this.state.yfLiveId ? this.state.yfLiveId + "?" : "live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&")
-                    + "autoplay=1&mute=1&playsinline=1&controls=0&rel=0&iv_load_policy=3&enablejsapi=1&origin=" + encodeURIComponent(location.origin);
+                    + "autoplay=1&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&rel=0&iv_load_policy=3&enablejsapi=1&origin=" + encodeURIComponent(location.origin);
                 }
                 return { yfLiveSrc: this._yfSrc || "about:blank", yfHasSrc: !!this._yfSrc, yfNoSrc: !this._yfSrc };
               })()
