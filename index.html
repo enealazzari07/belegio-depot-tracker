@@ -1339,13 +1339,16 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                     <circle cx="{{ rg.cx }}" cy="{{ rg.cy }}" r="{{ rg.r }}" fill="{{ rg.color }}" opacity=".22"></circle>
                   </sc-for>
                   <sc-for list="{{ geoCallouts }}" as="co" hint-placeholder-count="5">
-                    <path d="{{ co.path }}" pathLength="1" fill="none" stroke="{{ co.color }}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" vector-effect="non-scaling-stroke" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:sfDrawA .55s cubic-bezier(.4,0,.2,1) .15s forwards"></path>
+                    <path d="{{ co.path }}" pathLength="1" fill="none" stroke="var(--tx3)" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" vector-effect="non-scaling-stroke" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:sfDrawA .55s cubic-bezier(.4,0,.2,1) .15s forwards"></path>
                     <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="3" fill="{{ co.color }}" stroke="var(--surf)" stroke-width="1.5"></circle>
                   </sc-for>
                 </svg>
                 <sc-for list="{{ geoCallouts }}" as="co" hint-placeholder-count="5">
-                  <div style="position:absolute;{{ co.posStyle }};display:flex;flex-direction:column;gap:1px;line-height:1.15;white-space:nowrap">
-                    <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.flag }} {{ co.name }}</span>
+                  <div style="position:absolute;{{ co.posStyle }};display:flex;flex-direction:column;gap:2px;line-height:1.15;white-space:nowrap">
+                    <span style="display:flex;align-items:center;gap:5px">
+                      <span style="width:14px;height:10px;border-radius:2.5px;flex:none;background:{{ co.flagBg }};box-shadow:inset 0 0 0 1px rgba(16,19,26,.14)"></span>
+                      <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.name }}</span>
+                    </span>
                     <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:700">{{ co.pct }}</span>
                   </div>
                 </sc-for>
@@ -3434,7 +3437,29 @@ const worldDotsPath = () => {
 };
 // Laendercode -> Flaggen-Emoji (zwei Regional-Indicator-Zeichen), fuer die
 // Beschriftung bei "Herkunft".
-const flagEmoji = cc => String(cc || "").toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+// Eigene, selbst gebaute Mini-Flaggen statt Emoji (Emoji-Flaggen rendern je nach
+// Font/Plattform inkonsistent oder gar nicht). Vereinfachte Farbstreifen je Land,
+// als CSS-Gradient auf einem kleinen abgerundeten Chip statt echter Emblem-Grafik.
+const FLAG_COLORS = {
+  US: ["#B22234", "#FFFFFF", "#3C3B6E"], CA: ["#FF0000", "#FFFFFF", "#FF0000"], MX: ["#006847", "#FFFFFF", "#CE1126"],
+  BR: ["#009739", "#FEDD00", "#009739"], AR: ["#75AADB", "#FFFFFF", "#75AADB"], GB: ["#00247D", "#FFFFFF", "#CF142B"],
+  IE: ["#169B62", "#FFFFFF", "#FF883E"], FR: ["#0055A4", "#FFFFFF", "#EF4135"], DE: ["#000000", "#DD0000", "#FFCE00"],
+  CH: ["#FF0000", "#FFFFFF"], NL: ["#AE1C28", "#FFFFFF", "#21468B"], BE: ["#000000", "#FAE042", "#ED2939"],
+  ES: ["#AA151B", "#F1BF00", "#AA151B"], PT: ["#046A38", "#DA020E"], IT: ["#009246", "#FFFFFF", "#CE2B37"],
+  AT: ["#ED2939", "#FFFFFF", "#ED2939"], SE: ["#006AA7", "#FECC00"], NO: ["#EF2B2D", "#FFFFFF", "#002868"],
+  DK: ["#C60C30", "#FFFFFF"], FI: ["#FFFFFF", "#003580"], LU: ["#ED2939", "#FFFFFF", "#00A1DE"],
+  PL: ["#FFFFFF", "#DC143C"], IL: ["#FFFFFF", "#0038B8"], ZA: ["#007A4D", "#FFB612", "#000000"],
+  IN: ["#FF9933", "#FFFFFF", "#138808"], CN: ["#DE2910", "#FFDE00"], HK: ["#DE2910", "#FFFFFF"],
+  JP: ["#FFFFFF", "#BC002D"], KR: ["#FFFFFF", "#CD2E3A", "#0047A0"], TW: ["#FE0000", "#000095"],
+  SG: ["#ED2939", "#FFFFFF"], AU: ["#00008B", "#FFFFFF", "#FF0000"], NZ: ["#00247D", "#CC142B", "#FFFFFF"],
+  SA: ["#006C35", "#FFFFFF"], AE: ["#00732F", "#FFFFFF", "#000000"], RU: ["#FFFFFF", "#0039A6", "#D52B1E"],
+  TR: ["#E30A17", "#FFFFFF"]
+};
+const flagChip = cc => {
+  const colors = FLAG_COLORS[String(cc || "").toUpperCase()] || ["#C9CDD6", "#AEB2C0"];
+  const n = colors.length, step = 100 / n;
+  return "linear-gradient(90deg," + colors.map((c, i) => c + " " + (i * step).toFixed(1) + "%," + c + " " + ((i + 1) * step).toFixed(1) + "%").join(",") + ")";
+};
 const COUNTRIES = {
   US: ["USA", 39, -98], CA: ["Kanada", 56, -106], MX: ["Mexiko", 23, -102], BR: ["Brasilien", -10, -52], AR: ["Argentinien", -34, -64],
   GB: ["Grossbritannien", 54, -2], IE: ["Irland", 53, -8], FR: ["Frankreich", 46, 2], DE: ["Deutschland", 51, 10], CH: ["Schweiz", 46.8, 8.2],
@@ -7054,17 +7079,20 @@ class Component extends DCLogic {
       [-1, 1].forEach(side => {
         const arr = pts.filter(pt => (pt.x < 200 ? -1 : 1) === side).sort((a, b) => a.y - b.y);
         let last = -1e9;
-        arr.forEach(pt => { pt.ly = Math.max(pt.y, last + 32, 16); last = pt.ly; });
-        for (let i = arr.length - 1; i >= 0; i--) { const maxY = 176 - (arr.length - 1 - i) * 32; if (arr[i].ly > maxY) arr[i].ly = maxY; }
+        arr.forEach(pt => { pt.ly = Math.max(pt.y, last + 34, 16); last = pt.ly; });
+        for (let i = arr.length - 1; i >= 0; i--) { const maxY = 176 - (arr.length - 1 - i) * 34; if (arr[i].ly > maxY) arr[i].ly = maxY; }
         arr.forEach(pt => {
-          // Linie: vom Land waagerecht/leicht schraeg an den Rand, dort steht die Beschriftung.
+          // Linie: vom Land mit einem Knick (schraeg, dann waagerecht) an den
+          // Rand, dort steht die Beschriftung — wie die blauen Knick-Linien bei
+          // Sektoren, aber immer grau statt farbig (Farbe bleibt nur am Punkt).
           const xe = side === -1 ? 78 : 322;
+          const xm = pt.x + (xe - pt.x) * 0.55;
           geoCallouts.push({
             color: pt.color,
-            path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + xe + " " + pt.ly.toFixed(1),
+            path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + xm.toFixed(1) + " " + pt.ly.toFixed(1) + " L" + xe + " " + pt.ly.toFixed(1),
             dotX: pt.x.toFixed(1), dotY: pt.y.toFixed(1),
             posStyle: (side === -1 ? "left:0;text-align:left" : "right:0;text-align:right") + ";top:" + ((pt.ly - 14) / 190 * 100).toFixed(2) + "%",
-            name: pt.name, pct: Math.round(pt.pct) + "%", flag: flagEmoji(pt.cc)
+            name: pt.name, pct: Math.round(pt.pct) + "%", flagBg: flagChip(pt.cc)
           });
         });
       });
