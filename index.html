@@ -1331,25 +1331,29 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="flex:none;margin-top:4px;padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
             </div>
             <div style="position:relative">
-              <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:8px 16px;{{ geoWrapStyle }}">
-              <div style="position:relative;width:100%;aspect-ratio:400/190">
-                <svg viewBox="0 0 400 190" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
-                  <path d="{{ geoDots }}" fill="none" stroke="var(--tx3)" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"></path>
-                  <sc-for list="{{ geoRings }}" as="rg" hint-placeholder-count="5">
-                    <circle cx="{{ rg.cx }}" cy="{{ rg.cy }}" r="{{ rg.r }}" fill="{{ rg.color }}" opacity=".22"></circle>
-                  </sc-for>
+              <!-- Ohne Karten-Box direkt auf dem Hintergrund; Striche und Beschriftung
+                   wie bei "Gewichtung" (seitlich, grau, mit Knick). -->
+              <div style="{{ geoWrapStyle }}">
+              <div style="position:relative;width:100%;aspect-ratio:480/250">
+                <svg viewBox="0 0 480 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                  <g transform="translate(40 30)">
+                    <path d="{{ geoDots }}" fill="none" stroke="var(--tx3)" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"></path>
+                    <sc-for list="{{ geoRings }}" as="rg" hint-placeholder-count="5">
+                      <circle cx="{{ rg.cx }}" cy="{{ rg.cy }}" r="{{ rg.r }}" fill="{{ rg.color }}" opacity=".22"></circle>
+                    </sc-for>
+                  </g>
                   <sc-for list="{{ geoCallouts }}" as="co" hint-placeholder-count="5">
-                    <path d="{{ co.path }}" pathLength="1" fill="none" stroke="var(--tx3)" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt" vector-effect="non-scaling-stroke" style="stroke-dasharray:1 1;stroke-dashoffset:1;animation:sfDrawA .55s cubic-bezier(.4,0,.2,1) .15s forwards"></path>
-                    <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="3" fill="{{ co.color }}" stroke="var(--surf)" stroke-width="1.5"></circle>
+                    <path d="{{ co.path }}" fill="none" stroke="var(--tx3)" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity=".6" vector-effect="non-scaling-stroke"></path>
+                    <circle cx="{{ co.dotX }}" cy="{{ co.dotY }}" r="2.6" fill="{{ co.color }}" stroke="var(--bg)" stroke-width="1.5"></circle>
                   </sc-for>
                 </svg>
                 <sc-for list="{{ geoCallouts }}" as="co" hint-placeholder-count="5">
                   <div style="position:absolute;{{ co.posStyle }};display:flex;flex-direction:column;gap:2px;line-height:1.15;white-space:nowrap;pointer-events:none">
+                    <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.name }}</span>
                     <span style="display:flex;align-items:center;gap:5px">
-                      <img src="{{ co.flagSrc }}" alt="" style="width:16px;height:12px;border-radius:3px;object-fit:cover;flex:none;box-shadow:0 0 0 1px rgba(16,19,26,.1)">
-                      <span style="color:var(--tx);font-size:12px;font-weight:700">{{ co.name }}</span>
+                      <img src="{{ co.flagSrc }}" alt="" style="width:15px;height:11px;border-radius:2.5px;object-fit:cover;flex:none;box-shadow:0 0 0 1px rgba(16,19,26,.1)">
+                      <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:700">{{ co.pct }}</span>
                     </span>
-                    <span class="mono" style="color:var(--tx2);font-size:12px;font-weight:700">{{ co.pct }}</span>
                   </div>
                 </sc-for>
               </div>
@@ -7073,52 +7077,31 @@ class Component extends DCLogic {
         return { cc, name: c[0], x: 80 + (c[2] + 180) * 0.6667, y: 49 + (80 - c[1]) * 0.6667, pct: v / tot * 100, color: PAL[i % PAL.length] };
       });
       pts.forEach(pt => geoRings.push({ cx: pt.x.toFixed(1), cy: pt.y.toFixed(1), r: (2.4 + Math.sqrt(pt.pct) * 1.0).toFixed(1), color: pt.color }));
-      // Beschriftung frei um den Punkt: der Reihe nach (groesster Anteil zuerst)
-      // oben, unten, links oder rechts vom Land — die erste Stelle, die weder
-      // eine andere Beschriftung noch einen fremden Punkt verdeckt und in die
-      // Karte passt. Masse in viewBox-Einheiten (400x190); eine Einheit ist auf
-      // dem Handy knapp 0.8px, daraus die geschaetzte Textbreite.
-      const U = 0.8, W = 400, H = 190, boxes = [];
-      const hit = (a, b) => a.x < b.x + b.w + 4 && b.x < a.x + a.w + 4 && a.y < b.y + b.h + 3 && b.y < a.y + a.h + 3;
-      pts.slice().sort((a, b) => b.pct - a.pct).forEach(pt => {
-        const w = (22 + Math.max(pt.name.length, 4) * 7.4) / U, h = 31 / U;
-        const clamp = c => ({ ...c, x: Math.min(Math.max(c.x, 0), W - w), y: Math.min(Math.max(c.y, 0), H - h), w, h });
-        // Viele Kandidaten: oben/unten (auch seitlich versetzt), links/rechts in
-        // mehreren Abstaenden und als letzte Option die Randspalten wie frueher.
-        // Gewaehlt wird, was nichts verdeckt und am naechsten am Punkt liegt.
-        const cands = [];
-        [12, 32, 52].forEach(d => [0, -w / 2 + 10, w / 2 - 10].forEach(sx => {
-          cands.push({ k: "top", x: pt.x - w / 2 + sx, y: pt.y - d - h });
-          cands.push({ k: "bottom", x: pt.x - w / 2 + sx, y: pt.y + d });
-        }));
-        [14, 36, 60].forEach(d => [0, -h / 2 - 4, h / 2 + 4].forEach(sy => {
-          cands.push({ k: "right", x: pt.x + d, y: pt.y - h / 2 + sy });
-          cands.push({ k: "left", x: pt.x - d - w, y: pt.y - h / 2 + sy });
-        }));
-        for (let y = 0; y <= H - h; y += 8) { cands.push({ k: "left", x: 0, y }); cands.push({ k: "right", x: W - w, y }); }
-        const all = cands.map(clamp).map(c => ({ ...c, k: c.x + w <= pt.x - 4 ? "left" : c.x >= pt.x + 4 ? "right" : c.y + h <= pt.y ? "top" : "bottom" }));
-        const dots = pts.filter(o => o !== pt).map(o => ({ x: o.x - 5, y: o.y - 5, w: 10, h: 10 }));
-        const self = { x: pt.x - 5, y: pt.y - 5, w: 10, h: 10 };
-        const cost = c => [...boxes, ...dots, self].reduce((n, o) => n + (hit(c, o) ? 1000 : 0), 0) + Math.hypot(c.x + w / 2 - pt.x, c.y + h / 2 - pt.y);
-        let best = all[0], bestCost = 1e12;
-        all.forEach(c => { const n = cost(c); if (n < bestCost) { best = c; bestCost = n; } });
-        boxes.push(best);
-        // Grauer Strich mit Knick vom Punkt zur Beschriftungskante.
-        let ax, ay, mx, my;
-        if (best.k === "top" || best.k === "bottom") {
-          ax = Math.min(Math.max(pt.x, best.x + 8), best.x + w - 8); ay = best.k === "top" ? best.y + h : best.y;
-          mx = pt.x; my = (pt.y + ay) / 2;
-        } else {
-          ax = best.k === "right" ? best.x : best.x + w; ay = Math.min(Math.max(pt.y, best.y + 6), best.y + h - 6);
-          mx = (pt.x + ax) / 2; my = pt.y;
-        }
-        const align = best.k === "top" || best.k === "bottom" ? "center" : best.k === "right" ? "flex-start" : "flex-end";
-        geoCallouts.push({
-          color: pt.color,
-          path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + mx.toFixed(1) + " " + my.toFixed(1) + " L" + ax.toFixed(1) + " " + ay.toFixed(1),
-          dotX: pt.x.toFixed(1), dotY: pt.y.toFixed(1),
-          posStyle: "left:" + (best.x / W * 100).toFixed(2) + "%;top:" + (best.y / H * 100).toFixed(2) + "%;width:" + (w / W * 100).toFixed(2) + "%;align-items:" + align,
-          align, name: pt.name, pct: Math.round(pt.pct) + "%", flagSrc: "img/flags/" + String(pt.cc).toLowerCase() + ".svg"
+      // Beschriftung wie bei "Gewichtung": Laender links der Mitte links, rechts
+      // der Mitte rechts, untereinander mit festem Abstand; der Strich geht vom
+      // Punkt mit einem Knick waagerecht an die Beschriftung. Die Karte selbst
+      // sitzt um 40 Einheiten eingerueckt (viewBox 480 breit), damit links und
+      // rechts eine freie Spalte fuer Flagge + Name bleibt.
+      const OX = 40, OY = 30, H = 250, GAP = 42;
+      pts.forEach(pt => { pt.x += OX; pt.y += OY; });
+      [-1, 1].forEach(side => {
+        const arr = pts.filter(pt => (pt.x < 240 ? -1 : 1) === side).sort((a, b) => a.y - b.y);
+        let last = -1e9;
+        arr.forEach(pt => { pt.ly = Math.max(pt.y, last + GAP, 18); last = pt.ly; });
+        for (let i = arr.length - 1; i >= 0; i--) { const maxY = H - 18 - (arr.length - 1 - i) * GAP; if (arr[i].ly > maxY) arr[i].ly = maxY; }
+        arr.forEach(pt => {
+          const xe = side === -1 ? 116 : 364;
+          const kx = side === -1 ? Math.min(xe + 16, pt.x - 4) : Math.max(xe - 16, pt.x + 4);
+          const nm = pt.cc === "GB" ? "UK" : pt.name.length > 11 ? pt.name.slice(0, 10).trim() + "…" : pt.name;
+          geoCallouts.push({
+            color: pt.color,
+            path: "M" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + " L" + kx.toFixed(1) + " " + pt.ly.toFixed(1) + " L" + xe + " " + pt.ly.toFixed(1),
+            dotX: pt.x.toFixed(1), dotY: pt.y.toFixed(1),
+            posStyle: side === 1
+              ? "left:" + ((xe + 6) / 480 * 100).toFixed(2) + "%;top:" + ((pt.ly - 15) / H * 100).toFixed(2) + "%;text-align:left;align-items:flex-start"
+              : "right:" + ((480 - (xe - 6)) / 480 * 100).toFixed(2) + "%;top:" + ((pt.ly - 15) / H * 100).toFixed(2) + "%;text-align:right;align-items:flex-end",
+            name: nm, pct: Math.round(pt.pct) + "%", flagSrc: "img/flags/" + String(pt.cc).toLowerCase() + ".svg"
+          });
         });
       });
     }
