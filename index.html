@@ -2266,7 +2266,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;background:#0b0b10;animation:fade .3s ease">
         <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
         <div data-headbar="1" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
           <button onClick="{{ goSettings }}" title="Account" data-headtone="icon" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
@@ -2276,6 +2276,53 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </sc-for>
           </div>
         </div>
+        <!-- Yahoo Finance Live: offizieller YouTube-Livestream, gross direkt auf
+             dunklem Hintergrund, startet stumm von selbst. Bleibt beim Scrollen
+             stehen, die abgerundete Inhaltsbox schiebt sich darueber (wie Depot). -->
+        <div style="position:sticky;top:calc(env(safe-area-inset-top, 0px) + 76px);z-index:0;background:#0b0b10">
+          <div data-yfwrap="1" style="position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden">
+            <sc-if value="{{ yfHasSrc }}" hint-placeholder-val="{{ false }}">
+              <iframe data-yflive="1" src="{{ yfLiveSrc }}" title="Yahoo Finance Live" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="display:block;position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+            </sc-if>
+            <sc-if value="{{ yfNoSrc }}" hint-placeholder-val="{{ true }}">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);border-top-color:#fff;animation:spin .8s linear infinite"></div></div>
+            </sc-if>
+          </div>
+          <div style="padding:14px 16px 46px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span style="width:7px;height:7px;border-radius:50%;background:#ff3b30;animation:livePulse 1.4s ease-out infinite"></span>
+              <span style="color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em">LIVE</span>
+              <span style="color:#fff;font-size:15px;font-weight:700;margin-left:4px">Yahoo Finance</span>
+              <span style="color:rgba(255,255,255,.5);font-size:12px;margin-left:auto">via YouTube</span>
+            </div>
+              <!-- Eigene Steuerung über die offizielle YouTube-Player-API (postMessage) -->
+            <div style="display:flex;align-items:center;gap:10px;margin-top:0">
+              <button onClick="{{ yfTogglePlay }}" title="{{ yfPlayLabel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:46px;height:46px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
+                <sc-if value="{{ yfPlaying }}" hint-placeholder-val="{{ true }}">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#0e0e11"><rect x="6" y="5" width="4.2" height="14" rx="1.3"></rect><rect x="13.8" y="5" width="4.2" height="14" rx="1.3"></rect></svg>
+                </sc-if>
+                <sc-if value="{{ yfPaused }}" hint-placeholder-val="{{ false }}">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="#0e0e11" style="margin-left:3px"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
+                </sc-if>
+              </button>
+              <button onClick="{{ yfToggleMute }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;height:46px;border-radius:999px;background:{{ yfMuteBg }};color:{{ yfMuteTx }};display:flex;align-items:center;justify-content:center;gap:9px;font-size:13.5px;font-weight:700" style-active="transform:scale(.98)">
+                <sc-if value="{{ yfMuted }}" hint-placeholder-val="{{ true }}">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg>
+                  <span>Ton einschalten</span>
+                </sc-if>
+                <sc-if value="{{ yfUnmuted }}" hint-placeholder-val="{{ false }}">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"></path></svg>
+                  <span>Ton aus</span>
+                </sc-if>
+              </button>
+              <button onClick="{{ yfFullscreen }}" title="Vollbild" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:relative;z-index:1;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 0 128px;min-height:70vh">
         <span style="display:block;padding:0 20px;margin-bottom:16px;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
 
         <div style="margin:0 20px 18px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
@@ -2289,25 +2336,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <sc-if value="{{ newsEmptyFiltered }}" hint-placeholder-val="{{ false }}">
           <p style="margin:0;padding:0 20px;color:var(--tx3);font-size:12.5px">Keine Treffer.</p>
         </sc-if>
-
-        <!-- Yahoo Finance Live (YouTube-Livestream) -->
-        <div style="padding:0 20px 22px">
-          <button onClick="{{ openYfLive }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:14px;width:100%;padding:16px;border-radius:26px;background:radial-gradient(120% 140% at 0% 0%,#6001d2 0%,#3a0a80 45%,#12081f 100%);color:#fff;position:relative;overflow:hidden" style-active="transform:scale(.985)">
-            <div style="position:absolute;right:-30px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.07)"></div>
-            <div style="flex:none;width:52px;height:52px;border-radius:18px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;position:relative">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
-            </div>
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;position:relative">
-              <div style="display:flex;align-items:center;gap:7px">
-                <span style="width:7px;height:7px;border-radius:50%;background:#ff3b30;animation:livePulse 1.4s ease-out infinite"></span>
-                <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em">LIVE</span>
-              </div>
-              <span style="font-size:16px;font-weight:700;letter-spacing:-.01em">Yahoo Finance Live</span>
-              <span style="font-size:12px;opacity:.72">Markt-TV · Interviews · Analysen</span>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round" style="flex:none;position:relative"><path d="M9 6l6 6-6 6"></path></svg>
-          </button>
-        </div>
 
         <sc-if value="{{ hasYfNews }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 20px;margin-bottom:12px">
@@ -2331,48 +2359,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 <span style="color:var(--tx3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ y.source }} · {{ y.time }}</span>
               </button>
             </sc-for>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ yfLiveOpen }}" hint-placeholder-val="{{ false }}">
-          <div onClick="{{ closeYfLive }}" style="position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;animation:fade .25s ease">
-            <div onClick="{{ stopPropagation }}" style="width:100%;max-width:560px;background:#0e0e11;border-radius:28px 28px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom, 0px) + 18px);box-sizing:border-box">
-              <div style="display:flex;align-items:center;gap:10px;padding:2px 4px 12px">
-                <span style="width:7px;height:7px;border-radius:50%;background:#ff3b30;animation:livePulse 1.4s ease-out infinite"></span>
-                <span style="flex:1;color:#fff;font-size:15px;font-weight:700">Yahoo Finance Live</span>
-                <button onClick="{{ closeYfLive }}" title="Schliessen" style="all:unset;box-sizing:border-box;cursor:pointer;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
-                </button>
-              </div>
-              <div data-yfwrap="1" style="position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000">
-                <iframe data-yflive="1" src="{{ yfLiveSrc }}" title="Yahoo Finance Live" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="display:block;position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
-              </div>
-              <!-- Eigene Steuerung über die offizielle YouTube-Player-API (postMessage) -->
-              <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
-                <button onClick="{{ yfTogglePlay }}" title="{{ yfPlayLabel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
-                  <sc-if value="{{ yfPlaying }}" hint-placeholder-val="{{ true }}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0e0e11"><rect x="6" y="5" width="4.2" height="14" rx="1.3"></rect><rect x="13.8" y="5" width="4.2" height="14" rx="1.3"></rect></svg>
-                  </sc-if>
-                  <sc-if value="{{ yfPaused }}" hint-placeholder-val="{{ false }}">
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="#0e0e11" style="margin-left:3px"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
-                  </sc-if>
-                </button>
-                <button onClick="{{ yfToggleMute }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;height:52px;border-radius:999px;background:{{ yfMuteBg }};color:{{ yfMuteTx }};display:flex;align-items:center;justify-content:center;gap:9px;font-size:14px;font-weight:700" style-active="transform:scale(.98)">
-                  <sc-if value="{{ yfMuted }}" hint-placeholder-val="{{ true }}">
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg>
-                    <span>Ton einschalten</span>
-                  </sc-if>
-                  <sc-if value="{{ yfUnmuted }}" hint-placeholder-val="{{ false }}">
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"></path></svg>
-                    <span>Ton aus</span>
-                  </sc-if>
-                </button>
-                <button onClick="{{ yfFullscreen }}" title="Vollbild" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"></path></svg>
-                </button>
-              </div>
-              <p style="margin:12px 4px 0;color:rgba(255,255,255,.5);font-size:11px;line-height:1.5">Offizieller Livestream von Yahoo Finance über YouTube (Englisch). Es gelten die Nutzungsbedingungen und Datenschutzhinweise von YouTube.</p>
-            </div>
           </div>
         </sc-if>
 
@@ -2417,6 +2403,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
           </div>
         </sc-if>
+        </div>
       </div>
     </sc-if>
 
@@ -3667,7 +3654,7 @@ const LEGAL = {
       ["Welche Daten wir bearbeiten", "Konto: E-Mail-Adresse und Passwort (verschlüsselt gespeichert). Depot: deine erfassten Transaktionen, Dividenden, Kategorien und gespeicherte Belegdateien. Einstellungen: z. B. Zinseszins-Werte und Pro-Status. Benachrichtigungen: technische Push-Adresse deines Geräts und ein Protokoll versendeter Meldungen."],
       ["Belege", "Das Auslesen deiner Belege (Texterkennung) passiert direkt auf deinem Gerät. Gespeichert werden nur die daraus erfassten Werte und – falls du den Beleg ablegst – die Bilddatei in deinem privaten Speicherbereich."],
       ["Zweck", "Wir bearbeiten deine Daten ausschliesslich, um dir die Funktionen der App bereitzustellen: Anmeldung, Anzeige und Auswertung deines Depots, Steuer-Report und Benachrichtigungen. Keine Werbung, kein Verkauf von Daten."],
-      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Der Yahoo-Finance-Livestream auf der News-Seite ist ein eingebettetes YouTube-Video (Google) im erweiterten Datenschutzmodus; es wird erst geladen, wenn du ihn antippst, dabei erhält YouTube u. a. deine IP-Adresse. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
+      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Der Yahoo-Finance-Livestream auf der News-Seite ist ein eingebettetes YouTube-Video (Google) im erweiterten Datenschutzmodus; es wird beim Öffnen der News-Seite geladen, dabei erhält YouTube u. a. deine IP-Adresse. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
       ["Lokal gespeichert", "Einige Einstellungen (z. B. Design, Investment-Plan, Face-ID-Kennung, Hinweise) liegen nur im Speicher deines Browsers bzw. Geräts."],
       ["Speicherdauer", "Deine Daten bleiben gespeichert, bis du sie löschst oder dein Konto löschst. Mit \"Konto löschen\" werden Konto, Depotdaten und Belegdateien nach Bestätigung per E-Mail und 24 Stunden Wartezeit endgültig entfernt."],
       ["Deine Rechte", "Du hast das Recht auf Auskunft, Berichtigung, Löschung und Herausgabe deiner Daten. Einen Export deiner Transaktionen und Dividenden erhältst du jederzeit in den Einstellungen unter \"Daten exportieren\". Für weitere Anfragen: " + CONTACT.email + "."],
@@ -3999,7 +3986,8 @@ class Component extends DCLogic {
     const cur = this.state.screen;
     if (cur && cur !== s) { this._navStack = this._navStack || []; this._navStack.push(cur); }
     this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
-    if (s === "news") this.loadYfItems((this.state.holdings || []).map(h => h.sym || h.abbr).filter(x => x && !isinLike(x)));
+    if (s === "news" && cur !== "news") this.enterYfLive();
+    if (s !== "news") this._yfSrc = null;
   };
   goBack = () => {
     const prev = (this._navStack || []).pop() || "dash";
@@ -4359,6 +4347,8 @@ class Component extends DCLogic {
     this.handleDeleteLinks();
     window.addEventListener("resize", headTick);
     this._headToneIv = setInterval(headTick, 500);
+    window.addEventListener("message", this.onYfMessage);
+    this._yfIv = setInterval(this.yfHandshake, 700);
     this.loadIntraday();
     this.startCarousel();
     this.startLoginCycle();
@@ -5343,23 +5333,24 @@ class Component extends DCLogic {
     if (info && typeof info === "object" && typeof info.muted === "boolean") next.yfMuted = info.muted;
     if (Object.keys(next).length) this.setState(next);
   };
-  openYfLive = () => {
-    this.setState({ yfLive: true, yfPlaying: true, yfMuted: true });
-    if (!this._yfListening) { window.addEventListener("message", this.onYfMessage); this._yfListening = true; }
-    // Beim Player anmelden, damit er Status (Play/Pause, Ton) zurückmeldet.
-    this._yfReady = false;
-    clearInterval(this._yfHello);
-    let n = 0;
-    this._yfHello = setInterval(() => {
-      const f = document.querySelector("iframe[data-yflive]");
-      if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "yflive", channel: "widget" }), "*");
-      if (this._yfReady || ++n > 20) clearInterval(this._yfHello);
-    }, 500);
+  // Beim Oeffnen der News-Seite: Beitraege + Live-ID laden. Der Player wartet
+  // kurz auf die aktuelle Live-ID (direkter Stream), sonst Kanal-Livestream.
+  enterYfLive = () => {
+    this._yfSrc = null;
+    this.setState({ yfPlaying: true, yfMuted: true, yfWaitDone: !!this.state.yfLiveId });
+    clearTimeout(this._yfWaitT);
+    this._yfWaitT = setTimeout(() => this.setState({ yfWaitDone: true }), 3000);
+    this.loadYfItems((this.state.holdings || []).map(h => h.sym || h.abbr).filter(x => x && !isinLike(x)));
   };
-  closeYfLive = () => {
-    clearInterval(this._yfHello);
-    try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
-    this.setState({ yfLive: false });
+  // Beim Player anmelden, damit er Status (Play/Pause, Ton) zurueckmeldet —
+  // laeuft im Takt, solange die News-Seite offen ist und der Player noch
+  // nicht geantwortet hat (auch nach einem Neuladen des iframes).
+  yfHandshake = () => {
+    if (this.state.screen !== "news") return;
+    const f = document.querySelector("iframe[data-yflive]");
+    if (!f || !f.contentWindow) return;
+    if (f.src !== this._yfHelloSrc) { this._yfHelloSrc = f.src; this._yfReady = false; }
+    if (!this._yfReady) f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "yflive", channel: "widget" }), "*");
   };
   yfTogglePlay = () => {
     const play = !this.state.yfPlaying;
@@ -5433,7 +5424,7 @@ class Component extends DCLogic {
   headToneBehind = (x, y) => {
     const stack = document.elementsFromPoint(x, y).filter(n => !n.closest("[data-headbar]"));
     for (const n of stack) {
-      if (n.tagName === "IMG" || n.tagName === "VIDEO") return true;
+      if (n.tagName === "IMG" || n.tagName === "VIDEO" || n.tagName === "IFRAME") return true;
       const cs = getComputedStyle(n);
       let c = this.headToneParse(cs.backgroundColor);
       if ((!c || c.a < 0.3) && cs.backgroundImage && cs.backgroundImage !== "none") {
@@ -7935,19 +7926,23 @@ class Component extends DCLogic {
               }));
             return {
               yfNews: yf, hasYfNews: yf.length > 0,
-              yfLiveOpen: !!this.state.yfLive, openYfLive: this.openYfLive, closeYfLive: this.closeYfLive,
               yfPlaying: !!this.state.yfPlaying, yfPaused: !this.state.yfPlaying,
               yfPlayLabel: this.state.yfPlaying ? "Pause" : "Abspielen",
               yfMuted: !!this.state.yfMuted, yfUnmuted: !this.state.yfMuted,
               yfMuteBg: this.state.yfMuted ? "#fff" : "rgba(255,255,255,.12)",
               yfMuteTx: this.state.yfMuted ? "#0e0e11" : "#fff",
               yfTogglePlay: this.yfTogglePlay, yfToggleMute: this.yfToggleMute, yfFullscreen: this.yfFullscreen,
-              // Offizieller YouTube-Player im datensparsamen Modus (youtube-nocookie), wird
-              // erst beim Oeffnen geladen. Bekannte Live-ID direkt, sonst Kanal-Livestream.
-              // Die URL bleibt waehrend der Wiedergabe gleich (sonst laedt der Player neu).
-              yfLiveSrc: !this.state.yfLive ? "about:blank" : "https://www.youtube-nocookie.com/embed/"
-                + (this.state.yfLiveId ? this.state.yfLiveId + "?" : "live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&")
-                + "autoplay=1&mute=1&playsinline=1&controls=0&rel=0&iv_load_policy=3&enablejsapi=1&origin=" + encodeURIComponent(location.origin)
+              // Offizieller YouTube-Player im datensparsamen Modus (youtube-nocookie).
+              // Die URL wird pro Besuch der News-Seite einmal festgelegt, damit der
+              // Player waehrend der Wiedergabe nicht neu laedt.
+              ...(() => {
+                if (!this._yfSrc && this.state.screen === "news" && (this.state.yfLiveId || this.state.yfWaitDone)) {
+                  this._yfSrc = "https://www.youtube-nocookie.com/embed/"
+                    + (this.state.yfLiveId ? this.state.yfLiveId + "?" : "live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&")
+                    + "autoplay=1&mute=1&playsinline=1&controls=0&rel=0&iv_load_policy=3&enablejsapi=1&origin=" + encodeURIComponent(location.origin);
+                }
+                return { yfLiveSrc: this._yfSrc || "about:blank", yfHasSrc: !!this._yfSrc, yfNoSrc: !this._yfSrc };
+              })()
             };
           })(),
           newsSearchValue: this.state.newsSearch || "", onNewsSearch: this.onNewsSearch,
