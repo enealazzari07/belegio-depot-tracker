@@ -18,6 +18,24 @@ async function search(q: string) {
   return (d?.news || []) as any[];
 }
 
+// Aktuelle Livestream-ID des offiziellen Yahoo-Finance-YouTube-Kanals (fuer das
+// eingebettete Video). Faellt still auf null zurueck — der Client nutzt dann den
+// Kanal-Livestream-Embed.
+const YT_CHANNEL = "UCEAZeUIeJs0IjQiqTCdVSIg";
+async function liveId(): Promise<string | null> {
+  try {
+    const res = await fetch(`https://www.youtube.com/channel/${YT_CHANNEL}/live`, {
+      headers: { "User-Agent": UA, "Accept-Language": "en", Cookie: "CONSENT=YES+1; SOCS=CAI" },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const i = html.indexOf("currentVideoEndpoint");
+    if (i < 0 || !html.includes('"isLive":true')) return null;
+    const m = html.slice(i, i + 1500).match(/"videoId":"([A-Za-z0-9_-]{11})"/);
+    return m ? m[1] : null;
+  } catch (_e) { return null; }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
@@ -27,6 +45,7 @@ Deno.serve(async (req: Request) => {
     const queries = [...symbols, "stock market", "Yahoo Finance video"];
     const seen = new Set<string>();
     const out: any[] = [];
+    const liveP = liveId();
     const all = await Promise.all(queries.map(q => search(q).then(items => items.map(n => ({ n, q }))).catch(() => [])));
     for (const list of all) for (const { n, q } of list) {
       if (!n || !n.uuid || seen.has(n.uuid)) continue;
@@ -40,7 +59,7 @@ Deno.serve(async (req: Request) => {
       });
     }
     out.sort((a, b) => b.time - a.time);
-    return new Response(JSON.stringify({ items: out.slice(0, 60) }), { headers: { ...cors, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ items: out.slice(0, 60), liveId: await liveP }), { headers: { ...cors, "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ error: (e as Error).message }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
   }

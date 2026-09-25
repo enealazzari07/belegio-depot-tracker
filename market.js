@@ -96,7 +96,8 @@ export async function divCal(symbols) {
   return body;
 }
 
-// Yahoo-Finance-Beitraege (Artikel + Videos) zu den Titeln: { items: [{ id, title, publisher, url, time, video, img, symbol }] }
+// Yahoo-Finance-Beitraege (Artikel + Videos) zu den Titeln plus aktuelle
+// Livestream-ID: { items: [{ id, title, publisher, url, time, video, img, symbol }], liveId }
 export async function yfVideos(symbols) {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token || SUPABASE_ANON_KEY;
@@ -107,5 +108,5 @@ export async function yfVideos(symbols) {
   });
   const body = await res.json();
   if (!res.ok) throw new Error(body.error || "yfvideos-error");
-  return body.items || [];
+  return { items: body.items || [], liveId: body.liveId || null };
 }

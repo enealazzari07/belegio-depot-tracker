@@ -2345,7 +2345,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </button>
               </div>
               <iframe src="{{ yfLiveSrc }}" title="Yahoo Finance Live" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:18px;background:#000"></iframe>
-              <p style="margin:12px 4px 0;color:rgba(255,255,255,.5);font-size:11px;line-height:1.5">Livestream vom offiziellen YouTube-Kanal von Yahoo Finance (Englisch).</p>
+              <p style="margin:12px 4px 0;color:rgba(255,255,255,.5);font-size:11px;line-height:1.5">Offizieller Livestream von Yahoo Finance über YouTube (Englisch). Es gelten die Nutzungsbedingungen und Datenschutzhinweise von YouTube.</p>
             </div>
           </div>
         </sc-if>
@@ -3641,7 +3641,7 @@ const LEGAL = {
       ["Welche Daten wir bearbeiten", "Konto: E-Mail-Adresse und Passwort (verschlüsselt gespeichert). Depot: deine erfassten Transaktionen, Dividenden, Kategorien und gespeicherte Belegdateien. Einstellungen: z. B. Zinseszins-Werte und Pro-Status. Benachrichtigungen: technische Push-Adresse deines Geräts und ein Protokoll versendeter Meldungen."],
       ["Belege", "Das Auslesen deiner Belege (Texterkennung) passiert direkt auf deinem Gerät. Gespeichert werden nur die daraus erfassten Werte und – falls du den Beleg ablegst – die Bilddatei in deinem privaten Speicherbereich."],
       ["Zweck", "Wir bearbeiten deine Daten ausschliesslich, um dir die Funktionen der App bereitzustellen: Anmeldung, Anzeige und Auswertung deines Depots, Steuer-Report und Benachrichtigungen. Keine Werbung, kein Verkauf von Daten."],
-      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
+      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Der Yahoo-Finance-Livestream auf der News-Seite ist ein eingebettetes YouTube-Video (Google) im erweiterten Datenschutzmodus; es wird erst geladen, wenn du ihn antippst, dabei erhält YouTube u. a. deine IP-Adresse. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
       ["Lokal gespeichert", "Einige Einstellungen (z. B. Design, Investment-Plan, Face-ID-Kennung, Hinweise) liegen nur im Speicher deines Browsers bzw. Geräts."],
       ["Speicherdauer", "Deine Daten bleiben gespeichert, bis du sie löschst oder dein Konto löschst. Mit \"Konto löschen\" werden Konto, Depotdaten und Belegdateien nach Bestätigung per E-Mail und 24 Stunden Wartezeit endgültig entfernt."],
       ["Deine Rechte", "Du hast das Recht auf Auskunft, Berichtigung, Löschung und Herausgabe deiner Daten. Einen Export deiner Transaktionen und Dividenden erhältst du jederzeit in den Einstellungen unter \"Daten exportieren\". Für weitere Anfragen: " + CONTACT.email + "."],
@@ -3666,7 +3666,9 @@ const LEGAL = {
       ["jsPDF & jsPDF-AutoTable", "MIT-Lizenz · Erstellung des Steuer-Reports"],
       ["Nunito", "SIL Open Font License 1.1 · Google Fonts"],
       ["Firmenfotos", "Wikimedia Commons, jeweils mit der angegebenen freien Lizenz (CC0, Public Domain oder CC BY) und Namensnennung."],
-      ["Marktdaten", "Yahoo Finance, EODHD, SEC EDGAR. Daten ohne Gewähr, teils verzögert."]
+      ["Marktdaten", "Yahoo Finance, EODHD, SEC EDGAR. Daten ohne Gewähr, teils verzögert."],
+      ["Yahoo Finance Live", "Offizieller Livestream von Yahoo Finance, eingebettet über den YouTube-Player. Inhalte © Yahoo; es gelten die Nutzungsbedingungen von YouTube."],
+      ["Flaggen", "flag-icons · MIT-Lizenz"]
     ]
   }
 };
@@ -5291,8 +5293,8 @@ class Component extends DCLogic {
     this._yfLoadedAt = Date.now();
     try {
       const api = await this.api();
-      const items = await api.yfVideos(list);
-      if (items && items.length) this.setState({ yfItems: items });
+      const { items, liveId } = await api.yfVideos(list);
+      this.setState(st => ({ yfItems: items && items.length ? items : st.yfItems, yfLiveId: liveId || st.yfLiveId || null }));
     } catch (e) { this._yfLoadedAt = 0; }
   };
   openYfLive = () => this.setState({ yfLive: true });
@@ -7852,7 +7854,11 @@ class Component extends DCLogic {
             return {
               yfNews: yf, hasYfNews: yf.length > 0,
               yfLiveOpen: !!this.state.yfLive, openYfLive: this.openYfLive, closeYfLive: this.closeYfLive,
-              yfLiveSrc: this.state.yfLive ? "https://www.youtube.com/embed/live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&autoplay=1&playsinline=1" : "about:blank"
+              // Offizieller YouTube-Player im datensparsamen Modus (youtube-nocookie), wird
+              // erst beim Oeffnen geladen. Bekannte Live-ID direkt, sonst Kanal-Livestream.
+              yfLiveSrc: !this.state.yfLive ? "about:blank" : this.state.yfLiveId
+                ? "https://www.youtube-nocookie.com/embed/" + this.state.yfLiveId + "?autoplay=1&playsinline=1&rel=0"
+                : "https://www.youtube-nocookie.com/embed/live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&autoplay=1&playsinline=1&rel=0"
             };
           })(),
           newsSearchValue: this.state.newsSearch || "", onNewsSearch: this.onNewsSearch,
