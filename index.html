@@ -646,18 +646,11 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
              wirken statt als klare weisse Flaeche. Stattdessen jetzt ein
              Schatten mit negativem Y-Offset (schiebt den Schatten NACH OBEN
              in den Hero) — die Box liest sich dadurch als eigenstaendige,
-             nach vorne gehobene Karte statt als Farbverlauf-Fehler. -->
-        <div style="position:relative;margin:-26px 6px 0;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
-        <!-- Blauer Rand neben der Box. Sitzt an der Box statt am aeusseren
-             Wrapper: dessen Hoehe umfasst auch den Hero, dadurch lag jeder
-             Stop bezogen auf Wrapper-Hoehe an der Hero-Unterkante bei einer
-             anderen Deckkraft als der Hero selbst — sichtbare Stufe. An der
-             Box gemessen startet der Verlauf exakt an der Hero-Unterkante mit
-             voller Deckkraft (nahtlos) und ist am Listenende bei 0, unabhaengig
-             von Positionsanzahl, Ladezustand und Safe-Area-Hoehe. Breite (6px)
-             folgt dem schmaleren Seitenrand der Box. -->
-        <div style="position:absolute;left:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
-        <div style="position:absolute;right:-6px;top:0;bottom:0;width:6px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.88) 32%,rgba(255,255,255,.72) 46%,rgba(255,255,255,.52) 60%,rgba(255,255,255,.32) 73%,rgba(255,255,255,.15) 85%,rgba(255,255,255,.05) 93%,rgba(255,255,255,0) 100%)"></div>
+             nach vorne gehobene Karte statt als Farbverlauf-Fehler. Randlos
+             (kein Seitenabstand mehr) wie bei Depot/Analyse — die Box geht
+             seitlich randlos in die Flaeche ueber, kein blauer Rand mehr
+             sichtbar. -->
+        <div style="position:relative;margin-top:-26px;background:var(--home-bg);border-radius:26px 26px 0 0;padding:22px 0 0;box-shadow:0 -14px 30px -16px rgba(16,19,26,.4)">
 
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 20px 14px">
           <div style="display:flex;flex-direction:column;gap:3px">
@@ -1833,9 +1826,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
         <input id="receipt-file" type="file" accept="image/*" onChange="{{ onFile }}" style="display:none">
 
-        <label for="receipt-file" style="box-sizing:border-box;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;height:300px;border-radius:32px;overflow:hidden;background:#0d0f16 url(img/scan.jpg) center/cover no-repeat;box-shadow:0 22px 44px -24px rgba(16,19,26,.55);text-align:center;transition:transform 140ms ease" style-active="transform:scale(.985)">
-          <div style="position:absolute;inset:0;background:linear-gradient(170deg,rgba(10,12,20,.5) 0%,rgba(10,12,20,.8) 100%);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);pointer-events:none"></div>
-          <span style="position:absolute;left:0;right:0;bottom:9px;text-align:center;color:rgba(255,255,255,.45);font-size:7px;letter-spacing:.04em;pointer-events:none">Bild: magnific.com</span>
+        <label for="receipt-file" style="box-sizing:border-box;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;height:300px;border-radius:32px;overflow:hidden;background:#16171d;box-shadow:0 22px 44px -24px rgba(16,19,26,.55);text-align:center;transition:transform 140ms ease" style-active="transform:scale(.985)">
           <span style="position:absolute;left:22px;top:22px;width:26px;height:26px;border-left:2.5px solid rgba(255,255,255,.55);border-top:2.5px solid rgba(255,255,255,.55);border-radius:8px 0 0 0"></span>
           <span style="position:absolute;right:22px;top:22px;width:26px;height:26px;border-right:2.5px solid rgba(255,255,255,.55);border-top:2.5px solid rgba(255,255,255,.55);border-radius:0 8px 0 0"></span>
           <span style="position:absolute;left:22px;bottom:22px;width:26px;height:26px;border-left:2.5px solid rgba(255,255,255,.55);border-bottom:2.5px solid rgba(255,255,255,.55);border-radius:0 0 0 8px"></span>
@@ -2933,7 +2924,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
            scrollt (gleiche Technik wie bei isLogin oben). -->
       <div style="position:absolute;inset:0;overflow:hidden">
         <img src="./img/login-hero.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block">
-        <div id="scr-settings" style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
+        <div id="scr-settings" style="position:absolute;inset:0;overflow-y:auto;padding:0;animation:fade .3s ease">
           <div onPointerDown="{{ edgeBackSettings }}" onPointerMove="{{ edgeBackMove }}" onPointerUp="{{ edgeBackEnd }}" onPointerCancel="{{ edgeBackEnd }}" style="position:absolute;left:0;top:0;bottom:0;width:24px;z-index:30;touch-action:none"></div>
 
           <!-- Kopfbereich ohne eigenen Hintergrund: das feste Bild scheint durch,
@@ -2977,7 +2968,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <input id="avatar-file-input" type="file" accept="image/*" onChange="{{ onAvatarFile }}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
 
           <div style="position:relative;z-index:1;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45)">
-            <div style="padding:24px 20px 0">
+            <div style="padding:24px 20px 128px">
 
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <div style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0 18px;border-bottom:1px solid var(--line)">
