@@ -1375,21 +1375,41 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <span style="flex:none;margin-top:4px;padding:3px 9px;border-radius:999px;background:#1b1b1f;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em">PRO</span>
             </div>
             <div style="position:relative">
-              <div style="display:flex;flex-direction:column;gap:8px;{{ geoWrapStyle }}">
+              <!-- Eine kompakte Karte statt einzelner Boxen: oben die Gesamt-Stimmung
+                   (Netto + Kauf/Verkauf-Anteil), darunter pro Titel ein
+                   Schmetterlings-Balken um eine Mittelachse. -->
+              <div style="{{ geoWrapStyle }}">
                 <sc-if value="{{ insEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;line-height:1.55;border-radius:24px;background:var(--surf);border:1px dashed var(--line2)">Keine Käufe oder Verkäufe von Firmeninsidern in den letzten 90 Tagen — oder deine Titel sind keine US-Aktien.</div></sc-if>
-                <sc-for list="{{ insRows }}" as="ir" hint-placeholder-count="4">
-                  <button onClick="{{ ir.open }}" class="rowbtn" style="display:flex;flex-direction:column;gap:9px;padding:15px 16px;border-radius:24px;position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(120px 80px at 12% 25%,#565a63 0%,rgba(86,90,99,0) 100%),radial-gradient(120px 80px at 38% 105%,#5a6270 0%,rgba(90,98,112,0) 100%),radial-gradient(110px 80px at 62% -10%,#5c5a64 0%,rgba(92,90,100,0) 100%),radial-gradient(130px 90px at 92% 60%,#24262c 0%,rgba(36,38,44,0) 100%),linear-gradient(100deg,#3a3c44 0%,#34363d 60%,#2c2e35 100%);border:none;box-shadow:0 14px 28px -20px rgba(16,19,26,.45);text-align:left" style-active="transform:scale(.985)">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                      <span style="color:#fff;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ir.name }}</span>
-                      <span style="flex:none;padding:3px 9px;border-radius:999px;background:{{ ir.netBg }};color:{{ ir.netColor }};font-size:11px;font-weight:700">{{ ir.netLabel }}</span>
+                <sc-if value="{{ insHasRows }}" hint-placeholder-val="{{ true }}">
+                <div style="border-radius:28px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow);padding:18px 18px 6px">
+                  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+                    <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                      <span style="color:var(--tx3);font-size:11px;font-weight:700;letter-spacing:.08em">NETTO · 90 TAGE</span>
+                      <span class="mono" style="color:{{ insNetColor }};font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.1">{{ insNetLabel }}</span>
                     </div>
-                    <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.14)">
-                      <span style="width:{{ ir.buyW }};background:var(--pos);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
-                      <span style="width:{{ ir.sellW }};background:var(--neg);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;color:rgba(255,255,255,.6);font-size:11px;font-weight:600"><span>Käufe {{ ir.buyLabel }}</span><span>Verkäufe {{ ir.sellLabel }}</span></div>
-                  </button>
-                </sc-for>
+                    <span style="flex:none;padding:5px 11px;border-radius:999px;background:{{ insMoodBg }};color:{{ insMoodTx }};font-size:11.5px;font-weight:700">{{ insMood }}</span>
+                  </div>
+                  <div style="display:flex;gap:3px;height:6px;margin:14px 0 6px">
+                    <span style="width:{{ insSellPct }};border-radius:999px;background:var(--neg);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                    <span style="width:{{ insBuyPct }};border-radius:999px;background:var(--pos);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                  </div>
+                  <div class="mono" style="display:flex;justify-content:space-between;color:var(--tx3);font-size:10.5px;font-weight:600;margin-bottom:12px"><span>Verkauf {{ insSellTot }}</span><span>Kauf {{ insBuyTot }}</span></div>
+                  <sc-for list="{{ insRows }}" as="ir" hint-placeholder-count="4">
+                    <button onClick="{{ ir.open }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;padding:11px 0;border-top:1px solid var(--line)" style-active="opacity:.7">
+                      <span style="width:30%;min-width:0;display:flex;flex-direction:column;gap:1px">
+                        <span style="color:var(--tx);font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ ir.name }}</span>
+                        <span class="mono" style="color:var(--tx3);font-size:10.5px">{{ ir.tick }}</span>
+                      </span>
+                      <span style="flex:1;position:relative;height:8px">
+                        <span style="position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:var(--line2)"></span>
+                        <span style="position:absolute;right:50%;top:0;bottom:0;margin-right:2px;width:{{ ir.sellW }};border-radius:999px 0 0 999px;background:var(--neg);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                        <span style="position:absolute;left:50%;top:0;bottom:0;margin-left:2px;width:{{ ir.buyW }};border-radius:0 999px 999px 0;background:var(--pos);transition:width .6s cubic-bezier(.22,1,.36,1)"></span>
+                      </span>
+                      <span class="mono" style="flex:none;min-width:58px;text-align:right;color:{{ ir.netColor }};font-size:12px;font-weight:700;white-space:nowrap">{{ ir.netLabel }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+                </sc-if>
               </div>
               <sc-if value="{{ geoLocked }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap">
@@ -1992,7 +2012,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           <img src="./img/login-hero.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block">
           <div style="position:absolute;left:0;right:0;bottom:0;height:80%;background:linear-gradient(to bottom,color-mix(in srgb,var(--bg) 0%,transparent) 0%,color-mix(in srgb,var(--bg) 55%,transparent) 38%,var(--bg) 68%,var(--bg) 100%);pointer-events:none"></div>
           <img src="./img/stox-logo.png" alt="Stox" style="position:absolute;left:20px;top:calc(env(safe-area-inset-top, 0px) + 14px);width:23%;max-width:92px;height:auto;filter:drop-shadow(0 1px 10px rgba(255,255,255,.55))">
-          <button onClick="{{ goBack }}" aria-label="Schliessen" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 12px);right:20px;all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#16171D" style-active="transform:scale(.92)">
+          <button onClick="{{ goBack }}" aria-label="Schliessen" style="all:unset;position:absolute;top:calc(env(safe-area-inset-top, 0px) + 12px);right:20px;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#16171D" style-active="transform:scale(.92)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
           </button>
           <h2 style="position:absolute;left:20px;right:20px;bottom:16px;margin:0;color:#16171D;font-size:29px;font-weight:800;letter-spacing:-.035em;line-height:1.1">Schalte Stox<br>Pro frei</h2>
@@ -2937,9 +2957,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                bleibt trotzdem aktiv (edgeBackSettings oben). -->
           <div style="position:relative;height:200px">
             <div style="position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top, 0px) + 22px);display:flex;align-items:center;gap:12px">
-              <button onClick="{{ openProfileSheet }}" aria-label="Profil bearbeiten" style="order:2;margin-left:auto;flex:none;all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#16171D" style-active="transform:scale(.92)">
-                <svg width="15" height="15" viewBox="0 0 25 25" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16.058 11.5877L17.2852 9.95283C17.8932 9.14283 18.1492 8.14483 18.0062 7.14183C17.8632 6.13883 17.3392 5.25283 16.5292 4.64483C14.8582 3.39083 12.4762 3.72783 11.2212 5.40083L4.46919 14.3958C2.45719 17.0788 4.24719 20.2748 4.32419 20.4098C4.42819 20.5908 4.60319 20.7198 4.80719 20.7668C4.86519 20.7808 5.42519 20.9048 6.20619 20.9048C7.46919 20.9048 9.30719 20.5818 10.5332 18.9478L15.9018 11.7958C15.933 11.7665 15.9621 11.734 15.9887 11.6986C16.0154 11.6631 16.0385 11.626 16.058 11.5877ZM5.47719 19.3578C6.25819 19.4528 8.22819 19.5198 9.33319 18.0468L14.3293 11.391L10.6646 8.63955L5.66819 15.2958C4.54119 16.7998 5.16119 18.6408 5.47719 19.3578ZM11.5648 7.44043L15.23 10.1911L16.0852 9.05183C16.8442 8.04183 16.6392 6.60283 15.6292 5.84383C14.6182 5.08683 13.1782 5.29183 12.4202 6.30083L11.5648 7.44043Z" fill="currentColor"></path><path d="M19.733 20.643H13.356C12.942 20.643 12.606 20.307 12.606 19.893C12.606 19.479 12.942 19.143 13.356 19.143H19.733C20.147 19.143 20.483 19.479 20.483 19.893C20.483 20.307 20.147 20.643 19.733 20.643Z" fill="currentColor"></path></svg>
-              </button>
               <!-- Avatar-Button: das Foto/die Initialen sitzen in einem eigenen
                    inneren Kreis mit overflow:hidden; der Button selbst bleibt ohne
                    Clipping, sonst schneidet er das ueberstehende Kamera-Abzeichen ab. -->
@@ -2965,6 +2982,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                 </span>
                 <span style="color:rgba(22,23,29,.65);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ userEmail }}</span>
               </div>
+              <button onClick="{{ openProfileSheet }}" aria-label="Profil bearbeiten" style="all:unset;box-sizing:border-box;flex:none;margin-left:auto;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#16171D" style-active="transform:scale(.92)">
+                <svg width="15" height="15" viewBox="0 0 25 25" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16.058 11.5877L17.2852 9.95283C17.8932 9.14283 18.1492 8.14483 18.0062 7.14183C17.8632 6.13883 17.3392 5.25283 16.5292 4.64483C14.8582 3.39083 12.4762 3.72783 11.2212 5.40083L4.46919 14.3958C2.45719 17.0788 4.24719 20.2748 4.32419 20.4098C4.42819 20.5908 4.60319 20.7198 4.80719 20.7668C4.86519 20.7808 5.42519 20.9048 6.20619 20.9048C7.46919 20.9048 9.30719 20.5818 10.5332 18.9478L15.9018 11.7958C15.933 11.7665 15.9621 11.734 15.9887 11.6986C16.0154 11.6631 16.0385 11.626 16.058 11.5877ZM5.47719 19.3578C6.25819 19.4528 8.22819 19.5198 9.33319 18.0468L14.3293 11.391L10.6646 8.63955L5.66819 15.2958C4.54119 16.7998 5.16119 18.6408 5.47719 19.3578ZM11.5648 7.44043L15.23 10.1911L16.0852 9.05183C16.8442 8.04183 16.6392 6.60283 15.6292 5.84383C14.6182 5.08683 13.1782 5.29183 12.4202 6.30083L11.5648 7.44043Z" fill="currentColor"></path><path d="M19.733 20.643H13.356C12.942 20.643 12.606 20.307 12.606 19.893C12.606 19.479 12.942 19.143 13.356 19.143H19.733C20.147 19.143 20.483 19.479 20.483 19.893C20.483 20.307 20.147 20.643 19.733 20.643Z" fill="currentColor"></path></svg>
+              </button>
             </div>
           </div>
 
@@ -8083,15 +8103,26 @@ class Component extends DCLogic {
         if (ns < 2) nb = Math.min(buys.length, 4 - ns);
         rows.length = 0; rows.push(...buys.slice(0, nb), ...sells.slice(0, ns));
         const cmp = n => n >= 1e6 ? (n / 1e6).toFixed(1) + " Mio" : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(Math.round(n));
+        // Kompakte "Schmetterlings"-Darstellung in EINER Karte: pro Titel ein
+        // Balken von der Mittelachse nach links (Verkauf) und rechts (Kauf),
+        // skaliert auf den groessten Einzelwert, damit die Titel vergleichbar sind.
+        const maxSide = Math.max(1, ...rows.map(r => Math.max(r.buy, r.sell)));
         const list = rows.map(r => {
-          const h = holdings.find(x => (x.sym || x.abbr) === r.sym), tot = r.buy + r.sell, net = r.buy - r.sell;
+          const h = holdings.find(x => (x.sym || x.abbr) === r.sym), net = r.buy - r.sell;
           const cn = divCandidates(holdings, this.state.etfHoldings).find(c => c.sym === r.sym);
-          return { name: h ? displayName(h) : (cn ? cn.name : r.sym), open: this.openInsiderSheet(r.sym),
-            buyW: (r.buy / tot * 100).toFixed(1) + "%", sellW: (r.sell / tot * 100).toFixed(1) + "%",
-            buyLabel: "$" + cmp(r.buy), sellLabel: "$" + cmp(r.sell),
-            netLabel: net >= 0 ? "Netto Kauf" : "Netto Verkauf", netColor: net >= 0 ? "var(--pos)" : "var(--neg)", netBg: net >= 0 ? "var(--pos-soft)" : "var(--neg-soft)" };
+          return { name: h ? displayName(h) : (cn ? cn.name : r.sym), tick: h ? h.abbr : r.sym, open: this.openInsiderSheet(r.sym),
+            buyW: (r.buy / maxSide * 50).toFixed(1) + "%", sellW: (r.sell / maxSide * 50).toFixed(1) + "%",
+            netLabel: (net >= 0 ? "+" : "−") + "$" + cmp(Math.abs(net)).replace(" Mio", "M"), netColor: net >= 0 ? "var(--pos)" : "var(--neg)" };
         });
-        return { insHas: true, insRows: list, insEmpty: !list.length };
+        const tb = rows.reduce((a, r) => a + r.buy, 0), ts = rows.reduce((a, r) => a + r.sell, 0), tn = tb - ts;
+        const bp = tb + ts > 0 ? tb / (tb + ts) * 100 : 50;
+        return { insHas: true, insRows: list, insEmpty: !list.length, insHasRows: list.length > 0,
+          insNetLabel: (tn >= 0 ? "+" : "−") + "$" + cmp(Math.abs(tn)), insNetColor: tn >= 0 ? "var(--pos)" : "var(--neg)",
+          insMood: bp >= 60 ? "Kaufinteresse" : bp <= 40 ? "Verkaufsdruck" : "Ausgeglichen",
+          insMoodBg: bp >= 60 ? "var(--pos-soft)" : bp <= 40 ? "var(--neg-soft)" : "var(--surf2)",
+          insMoodTx: bp >= 60 ? "var(--pos)" : bp <= 40 ? "var(--neg)" : "var(--tx2)",
+          insBuyPct: bp.toFixed(1) + "%", insSellPct: (100 - bp).toFixed(1) + "%",
+          insBuyTot: "$" + cmp(tb), insSellTot: "$" + cmp(ts) };
       })(),
       depotDiv: this.state.depotTab === "div",
       ...(() => {
@@ -8456,15 +8487,15 @@ class Component extends DCLogic {
 
       // ---------- Einstellungen: weitere Punkte ----------
       accountPrefs: [
-        ["Passwort ändern", "", "M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2", this.openPwPage],
-        ["Daten exportieren", "CSV", "M12 3v12M7 10l5 5 5-5M4 21h16", this.exportData]
+        ["Passwort ändern", "", "M8 10.5V8a4 4 0 0 1 8 0v2.5M8 10.5h8c2 0 3 1 3 3v4c0 2-1 3-3 3H8c-2 0-3-1-3-3v-4c0-2 1-3 3-3zM12 14.5v2", this.openPwPage],
+        ["Daten exportieren", "CSV", "M12 4v10M8 10.5l4 4 4-4M5 16.5c0 2.5 1.5 3.5 4 3.5h6c2.5 0 4-1 4-3.5", this.exportData]
       ].map(([label, hint, d, go]) => ({ label, hint, go, icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })) })),
       legalPrefs: [
-        ["Support & Feedback", "", "M4 5h16v11H9l-5 4z", this.openSupport],
-        ["Nutzungsbedingungen", "", "M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6", this.openLegal("terms")],
-        ["Datenschutz", "", "M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z", this.openLegal("privacy")],
-        ["Impressum", "", "M12 8h.01M11 12h1v5h1M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z", this.openLegal("imprint")],
-        ["Lizenzen", "v" + APP_VERSION, "M9 18l-6-6 6-6M15 6l6 6-6 6", this.openLegal("licenses")]
+        ["Support & Feedback", "", "M12 4c5 0 8 2.6 8 7s-3 7-8 7c-1 0-2-.1-2.8-.4L5 19.5l1-3.8C4.7 14.4 4 12.8 4 11c0-4.4 3-7 8-7z", this.openSupport],
+        ["Nutzungsbedingungen", "", "M8.5 3.5h5l5 5v9c0 2-1 3-3 3h-7c-2 0-3-1-3-3v-11c0-2 1-3 3-3zM13.5 3.5v3c0 1.3.7 2 2 2h3M9 13h6M9 16.5h4", this.openLegal("terms")],
+        ["Datenschutz", "", "M12 3.5c2.4 1.4 4.7 2.1 7 2.2v5.6c0 4.6-3 7.6-7 9.2-4-1.6-7-4.6-7-9.2V5.7c2.3-.1 4.6-.8 7-2.2zM9.5 12l1.8 1.8 3.4-3.6", this.openLegal("privacy")],
+        ["Impressum", "", "M12 20.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17zM12 11v5M12 8h.01", this.openLegal("imprint")],
+        ["Lizenzen", "v" + APP_VERSION, "M8.5 8l-4 4 4 4M15.5 8l4 4-4 4M13.5 5.5l-3 13", this.openLegal("licenses")]
       ].map(([label, hint, d, go]) => ({ label, hint, go, icon: React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d })) })),
       appVersionLabel: "Stox " + APP_VERSION,
       legalOpen: !!this.state.legalKey && !!LEGAL[this.state.legalKey],
