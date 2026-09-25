@@ -1491,7 +1491,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                       <button onClick="{{ dc.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;height:46px;border-radius:16px;background:{{ dc.bg }};color:{{ dc.tx }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;font-weight:600;transition:background 180ms ease,color 180ms ease" style-active="transform:scale(.94)">
                         <span>{{ dc.label }}</span>
                         <span style="display:flex;gap:3px;height:5px">
-                          <sc-for list="{{ dc.dots }}" as="dt2" hint-placeholder-count="2"><span style="width:5px;height:5px;border-radius:50%;background:{{ dt2.color }}"></span></sc-for>
+                          <sc-for list="{{ dc.dots }}" as="dt2" hint-placeholder-count="2"><span style="width:5px;height:5px;border-radius:50%;{{ dt2.style }}"></span></sc-for>
                         </span>
                       </button>
                     </sc-for>
@@ -1511,10 +1511,10 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none"><span class="mono" style="color:var(--tx);font-size:13.5px;font-weight:700">{{ dr.amt }}</span><span style="color:var(--tx3);font-size:10.5px">{{ dr.per }}</span></div>
                     </div>
                   </sc-for>
-                  <sc-if value="{{ divNoRows }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:22px;background:var(--surf)">Keine Dividenden in diesem Zeitraum.</div></sc-if>
+                  <sc-if value="{{ divNoRows }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px;border-radius:22px;background:var(--surf)">Keine Dividenden oder Termine in diesem Zeitraum.</div></sc-if>
                   <sc-if value="{{ divLoadingNow }}" hint-placeholder-val="{{ false }}"><div style="padding:22px;text-align:center;color:var(--tx3);font-size:12.5px">Lade Dividenden…</div></sc-if>
                 </div>
-                <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin-top:10px">Ex-Dividenden-Termine. Kommende Termine sind Prognosen auf Basis des Vorjahres; ETF-Titel zeigen den Betrag pro Aktie.</span>
+                <span style="display:block;color:var(--tx3);font-size:10.5px;line-height:1.5;margin-top:10px">Punkte = Dividenden (Ex-Tag, Zahltag), Ring = Quartalszahlen. Bestätigte Termine aus dem Yahoo-Finance-Kalender, sonst Prognose auf Basis des Vorjahres. ETF-Titel zeigen den Betrag pro Aktie.</span>
               </div>
               <sc-if value="{{ geoLocked }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ goPro }}" style="all:unset;box-sizing:border-box;cursor:pointer;position:absolute;left:50%;top:190px;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-radius:999px;background:#1b1b1f;box-shadow:0 14px 28px -12px rgba(16,19,26,.6);white-space:nowrap">
@@ -8159,18 +8159,26 @@ class Component extends DCLogic {
         const cands = divCandidates(visibleHoldings, this.state.etfHoldings);
         const PAL = ["#5B5BD6", "#2AA6B5", "#F6546A", "#F2A03D", "#43CEA2", "#9C7BFF", "#4C8DF6", "#E56AB3", "#8AA33C", "#7A7F8C"];
         const evs = [];
+        // Termine je Titel: vergangene Ex-Tage (Historie), die Termine aus dem
+        // Yahoo-Kalender (bestaetigter Ex-Tag, Zahltag, Quartalszahlen) und —
+        // nur wo Yahoo noch nichts bestaetigt hat — die Prognose aus dem Vorjahr.
+        const inMonth = t => { const dt = new Date(t); return dt.getFullYear() === y && dt.getMonth() === mo; };
+        const near = (a, b, days) => Math.abs(a - b) < days * 864e5;
         cands.forEach((c, ci) => {
           const d = this.state.divData[c.sym];
-          if (!d || !d.divs) return;
-          d.divs.forEach(x => {
-            [{ t: x.t, est: false }, { t: x.t + YR, est: true }].forEach(k => {
-              const dt = new Date(k.t);
-              if (k.est && k.t <= now.getTime()) return;
-              if (!k.est && k.t > now.getTime()) return;
-              if (dt.getFullYear() !== y || dt.getMonth() !== mo) return;
-              evs.push({ day: dt.getDate(), est: k.est, c, color: PAL[ci % PAL.length], a: x.a, cur: d.currency || "" });
-            });
+          if (!d) return;
+          const color = PAL[ci % PAL.length], cur = d.currency || "", list = d.divs || [], cal = d.cal || {};
+          const lastA = list.length ? list[list.length - 1].a : null;
+          const push = (t, type, extra) => { if (inMonth(t)) evs.push({ day: new Date(t).getDate(), t, type, c, color, cur, ...extra }); };
+          const confEx = cal.exDiv && !list.some(x => near(x.t, cal.exDiv, 4)) ? cal.exDiv : null;
+          list.forEach(x => {
+            if (x.t <= now.getTime()) push(x.t, "ex", { est: false, a: x.a });
+            const e = x.t + YR;
+            if (e > now.getTime() && !(confEx && near(e, confEx, 30)) && !(cal.payDate && cal.payDate > now.getTime() && near(e, cal.payDate, 30))) push(e, "ex", { est: true, a: x.a });
           });
+          if (confEx) push(confEx, "ex", { est: false, conf: true, a: lastA });
+          if (cal.payDate && !(cal.exDiv && cal.payDate < cal.exDiv)) push(cal.payDate, "pay", { a: lastA });
+          if (!c.viaEtf) (cal.earnings || []).slice(0, 1).forEach(t => push(t, "earn", { est: !!cal.earningsEst }));
         });
         const first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
         const sel = this.state.divSel, isCur = now.getFullYear() === y && now.getMonth() === mo;
@@ -8179,16 +8187,24 @@ class Component extends DCLogic {
         for (let dd = 1; dd <= days; dd++) {
           const de = evs.filter(e => e.day === dd);
           const on = sel === String(dd), today = isCur && now.getDate() === dd;
-          cells.push({ label: String(dd), dots: de.slice(0, 3).map(e => ({ color: on ? "#fff" : e.color })), go: this.divPick(String(dd)),
+          cells.push({ label: String(dd), dots: de.slice(0, 3).map(e => {
+              const col = on ? "#fff" : e.color;
+              // Quartalszahlen als Ring, Dividenden-Termine als gefuellter Punkt.
+              return { style: e.type === "earn" ? "background:transparent;border:1.5px solid " + col + ";box-sizing:border-box" : "background:" + col };
+            }), go: this.divPick(String(dd)),
             bg: on ? "#1b1b1f" : (today ? "var(--gbtn)" : "transparent"), tx: on ? "#fff" : "var(--tx)" });
         }
-        const rows = evs.filter(e => !sel || String(e.day) === sel).sort((a, b) => a.day - b.day).map(e => {
-          const tot = e.c.shares ? e.a * e.c.shares : null;
-          return { day: String(e.day), mon: MONTHS_DE[mo].slice(0, 3).toUpperCase(), name: e.c.name, color: e.color,
-            sub: (e.est ? "Ex-Datum · Prognose" : "Ex-Datum · ausgezahlt") + (e.c.viaEtf ? " · im ETF" : ""),
-            amt: (e.cur ? e.cur + " " : "") + (tot != null ? f2(tot) : f2(e.a)), per: tot != null ? f2(e.a) + " pro Stück" : "pro Stück" };
+        const past = t => t <= now.getTime();
+        const rows = evs.filter(e => !sel || String(e.day) === sel).sort((a, b) => a.day - b.day || (a.type === "earn") - (b.type === "earn")).map(e => {
+          const base = { day: String(e.day), mon: MONTHS_DE[mo].slice(0, 3).toUpperCase(), name: e.c.name, color: e.color };
+          if (e.type === "earn") return { ...base, sub: "Quartalszahlen" + (e.est ? " · voraussichtlich" : past(e.t) ? " · veröffentlicht" : " · bestätigt"), amt: "", per: "" };
+          const has = e.a != null, tot = has && e.c.shares ? e.a * e.c.shares : null;
+          const sub = e.type === "pay" ? "Zahltag" + (past(e.t) ? " · ausgezahlt" : "")
+            : "Ex-Datum · " + (e.conf ? (past(e.t) ? "ausgezahlt" : "bestätigt") : e.est ? "Prognose" : "ausgezahlt");
+          return { ...base, sub: sub + (e.c.viaEtf ? " · im ETF" : ""),
+            amt: has ? (e.cur ? e.cur + " " : "") + (tot != null ? f2(tot) : f2(e.a)) : "", per: has ? (tot != null ? f2(e.a) + " pro Stück" : "pro Stück") : "" };
         });
-        const total = evs.reduce((a, e) => a + (e.c.shares ? e.a * e.c.shares : 0), 0);
+        const total = evs.filter(e => e.type === "ex" && e.a != null).reduce((a, e) => a + (e.c.shares ? e.a * e.c.shares : 0), 0);
         return { divMonthLabel: MONTHS_DE[mo] + " " + y, divPrev: this.divShift(-1), divNext: this.divShift(1), divCells: cells, divRows: rows, divNoRows: !rows.length && !this.state.divLoading,
           divLoadingNow: this.state.divLoading, divTotal: total > 0 ? "≈ " + f2(total) : "", divHasTotal: total > 0, divCount: cands.length };
       })(),
