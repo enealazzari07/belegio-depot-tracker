@@ -1334,9 +1334,9 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
               <!-- Ohne Karten-Box direkt auf dem Hintergrund; Striche und Beschriftung
                    wie bei "Gewichtung" (seitlich, grau, mit Knick). -->
               <div style="{{ geoWrapStyle }}">
-              <div style="position:relative;width:100%;aspect-ratio:480/250">
-                <svg viewBox="0 0 480 250" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
-                  <g transform="translate(40 30)">
+              <div style="position:relative;width:100%;aspect-ratio:480/260">
+                <svg viewBox="0 0 480 260" width="100%" height="100%" style="position:absolute;inset:0;display:block;overflow:visible">
+                  <g transform="translate(-30 8) scale(1.25)">
                     <path d="{{ geoDots }}" fill="none" stroke="var(--tx3)" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"></path>
                     <sc-for list="{{ geoRings }}" as="rg" hint-placeholder-count="5">
                       <circle cx="{{ rg.cx }}" cy="{{ rg.cy }}" r="{{ rg.r }}" fill="{{ rg.color }}" opacity=".22"></circle>
@@ -7080,17 +7080,17 @@ class Component extends DCLogic {
       // Beschriftung wie bei "Gewichtung": Laender links der Mitte links, rechts
       // der Mitte rechts, untereinander mit festem Abstand; der Strich geht vom
       // Punkt mit einem Knick waagerecht an die Beschriftung. Die Karte selbst
-      // sitzt um 40 Einheiten eingerueckt (viewBox 480 breit), damit links und
-      // rechts eine freie Spalte fuer Flagge + Name bleibt.
-      const OX = 40, OY = 30, H = 250, GAP = 42;
-      pts.forEach(pt => { pt.x += OX; pt.y += OY; });
+      // ist um 1.25 vergroessert und nach links geschoben (viewBox 480 breit);
+      // rechts bleibt die breitere Spalte fuer Flagge + Name, links eine schmale.
+      const SC = 1.25, OX = -30, OY = 8, H = 260, GAP = 42;
+      pts.forEach(pt => { pt.x = OX + pt.x * SC; pt.y = OY + pt.y * SC; });
       [-1, 1].forEach(side => {
-        const arr = pts.filter(pt => (pt.x < 240 ? -1 : 1) === side).sort((a, b) => a.y - b.y);
+        const arr = pts.filter(pt => (pt.x < 220 ? -1 : 1) === side).sort((a, b) => a.y - b.y);
         let last = -1e9;
         arr.forEach(pt => { pt.ly = Math.max(pt.y, last + GAP, 18); last = pt.ly; });
         for (let i = arr.length - 1; i >= 0; i--) { const maxY = H - 18 - (arr.length - 1 - i) * GAP; if (arr[i].ly > maxY) arr[i].ly = maxY; }
         arr.forEach(pt => {
-          const xe = side === -1 ? 116 : 364;
+          const xe = side === -1 ? 66 : 374;
           const kx = side === -1 ? Math.min(xe + 16, pt.x - 4) : Math.max(xe - 16, pt.x + 4);
           const nm = pt.cc === "GB" ? "UK" : pt.name.length > 11 ? pt.name.slice(0, 10).trim() + "…" : pt.name;
           geoCallouts.push({
