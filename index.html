@@ -5642,6 +5642,40 @@ class Component extends DCLogic {
     } catch (e) { /* keine Belege oder Fehler beim Laden — Liste bleibt leer */ }
   };
 
+  // Look-Through fuer KI Score & Analyse: ETFs werden in ihre Bestandteile
+  // aufgeloest (bekannte Top-Positionen mit Gewicht, der Rest verteilt auf viele
+  // kleine Titel), Einzelaktien zaehlen direkt. Daraus die "effektive Anzahl
+  // Positionen" (1 / Herfindahl-Index) und das groesste Einzelrisiko — so gilt
+  // ein Depot aus zwei breiten ETFs zu Recht als stark gestreut.
+  lookThrough = (holdings, total) => {
+    const expo = {};
+    let etfCount = 0;
+    const add = (k, name, v) => { const e = expo[k] || (expo[k] = { name, v: 0 }); e.v += v; };
+    const ETF_RE = /\betfs?\b|ucits|ishares|vanguard|spdr|xtrackers|invesco|amundi|lyxor|wisdomtree|\bmsci\b|s&p ?500|\bindex\b|\bfonds?\b|\bfund\b/i;
+    (holdings || []).forEach(h => {
+      const sym = h.sym || h.abbr, v = h.shares * h.cur;
+      if (!(v > 0)) return;
+      const comp = this.state.etfHoldings && this.state.etfHoldings[sym];
+      const list = comp && comp.holdings && comp.holdings.length ? comp.holdings : null;
+      const isEtf = !!(list || (comp && comp.sectors && comp.sectors.length) || isinLike(sym) || ETF_RE.test((h.name || "") + " " + displayName(h)));
+      if (!isEtf) { add(String(sym).toUpperCase(), displayName(h), v); return; }
+      etfCount++;
+      let known = 0;
+      (list || []).forEach(x => {
+        const w = Math.max(0, Number(x.weight) || 0); known += w;
+        add(String(x.symbol || x.name).toUpperCase(), x.name || x.symbol, v * w);
+      });
+      const rest = Math.max(0, 1 - Math.min(1, known)), N = 200;
+      for (let i = 0; i < N; i++) add(sym + "#" + i, null, v * rest / N);
+    });
+    const tot = Object.values(expo).reduce((a, e) => a + e.v, 0) || total || 1;
+    const hhi = Object.values(expo).reduce((a, e) => a + (e.v / tot) * (e.v / tot), 0);
+    const top = Object.values(expo).filter(e => e.name).sort((a, b) => b.v - a.v)[0];
+    const effN = hhi > 0 ? 1 / hhi : 0;
+    return { effN, effLabel: effN > 99 ? "100+" : String(Math.max(1, Math.round(effN))), etfCount,
+      topName: top ? top.name : "", topW: top ? top.v / tot * 100 : 0 };
+  };
+
   loadProfile = async () => {
     try {
       const db = await this.db();
@@ -6944,12 +6978,13 @@ class Component extends DCLogic {
       const totalInvested = visibleHoldings.reduce((a, h) => a + h.shares * h.buy, 0);
       const posCount = visibleHoldings.length;
       const usedCats2 = new Set(visibleHoldings.map(h => (posMeta[h.sym || h.abbr] && posMeta[h.sym || h.abbr].category) || "").filter(Boolean));
-      const divScore = Math.max(0, Math.min(100, posCount * 13 + usedCats2.size * 6));
+      // Mit Look-Through: zwei breite ETFs = hunderte Firmen, nicht "2 Titel".
+      const lt = this.lookThrough(visibleHoldings, val);
+      const divScore = Math.max(0, Math.min(100, 100 * (1 - Math.exp(-lt.effN / 12)) + usedCats2.size * 3));
 
       const weights = visibleHoldings.map(h => ({ h, w: val ? h.shares * h.cur / val * 100 : 0 }));
-      const top = weights.reduce((m, x) => (!m || x.w > m.w ? x : m), null);
-      const topW = top ? top.w : 0;
-      const conScore = Math.max(0, Math.min(100, 100 - Math.max(0, topW - 15) * 1.6));
+      const topW = lt.topW;
+      const conScore = Math.max(0, Math.min(100, 100 - Math.max(0, topW - 10) * 2.2));
 
       const winners = visibleHoldings.filter(h => h.cur >= h.buy).length;
       const winRate = posCount ? winners / posCount : 0;
@@ -6976,17 +7011,21 @@ class Component extends DCLogic {
       const factors = [
         {
           key: "div", label: "Diversifikation", score: Math.round(divScore), scoreColor: scoreColor(divScore),
-          title: posCount + " Position" + (posCount === 1 ? "" : "en") + (usedCats2.size ? " · " + usedCats2.size + " Kategorien" : ""),
-          desc: posCount < 5
-            ? "Nur " + posCount + " Titel im Depot — eine breitere Streuung über mehr Positionen senkt das Risiko einzelner Fehlentscheidungen."
-            : "Mit " + posCount + " Titeln" + (usedCats2.size ? " über " + usedCats2.size + " Kategorien hinweg" : "") + " bist du solide gestreut."
+          title: posCount + " Position" + (posCount === 1 ? "" : "en") + (lt.etfCount ? " · " + lt.etfCount + " ETF" + (lt.etfCount === 1 ? "" : "s") : "") + " · wirkt wie " + lt.effLabel,
+          desc: lt.effN >= 30
+            ? (lt.etfCount ? "Über deine ETFs steckst du in hunderten Firmen. " : "") + "Rechnerisch wirkt dein Depot wie " + lt.effLabel + " gleich grosse Positionen — sehr breit gestreut."
+            : lt.effN >= 10
+              ? "Rechnerisch wirkt dein Depot wie " + lt.effLabel + " gleich grosse Positionen — solide gestreut."
+              : "Rechnerisch wirkt dein Depot nur wie " + lt.effLabel + " gleich grosse Positionen — ein breiter ETF oder mehr Titel würden das Einzelrisiko senken."
         },
         {
           key: "con", label: "Konzentration", score: Math.round(conScore), scoreColor: scoreColor(conScore),
-          title: top ? displayName(top.h) + " " + topW.toFixed(0) + " %" : "—",
-          desc: topW > 35
-            ? (top ? displayName(top.h) : "Deine größte Position") + " macht " + topW.toFixed(0) + " % des Depots aus — ein Nachkauf in andere Positionen würde das Klumpenrisiko senken."
-            : "Keine Position dominiert dein Depot übermässig — die grösste macht " + topW.toFixed(0) + " % aus."
+          title: lt.topName ? lt.topName + " " + topW.toFixed(topW < 10 ? 1 : 0) + " %" : "—",
+          desc: !lt.topName
+            ? "Deine ETFs verteilen das Geld auf sehr viele Firmen — keine einzelne dominiert dein Depot."
+            : topW > 25
+            ? lt.topName + " macht direkt und über ETFs " + topW.toFixed(0) + " % deines Depots aus — ein Nachkauf in andere Positionen würde das Klumpenrisiko senken."
+            : "Grösstes Einzelrisiko (inkl. Anteil in ETFs): " + lt.topName + " mit " + topW.toFixed(topW < 10 ? 1 : 0) + " % — keine Firma dominiert dein Depot."
         },
         {
           key: "perf", label: "Performance", score: Math.round(perfScore), scoreColor: scoreColor(perfScore),
@@ -7233,10 +7272,9 @@ class Component extends DCLogic {
       });
 
       if (sorted.length) analysisLines.push({ k: "Grösster Sektor", v: SECTORS[sorted[0][0]][0] + " · " + Math.round(sorted[0][1] / tot * 100) + " %" });
-      const topPos = visibleHoldings.map(h => ({ h, w: h.shares * h.cur / visVal * 100 })).sort((a, b) => b.w - a.w)[0];
-      analysisLines.push({ k: topPos.w > 35 ? "Klumpenrisiko" : "Grösste Position", v: displayName(topPos.h) + " · " + Math.round(topPos.w) + " %" });
-      const winners = visibleHoldings.filter(h => h.cur >= h.buy).length;
-      analysisLines.push({ k: "Streuung", v: visibleHoldings.length + " Titel · " + ccs.size + (ccs.size === 1 ? " Land" : " Länder") + " · " + winners + " im Plus" });
+      const ltA = this.lookThrough(visibleHoldings, visVal);
+      if (ltA.topName) analysisLines.push({ k: ltA.topW > 25 ? "Klumpenrisiko" : "Grösstes Einzelrisiko", v: ltA.topName + " · " + ltA.topW.toFixed(ltA.topW < 10 ? 1 : 0) + " %" });
+      analysisLines.push({ k: "Streuung", v: (ltA.etfCount ? "wirkt wie " + ltA.effLabel + " Titel" : visibleHoldings.length + " Titel") + " · " + ccs.size + (ccs.size === 1 ? " Land" : " Länder") });
     }
 
     // Gewichtung als duenner Ring im Stil des KI-Score-Bogens (Strich-Segmente
@@ -7324,9 +7362,10 @@ class Component extends DCLogic {
       out.push({ tone: "var(--neg)", t: displayName(worst.h) + (worst.d < 0 ? " im Minus" : " im Plus"), d: "Aktuell " + (worst.d * 100).toFixed(1) + " % " + (worst.d < 0 ? "unter" : "über") + " deinem Ø Kaufkurs von " + f2(worst.h.buy) + " " + (worst.h.currency || "CHF") + "." });
 
       // Echte Empfehlung statt generischem Steuer-Hinweis.
-      if (holdings.length < 3) {
-        out.push({ tone: "var(--tx3)", t: "Empfehlung: mehr Diversifikation", d: "Nur " + holdings.length + " Titel im Depot — eine breitere Streuung über mehr Positionen oder Anlageklassen kann das Risiko senken." });
-      } else if (topWeight > 0.5) {
+      const ltI = this.lookThrough(holdings, val);
+      if (ltI.effN < 8) {
+        out.push({ tone: "var(--tx3)", t: "Empfehlung: mehr Diversifikation", d: "Dein Depot wirkt nur wie " + ltI.effLabel + " gleich grosse Positionen — ein breiter ETF oder mehr Titel würden das Risiko senken." });
+      } else if (topWeight > 0.5 && !topComp && ltI.topW > 25) {
         out.push({ tone: "var(--tx3)", t: "Empfehlung: Konzentration reduzieren", d: displayName(top.h) + " macht über die Hälfte des Depots aus — ein Nachkauf in andere Positionen würde das Gewicht ausgleichen." });
       } else {
         out.push({ tone: "var(--tx3)", t: "Steuerlich relevant", d: holdings.length + " Titel, " + used + " Belege archiviert." });
