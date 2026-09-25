@@ -205,7 +205,6 @@ input::placeholder{color:var(--tx3)}
 .rowbtn{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%}
 .blurred{filter:blur(6px);opacity:.55;pointer-events:none;user-select:none}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(255,59,48,.6)}100%{box-shadow:0 0 0 8px rgba(255,59,48,0)}}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes markIn{0%{opacity:0;transform:scale(.7) rotate(-8deg)}60%{opacity:1;transform:scale(1.06) rotate(0)}100%{opacity:1;transform:scale(1) rotate(0)}}
 @keyframes drawMark{from{stroke-dashoffset:26}to{stroke-dashoffset:0}}
@@ -2266,7 +2265,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
     </sc-if>
 
     <sc-if value="{{ isNews }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;overflow-y:auto;background:#0b0b10;animation:fade .3s ease">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:0 0 128px;animation:fade .3s ease">
         <!-- Kopfleiste wie bei Depot: Account-Knopf + Glas-Pille, bleibt oben angeheftet; Titel darunter. -->
         <div data-headbar="1" style="position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 14px">
           <button onClick="{{ goSettings }}" title="Account" data-headtone="icon" class="gbtn" style="all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 19.8591 6.32011 20.6488 8.50012 20.9933"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94782 16.5801 7.40972C16.5801 4.87163 14.523 2.81448 11.9849 2.81448C9.44679 2.81448 7.3887 4.87163 7.3887 7.40972C7.38013 9.93925 9.42394 11.9973 11.9525 12.0059H11.9849Z"></path></svg></button>
@@ -2276,25 +2275,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </sc-for>
           </div>
         </div>
-        <!-- Yahoo Finance Live: offizieller YouTube-Livestream als Vollflaechen-
-             Hintergrund von ganz oben (unter der Kopfleiste) bis zur Inhaltsbox.
-             Laeuft stumm und dauerhaft, ohne Bedienung; das Video fuellt die Flaeche
-             (Seiten werden beschnitten). Bleibt beim Scrollen stehen, die
-             abgerundete Box schiebt sich darueber (wie Depot). -->
-        <div style="position:sticky;top:0;z-index:0;margin-top:calc(-1 * (env(safe-area-inset-top, 0px) + 76px));height:min(52vh, 480px);background:#000;overflow:hidden;container-type:size">
-          <sc-if value="{{ yfHasSrc }}" hint-placeholder-val="{{ false }}">
-            <iframe data-yflive="1" src="{{ yfLiveSrc }}" title="Yahoo Finance Live" tabindex="-1" allow="autoplay; encrypted-media" style="position:absolute;top:50%;left:50%;width:max(100cqw, 177.78cqh);height:max(100cqh, 56.25cqw);transform:translate(-50%,-50%);border:0;pointer-events:none"></iframe>
-          </sc-if>
-          <sc-if value="{{ yfNoSrc }}" hint-placeholder-val="{{ true }}">
-            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);border-top-color:#fff;animation:spin .8s linear infinite"></div></div>
-          </sc-if>
-        </div>
-
-        <div style="position:relative;z-index:1;margin-top:-32px;background:var(--bg);border-radius:32px 32px 0 0;box-shadow:0 -16px 34px -18px rgba(10,12,20,.45);padding:26px 0 128px;min-height:70vh">
-        <div style="display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:16px">
-          <span style="color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
-          <span style="margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--tx3);font-size:11.5px;font-weight:600"><span style="width:6px;height:6px;border-radius:50%;background:#ff3b30;animation:livePulse 1.4s ease-out infinite"></span>Live: Yahoo Finance</span>
-        </div>
+        <span style="display:block;padding:0 20px;margin-bottom:16px;color:var(--tx);font-size:22px;font-weight:700;letter-spacing:-.025em">News</span>
 
         <div style="margin:0 20px 18px;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;border-radius:999px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--card-shadow)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
@@ -2374,7 +2355,6 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
             </div>
           </div>
         </sc-if>
-        </div>
       </div>
     </sc-if>
 
@@ -3625,7 +3605,7 @@ const LEGAL = {
       ["Welche Daten wir bearbeiten", "Konto: E-Mail-Adresse und Passwort (verschlüsselt gespeichert). Depot: deine erfassten Transaktionen, Dividenden, Kategorien und gespeicherte Belegdateien. Einstellungen: z. B. Zinseszins-Werte und Pro-Status. Benachrichtigungen: technische Push-Adresse deines Geräts und ein Protokoll versendeter Meldungen."],
       ["Belege", "Das Auslesen deiner Belege (Texterkennung) passiert direkt auf deinem Gerät. Gespeichert werden nur die daraus erfassten Werte und – falls du den Beleg ablegst – die Bilddatei in deinem privaten Speicherbereich."],
       ["Zweck", "Wir bearbeiten deine Daten ausschliesslich, um dir die Funktionen der App bereitzustellen: Anmeldung, Anzeige und Auswertung deines Depots, Steuer-Report und Benachrichtigungen. Keine Werbung, kein Verkauf von Daten."],
-      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Der Yahoo-Finance-Livestream auf der News-Seite ist ein eingebettetes YouTube-Video (Google) im erweiterten Datenschutzmodus; es wird beim Öffnen der News-Seite geladen, dabei erhält YouTube u. a. deine IP-Adresse. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
+      ["Dienstleister", "Datenbank, Anmeldung und Dateispeicher: Supabase. Hosting der App: Vercel. Kurs- und Unternehmensdaten werden über unseren Server bei Anbietern wie Yahoo Finance, EODHD und SEC EDGAR abgefragt – dabei werden nur Tickersymbole übermittelt, keine persönlichen Daten. Firmenfotos stammen von Wikimedia Commons. Diese Dienstleister können Daten auch ausserhalb der Schweiz (z. B. EU, USA) bearbeiten; wir achten auf geeignete Garantien."],
       ["Lokal gespeichert", "Einige Einstellungen (z. B. Design, Investment-Plan, Face-ID-Kennung, Hinweise) liegen nur im Speicher deines Browsers bzw. Geräts."],
       ["Speicherdauer", "Deine Daten bleiben gespeichert, bis du sie löschst oder dein Konto löschst. Mit \"Konto löschen\" werden Konto, Depotdaten und Belegdateien nach Bestätigung per E-Mail und 24 Stunden Wartezeit endgültig entfernt."],
       ["Deine Rechte", "Du hast das Recht auf Auskunft, Berichtigung, Löschung und Herausgabe deiner Daten. Einen Export deiner Transaktionen und Dividenden erhältst du jederzeit in den Einstellungen unter \"Daten exportieren\". Für weitere Anfragen: " + CONTACT.email + "."],
@@ -3651,7 +3631,6 @@ const LEGAL = {
       ["Nunito", "SIL Open Font License 1.1 · Google Fonts"],
       ["Firmenfotos", "Wikimedia Commons, jeweils mit der angegebenen freien Lizenz (CC0, Public Domain oder CC BY) und Namensnennung."],
       ["Marktdaten", "Yahoo Finance, EODHD, SEC EDGAR. Daten ohne Gewähr, teils verzögert."],
-      ["Yahoo Finance Live", "Offizieller Livestream von Yahoo Finance, eingebettet über den YouTube-Player. Inhalte © Yahoo; es gelten die Nutzungsbedingungen von YouTube."],
       ["Flaggen", "flag-icons · MIT-Lizenz"]
     ]
   }
@@ -3957,8 +3936,7 @@ class Component extends DCLogic {
     const cur = this.state.screen;
     if (cur && cur !== s) { this._navStack = this._navStack || []; this._navStack.push(cur); }
     this.setState({ screen: s, parsing: false, ocrError: false, confirmError: "", isinUnresolved: false });
-    if (s === "news" && cur !== "news") this.enterYfLive();
-    if (s !== "news") this._yfSrc = null;
+    if (s === "news") this.loadYfItems((this.state.holdings || []).map(h => h.sym || h.abbr).filter(x => x && !isinLike(x)));
   };
   goBack = () => {
     const prev = (this._navStack || []).pop() || "dash";
@@ -4318,8 +4296,6 @@ class Component extends DCLogic {
     this.handleDeleteLinks();
     window.addEventListener("resize", headTick);
     this._headToneIv = setInterval(headTick, 500);
-    window.addEventListener("message", this.onYfMessage);
-    this._yfIv = setInterval(this.yfHandshake, 700);
     this.loadIntraday();
     this.startCarousel();
     this.startLoginCycle();
@@ -5280,47 +5256,10 @@ class Component extends DCLogic {
     this._yfLoadedAt = Date.now();
     try {
       const api = await this.api();
-      const { items, liveId } = await api.yfVideos(list);
-      this.setState(st => ({ yfItems: items && items.length ? items : st.yfItems, yfLiveId: liveId || st.yfLiveId || null }));
+      const items = await api.yfVideos(list);
+      if (items && items.length) this.setState({ yfItems: items });
     } catch (e) { this._yfLoadedAt = 0; }
   };
-  // Livestream-Player: offizieller YouTube-Embed ohne Bedienleiste (controls=0),
-  // stumm (sonst blockieren Mobilbrowser das Autoplay), per IFrame-Player-API
-  // (postMessage) am Laufen gehalten.
-  yfPost = (func, args = []) => {
-    const f = document.querySelector("iframe[data-yflive]");
-    if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), "*");
-  };
-  onYfMessage = e => {
-    if (!/youtube(-nocookie)?\.com$/.test(String(e.origin || "").replace(/^https?:\/\//, "").replace(/^www\./, ""))) return;
-    let d; try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch (_) { return; }
-    if (!d) return;
-    this._yfReady = true;
-    const info = d.info;
-    const st = d.event === "onStateChange" ? info : info && typeof info === "object" ? info.playerState : undefined;
-    // Dauerlauf: pausiert/gestoppt/nicht gestartet -> sofort weiter (stumm).
-    if (st === 2 || st === -1 || st === 5) { this.yfPost("mute"); this.yfPost("playVideo"); }
-  };
-  // Beim Oeffnen der News-Seite: Beitraege + Live-ID laden. Der Player wartet
-  // kurz auf die aktuelle Live-ID (direkter Stream), sonst Kanal-Livestream.
-  enterYfLive = () => {
-    this._yfSrc = null;
-    this.setState({ yfWaitDone: !!this.state.yfLiveId });
-    clearTimeout(this._yfWaitT);
-    this._yfWaitT = setTimeout(() => this.setState({ yfWaitDone: true }), 3000);
-    this.loadYfItems((this.state.holdings || []).map(h => h.sym || h.abbr).filter(x => x && !isinLike(x)));
-  };
-  // Beim Player anmelden, damit er seinen Status zurueckmeldet (fuer den Dauerlauf) —
-  // laeuft im Takt, solange die News-Seite offen ist und der Player noch
-  // nicht geantwortet hat (auch nach einem Neuladen des iframes).
-  yfHandshake = () => {
-    if (this.state.screen !== "news") return;
-    const f = document.querySelector("iframe[data-yflive]");
-    if (!f || !f.contentWindow) return;
-    if (f.src !== this._yfHelloSrc) { this._yfHelloSrc = f.src; this._yfReady = false; }
-    if (!this._yfReady) f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "yflive", channel: "widget" }), "*");
-  };
-
   setNewsFilter = k => () => this.setState({ newsFilter: k });
   // Reihenfolge der Depot-Tabs: bestimmt sowohl die Wisch-Richtung (naechster/
   // vorheriger Tab) als auch, aus welcher Seite der neue Tab-Inhalt beim
@@ -5373,7 +5312,7 @@ class Component extends DCLogic {
   headToneBehind = (x, y) => {
     const stack = document.elementsFromPoint(x, y).filter(n => !n.closest("[data-headbar]"));
     for (const n of stack) {
-      if (n.tagName === "IMG" || n.tagName === "VIDEO" || n.tagName === "IFRAME") return true;
+      if (n.tagName === "IMG" || n.tagName === "VIDEO") return true;
       const cs = getComputedStyle(n);
       let c = this.headToneParse(cs.backgroundColor);
       if ((!c || c.a < 0.3) && cs.backgroundImage && cs.backgroundImage !== "none") {
@@ -7874,18 +7813,7 @@ class Component extends DCLogic {
                 open: this.openNews(it.url)
               }));
             return {
-              yfNews: yf, hasYfNews: yf.length > 0,
-              // Offizieller YouTube-Player im datensparsamen Modus (youtube-nocookie).
-              // Die URL wird pro Besuch der News-Seite einmal festgelegt, damit der
-              // Player waehrend der Wiedergabe nicht neu laedt.
-              ...(() => {
-                if (!this._yfSrc && this.state.screen === "news" && (this.state.yfLiveId || this.state.yfWaitDone)) {
-                  this._yfSrc = "https://www.youtube-nocookie.com/embed/"
-                    + (this.state.yfLiveId ? this.state.yfLiveId + "?" : "live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&")
-                    + "autoplay=1&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&rel=0&iv_load_policy=3&enablejsapi=1&origin=" + encodeURIComponent(location.origin);
-                }
-                return { yfLiveSrc: this._yfSrc || "about:blank", yfHasSrc: !!this._yfSrc, yfNoSrc: !this._yfSrc };
-              })()
+              yfNews: yf, hasYfNews: yf.length > 0
             };
           })(),
           newsSearchValue: this.state.newsSearch || "", onNewsSearch: this.onNewsSearch,
