@@ -2942,10 +2942,10 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                Seite. Kein Zurueck-Pfeil (Account ist ein Tab) — Rand-Wisch-Geste
                bleibt trotzdem aktiv (edgeBackSettings oben). -->
           <div style="position:relative;height:200px">
-            <button onClick="{{ openProfileSheet }}" aria-label="Profil bearbeiten" style="position:absolute;top:calc(env(safe-area-inset-top, 0px) + 8px);right:20px;all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#16171D" style-active="transform:scale(.92)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg>
-            </button>
-            <div style="position:absolute;left:20px;right:70px;top:calc(env(safe-area-inset-top, 0px) + 22px);display:flex;align-items:center;gap:12px">
+            <div style="position:absolute;left:20px;right:20px;top:calc(env(safe-area-inset-top, 0px) + 22px);display:flex;align-items:center;gap:12px">
+              <button onClick="{{ openProfileSheet }}" aria-label="Profil bearbeiten" style="order:2;flex:none;all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;background:rgba(16,19,26,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;color:#16171D" style-active="transform:scale(.92)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"></path></svg>
+              </button>
               <!-- Avatar-Button: das Foto/die Initialen sitzen in einem eigenen
                    inneren Kreis mit overflow:hidden; der Button selbst bleibt ohne
                    Clipping, sonst schneidet er das ueberstehende Kamera-Abzeichen ab. -->
@@ -2981,14 +2981,14 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
 
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <div style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0 18px;border-bottom:1px solid var(--line)">
-            <img src="img/icons/theme.svg" alt="" width="30" height="30" style="flex:none;display:block;width:30px;height:30px;object-fit:contain">
+            <span style="width:32px;height:32px;border-radius:14px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M3 12h2M19 12h2M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5"></path></svg></span>
             <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500">{{ themeLabel }}</span>
             <button onClick="{{ toggleTheme }}" style="all:unset;cursor:pointer;width:46px;height:28px;border-radius:14px;background:var(--surf2);border:1px solid var(--line2);position:relative;display:block">
               <span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:var(--acc2);transition:left .22s ease;display:block;left:{{ knobX }}"></span>
             </button>
           </div>
           <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
-            <img src="img/icons/notif.svg" alt="" width="30" height="30" style="flex:none;display:block;width:30px;height:30px;object-fit:contain">
+            <span style="width:32px;height:32px;border-radius:14px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9961 2.51416C7.56185 2.51416 5.63519 6.5294 5.63519 9.18368C5.63519 11.1675 5.92281 10.5837 4.82471 13.0037C3.48376 16.4523 8.87614 17.8618 11.9961 17.8618C15.1152 17.8618 20.5076 16.4523 19.1676 13.0037C18.0695 10.5837 18.3571 11.1675 18.3571 9.18368C18.3571 6.5294 16.4295 2.51416 11.9961 2.51416Z"></path><path d="M14.3059 20.5122C13.0116 21.9579 10.9926 21.9751 9.68591 20.5122"></path></svg></span>
             <div style="flex:1">
               <div style="color:var(--tx);font-size:14.5px;font-weight:500">Täglicher Depotstand</div>
               <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">{{ notifHint }}</div>
@@ -2999,7 +2999,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
           </div>
           <sc-if value="{{ faceIdSupported }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)">
-              <img src="img/icons/faceid.svg" alt="" width="30" height="30" style="flex:none;display:block;width:30px;height:30px;object-fit:contain">
+              <span style="width:32px;height:32px;border-radius:14px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H6a2.5 2.5 0 0 0-2.5 2.5v2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2M16 20.5h2a2.5 2.5 0 0 0 2.5-2.5v-2M9 10v1.5a3 3 0 0 0 3 3M9 10a3 3 0 0 1 6 0v2.5M8.5 16c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5"></path></svg></span>
               <div style="flex:1">
                 <div style="color:var(--tx);font-size:14.5px;font-weight:500">Face ID zum Entsperren</div>
                 <div style="color:var(--tx3);font-size:11.5px;margin-top:2px">{{ faceIdHint }}</div>
@@ -3028,7 +3028,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <sc-for list="{{ accountPrefs }}" as="ap" hint-placeholder-count="3">
             <button onClick="{{ ap.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
-              <span style="width:30px;height:30px;border-radius:10px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none">{{ ap.icon }}</span>
+              <span style="width:32px;height:32px;border-radius:14px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none">{{ ap.icon }}</span>
               <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ ap.label }}</span>
               <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ ap.hint }}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
@@ -3039,7 +3039,7 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
         <div style="border-radius:28px;background:var(--surf);box-shadow:var(--card-shadow);overflow:hidden;margin-bottom:16px">
           <sc-for list="{{ legalPrefs }}" as="lp" hint-placeholder-count="3">
             <button onClick="{{ lp.go }}" style="all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line)" style-hover="background:var(--surf2)">
-              <span style="width:30px;height:30px;border-radius:10px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none">{{ lp.icon }}</span>
+              <span style="width:32px;height:32px;border-radius:14px;background:var(--surf2);color:var(--tx2);display:flex;align-items:center;justify-content:center;flex:none">{{ lp.icon }}</span>
               <span style="flex:1;color:var(--tx);font-size:14.5px;font-weight:500;text-align:left">{{ lp.label }}</span>
               <span style="color:var(--tx3);font-size:12px;font-weight:600">{{ lp.hint }}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--tx3)" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"></path></svg>
