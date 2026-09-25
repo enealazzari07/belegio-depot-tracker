@@ -1,0 +1,2 @@
+Flaggen: flag-icons von Panayiotis Lipiridis, MIT-Lizenz
+https://github.com/lipis/flag-icons
