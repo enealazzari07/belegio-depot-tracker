@@ -2344,7 +2344,33 @@ input[type="date"]{-webkit-appearance:none;appearance:none}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
                 </button>
               </div>
-              <iframe src="{{ yfLiveSrc }}" title="Yahoo Finance Live" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:18px;background:#000"></iframe>
+              <div data-yfwrap="1" style="position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000">
+                <iframe data-yflive="1" src="{{ yfLiveSrc }}" title="Yahoo Finance Live" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="display:block;position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+              </div>
+              <!-- Eigene Steuerung über die offizielle YouTube-Player-API (postMessage) -->
+              <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+                <button onClick="{{ yfTogglePlay }}" title="{{ yfPlayLabel }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
+                  <sc-if value="{{ yfPlaying }}" hint-placeholder-val="{{ true }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0e0e11"><rect x="6" y="5" width="4.2" height="14" rx="1.3"></rect><rect x="13.8" y="5" width="4.2" height="14" rx="1.3"></rect></svg>
+                  </sc-if>
+                  <sc-if value="{{ yfPaused }}" hint-placeholder-val="{{ false }}">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="#0e0e11" style="margin-left:3px"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>
+                  </sc-if>
+                </button>
+                <button onClick="{{ yfToggleMute }}" style="all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;height:52px;border-radius:999px;background:{{ yfMuteBg }};color:{{ yfMuteTx }};display:flex;align-items:center;justify-content:center;gap:9px;font-size:14px;font-weight:700" style-active="transform:scale(.98)">
+                  <sc-if value="{{ yfMuted }}" hint-placeholder-val="{{ true }}">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg>
+                    <span>Ton einschalten</span>
+                  </sc-if>
+                  <sc-if value="{{ yfUnmuted }}" hint-placeholder-val="{{ false }}">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"></path><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"></path></svg>
+                    <span>Ton aus</span>
+                  </sc-if>
+                </button>
+                <button onClick="{{ yfFullscreen }}" title="Vollbild" style="all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center" style-active="transform:scale(.94)">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"></path></svg>
+                </button>
+              </div>
               <p style="margin:12px 4px 0;color:rgba(255,255,255,.5);font-size:11px;line-height:1.5">Offizieller Livestream von Yahoo Finance über YouTube (Englisch). Es gelten die Nutzungsbedingungen und Datenschutzhinweise von YouTube.</p>
             </div>
           </div>
@@ -5297,8 +5323,64 @@ class Component extends DCLogic {
       this.setState(st => ({ yfItems: items && items.length ? items : st.yfItems, yfLiveId: liveId || st.yfLiveId || null }));
     } catch (e) { this._yfLoadedAt = 0; }
   };
-  openYfLive = () => this.setState({ yfLive: true });
-  closeYfLive = () => this.setState({ yfLive: false });
+  // Livestream-Player: offizieller YouTube-Embed ohne eigene YouTube-Leiste
+  // (controls=0), gesteuert über die IFrame-Player-API per postMessage. Startet
+  // stumm (sonst blockieren Mobilbrowser das Autoplay); Ton per Knopf.
+  yfPost = (func, args = []) => {
+    const f = document.querySelector("iframe[data-yflive]");
+    if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), "*");
+  };
+  onYfMessage = e => {
+    if (!/youtube(-nocookie)?\.com$/.test(String(e.origin || "").replace(/^https?:\/\//, "").replace(/^www\./, ""))) return;
+    let d; try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch (_) { return; }
+    if (!d) return;
+    this._yfReady = true;
+    const info = d.info;
+    const st = d.event === "onStateChange" ? info : info && typeof info === "object" ? info.playerState : undefined;
+    const next = {};
+    if (st === 1 || st === 3) next.yfPlaying = true;
+    if (st === 2 || st === 0) next.yfPlaying = false;
+    if (info && typeof info === "object" && typeof info.muted === "boolean") next.yfMuted = info.muted;
+    if (Object.keys(next).length) this.setState(next);
+  };
+  openYfLive = () => {
+    this.setState({ yfLive: true, yfPlaying: true, yfMuted: true });
+    if (!this._yfListening) { window.addEventListener("message", this.onYfMessage); this._yfListening = true; }
+    // Beim Player anmelden, damit er Status (Play/Pause, Ton) zurückmeldet.
+    this._yfReady = false;
+    clearInterval(this._yfHello);
+    let n = 0;
+    this._yfHello = setInterval(() => {
+      const f = document.querySelector("iframe[data-yflive]");
+      if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "yflive", channel: "widget" }), "*");
+      if (this._yfReady || ++n > 20) clearInterval(this._yfHello);
+    }, 500);
+  };
+  closeYfLive = () => {
+    clearInterval(this._yfHello);
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
+    this.setState({ yfLive: false });
+  };
+  yfTogglePlay = () => {
+    const play = !this.state.yfPlaying;
+    this.yfPost(play ? "playVideo" : "pauseVideo");
+    this.setState({ yfPlaying: play });
+  };
+  yfToggleMute = () => {
+    const mute = !this.state.yfMuted;
+    this.yfPost(mute ? "mute" : "unMute");
+    if (!mute) { this.yfPost("setVolume", [100]); this.yfPost("playVideo"); }
+    this.setState({ yfMuted: mute, yfPlaying: mute ? this.state.yfPlaying : true });
+  };
+  yfFullscreen = () => {
+    const w = document.querySelector("[data-yfwrap]");
+    const f = document.querySelector("iframe[data-yflive]");
+    const el = [w, f].find(x => x && (x.requestFullscreen || x.webkitRequestFullscreen));
+    try {
+      if (el) (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+      else if (f && f.webkitEnterFullscreen) f.webkitEnterFullscreen();
+    } catch (_) {}
+  };
   setNewsFilter = k => () => this.setState({ newsFilter: k });
   // Reihenfolge der Depot-Tabs: bestimmt sowohl die Wisch-Richtung (naechster/
   // vorheriger Tab) als auch, aus welcher Seite der neue Tab-Inhalt beim
@@ -7854,11 +7936,18 @@ class Component extends DCLogic {
             return {
               yfNews: yf, hasYfNews: yf.length > 0,
               yfLiveOpen: !!this.state.yfLive, openYfLive: this.openYfLive, closeYfLive: this.closeYfLive,
+              yfPlaying: !!this.state.yfPlaying, yfPaused: !this.state.yfPlaying,
+              yfPlayLabel: this.state.yfPlaying ? "Pause" : "Abspielen",
+              yfMuted: !!this.state.yfMuted, yfUnmuted: !this.state.yfMuted,
+              yfMuteBg: this.state.yfMuted ? "#fff" : "rgba(255,255,255,.12)",
+              yfMuteTx: this.state.yfMuted ? "#0e0e11" : "#fff",
+              yfTogglePlay: this.yfTogglePlay, yfToggleMute: this.yfToggleMute, yfFullscreen: this.yfFullscreen,
               // Offizieller YouTube-Player im datensparsamen Modus (youtube-nocookie), wird
               // erst beim Oeffnen geladen. Bekannte Live-ID direkt, sonst Kanal-Livestream.
-              yfLiveSrc: !this.state.yfLive ? "about:blank" : this.state.yfLiveId
-                ? "https://www.youtube-nocookie.com/embed/" + this.state.yfLiveId + "?autoplay=1&playsinline=1&rel=0"
-                : "https://www.youtube-nocookie.com/embed/live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&autoplay=1&playsinline=1&rel=0"
+              // Die URL bleibt waehrend der Wiedergabe gleich (sonst laedt der Player neu).
+              yfLiveSrc: !this.state.yfLive ? "about:blank" : "https://www.youtube-nocookie.com/embed/"
+                + (this.state.yfLiveId ? this.state.yfLiveId + "?" : "live_stream?channel=UCEAZeUIeJs0IjQiqTCdVSIg&")
+                + "autoplay=1&mute=1&playsinline=1&controls=0&rel=0&iv_load_policy=3&enablejsapi=1&origin=" + encodeURIComponent(location.origin)
             };
           })(),
           newsSearchValue: this.state.newsSearch || "", onNewsSearch: this.onNewsSearch,
